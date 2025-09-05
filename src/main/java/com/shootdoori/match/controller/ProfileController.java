@@ -4,6 +4,7 @@ import com.shootdoori.match.dto.ProfileCreateRequest;
 import com.shootdoori.match.dto.ProfileResponse;
 import com.shootdoori.match.dto.ProfileUpdateRequest;
 import com.shootdoori.match.service.ProfileService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,12 +19,12 @@ public class ProfileController {
     }
 
     @PostMapping
-    public ResponseEntity<ProfileResponse> postProfile(@RequestBody ProfileCreateRequest request) {
+    public ResponseEntity<ProfileResponse> postProfile(@Valid @RequestBody ProfileCreateRequest request) {
         return new ResponseEntity<>(profileService.createProfile(request), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Void> updateProfile(@PathVariable Long id, @RequestBody ProfileUpdateRequest request) {
+    public ResponseEntity<Void> updateProfile(@PathVariable Long id, @Valid @RequestBody ProfileUpdateRequest request) {
         profileService.updateProfile(id, request);
         return ResponseEntity.noContent().build();
     }
