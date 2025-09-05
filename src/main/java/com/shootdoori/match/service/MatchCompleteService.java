@@ -13,7 +13,12 @@ public class MatchCompleteService {
         this.matchRepository = matchRepository;
     }
 
-    public MatchTeamRequestDto getEnemyTeam(MatchTeamRequestDto matchTeamRequestDto) {
+    /**
+     * 매치 정보 조회 후 상대 팀 정보 조회하는 서비스
+     * @param matchTeamRequestDto 매치 id, 내 팀 id
+     * @return TeamResponseDto 적 팀 정보
+     */
+    public TeamResponseDto getEnemyTeam(MatchTeamRequestDto matchTeamRequestDto) {
         int enemyTeamId;
         Match match = matchRepository.findByMatchId(matchTeamRequestDto.matchId());
 

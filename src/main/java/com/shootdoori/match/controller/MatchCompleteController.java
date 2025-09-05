@@ -18,6 +18,11 @@ public class MatchCompleteController {
     }
 
 
+    /**
+     * 특정 매치의 상대팀 정보 조회
+     * @param matchTeamDto 매치 id, 내 팀 id
+     * @return TeamResponseDto JSON
+     */
     @GetMapping("/enemyTeam")
     public TeamResponseDto getEnemyTeam(@RequestBody MatchTeamRequestDto matchTeamDto) {
         return new ResponseEntity<>(matchCompleteService.getEnemyTeam(matchTeamDto), HttpStatus.OK);
