@@ -13,6 +13,18 @@ public class MatchCompleteService {
         this.matchRepository = matchRepository;
     }
 
-    public MatchTeamRequestDto getEnemyTeam(MatchTeamRequestDto) {
+    public MatchTeamRequestDto getEnemyTeam(MatchTeamRequestDto matchTeamRequestDto) {
+        int enemyTeamId;
+        Match match = matchRepository.findByMatchId(matchTeamRequestDto.matchId());
+
+        if(match.team1Id == matchTeamRequestDto.teamId()){
+            enemyTeamId = match.team2Id;
+        }
+        else {
+            enemyTeamId = match.team1Id;
+        }
+
+        Team enemyTeam = teamRepository.findByTeamId(enemyTeamId);
+        return new TeamResponseDto(enemyTeam);
     }
 }
