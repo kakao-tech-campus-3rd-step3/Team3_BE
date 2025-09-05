@@ -1,128 +1,110 @@
 package com.shootdoori.match.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
-import java.time.LocalDateTime;
+import com.shootdoori.match.dto.ProfileCreateRequest;
+import com.shootdoori.match.dto.ProfileUpdateRequest;
+import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.time.LocalDateTime;
+
 @Entity
-@Table(
-    name = "users",
-    uniqueConstraints = {
-        @UniqueConstraint(columnNames = "email"),
-        @UniqueConstraint(columnNames = "universityEmail")
-    }
-)
 public class User {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long userId;
+    @Column(nullable = false)
+    private String name;
 
-  @Column(nullable = false, length = 255)
-  private String email;
+    @Column(nullable = false, unique = true)
+    private String email;
 
-  @Column(nullable = false, length = 255)
-  private String universityEmail;
+    @Column(name = "university_email",nullable = false, unique = true)
+    private String universityEmail;
 
-  @Column(nullable = false, length = 255)
-  private String password;
+    @Column(name = "phone_number",nullable = false, unique = true)
+    private String phoneNumber;
 
-  @Column(nullable = false, length = 100)
-  private String name;
+    @Column(nullable = false)
+    private String university;
 
-  @Column(nullable = false, length = 20)
-  private String phoneNumber;
+    @Column(nullable = false)
+    private String department;
 
-  @Column(nullable = false, length = 100)
-  private String university;
+    @Column(name = "student_year",nullable = false)
+    private String studentYear;
 
-  @Column(nullable = false, length = 100)
-  private String department;
+    private String bio;
 
-  @Column(nullable = false, length = 2)
-  private String studentYear;
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
 
-  @Column(columnDefinition = "TEXT")
-  private String bio;
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
-  @CreationTimestamp
-  @Column(updatable = false)
-  private LocalDateTime createdAt;
+    protected User() {
 
-  @UpdateTimestamp
-  private LocalDateTime updatedAt;
+    }
 
-  protected User() {}
+    public User(ProfileCreateRequest createRequest) {
+        this.name = createRequest.name();
+        this.email = createRequest.email();
+        this.universityEmail = createRequest.universityEmail();
+        this.phoneNumber = createRequest.phoneNumber();
+        this.university = createRequest.university();
+        this.department = createRequest.department();
+        this.studentYear = createRequest.studentYear();
+        this.bio = createRequest.bio();
+    }
 
-  public User(Long userId, String email, String universityEmail, String password,
-      String name, String phoneNumber, String university, String department,
-      String studentYear, String bio, LocalDateTime createdAt, LocalDateTime updatedAt) {
-    this.userId = userId;
-    this.email = email;
-    this.universityEmail = universityEmail;
-    this.password = password;
-    this.name = name;
-    this.phoneNumber = phoneNumber;
-    this.university = university;
-    this.department = department;
-    this.studentYear = studentYear;
-    this.bio = bio;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
-  }
+    public Long getId() {
+        return this.id;
+    }
 
-  public Long getUserId() {
-    return userId;
-  }
+    public String getName() {
+        return this.name;
+    }
 
-  public String getEmail() {
-    return email;
-  }
+    public String getEmail() {
+        return this.email;
+    }
 
-  public String getUniversityEmail() {
-    return universityEmail;
-  }
+    public String getUniversityEmail() {
+        return this.universityEmail;
+    }
 
-  public String getPassword() {
-    return password;
-  }
+    public String getPhoneNumber() {
+        return this.phoneNumber;
+    }
 
-  public String getName() {
-    return name;
-  }
+    public String getUniversity() {
+        return this.university;
+    }
 
-  public String getPhoneNumber() {
-    return phoneNumber;
-  }
+    public String getDepartment() {
+        return this.department;
+    }
 
-  public String getUniversity() {
-    return university;
-  }
+    public String getStudentYear() {
+        return this.studentYear;
+    }
 
-  public String getDepartment() {
-    return department;
-  }
+    public String getBio() {
+        return this.bio;
+    }
 
-  public String getStudentYear() {
-    return studentYear;
-  }
+    public LocalDateTime getCreatedAt() {
+        return this.createdAt;
+    }
 
-  public String getBio() {
-    return bio;
-  }
+    public LocalDateTime getUpdatedAt() {
+        return this.updatedAt;
+    }
 
-  public LocalDateTime getCreatedAt() {
-    return createdAt;
-  }
-
-  public LocalDateTime getUpdatedAt() {
-    return updatedAt;
-  }
+    public void update(ProfileUpdateRequest updateRequest) {
+        this.name = updateRequest.name();
+    }
 }
