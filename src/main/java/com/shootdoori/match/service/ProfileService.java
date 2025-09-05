@@ -2,6 +2,7 @@ package com.shootdoori.match.service;
 
 import com.shootdoori.match.dto.*;
 import com.shootdoori.match.entity.User;
+import com.shootdoori.match.exception.DuplicatedDataException;
 import com.shootdoori.match.repository.ProfileRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +24,11 @@ public class ProfileService {
      * @return 생성된 프로필 정보가 담긴 응답 DTO
      */
     public ProfileResponse createProfile(ProfileCreateRequest createRequest) {
+        if (profileRepository.existsByEmailOrUniversityEmail(
+            createRequest.email(), createRequest.universityEmail())
+        ) {
+            throw new DuplicatedDataException("이미 존재하는 사용자입니다.");
+        }
         User saveProfile = profileRepository.save(new User(createRequest));
         return profileMapper.toProfileResponse(saveProfile);
     }
