@@ -6,7 +6,9 @@ import com.shootdoori.match.entity.TeamType;
 import com.shootdoori.match.entity.User;
 
 public class TeamMapper {
-    private TeamMapper() {}
+
+    private TeamMapper() {
+    }
 
     public static Team toEntity(CreateTeamRequestDto requestDto, User captain) {
         return new Team(
@@ -20,9 +22,13 @@ public class TeamMapper {
         );
     }
 
+    public static CreateTeamResponseDto toCreateResponse(Team team) {
+        Long id = team.getTeamId();
+        return new CreateTeamResponseDto(id, "팀이 성공적으로 생성되었습니다.", "/api/teams/" + id);
+    }
+
     /**
-     * 문자열 입력("중앙동아리", "과동아리", 그 외)을
-     * Enum TeamType 으로 변환하는 메서드
+     * 문자열 입력("중앙동아리", "과동아리", 그 외)을 Enum TeamType 으로 변환하는 메서드
      *
      * @param value 요청 DTO에서 넘어온 문자열
      * @return TeamType Enum 값
@@ -36,8 +42,7 @@ public class TeamMapper {
     }
 
     /**
-     * 문자열 입력("프로", "세미프로", 그 외)을
-     * Enum SkillLevel 으로 변환하는 메서드
+     * 문자열 입력("프로", "세미프로", 그 외)을 Enum SkillLevel 으로 변환하는 메서드
      *
      * @param value 요청 DTO에서 넘어온 문자열
      * @return SkillLevel Enum 값
