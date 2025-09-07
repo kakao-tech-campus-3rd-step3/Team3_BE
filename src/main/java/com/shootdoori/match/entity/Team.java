@@ -10,6 +10,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 
@@ -25,7 +27,7 @@ public class Team {
   @Column(name = "TEAM_NAME", nullable = false, length = 100)
   private String teamName;
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
   @JoinColumn(name = "CAPTAIN_ID", nullable = false)
   private User captain;
 
@@ -47,10 +49,10 @@ public class Team {
   private String description;
 
   @Column(name = "CREATED_AT", updatable = false)
-  private LocalDateTime createdAt = LocalDateTime.now();
+  private LocalDateTime createdAt;
 
   @Column(name = "UPDATED_AT")
-  private LocalDateTime updatedAt = LocalDateTime.now();
+  private LocalDateTime updatedAt;
 
   protected Team() {}
 
@@ -60,10 +62,22 @@ public class Team {
     this.captain = captain;
     this.university = university;
     this.teamType = teamType != null ? teamType : TeamType.기타;
-    this.memberCount = memberCount != null ? memberCount : 0;
+    this.memberCount = (memberCount == null || memberCount < 0) ? 0 : memberCount;
     this.skillLevel = skillLevel != null ? skillLevel : SkillLevel.아마추어;
     this.description = description;
   }
+
+  @PrePersist
+  void onCreate() {
+    this.createdAt = LocalDateTime.now();
+    this.updatedAt = this.createdAt;
+  }
+
+  @PreUpdate
+  void onUpdate() {
+    this.updatedAt = LocalDateTime.now();
+  }
+
 
   public Long getTeamId() {
     return teamId;
