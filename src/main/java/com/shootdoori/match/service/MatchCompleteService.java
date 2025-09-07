@@ -1,6 +1,9 @@
 package com.shootdoori.match.service;
 
 import com.shootdoori.match.dto.MatchTeamRequestDto;
+import com.shootdoori.match.entity.Team;
+import com.shootdoori.match.repository.MatchRepository;
+import com.shootdoori.match.repository.TeamRepository;
 import org.springframework.stereotype.Service;
 
 @Service

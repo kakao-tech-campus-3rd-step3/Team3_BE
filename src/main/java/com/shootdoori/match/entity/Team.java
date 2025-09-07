@@ -10,6 +10,8 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 
@@ -17,91 +19,104 @@ import java.time.LocalDateTime;
 @Table(name = "teams")
 public class Team {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "TEAM_ID")
-  private Long teamId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "TEAM_ID")
+    private Long teamId;
 
-  @Column(name = "TEAM_NAME", nullable = false, length = 100)
-  private String teamName;
+    @Column(name = "TEAM_NAME", nullable = false, length = 100)
+    private String teamName;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "CAPTAIN_ID", nullable = false)
-  private User captain;
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "CAPTAIN_ID", nullable = false)
+    private User captain;
 
-  @Column(name = "UNIVERSITY", nullable = false, length = 100)
-  private String university;
+    @Column(name = "UNIVERSITY", nullable = false, length = 100)
+    private String university;
 
-  @Enumerated(EnumType.STRING)
-  @Column(name = "TEAM_TYPE", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '동아리'")
-  private TeamType teamType = TeamType.기타;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "TEAM_TYPE", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '동아리'")
+    private TeamType teamType = TeamType.기타;
 
-  @Column(name = "MEMBER_COUNT", nullable = false, columnDefinition = "INT DEFAULT 0")
-  private Integer memberCount = 0;
+    @Column(name = "MEMBER_COUNT", nullable = false, columnDefinition = "INT DEFAULT 0")
+    private Integer memberCount = 0;
 
-  @Enumerated(EnumType.STRING)
-  @Column(name = "SKILL_LEVEL", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '아마추어'")
-  private SkillLevel skillLevel = SkillLevel.아마추어;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "SKILL_LEVEL", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '아마추어'")
+    private SkillLevel skillLevel = SkillLevel.아마추어;
 
-  @Column(name = "DESCRIPTION", length = 1000)
-  private String description;
+    @Column(name = "DESCRIPTION", length = 1000)
+    private String description;
 
-  @Column(name = "CREATED_AT", updatable = false)
-  private LocalDateTime createdAt = LocalDateTime.now();
+    @Column(name = "CREATED_AT", updatable = false)
+    private LocalDateTime createdAt;
 
-  @Column(name = "UPDATED_AT")
-  private LocalDateTime updatedAt = LocalDateTime.now();
+    @Column(name = "UPDATED_AT")
+    private LocalDateTime updatedAt;
 
-  protected Team() {}
+    protected Team() {
+    }
 
-  public Team(String teamName, User captain, String university, TeamType teamType,
-      Integer memberCount, SkillLevel skillLevel, String description) {
-    this.teamName = teamName;
-    this.captain = captain;
-    this.university = university;
-    this.teamType = teamType != null ? teamType : TeamType.기타;
-    this.memberCount = memberCount != null ? memberCount : 0;
-    this.skillLevel = skillLevel != null ? skillLevel : SkillLevel.아마추어;
-    this.description = description;
-  }
+    public Team(String teamName, User captain, String university, TeamType teamType,
+        Integer memberCount, SkillLevel skillLevel, String description) {
+        this.teamName = teamName;
+        this.captain = captain;
+        this.university = university;
+        this.teamType = teamType != null ? teamType : TeamType.기타;
+        this.memberCount = (memberCount == null || memberCount < 0) ? 0 : memberCount;
+        this.skillLevel = skillLevel != null ? skillLevel : SkillLevel.아마추어;
+        this.description = description;
+    }
 
-  public Long getTeamId() {
-    return teamId;
-  }
+    @PrePersist
+    void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = this.createdAt;
+    }
 
-  public String getTeamName() {
-    return teamName;
-  }
+    @PreUpdate
+    void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 
-  public User getCaptain() {
-    return captain;
-  }
 
-  public String getUniversity() {
-    return university;
-  }
+    public Long getTeamId() {
+        return teamId;
+    }
 
-  public TeamType getTeamType() {
-    return teamType;
-  }
+    public String getTeamName() {
+        return teamName;
+    }
 
-  public Integer getMemberCount() {
-    return memberCount;
-  }
+    public User getCaptain() {
+        return captain;
+    }
 
-  public SkillLevel getSkillLevel() {
-    return skillLevel;
-  }
+    public String getUniversity() {
+        return university;
+    }
 
-  public String getDescription() {
-    return description;
-  }
+    public TeamType getTeamType() {
+        return teamType;
+    }
 
-  public LocalDateTime getCreatedAt() {
-    return createdAt;
-  }
+    public Integer getMemberCount() {
+        return memberCount;
+    }
 
-  public LocalDateTime getUpdatedAt() {
-    return updatedAt;
-  }
+    public SkillLevel getSkillLevel() {
+        return skillLevel;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
 }
