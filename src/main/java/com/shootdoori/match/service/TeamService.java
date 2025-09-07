@@ -7,4 +7,6 @@ import com.shootdoori.match.entity.User;
 public interface TeamService {
 
     public CreateTeamResponseDto create(CreateTeamRequestDto requestDto, User captain);
+
+    public void delete(Long id);
 }

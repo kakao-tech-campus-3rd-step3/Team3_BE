@@ -7,6 +7,7 @@ import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.entity.User;
 import com.shootdoori.match.exception.CaptainNotFoundException;
 import com.shootdoori.match.repository.TeamRepository;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,5 +34,13 @@ public class TeamServiceImpl implements TeamService {
         Team savedTeam = teamRepository.save(team);
 
         return TeamMapper.toCreateResponse(savedTeam);
+    }
+
+    @Override
+    public void delete(Long id) {
+        Team team = teamRepository.findById(id).orElseThrow(() ->
+            new EntityNotFoundException("해당 팀을 찾을 수 없습니다. id = " + id));
+
+        teamRepository.delete(team);
     }
 }
