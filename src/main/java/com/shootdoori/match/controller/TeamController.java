@@ -3,11 +3,13 @@ package com.shootdoori.match.controller;
 import com.shootdoori.match.dto.CreateTeamRequestDto;
 import com.shootdoori.match.dto.CreateTeamResponseDto;
 import com.shootdoori.match.dto.ProfileCreateRequest;
+import com.shootdoori.match.dto.TeamDetailResponseDto;
 import com.shootdoori.match.entity.User;
 import com.shootdoori.match.service.TeamService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,7 +27,8 @@ public class TeamController {
     }
 
     @PostMapping
-    public ResponseEntity<CreateTeamResponseDto> create(@RequestBody CreateTeamRequestDto requestDto) {
+    public ResponseEntity<CreateTeamResponseDto> create(
+        @RequestBody CreateTeamRequestDto requestDto) {
 
         // TODO: JWT 토큰에서 유저 데이터를 가져와 captain 변수에 넣어야 한다.
         ProfileCreateRequest createRequest = new ProfileCreateRequest(
@@ -41,6 +44,12 @@ public class TeamController {
         User captain = new User(createRequest);
 
         return new ResponseEntity<>(teamService.create(requestDto, captain), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<TeamDetailResponseDto> findById(@PathVariable Long id) {
+
+        return new ResponseEntity<>(teamService.findById(id), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")

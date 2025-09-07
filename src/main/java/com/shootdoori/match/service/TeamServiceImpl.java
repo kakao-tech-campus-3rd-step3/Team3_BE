@@ -2,12 +2,15 @@ package com.shootdoori.match.service;
 
 import com.shootdoori.match.dto.CreateTeamRequestDto;
 import com.shootdoori.match.dto.CreateTeamResponseDto;
+import com.shootdoori.match.dto.TeamDetailResponseDto;
 import com.shootdoori.match.dto.TeamMapper;
 import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.entity.User;
 import com.shootdoori.match.exception.CaptainNotFoundException;
+import com.shootdoori.match.exception.TeamNotFoundException;
 import com.shootdoori.match.repository.TeamRepository;
 import jakarta.persistence.EntityNotFoundException;
+import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,13 +36,21 @@ public class TeamServiceImpl implements TeamService {
         Team team = TeamMapper.toEntity(requestDto, captain);
         Team savedTeam = teamRepository.save(team);
 
-        return TeamMapper.toCreateResponse(savedTeam);
+        return TeamMapper.toCreateTeamResponse(savedTeam);
+    }
+
+    @Override
+    public TeamDetailResponseDto findById(Long id) {
+        Team team = teamRepository.findById(id).orElseThrow(() ->
+            new TeamNotFoundException("해당 팀을 찾을 수 없습니다. id = " + id));
+
+        return TeamMapper.teamDetailResponse(team);
     }
 
     @Override
     public void delete(Long id) {
         Team team = teamRepository.findById(id).orElseThrow(() ->
-            new EntityNotFoundException("해당 팀을 찾을 수 없습니다. id = " + id));
+            new TeamNotFoundException("해당 팀을 찾을 수 없습니다. id = " + id));
 
         teamRepository.delete(team);
     }
