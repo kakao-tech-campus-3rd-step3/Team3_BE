@@ -36,7 +36,7 @@ public class Team {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "TEAM_TYPE", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '동아리'")
-    private TeamType teamType = TeamType.기타;
+    private TeamType teamType = TeamType.OTHER;
 
     @Column(name = "MEMBER_COUNT", nullable = false, columnDefinition = "INT DEFAULT 0")
     private Integer memberCount = 0;
@@ -62,7 +62,7 @@ public class Team {
         this.teamName = teamName;
         this.captain = captain;
         this.university = university;
-        this.teamType = teamType != null ? teamType : TeamType.기타;
+        this.teamType = teamType != null ? teamType : TeamType.OTHER;
         this.memberCount = (memberCount == null || memberCount < 0) ? 0 : memberCount;
         this.skillLevel = skillLevel != null ? skillLevel : SkillLevel.아마추어;
         this.description = description;

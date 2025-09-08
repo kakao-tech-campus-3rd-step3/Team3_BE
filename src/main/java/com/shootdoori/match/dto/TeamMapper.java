@@ -46,10 +46,10 @@ public class TeamMapper {
      */
     private static TeamType parseToTeamType(String value) {
         if (value == null) {
-            return TeamType.기타;
+            return TeamType.OTHER;
         }
 
-        return TeamType.from(value);
+        return TeamType.fromDisplayName(value);
     }
 
     /**
