@@ -1,15 +1,26 @@
 package com.shootdoori.match.entity;
 
 public enum SkillLevel {
-    프로,
-    세미프로,
-    아마추어;
+    PRO("프로"),
+    SEMI_PRO("세미프로"),
+    AMATEUR("아마추어");
 
-    public static SkillLevel from(String value) {
-        return switch (value) {
-            case "프로" -> SkillLevel.프로;
-            case "세미프로" -> SkillLevel.세미프로;
-            default -> SkillLevel.아마추어; // null 또는 매칭 실패 시 기본값
-        };
+    private final String displayName;
+
+    SkillLevel(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public static SkillLevel fromDisplayName(String displayName) {
+        for (SkillLevel level : values()) {
+            if (level.displayName.equals(displayName)) {
+                return level;
+            }
+        }
+        throw new IllegalArgumentException("Unknown skill level: " + displayName);
     }
 }
