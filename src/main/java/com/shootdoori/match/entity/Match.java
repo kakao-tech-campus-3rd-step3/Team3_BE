@@ -34,7 +34,7 @@ public class Match {
 
   @Enumerated(EnumType.STRING)
   @Column(name = "STATUS", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '예정'")
-  private MatchStatus status = MatchStatus.모집중;
+  private MatchStatus status = MatchStatus.RECRUITING;
 
   @Column(name = "CREATED_AT", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
   private LocalDateTime createdAt;
