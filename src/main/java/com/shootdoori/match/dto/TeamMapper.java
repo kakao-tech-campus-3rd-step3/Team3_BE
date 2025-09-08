@@ -60,9 +60,9 @@ public class TeamMapper {
      */
     private static SkillLevel parseToSkillLevel(String value) {
         if (value == null) {
-            return SkillLevel.아마추어;
+            return SkillLevel.AMATEUR;
         }
 
-        return SkillLevel.from(value);
+        return SkillLevel.fromDisplayName(value);
     }
 }
