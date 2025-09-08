@@ -6,12 +6,12 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "match_waiting")
-public class MatchWaiting {
+@Table(name = "match_queue")
+public class MatchQueue {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "WAITING_ID")
+  @Column(name = "QUEUE_ID")
   private Integer waitingId;
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -47,7 +47,7 @@ public class MatchWaiting {
 
   @Enumerated(EnumType.STRING)
   @Column(name = "STATUS", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '대기중'")
-  private MatchWaitingStatus status = MatchWaitingStatus.대기중;
+  private MatchQueueStatus status = MatchQueueStatus.WAITING;
 
   @Column(name = "EXPIRES_AT", nullable = false, columnDefinition = "TIMESTAMP DEFAULT (CURRENT_TIMESTAMP + INTERVAL '24' HOUR)")
   private LocalDateTime expiresAt;
@@ -58,7 +58,7 @@ public class MatchWaiting {
   @Column(name = "UPDATED_AT", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
   private LocalDateTime updatedAt;
 
-  protected MatchWaiting() {}
+  protected MatchQueue() {}
 
   public Integer getWaitingId() {
     return waitingId;
@@ -100,7 +100,7 @@ public class MatchWaiting {
     return message;
   }
 
-  public MatchWaitingStatus getMatchRequestStatus() {
+  public MatchQueueStatus getMatchRequestStatus() {
     return status;
   }
 
