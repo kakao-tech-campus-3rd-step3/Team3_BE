@@ -4,7 +4,9 @@ import com.shootdoori.match.entity.SkillLevel;
 import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.entity.TeamType;
 import com.shootdoori.match.entity.User;
+import org.springframework.stereotype.Component;
 
+@Component
 public class TeamMapper {
 
     private TeamMapper() {
