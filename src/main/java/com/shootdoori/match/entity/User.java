@@ -4,6 +4,8 @@ import com.shootdoori.match.dto.ProfileCreateRequest;
 import com.shootdoori.match.dto.ProfileUpdateRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -19,6 +21,10 @@ public class User {
 
     @Column(nullable = false)
     private String name;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "SKILL_LEVEL", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '아마추어'")
+    private SkillLevel skillLevel = SkillLevel.AMATEUR;
 
     @Column(nullable = false, unique = true)
     private String email;
@@ -54,6 +60,7 @@ public class User {
 
     public User(ProfileCreateRequest createRequest) {
         this.name = createRequest.name();
+        this.skillLevel = SkillLevel.fromDisplayName(createRequest.skillLevel());
         this.email = createRequest.email();
         this.universityEmail = createRequest.universityEmail();
         this.phoneNumber = createRequest.phoneNumber();
