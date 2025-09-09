@@ -16,4 +16,6 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
       "AND m.status = '경기완료' " +
       "ORDER BY m.matchDate DESC, m.matchTime DESC")
   Page<Match> findCompletedMatchesByTeamId(@Param("teamId") Long teamId, Pageable pageable);
+
+  Match findByMatchId(int i);
 }

@@ -79,4 +79,11 @@ public class Match {
   public LocalDateTime getUpdatedAt() {
     return updatedAt;
   }
+
+  public Team findEnemyTeam(int teamId) {
+    if(teamId == team1.getTeamId()) {
+      return team2;
+    }
+    else return team1;
+  }
 }
