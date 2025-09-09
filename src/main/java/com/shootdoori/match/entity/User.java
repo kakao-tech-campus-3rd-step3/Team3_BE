@@ -50,6 +50,23 @@ public class User {
 
     }
 
+    private User(String name, String email, String universityEmail, String phoneNumber, String university, String department, String studentYear, String bio) {
+        validate(name, email, universityEmail, phoneNumber, university, department, studentYear, bio);
+        this.name = name;
+        this.email = email;
+        this.universityEmail = universityEmail;
+        this.phoneNumber = phoneNumber;
+        this.university = university;
+        this.department = department;
+        this.studentYear = studentYear;
+        this.bio = bio;
+    }
+
+    public static User create(String name, String email, String universityEmail, String phoneNumber,
+                              String university, String department, String studentYear, String bio) {
+        return new User(name, email, universityEmail, phoneNumber, university, department, studentYear, bio);
+    }
+
     public User(ProfileCreateRequest createRequest) {
         this.name = createRequest.name();
         this.email = createRequest.email();
