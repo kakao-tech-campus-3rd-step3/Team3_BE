@@ -1,9 +1,9 @@
 package com.shootdoori.match.service;
 
-import com.shootdoori.match.dto.CreateTeamRequestDto;
 import com.shootdoori.match.dto.CreateTeamResponseDto;
 import com.shootdoori.match.dto.TeamDetailResponseDto;
 import com.shootdoori.match.dto.TeamMapper;
+import com.shootdoori.match.dto.TeamRequestDto;
 import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.entity.User;
 import com.shootdoori.match.exception.CaptainNotFoundException;
@@ -17,15 +17,13 @@ import org.springframework.transaction.annotation.Transactional;
 public class TeamService {
 
     private TeamRepository teamRepository;
-    private TeamMapper teamMapper;
 
 
-    public TeamService(TeamRepository teamRepository, TeamMapper teamMapper) {
+    public TeamService(TeamRepository teamRepository) {
         this.teamRepository = teamRepository;
-        this.teamMapper = teamMapper;
     }
 
-    public CreateTeamResponseDto create(CreateTeamRequestDto requestDto, User captain) {
+    public CreateTeamResponseDto create(TeamRequestDto requestDto, User captain) {
         if (captain == null) {
             throw new CaptainNotFoundException("팀장 정보가 없습니다.");
         }
@@ -36,11 +34,22 @@ public class TeamService {
         return TeamMapper.toCreateTeamResponse(savedTeam);
     }
 
+    @Transactional(readOnly = true)
     public TeamDetailResponseDto findById(Long id) {
         Team team = teamRepository.findById(id).orElseThrow(() ->
             new TeamNotFoundException("해당 팀을 찾을 수 없습니다. id = " + id));
 
-        return TeamMapper.teamDetailResponse(team);
+        return TeamMapper.toTeamDetailResponse(team);
+    }
+
+    public TeamDetailResponseDto update(Long id, TeamRequestDto requestDto) {
+        Team team = teamRepository.findById(id).orElseThrow(() ->
+            new TeamNotFoundException("해당 팀을 찾을 수 없습니다. id = " + id));
+
+        team.changeTeamInfo(requestDto.name(), requestDto.university(),
+            requestDto.skillLevel(), requestDto.description());
+
+        return TeamMapper.toTeamDetailResponse(team);
     }
 
     public void delete(Long id) {

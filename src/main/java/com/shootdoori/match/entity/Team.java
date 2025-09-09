@@ -58,12 +58,11 @@ public class Team {
     }
 
     public Team(String teamName, User captain, String university, TeamType teamType,
-        Integer memberCount, SkillLevel skillLevel, String description) {
+        SkillLevel skillLevel, String description) {
         this.teamName = teamName;
         this.captain = captain;
         this.university = university;
         this.teamType = teamType != null ? teamType : TeamType.OTHER;
-        this.memberCount = (memberCount == null || memberCount < 0) ? 0 : memberCount;
         this.skillLevel = skillLevel != null ? skillLevel : SkillLevel.AMATEUR;
         this.description = description;
     }
@@ -118,5 +117,50 @@ public class Team {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    private void validateTeamName(String name) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("팀 이름은 필수입니다.");
+        }
+        if (name.length() > 100) {
+            throw new IllegalArgumentException("팀 이름은 최대 100자입니다.");
+        }
+    }
+
+    private void validateUniversity(String university) {
+        if (university == null || university.isBlank()) {
+            throw new IllegalArgumentException("대학교는 필수입니다.");
+        }
+        if (university.length() > 100) {
+            throw new IllegalArgumentException("대학교는 최대 100자입니다.");
+        }
+    }
+
+    private void validateDescription(String desc) {
+        if (desc != null && desc.length() > 1000) {
+            throw new IllegalArgumentException("설명은 최대 1000자입니다.");
+        }
+    }
+
+    private void validateMemberCount(int count) {
+        if (count < 0 || count > 100) {
+            throw new IllegalArgumentException("멤버 수는 0~100명입니다.");
+        }
+    }
+
+    public void changeTeamInfo(String teamName,
+        String university,
+        String skillLevel,
+        String description) {
+
+        validateTeamName(teamName);
+        validateUniversity(university);
+        validateDescription(description);
+
+        this.teamName = teamName;
+        this.university = university;
+        this.skillLevel = SkillLevel.fromDisplayName(skillLevel);
+        this.description = description;
     }
 }
