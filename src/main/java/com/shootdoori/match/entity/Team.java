@@ -170,6 +170,15 @@ public class Team {
         member.setTeam(null);
     }
 
+    public void increaseMemberCount() {
+        validateMemberCount(this.memberCount + 1);
+        this.memberCount++;
+    }
+
+    public void decreaseMemberCount() {
+        validateMemberCount(this.memberCount - 1);
+        this.memberCount--;
+    }
 
     public void changeTeamInfo(String teamName,
         String university,
