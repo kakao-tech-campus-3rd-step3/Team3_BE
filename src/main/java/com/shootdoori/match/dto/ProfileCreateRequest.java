@@ -10,6 +10,9 @@ public record ProfileCreateRequest(
     @Size(min = 2, max = 100, message = "이름은 2자 이상 100자 이하로 입력해주세요.")
     String name,
 
+    @NotBlank(message = "스킬 레벨은 필수 입력 값입니다.")
+    String skillLevel,
+
     @NotBlank(message = "이메일은 필수 입력 값입니다.")
     @Email(message = "이메일 형식이 올바르지 않습니다.")
     @Size(max = 255, message = "이메일 주소는 255자를 초과할 수 없습니다.")
@@ -33,7 +36,8 @@ public record ProfileCreateRequest(
     @Size(max = 100, message = "학과 이름은 100자를 초과할 수 없습니다.")
     String department,
 
-    @NotBlank(message = "학번은 필수 입력 값입니다.")
+    @NotBlank(message = "입학년도는 필수 입력 값입니다.")
+    @Pattern(regexp = "\\d{2}", message = "입학년도는 2자리 숫자로 입력해주세요. (예: 25)")
     String studentYear,
 
     @Size(max = 500, message = "자기소개는 500자를 초과할 수 없습니다.")
