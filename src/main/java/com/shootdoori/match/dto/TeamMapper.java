@@ -23,12 +23,12 @@ public class TeamMapper {
         );
     }
 
-    public static CreateTeamResponseDto toCreateTeamResponse(Team team) {
+    public CreateTeamResponseDto toCreateTeamResponse(Team team) {
         Long id = team.getTeamId();
         return new CreateTeamResponseDto(id, "팀이 성공적으로 생성되었습니다.", "/api/teams/" + id);
     }
 
-    public static TeamDetailResponseDto toTeamDetailResponse(Team team) {
+    public TeamDetailResponseDto toTeamDetailResponse(Team team) {
         return new TeamDetailResponseDto(team.getTeamId(),
             team.getTeamName(),
             team.getDescription(),
@@ -39,12 +39,6 @@ public class TeamMapper {
             team.getCreatedAt().toString());
     }
 
-    /**
-     * 문자열 입력("중앙동아리", "과동아리", 그 외)을 Enum TeamType 으로 변환하는 메서드
-     *
-     * @param value 요청 DTO에서 넘어온 문자열
-     * @return TeamType Enum 값
-     */
     private static TeamType parseToTeamType(String value) {
         if (value == null) {
             return TeamType.OTHER;
@@ -53,12 +47,6 @@ public class TeamMapper {
         return TeamType.fromDisplayName(value);
     }
 
-    /**
-     * 문자열 입력("프로", "세미프로", 그 외)을 Enum SkillLevel 으로 변환하는 메서드
-     *
-     * @param value 요청 DTO에서 넘어온 문자열
-     * @return SkillLevel Enum 값
-     */
     private static SkillLevel parseToSkillLevel(String value) {
         if (value == null) {
             return SkillLevel.AMATEUR;
