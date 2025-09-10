@@ -1,11 +1,11 @@
 package com.shootdoori.match.dto;
 
 public record TeamRequestDto(
-    String name,        // 팀 이름
-    String description, // 팀 소개 (최대 1000자)
-    String university,  // 소속 대학교
-    String skillLevel,  // 실력 수준: "아마추어" | "세미프로" | "프로"
-    String teamType    // 팀 유형: "중앙동아리" | "과동아리" | "기타"
+    String name,
+    String description,
+    String university,
+    String skillLevel,
+    String teamType
 ) {
 
 }
