@@ -1,6 +1,8 @@
 package com.shootdoori.match.service;
 
 import com.shootdoori.match.dto.MatchTeamRequestDto;
+import com.shootdoori.match.dto.TeamResponseDto;
+import com.shootdoori.match.entity.Match;
 import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.repository.MatchRepository;
 import com.shootdoori.match.repository.TeamRepository;
@@ -8,8 +10,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MatchCompleteService {
-    private TeamRepository teamRepository;
-    private MatchRepository matchRepository;
+    private final TeamRepository teamRepository;
+    private final MatchRepository matchRepository;
 
     public MatchCompleteService(TeamRepository teamRepository, MatchRepository matchRepository){
         this.teamRepository = teamRepository;
@@ -25,14 +27,7 @@ public class MatchCompleteService {
         int enemyTeamId;
         Match match = matchRepository.findByMatchId(matchTeamRequestDto.matchId());
 
-        if(match.team1Id == matchTeamRequestDto.teamId()){
-            enemyTeamId = match.team2Id;
-        }
-        else {
-            enemyTeamId = match.team1Id;
-        }
-
-        Team enemyTeam = teamRepository.findByTeamId(enemyTeamId);
+        Team enemyTeam = match.findEnemyTeam(matchTeamRequestDto.teamId());
         return new TeamResponseDto(enemyTeam);
     }
 }

@@ -1,5 +1,6 @@
 package com.shootdoori.match.controller;
 import com.shootdoori.match.dto.MatchTeamRequestDto;
+import com.shootdoori.match.dto.TeamResponseDto;
 import com.shootdoori.match.service.MatchCompleteService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +25,7 @@ public class MatchCompleteController {
      * @return TeamResponseDto JSON
      */
     @GetMapping("/enemyTeam")
-    public TeamResponseDto getEnemyTeam(@RequestBody MatchTeamRequestDto matchTeamDto) {
+    public ResponseEntity<TeamResponseDto> getEnemyTeam(@RequestBody MatchTeamRequestDto matchTeamDto) {
         return new ResponseEntity<>(matchCompleteService.getEnemyTeam(matchTeamDto), HttpStatus.OK);
     }
 }
