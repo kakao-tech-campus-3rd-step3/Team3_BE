@@ -36,11 +36,22 @@ public class TeamService {
         return TeamMapper.toCreateTeamResponse(savedTeam);
     }
 
+    @Transactional(readOnly = true)
     public TeamDetailResponseDto findById(Long id) {
         Team team = teamRepository.findById(id).orElseThrow(() ->
             new TeamNotFoundException("해당 팀을 찾을 수 없습니다. id = " + id));
 
-        return TeamMapper.teamDetailResponse(team);
+        return TeamMapper.toTeamDetailResponse(team);
+    }
+
+    public TeamDetailResponseDto update(Long id, TeamRequestDto requestDto) {
+        Team team = teamRepository.findById(id).orElseThrow(() ->
+            new TeamNotFoundException("해당 팀을 찾을 수 없습니다. id = " + id));
+
+        team.changeTeamInfo(requestDto.name(), requestDto.university(),
+            requestDto.skillLevel(), requestDto.description());
+
+        return TeamMapper.toTeamDetailResponse(team);
     }
 
     public void delete(Long id) {

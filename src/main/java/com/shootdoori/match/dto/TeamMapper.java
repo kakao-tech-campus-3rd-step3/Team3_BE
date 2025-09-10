@@ -4,19 +4,20 @@ import com.shootdoori.match.entity.SkillLevel;
 import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.entity.TeamType;
 import com.shootdoori.match.entity.User;
+import org.springframework.stereotype.Component;
 
+@Component
 public class TeamMapper {
 
     private TeamMapper() {
     }
 
-    public static Team toEntity(CreateTeamRequestDto requestDto, User captain) {
+    public static Team toEntity(TeamRequestDto requestDto, User captain) {
         return new Team(
             requestDto.name(),
             captain,
             requestDto.university(),
             parseToTeamType(requestDto.teamType()),
-            requestDto.memberCount(),
             parseToSkillLevel(requestDto.skillLevel()),
             requestDto.description()
         );
@@ -27,7 +28,7 @@ public class TeamMapper {
         return new CreateTeamResponseDto(id, "팀이 성공적으로 생성되었습니다.", "/api/teams/" + id);
     }
 
-    public static TeamDetailResponseDto teamDetailResponse(Team team) {
+    public static TeamDetailResponseDto toTeamDetailResponse(Team team) {
         return new TeamDetailResponseDto(team.getTeamId(),
             team.getTeamName(),
             team.getDescription(),
