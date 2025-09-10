@@ -48,7 +48,8 @@ public class TeamMember {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    protected TeamMember() { }
+    protected TeamMember() {
+    }
 
     public TeamMember(Team team, User user, TeamMemberRole role) {
         this.team = team;
@@ -88,5 +89,9 @@ public class TeamMember {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void setTeam(Team team) {
+        this.team = team;
     }
 }
