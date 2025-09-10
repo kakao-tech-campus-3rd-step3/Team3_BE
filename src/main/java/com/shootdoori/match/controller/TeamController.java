@@ -36,6 +36,7 @@ public class TeamController {
         // TODO: JWT 토큰에서 유저 데이터를 가져와 captain 변수에 넣어야 한다.
         ProfileCreateRequest createRequest = new ProfileCreateRequest(
             "김학생",
+            "아마추어",
             "student@example.com",
             "student@kangwon.ac.kr",
             "010-1234-5678",
