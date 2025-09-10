@@ -23,12 +23,12 @@ public class TeamMapper {
         );
     }
 
-    public static CreateTeamResponseDto toCreateTeamResponse(Team team) {
+    public CreateTeamResponseDto toCreateTeamResponse(Team team) {
         Long id = team.getTeamId();
         return new CreateTeamResponseDto(id, "팀이 성공적으로 생성되었습니다.", "/api/teams/" + id);
     }
 
-    public static TeamDetailResponseDto toTeamDetailResponse(Team team) {
+    public TeamDetailResponseDto toTeamDetailResponse(Team team) {
         return new TeamDetailResponseDto(team.getTeamId(),
             team.getTeamName(),
             team.getDescription(),
