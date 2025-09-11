@@ -1,5 +1,6 @@
 package com.shootdoori.match.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,10 +11,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "team")
@@ -53,6 +57,9 @@ public class Team {
 
     @Column(name = "UPDATED_AT")
     private LocalDateTime updatedAt;
+
+    @OneToMany(mappedBy = "teams", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<TeamMember> memberList = new ArrayList<>();
 
     protected Team() {
     }
@@ -119,6 +126,10 @@ public class Team {
         return updatedAt;
     }
 
+    public List<TeamMember> getMemberList() {
+        return memberList;
+    }
+
     private void validateTeamName(String name) {
         if (name == null || name.isBlank()) {
             throw new IllegalArgumentException("팀 이름은 필수입니다.");
@@ -147,6 +158,26 @@ public class Team {
         if (count < 0 || count > 100) {
             throw new IllegalArgumentException("멤버 수는 0~100명입니다.");
         }
+    }
+
+    public void addMember(TeamMember member) {
+        memberList.add(member);
+        member.setTeam(this);
+    }
+
+    public void removeMember(TeamMember member) {
+        memberList.remove(member);
+        member.setTeam(null);
+    }
+
+    public void increaseMemberCount() {
+        validateMemberCount(this.memberCount + 1);
+        this.memberCount++;
+    }
+
+    public void decreaseMemberCount() {
+        validateMemberCount(this.memberCount - 1);
+        this.memberCount--;
     }
 
     public void changeTeamInfo(String teamName,

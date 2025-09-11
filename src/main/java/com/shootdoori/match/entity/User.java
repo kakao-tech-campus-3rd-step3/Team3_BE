@@ -49,6 +49,10 @@ public class User {
     @Column(length = 500)
     private String bio;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "POSITION", nullable = false, length = 2)
+    private Position position;
+
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
@@ -210,6 +214,10 @@ public class User {
 
     public String getBio() {
         return this.bio;
+    }
+
+    public Position getPosition() {
+        return this.position;
     }
 
     public LocalDateTime getCreatedAt() {
