@@ -21,6 +21,8 @@ public class TeamMemberService {
     private final TeamRepository teamRepository;
     private final ProfileRepository profileRepository;
 
+    private static final int MAX_MEMBER_COUNT = 100;
+
     public TeamMemberService(TeamMemberRepository teamMemberRepository,
         TeamRepository teamRepository, ProfileRepository profileRepository) {
         this.teamMemberRepository = teamMemberRepository;
@@ -46,7 +48,7 @@ public class TeamMemberService {
             throw new IllegalStateException("이미 해당 팀의 멤버입니다.");
         }
 
-        if (team.getMemberCount() >= 100) {
+        if (team.getMemberCount() >= MAX_MEMBER_COUNT) {
             throw new IllegalStateException("팀 정원이 가득 찼습니다. (최대 100명)");
         }
 
