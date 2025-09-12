@@ -43,7 +43,7 @@ public class Team {
     private TeamType teamType = TeamType.OTHER;
 
     @Column(name = "MEMBER_COUNT", nullable = false, columnDefinition = "INT DEFAULT 0")
-    private Long memberCount = 0;
+    private Long memberCount = 0L;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "SKILL_LEVEL", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '아마추어'")
@@ -154,7 +154,7 @@ public class Team {
         }
     }
 
-    private void validateMemberCount(int count) {
+    private void validateMemberCount(Long count) {
         if (count < 0 || count > 100) {
             throw new IllegalArgumentException("멤버 수는 0~100명입니다.");
         }

@@ -80,7 +80,7 @@ public class TeamReview {
     public TeamReview(Match match,
         Team reviewerTeam,
         Team reviewedTeam,
-        int rating,
+        Long rating,
         String comment,
         Long punctualityRating,
         Long sportsmanshipRating) {
