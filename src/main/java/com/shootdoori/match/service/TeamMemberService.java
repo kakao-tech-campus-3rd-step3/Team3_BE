@@ -44,7 +44,7 @@ public class TeamMemberService {
             throw new IllegalStateException("팀 소속 대학과 동일한 대학의 사용자만 가입할 수 있습니다.");
         }
 
-        if (teamMemberRepository.existsByTeam_TeamIdAndUser_Id(teamId, userId)) {
+        if (teamMemberRepository.existsByTeam_IdAndUser_Id(teamId, userId)) {
             throw new IllegalStateException("이미 해당 팀의 멤버입니다.");
         }
 
