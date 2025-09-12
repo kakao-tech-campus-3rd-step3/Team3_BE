@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface MatchApplicationRepository extends JpaRepository<MatchApplication, Integer> {
 
+  @Modifying
   @Query("UPDATE MatchApplication ma " +
       "SET ma.status = com.shootdoori.match.entity.MatchApplicationStatus.REJECTED " +
       "WHERE ma.targetTeam.teamId = :targetTeamId " +

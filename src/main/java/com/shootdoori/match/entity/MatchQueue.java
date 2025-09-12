@@ -12,7 +12,7 @@ public class MatchQueue {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "QUEUE_ID")
-  private Integer waitingId;
+  private Long waitingId;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TEAM_ID", nullable = false)
@@ -60,7 +60,35 @@ public class MatchQueue {
 
   protected MatchQueue() {}
 
-  public Integer getWaitingId() {
+  public MatchQueue(Team team,
+      LocalDate preferredDate,
+      LocalTime preferredTimeStart,
+      LocalTime preferredTimeEnd,
+      Venue preferredVenue,
+      SkillLevel skillLevelMin,
+      SkillLevel skillLevelMax,
+      Boolean universityOnly,
+      String message,
+      MatchQueueStatus status,
+      LocalDateTime expiresAt,
+      LocalDateTime createdAt,
+      LocalDateTime updatedAt) {
+    this.team = team;
+    this.preferredDate = preferredDate;
+    this.preferredTimeStart = preferredTimeStart;
+    this.preferredTimeEnd = preferredTimeEnd;
+    this.preferredVenue = preferredVenue;
+    this.skillLevelMin = skillLevelMin;
+    this.skillLevelMax = skillLevelMax;
+    this.universityOnly = universityOnly;
+    this.message = message;
+    this.status = status;
+    this.expiresAt = expiresAt;
+    this.createdAt = createdAt;
+    this.updatedAt = updatedAt;
+  }
+
+  public Long getWaitingId() {
     return waitingId;
   }
 

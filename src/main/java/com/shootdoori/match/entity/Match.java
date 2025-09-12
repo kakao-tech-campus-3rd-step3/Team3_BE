@@ -42,6 +42,17 @@ public class Match {
   @Column(name = "UPDATED_AT", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
   private LocalDateTime updatedAt;
 
+  public Match(Team team1, Team team2, LocalDate matchDate, LocalTime matchTime, Venue venue, MatchStatus status) {
+    this.team1 = team1;
+    this.team2 = team2;
+    this.matchDate = matchDate;
+    this.matchTime = matchTime;
+    this.venue = venue;
+    this.status = status != null ? status : MatchStatus.RECRUITING;
+    this.createdAt = LocalDateTime.now();
+    this.updatedAt = LocalDateTime.now();
+  }
+
   protected Match() {}
 
   public Integer getMatchId() {
