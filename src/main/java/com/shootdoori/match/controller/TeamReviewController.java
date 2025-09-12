@@ -17,24 +17,28 @@ public class TeamReviewController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<TeamReviewResponseDto>> getAllTeamReview() {
-        return new ResponseEntity<>(reviewService.getAllTeamReview(), HttpStatus.OK);
+    public ResponseEntity<List<TeamReviewResponseDto>> getAll(@PathVariable Long teamId) {
+        return new ResponseEntity<>(reviewService.getAllTeamReview(teamId), HttpStatus.OK);
     }
 
     @GetMapping("/{reviewId}")
-    public ResponseEntity<TeamReviewResponseDto> getTeamReview(@PathVariable Long reviewId) {
-
+    public ResponseEntity<TeamReviewResponseDto> get(@PathVariable Long teamId, @PathVariable Long reviewId) {
+        return new ResponseEntity<>(reviewService.getTeamReview(teamId, reviewId), HttpStatus.OK);
     }
 
-    @PostMapping("/{reviewId}")
-    public void postTeamReview() {
+    @PostMapping()
+    public ResponseEntity<Void> post(@PathVariable Long teamId) {
+        reviewService.postTeamReview(teamId);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PutMapping("/{reviewId}")
-    public void updateTeamReview() {
+    public ResponseEntity<Void> update(@PathVariable Long teamId, @PathVariable Long reviewId) {
+        return new ResponseEntity<>(reviewService.updateTeamReview(teamId, reviewId), HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("/{reviewId}")
-    public void deleteTeamReview() {
+    public ResponseEntity<Void> delete(@PathVariable Long teamId, @PathVariable Long reviewId) {
+        return new ResponseEntity<>(reviewService.deleteTeamReview(teamId, reviewId), HttpStatus.NO_CONTENT);
     }
 }
