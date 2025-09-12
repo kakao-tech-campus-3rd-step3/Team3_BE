@@ -25,7 +25,7 @@ public class MatchStartController {
     this.matchService = matchStartService;
   }
 
-  @GetMapping("/{teamId}/completed")
+  @GetMapping("/{teamId}/matches/completed")
   public ResponseEntity<List<RecentMatchesResponseDto>> getRecentCompletedMatches(
       @PathVariable Long teamId,
       @RequestParam(required = false) String cursorDate,
