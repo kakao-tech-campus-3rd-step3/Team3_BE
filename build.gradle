@@ -19,14 +19,24 @@ repositories {
 }
 
 dependencies {
-// 초기 세팅이므로 DB 관련 의존성은 주석처리
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+
 	runtimeOnly 'com.mysql:mysql-connector-j'
+
+	// --- 테스트용 ---
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// H2: 단위/슬라이스 테스트용
+	testImplementation 'com.h2database:h2'
+
+	// 통합 테스트용 Testcontainers
+	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+	testImplementation 'org.testcontainers:junit-jupiter'
+	testImplementation 'org.testcontainers:mysql'
 }
 
 tasks.named('test') {
