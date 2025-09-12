@@ -46,7 +46,8 @@ public class MatchApplication {
   @Column(name = "UPDATED_AT", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
   private LocalDateTime updatedAt;
 
-  protected MatchApplication() {}
+  protected MatchApplication() {
+  }
 
   public Integer getApplicationId() {
     return applicationId;
