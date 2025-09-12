@@ -12,7 +12,7 @@ public class MatchQueue {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "QUEUE_ID")
-  private Integer waitingId;
+  private Long waitingId;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TEAM_ID", nullable = false)
@@ -60,7 +60,7 @@ public class MatchQueue {
 
   protected MatchQueue() {}
 
-  public Integer getWaitingId() {
+  public Long getWaitingId() {
     return waitingId;
   }
 

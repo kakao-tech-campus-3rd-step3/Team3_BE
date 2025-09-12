@@ -12,7 +12,7 @@ public class Match {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "MATCH_ID")
-  private Integer matchId;
+  private Long matchId;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TEAM1_ID", nullable = false)
@@ -44,7 +44,7 @@ public class Match {
 
   protected Match() {}
 
-  public Integer getMatchId() {
+  public Long getMatchId() {
     return matchId;
   }
 
