@@ -10,7 +10,7 @@ public record TeamDetailResponseDto(
     String university,
     SkillLevel skillLevel,
     TeamType teamType,
-    Integer memberCount,
+    Long memberCount,
     String createdAt
 ) {
 

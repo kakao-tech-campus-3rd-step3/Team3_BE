@@ -60,6 +60,7 @@ public class MatchQueue {
 
   protected MatchQueue() {}
 
+
   public MatchQueue(Team team,
       LocalDate preferredDate,
       LocalTime preferredTimeStart,
