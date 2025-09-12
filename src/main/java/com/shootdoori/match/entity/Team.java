@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "team")
+@Table(name = "teams")
 public class Team {
 
     @Id
@@ -60,7 +60,7 @@ public class Team {
 
     @OneToMany(mappedBy = "teams", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<TeamMember> memberList = new ArrayList<>();
-
+    
     protected Team() {
     }
 

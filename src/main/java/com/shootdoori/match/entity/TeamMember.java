@@ -50,7 +50,7 @@ public class TeamMember {
 
     protected TeamMember() {
     }
-
+  
     public TeamMember(Team team, User user, TeamMemberRole role) {
         this.team = team;
         this.user = user;
