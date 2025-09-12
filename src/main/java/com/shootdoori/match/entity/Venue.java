@@ -16,7 +16,7 @@ public class Venue {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "VENUE_ID")
-  private Integer venueId;
+  private Long venueId;
 
   @Column(name = "VENUE_NAME", nullable = false, length = 100)
   private String venueName;
@@ -37,7 +37,7 @@ public class Venue {
   private String facilities;
 
   @Column(name = "PRICE_PER_HOUR")
-  private Integer pricePerHour;
+  private Long pricePerHour;
 
   @Column(name = "CREATED_AT", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
   private LocalDateTime createdAt;
@@ -47,7 +47,7 @@ public class Venue {
 
   protected Venue() {}
 
-  public Integer getVenueId() {
+  public Long getVenueId() {
     return venueId;
   }
 
@@ -75,7 +75,7 @@ public class Venue {
     return facilities;
   }
 
-  public Integer getPricePerHour() {
+  public Long getPricePerHour() {
     return pricePerHour;
   }
 

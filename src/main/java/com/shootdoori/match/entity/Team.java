@@ -43,7 +43,7 @@ public class Team {
     private TeamType teamType = TeamType.OTHER;
 
     @Column(name = "MEMBER_COUNT", nullable = false, columnDefinition = "INT DEFAULT 0")
-    private Integer memberCount = 0;
+    private Long memberCount = 0;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "SKILL_LEVEL", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '아마추어'")
@@ -106,7 +106,7 @@ public class Team {
         return teamType;
     }
 
-    public Integer getMemberCount() {
+    public Long getMemberCount() {
         return memberCount;
     }
 

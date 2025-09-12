@@ -1,10 +1,10 @@
 package com.shootdoori.match.dto;
 
-public record TeamReviewRequestDto(Integer matchId,
+public record TeamReviewRequestDto(Long matchId,
                                    Long reviewerTeamId,
                                    Long reviewedTeamId,
-                                   Integer rating,
+                                   Long rating,
                                    String comment,
-                                   Integer punctualityRating,
-                                   Integer sportsmanshipRating) {
+                                   Long punctualityRating,
+                                   Long sportsmanshipRating) {
 }
