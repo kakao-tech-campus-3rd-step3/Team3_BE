@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface MatchApplicationRepository extends JpaRepository<MatchApplication, Integer> {
+public interface MatchApplicationRepository extends JpaRepository<MatchApplication, Long> {
 
   @Modifying
   @Query("UPDATE MatchApplication ma " +
@@ -15,6 +15,6 @@ public interface MatchApplicationRepository extends JpaRepository<MatchApplicati
       "AND ma.status = com.shootdoori.match.entity.MatchApplicationStatus.PENDING " +
       "AND ma.applicationId <> :acceptedRequestId")
   int rejectOtherRequests(@Param("targetTeamId") Long targetTeamId,
-      @Param("acceptedRequestId") Integer acceptedRequestId);
+      @Param("acceptedRequestId") Long acceptedRequestId);
 
 }

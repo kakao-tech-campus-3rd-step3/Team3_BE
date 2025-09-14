@@ -140,7 +140,6 @@ public class Team {
         return memberList;
     }
 
-
     public void addMember(TeamMember member) {
         memberList.add(member);
         member.setTeam(this);
