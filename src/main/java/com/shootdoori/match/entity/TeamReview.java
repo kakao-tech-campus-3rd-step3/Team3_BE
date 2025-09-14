@@ -53,7 +53,7 @@ public class TeamReview {
     @Min(1)
     @Max(5)
     @Column(name = "rating", nullable = false)
-    private int rating;
+    private Integer rating;
 
     @Column(name = "comment", length = 500)
     private String comment;
@@ -80,7 +80,7 @@ public class TeamReview {
     public TeamReview(Match match,
         Team reviewerTeam,
         Team reviewedTeam,
-        int rating,
+        Integer rating,
         String comment,
         Integer punctualityRating,
         Integer sportsmanshipRating) {
@@ -119,7 +119,7 @@ public class TeamReview {
         return reviewedTeam;
     }
 
-    public int getRating() {
+    public Integer getRating() {
         return rating;
     }
 
