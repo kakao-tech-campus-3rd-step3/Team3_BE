@@ -24,7 +24,7 @@ public class MatchCompleteService {
      * @return TeamResponseDto 적 팀 정보
      */
     public TeamResponseDto getEnemyTeam(MatchTeamRequestDto matchTeamRequestDto) {
-        int enemyTeamId;
+        Long enemyTeamId;
         Match match = matchRepository.findByMatchId(matchTeamRequestDto.matchId());
 
         Team enemyTeam = match.findEnemyTeam(matchTeamRequestDto.teamId());
