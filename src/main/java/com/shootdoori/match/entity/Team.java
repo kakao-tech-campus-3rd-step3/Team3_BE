@@ -1,7 +1,13 @@
 package com.shootdoori.match.entity;
 
+import com.shootdoori.match.value.Description;
+import com.shootdoori.match.value.MemberCount;
+import com.shootdoori.match.value.TeamName;
+import com.shootdoori.match.value.UniversityName;
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -28,29 +34,33 @@ public class Team {
     @Column(name = "TEAM_ID")
     private Long teamId;
 
-    @Column(name = "TEAM_NAME", nullable = false, length = 100)
-    private String teamName;
+    @Embedded
+    @AttributeOverride(name = "name", column = @Column(name = "TEAM_NAME", nullable = false, length = 100))
+    private TeamName teamName;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "CAPTAIN_ID", nullable = false)
     private User captain;
 
-    @Column(name = "UNIVERSITY", nullable = false, length = 100)
-    private String university;
+    @Embedded
+    @AttributeOverride(name = "name", column = @Column(name = "UNIVERSITY", nullable = false, length = 100))
+    private UniversityName university;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "TEAM_TYPE", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '동아리'")
+    @Column(name = "TEAM_TYPE", nullable = false, length = 20)
     private TeamType teamType = TeamType.OTHER;
 
-    @Column(name = "MEMBER_COUNT", nullable = false, columnDefinition = "INT DEFAULT 0")
-    private Integer memberCount = 0;
+    @Embedded
+    @AttributeOverride(name = "count", column = @Column(name = "MEMBER_COUNT", nullable = false))
+    private MemberCount memberCount = MemberCount.of(1);
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "SKILL_LEVEL", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '아마추어'")
+    @Column(name = "SKILL_LEVEL", nullable = false, length = 20)
     private SkillLevel skillLevel = SkillLevel.AMATEUR;
 
-    @Column(name = "DESCRIPTION", length = 1000)
-    private String description;
+    @Embedded
+    @AttributeOverride(name = "description", column = @Column(name = "DESCRIPTION", length = 1000))
+    private Description description;
 
     @Column(name = "CREATED_AT", updatable = false)
     private LocalDateTime createdAt;
@@ -60,18 +70,18 @@ public class Team {
 
     @OneToMany(mappedBy = "teams", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<TeamMember> memberList = new ArrayList<>();
-    
+
     protected Team() {
     }
 
     public Team(String teamName, User captain, String university, TeamType teamType,
         SkillLevel skillLevel, String description) {
-        this.teamName = teamName;
+        this.teamName = TeamName.of(teamName);
         this.captain = captain;
-        this.university = university;
+        this.university = UniversityName.of(university);
         this.teamType = teamType != null ? teamType : TeamType.OTHER;
         this.skillLevel = skillLevel != null ? skillLevel : SkillLevel.AMATEUR;
-        this.description = description;
+        this.description = Description.of(description);
     }
 
     @PrePersist
@@ -90,7 +100,7 @@ public class Team {
         return teamId;
     }
 
-    public String getTeamName() {
+    public TeamName getTeamName() {
         return teamName;
     }
 
@@ -98,7 +108,7 @@ public class Team {
         return captain;
     }
 
-    public String getUniversity() {
+    public UniversityName getUniversity() {
         return university;
     }
 
@@ -106,7 +116,7 @@ public class Team {
         return teamType;
     }
 
-    public Integer getMemberCount() {
+    public MemberCount getMemberCount() {
         return memberCount;
     }
 
@@ -114,7 +124,7 @@ public class Team {
         return skillLevel;
     }
 
-    public String getDescription() {
+    public Description getDescription() {
         return description;
     }
 
@@ -130,54 +140,17 @@ public class Team {
         return memberList;
     }
 
-    private void validateTeamName(String name) {
-        if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("팀 이름은 필수입니다.");
-        }
-        if (name.length() > 100) {
-            throw new IllegalArgumentException("팀 이름은 최대 100자입니다.");
-        }
-    }
-
-    private void validateUniversity(String university) {
-        if (university == null || university.isBlank()) {
-            throw new IllegalArgumentException("대학교는 필수입니다.");
-        }
-        if (university.length() > 100) {
-            throw new IllegalArgumentException("대학교는 최대 100자입니다.");
-        }
-    }
-
-    private void validateDescription(String desc) {
-        if (desc != null && desc.length() > 1000) {
-            throw new IllegalArgumentException("설명은 최대 1000자입니다.");
-        }
-    }
-
-    private void validateMemberCount(int count) {
-        if (count < 0 || count > 100) {
-            throw new IllegalArgumentException("멤버 수는 0~100명입니다.");
-        }
-    }
 
     public void addMember(TeamMember member) {
         memberList.add(member);
         member.setTeam(this);
+        this.memberCount = this.memberCount.increase();
     }
 
     public void removeMember(TeamMember member) {
         memberList.remove(member);
         member.setTeam(null);
-    }
-
-    public void increaseMemberCount() {
-        validateMemberCount(this.memberCount + 1);
-        this.memberCount++;
-    }
-
-    public void decreaseMemberCount() {
-        validateMemberCount(this.memberCount - 1);
-        this.memberCount--;
+        this.memberCount = this.memberCount.decrease();
     }
 
     public void changeTeamInfo(String teamName,
@@ -185,13 +158,9 @@ public class Team {
         String skillLevel,
         String description) {
 
-        validateTeamName(teamName);
-        validateUniversity(university);
-        validateDescription(description);
-
-        this.teamName = teamName;
-        this.university = university;
+        this.teamName = TeamName.of(teamName);
+        this.university = UniversityName.of(university);
         this.skillLevel = SkillLevel.fromDisplayName(skillLevel);
-        this.description = description;
+        this.description = Description.of(description);
     }
 }
