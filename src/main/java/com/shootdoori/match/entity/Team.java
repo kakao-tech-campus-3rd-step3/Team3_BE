@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "teams")
+@Table(name = "team")
 public class Team {
 
     @Id
@@ -68,7 +68,7 @@ public class Team {
     @Column(name = "UPDATED_AT")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "teams", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "team", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<TeamMember> memberList = new ArrayList<>();
 
     protected Team() {
