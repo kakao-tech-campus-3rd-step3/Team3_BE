@@ -154,7 +154,7 @@ public class Team {
         }
     }
 
-    private void validateMemberCount(int count) {
+    private void validateMemberCount(Integer count) {
         if (count < 0 || count > 100) {
             throw new IllegalArgumentException("멤버 수는 0~100명입니다.");
         }
