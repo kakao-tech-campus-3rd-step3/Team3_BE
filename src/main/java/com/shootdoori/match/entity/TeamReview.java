@@ -53,7 +53,7 @@ public class TeamReview {
     @Min(1)
     @Max(5)
     @Column(name = "rating", nullable = false)
-    private Long rating;
+    private Integer rating;
 
     @Column(name = "comment", length = 500)
     private String comment;
@@ -61,12 +61,12 @@ public class TeamReview {
     @Min(1)
     @Max(5)
     @Column(name = "punctuality_rating")
-    private Long punctualityRating;
+    private Integer punctualityRating;
 
     @Min(1)
     @Max(5)
     @Column(name = "sportsmanship_rating")
-    private Long sportsmanshipRating;
+    private Integer sportsmanshipRating;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -80,10 +80,10 @@ public class TeamReview {
     public TeamReview(Match match,
         Team reviewerTeam,
         Team reviewedTeam,
-        Long rating,
+        Integer rating,
         String comment,
-        Long punctualityRating,
-        Long sportsmanshipRating) {
+        Integer punctualityRating,
+        Integer sportsmanshipRating) {
         this.match = match;
         this.reviewerTeam = reviewerTeam;
         this.reviewedTeam = reviewedTeam;
@@ -119,7 +119,7 @@ public class TeamReview {
         return reviewedTeam;
     }
 
-    public Long getRating() {
+    public Integer getRating() {
         return rating;
     }
 
@@ -127,11 +127,11 @@ public class TeamReview {
         return comment;
     }
 
-    public Long getPunctualityRating() {
+    public Integer getPunctualityRating() {
         return punctualityRating;
     }
 
-    public Long getSportsmanshipRating() {
+    public Integer getSportsmanshipRating() {
         return sportsmanshipRating;
     }
 

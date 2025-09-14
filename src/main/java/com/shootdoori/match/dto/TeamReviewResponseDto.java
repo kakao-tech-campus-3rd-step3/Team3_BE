@@ -6,10 +6,10 @@ public record TeamReviewResponseDto(Long teamReviewId,
                                     Long matchId,
                                     Long reviewerTeamId,
                                     Long reviewedTeamId,
-                                    Long rating,
+                                    Integer rating,
                                     String comment,
-                                    Long punctualityRating,
-                                    Long sportsmanshipRating) {
+                                    Integer punctualityRating,
+                                    Integer sportsmanshipRating) {
 
     public static TeamReviewResponseDto from(TeamReview review) {
         return new TeamReviewResponseDto(
