@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TeamRepository extends JpaRepository<Team, Long> {
     public Page<Team> findAllByUniversity(String university, Pageable pageable);
+
+    Team findByTeamId(Long teamId);
 }
