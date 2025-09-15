@@ -5,6 +5,8 @@ import com.shootdoori.match.value.MemberCount;
 import com.shootdoori.match.value.TeamName;
 import com.shootdoori.match.value.UniversityName;
 import jakarta.persistence.AttributeOverride;
+import com.shootdoori.match.exception.DuplicateMemberException;
+import com.shootdoori.match.exception.TeamFullException;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -68,8 +70,12 @@ public class Team {
     @Column(name = "UPDATED_AT")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "team", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<TeamMember> memberList = new ArrayList<>();
+    @OneToMany(mappedBy = "teams", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<TeamMember> members = new ArrayList<>();
+
+
+    private static final int MIN_MEMBERS = 1;
+    private static final int MAX_MEMBERS = 100;
 
     protected Team() {
     }
@@ -136,18 +142,56 @@ public class Team {
         return updatedAt;
     }
 
-    public List<TeamMember> getMemberList() {
-        return memberList;
+    public List<TeamMember> getMembers() {
+        return members;
     }
 
-    public void addMember(TeamMember member) {
-        memberList.add(member);
-        member.setTeam(this);
+    private void validateTeamName(String name) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("팀 이름은 필수입니다.");
+        }
+        if (name.length() > MAX_MEMBERS) {
+            throw new IllegalArgumentException("팀 이름은 최대 100자입니다.");
+        }
+    }
+
+    private void validateUniversity(String university) {
+        if (university == null || university.isBlank()) {
+            throw new IllegalArgumentException("대학교는 필수입니다.");
+        }
+        if (university.length() > MAX_MEMBERS) {
+            throw new IllegalArgumentException("대학교는 최대 100자입니다.");
+        }
+    }
+
+    private void validateDescription(String desc) {
+        if (desc != null && desc.length() > 1000) {
+            throw new IllegalArgumentException("설명은 최대 1000자입니다.");
+        }
+    }
+
+    private void validateMemberCount(int count) {
+        if (count < MIN_MEMBERS || count > MAX_MEMBERS) {
+            throw new IllegalArgumentException("멤버 수는 1~100명입니다.");
+        }
+    }
+
+    public void recruitMember(User user, TeamMemberRole role) {
+        if (members.size() >= MAX_MEMBERS) {
+            throw new TeamFullException("팀 정원이 초과되었습니다.");
+        }
+
+        if (members.stream().anyMatch(member -> member.getUser().equals(user))) {
+            throw new DuplicateMemberException("이미 팀에 가입된 사용자입니다.");
+        }
+
+        TeamMember teamMember = new TeamMember(this, user, role);
+        this.members.add(teamMember);
         this.memberCount = this.memberCount.increase();
     }
 
     public void removeMember(TeamMember member) {
-        memberList.remove(member);
+        members.remove(member);
         member.setTeam(null);
         this.memberCount = this.memberCount.decrease();
     }
