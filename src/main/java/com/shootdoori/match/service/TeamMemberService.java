@@ -6,6 +6,7 @@ import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.entity.TeamMember;
 import com.shootdoori.match.entity.TeamMemberRole;
 import com.shootdoori.match.entity.User;
+import com.shootdoori.match.exception.DuplicateMemberException;
 import com.shootdoori.match.exception.TeamNotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
@@ -45,7 +46,7 @@ public class TeamMemberService {
         }
 
         if (teamMemberRepository.existsByTeam_IdAndUser_Id(teamId, userId)) {
-            throw new IllegalStateException("이미 해당 팀의 멤버입니다.");
+            throw new DuplicateMemberException("이미 해당 팀의 멤버입니다.");
         }
 
         if (team.getMemberCount() >= MAX_MEMBER_COUNT) {
