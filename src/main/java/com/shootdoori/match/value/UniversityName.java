@@ -1,6 +1,7 @@
 package com.shootdoori.match.value;
 
 import jakarta.persistence.Embeddable;
+import java.util.Objects;
 
 @Embeddable
 public record UniversityName(String name) {
@@ -18,5 +19,24 @@ public record UniversityName(String name) {
 
     public static UniversityName of(String name) {
         return new UniversityName(name);
+    }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+
+        UniversityName that = (UniversityName) other;
+        return this.name.equals(that.name());
     }
 }

@@ -19,4 +19,23 @@ public record TeamName(String name) {
     public static TeamName of(String name) {
         return new TeamName(name);
     }
+
+    @Override
+    public int hashCode() {
+        return name.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
+
+        if (other == null || getClass() != other.getClass()) {
+            return false;
+        }
+
+        TeamName that = (TeamName) other;
+        return this.name.equals(that.name());
+    }
 }
