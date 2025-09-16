@@ -7,6 +7,7 @@ import com.shootdoori.match.entity.TeamMember;
 import com.shootdoori.match.entity.TeamMemberRole;
 import com.shootdoori.match.entity.User;
 import com.shootdoori.match.exception.AlreadyTeamMemberException;
+import com.shootdoori.match.exception.DuplicateMemberException;
 import com.shootdoori.match.exception.TeamNotFoundException;
 import com.shootdoori.match.exception.UserNotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;

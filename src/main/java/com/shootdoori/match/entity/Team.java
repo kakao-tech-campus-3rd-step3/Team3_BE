@@ -7,6 +7,8 @@ import com.shootdoori.match.value.MemberCount;
 import com.shootdoori.match.value.TeamName;
 import com.shootdoori.match.value.UniversityName;
 import jakarta.persistence.AttributeOverride;
+import com.shootdoori.match.exception.DuplicateMemberException;
+import com.shootdoori.match.exception.TeamFullException;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -71,9 +73,11 @@ public class Team {
     private LocalDateTime updatedAt;
 
     @OneToMany(mappedBy = "team", cascade = CascadeType.REMOVE, orphanRemoval = true)
-    private List<TeamMember> memberList = new ArrayList<>();
+    private List<TeamMember> members = new ArrayList<>();
 
-    private static final int MAX_MEMBER_COUNT = 100;
+
+    private static final int MIN_MEMBERS = 1;
+    private static final int MAX_MEMBERS = 100;
 
     protected Team() {
     }
@@ -140,18 +144,38 @@ public class Team {
         return updatedAt;
     }
 
-    public List<TeamMember> getMemberList() {
-        return memberList;
+    public List<TeamMember> getMembers() {
+        return members;
+    }
+  
+    public void validateSameUniversity(User user) {
+        if (!this.university.equals(user.getUniversity())) {
+            throw new DifferentUniversityException();
+        }
     }
 
-    public void addMember(TeamMember member) {
-        memberList.add(member);
-        member.setTeam(this);
+    public void validateCanAcceptNewMember() {
+        if (this.memberCount.count() >= MAX_MEMBER_COUNT) {
+            throw new TeamCapacityExceededException();
+        }
+    }
+
+    public void recruitMember(User user, TeamMemberRole role) {
+        if (members.size() >= MAX_MEMBERS) {
+            throw new TeamFullException("팀 정원이 초과되었습니다.");
+        }
+
+        if (members.stream().anyMatch(member -> member.getUser().equals(user))) {
+            throw new DuplicateMemberException("이미 팀에 가입된 사용자입니다.");
+        }
+
+        TeamMember teamMember = new TeamMember(this, user, role);
+        this.members.add(teamMember);
         this.memberCount = this.memberCount.increase();
     }
 
     public void removeMember(TeamMember member) {
-        memberList.remove(member);
+        members.remove(member);
         member.setTeam(null);
         this.memberCount = this.memberCount.decrease();
     }
@@ -165,17 +189,5 @@ public class Team {
         this.university = UniversityName.of(university);
         this.skillLevel = SkillLevel.fromDisplayName(skillLevel);
         this.description = Description.of(description);
-    }
-
-    public void validateSameUniversity(User user) {
-        if (!this.university.equals(user.getUniversity())) {
-            throw new DifferentUniversityException();
-        }
-    }
-
-    public void validateCanAcceptNewMember() {
-        if (this.memberCount.count() >= MAX_MEMBER_COUNT) {
-            throw new TeamCapacityExceededException();
-        }
     }
 }

@@ -2,7 +2,10 @@ package com.shootdoori.match.entity;
 
 import com.shootdoori.match.dto.ProfileCreateRequest;
 import com.shootdoori.match.dto.ProfileUpdateRequest;
+import com.shootdoori.match.value.UniversityName;
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -13,10 +16,9 @@ import java.time.LocalDateTime;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import java.time.LocalDateTime;
-
 @Entity
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,23 +29,24 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(name = "SKILL_LEVEL", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '아마추어'")
     private SkillLevel skillLevel = SkillLevel.AMATEUR;
-  
+
     @Column(nullable = false, unique = true, length = 255)
     private String email;
 
-    @Column(name = "university_email",nullable = false, unique = true, length = 255)
+    @Column(name = "university_email", nullable = false, unique = true, length = 255)
     private String universityEmail;
 
-    @Column(name = "phone_number",nullable = false, unique = true, length = 13)
+    @Column(name = "phone_number", nullable = false, unique = true, length = 13)
     private String phoneNumber;
 
-    @Column(nullable = false, length = 100)
-    private String university;
+    @Embedded
+    @AttributeOverride(name = "name", column = @Column(name = "UNIVERSITY", nullable = false, length = 100))
+    private UniversityName university;
 
     @Column(nullable = false, length = 100)
     private String department;
 
-    @Column(name = "student_year",nullable = false, length = 2)
+    @Column(name = "student_year", nullable = false, length = 2)
     private String studentYear;
 
     @Column(length = 500)
@@ -65,21 +68,22 @@ public class User {
 
     }
 
-    private User(String name, String email, String universityEmail, String phoneNumber, String university, String department, String studentYear, String bio) {
-        validate(name, email, universityEmail, phoneNumber, university, department, studentYear, bio);
+    private User(String name, String email, String universityEmail, String phoneNumber,
+        String university, String department, String studentYear, String bio) {
         this.name = name;
         this.email = email;
         this.universityEmail = universityEmail;
         this.phoneNumber = phoneNumber;
-        this.university = university;
+        this.university = UniversityName.of(university);
         this.department = department;
         this.studentYear = studentYear;
         this.bio = bio;
     }
 
     public static User create(String name, String email, String universityEmail, String phoneNumber,
-                              String university, String department, String studentYear, String bio) {
-        return new User(name, email, universityEmail, phoneNumber, university, department, studentYear, bio);
+        String university, String department, String studentYear, String bio) {
+        return new User(name, email, universityEmail, phoneNumber, university, department,
+            studentYear, bio);
     }
 
     public User(ProfileCreateRequest createRequest) {
@@ -88,13 +92,14 @@ public class User {
         this.email = createRequest.email();
         this.universityEmail = createRequest.universityEmail();
         this.phoneNumber = createRequest.phoneNumber();
-        this.university = createRequest.university();
+        this.university = UniversityName.of(createRequest.university());
         this.department = createRequest.department();
         this.studentYear = createRequest.studentYear();
         this.bio = createRequest.bio();
     }
 
-    private void validate(String name, String email, String universityEmail, String phoneNumber, String university, String department, String studentYear, String bio) {
+    private void validate(String name, String email, String universityEmail, String phoneNumber,
+        String university, String department, String studentYear, String bio) {
         validateName(name);
         validateEmail(email);
         validateUniversityEmail(universityEmail);
@@ -200,7 +205,7 @@ public class User {
         return this.phoneNumber;
     }
 
-    public String getUniversity() {
+    public UniversityName getUniversity() {
         return this.university;
     }
 
