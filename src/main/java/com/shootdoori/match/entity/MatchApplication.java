@@ -49,20 +49,14 @@ public class MatchApplication {
   protected MatchApplication() {
   }
 
-  public MatchApplication(Team applicantTeam,
-      Team targetTeam,
-      String applicationMessage,
-      MatchApplicationStatus status,
-      LocalDateTime appliedAt,
-      LocalDateTime respondedAt,
-      LocalDateTime updatedAt) {
-    this.applicantTeam = applicantTeam;
-    this.targetTeam = targetTeam;
-    this.applicationMessage = applicationMessage;
-    this.status = status;
-    this.appliedAt = appliedAt;
-    this.respondedAt = respondedAt;
-    this.updatedAt = updatedAt;
+  public MatchApplication(Team applicantTeam, Team targetTeam, String applicationMessage) {
+      this.applicantTeam = applicantTeam;
+      this.targetTeam = targetTeam;
+      this.applicationMessage = applicationMessage;
+      this.status = MatchApplicationStatus.PENDING;
+      this.appliedAt = LocalDateTime.now();
+      this.respondedAt = null;
+      this.updatedAt = LocalDateTime.now();
   }
 
   public Long getApplicationId() {

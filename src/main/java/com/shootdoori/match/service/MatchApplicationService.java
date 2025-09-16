@@ -41,11 +41,7 @@ public class MatchApplicationService {
     MatchApplication application = new MatchApplication(
         applicantTeam,
         targetQueue.getTeam(),
-        requestDto.applicationMessage(),
-        MatchApplicationStatus.PENDING,
-        LocalDateTime.now(),
-        null,
-        LocalDateTime.now()
+        requestDto.applicationMessage()
     );
 
     MatchApplication saved = matchApplicationRepository.save(application);
