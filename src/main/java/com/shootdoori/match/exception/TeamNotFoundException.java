@@ -1,8 +1,12 @@
 package com.shootdoori.match.exception;
 
-public class TeamNotFoundException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-    public TeamNotFoundException(String message) {
-        super(message);
+@ResponseStatus(HttpStatus.NOT_FOUND)
+public class TeamNotFoundException extends BusinessException {
+
+    public TeamNotFoundException(Long teamId) {
+        super(ErrorCode.TEAM_NOT_FOUND, teamId.toString());
     }
 }

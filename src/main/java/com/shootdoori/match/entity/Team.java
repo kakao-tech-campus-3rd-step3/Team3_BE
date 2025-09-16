@@ -1,5 +1,7 @@
 package com.shootdoori.match.entity;
 
+import com.shootdoori.match.exception.DifferentUniversityException;
+import com.shootdoori.match.exception.TeamCapacityExceededException;
 import com.shootdoori.match.value.Description;
 import com.shootdoori.match.value.MemberCount;
 import com.shootdoori.match.value.TeamName;
@@ -145,34 +147,16 @@ public class Team {
     public List<TeamMember> getMembers() {
         return members;
     }
-
-    private void validateTeamName(String name) {
-        if (name == null || name.isBlank()) {
-            throw new IllegalArgumentException("팀 이름은 필수입니다.");
-        }
-        if (name.length() > MAX_MEMBERS) {
-            throw new IllegalArgumentException("팀 이름은 최대 100자입니다.");
+  
+    public void validateSameUniversity(User user) {
+        if (!this.university.equals(user.getUniversity())) {
+            throw new DifferentUniversityException();
         }
     }
 
-    private void validateUniversity(String university) {
-        if (university == null || university.isBlank()) {
-            throw new IllegalArgumentException("대학교는 필수입니다.");
-        }
-        if (university.length() > MAX_MEMBERS) {
-            throw new IllegalArgumentException("대학교는 최대 100자입니다.");
-        }
-    }
-
-    private void validateDescription(String desc) {
-        if (desc != null && desc.length() > 1000) {
-            throw new IllegalArgumentException("설명은 최대 1000자입니다.");
-        }
-    }
-
-    private void validateMemberCount(int count) {
-        if (count < MIN_MEMBERS || count > MAX_MEMBERS) {
-            throw new IllegalArgumentException("멤버 수는 1~100명입니다.");
+    public void validateCanAcceptNewMember() {
+        if (this.memberCount.count() >= MAX_MEMBER_COUNT) {
+            throw new TeamCapacityExceededException();
         }
     }
 
