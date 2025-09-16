@@ -49,7 +49,7 @@ public class TeamMemberService {
             throw new DuplicateMemberException("이미 해당 팀의 멤버입니다.");
         }
 
-        if (team.getMemberCount() >= MAX_MEMBER_COUNT) {
+        if (team.getMemberCount().count() >= MAX_MEMBER_COUNT) {
             throw new IllegalStateException("팀 정원이 가득 찼습니다. (최대 100명)");
         }
 

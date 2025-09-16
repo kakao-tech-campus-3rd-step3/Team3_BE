@@ -20,13 +20,13 @@ public record TeamResponseDto(Long teamId,
 
     public TeamResponseDto(Team team){
         this(team.getTeamId(),
-                team.getTeamName(),
+                team.getTeamName().name(),
                 team.getCaptain(),
-                team.getUniversity(),
+                team.getUniversity().name(),
                 team.getTeamType(),
-                team.getMemberCount(),
+                team.getMemberCount().count(),
                 team.getSkillLevel(),
-                team.getDescription(),
+                team.getDescription().description(),
                 team.getCreatedAt(),
                 team.getUpdatedAt()
         );
