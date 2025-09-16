@@ -2,6 +2,7 @@ package com.shootdoori.match.service;
 
 import com.shootdoori.match.dto.RecentMatchesResponseDto;
 import com.shootdoori.match.entity.Match;
+import com.shootdoori.match.entity.MatchStatus;
 import com.shootdoori.match.repository.MatchRepository;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -21,21 +22,23 @@ public class MatchStartService {
   }
 
   @Transactional(readOnly = true)
-  public List<RecentMatchesResponseDto> getRecentCompletedMatches(
+  public List<RecentMatchesResponseDto> getMatchesByStatus(
       Long teamId,
+      MatchStatus status,
       LocalDate cursorDate,
       LocalTime cursorTime,
       Pageable pageable
   ) {
-    if (cursorDate == null) cursorDate = LocalDate.of(9999, 12, 31);
-    if (cursorTime == null) cursorTime = LocalTime.MAX;
+      Slice<Match> slice = isFirstPageRequest(cursorDate, cursorTime)
+              ? matchRepository.findFirstPageMatchesByTeamIdAndStatus(teamId, status, pageable)
+              : matchRepository.findMatchesByTeamIdAndStatus(teamId, status, cursorDate, cursorTime, pageable);
 
-    Slice<Match> slice = matchRepository.findCompletedMatchesByTeamId(
-        teamId, cursorDate, cursorTime, pageable
-    );
-
-    return slice.getContent().stream()
+      return slice.getContent().stream()
         .map(RecentMatchesResponseDto::from)
         .toList();
+  }
+
+  private boolean isFirstPageRequest(LocalDate cursorDate, LocalTime cursorTime) {
+      return cursorDate == null && cursorTime == null;
   }
 }
