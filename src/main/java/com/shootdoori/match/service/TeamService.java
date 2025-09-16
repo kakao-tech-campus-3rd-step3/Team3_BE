@@ -31,7 +31,7 @@ public class TeamService {
 
     public CreateTeamResponseDto create(TeamRequestDto requestDto, User captain) {
         if (captain == null) {
-            throw new CaptainNotFoundException("팀장 정보가 없습니다.");
+            throw new CaptainNotFoundException();
         }
 
         Team team = TeamMapper.toEntity(requestDto, captain);
@@ -43,7 +43,7 @@ public class TeamService {
     @Transactional(readOnly = true)
     public TeamDetailResponseDto findById(Long id) {
         Team team = teamRepository.findById(id).orElseThrow(() ->
-            new TeamNotFoundException("해당 팀을 찾을 수 없습니다. id = " + id));
+            new TeamNotFoundException(id));
 
         return teamMapper.toTeamDetailResponse(team);
     }
@@ -59,7 +59,7 @@ public class TeamService {
 
     public TeamDetailResponseDto update(Long id, TeamRequestDto requestDto) {
         Team team = teamRepository.findById(id).orElseThrow(() ->
-            new TeamNotFoundException("해당 팀을 찾을 수 없습니다. id = " + id));
+            new TeamNotFoundException(id));
 
         team.changeTeamInfo(requestDto.name(), requestDto.university(),
             requestDto.skillLevel(), requestDto.description());
@@ -69,7 +69,7 @@ public class TeamService {
 
     public void delete(Long id) {
         Team team = teamRepository.findById(id).orElseThrow(() ->
-            new TeamNotFoundException("해당 팀을 찾을 수 없습니다. id = " + id));
+            new TeamNotFoundException(id));
 
         teamRepository.delete(team);
     }

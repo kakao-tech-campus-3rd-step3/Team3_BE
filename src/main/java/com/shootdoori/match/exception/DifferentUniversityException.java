@@ -1,8 +1,12 @@
 package com.shootdoori.match.exception;
 
-public class DifferentUniversityException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-    public DifferentUniversityException(String message) {
-        super(message);
+@ResponseStatus(HttpStatus.FORBIDDEN)
+public class DifferentUniversityException extends BusinessException {
+
+    public DifferentUniversityException() {
+        super(ErrorCode.DIFFERENT_UNIVERSITY);
     }
 }

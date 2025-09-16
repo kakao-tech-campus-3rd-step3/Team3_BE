@@ -8,6 +8,7 @@ import com.shootdoori.match.entity.TeamMemberRole;
 import com.shootdoori.match.entity.User;
 import com.shootdoori.match.exception.AlreadyTeamMemberException;
 import com.shootdoori.match.exception.TeamNotFoundException;
+import com.shootdoori.match.exception.UserNotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.repository.TeamRepository;
@@ -34,13 +35,13 @@ public class TeamMemberService {
         Long userId = requestDto.userId();
 
         Team team = teamRepository.findById(teamId).orElseThrow(() ->
-            new TeamNotFoundException("해당 팀을 찾을 수 없습니다. id = " + teamId));
+            new TeamNotFoundException(teamId));
 
         User user = profileRepository.findById(userId).orElseThrow(
-            () -> new IllegalArgumentException("해당 유저를 찾을 수 없습니다. id = " + userId));
+            () -> new UserNotFoundException(userId));
 
         if (teamMemberRepository.existsByTeam_IdAndUser_Id(teamId, userId)) {
-            throw new AlreadyTeamMemberException("이미 해당 팀의 멤버입니다.");
+            throw new AlreadyTeamMemberException();
         }
 
         team.validateSameUniversity(user);

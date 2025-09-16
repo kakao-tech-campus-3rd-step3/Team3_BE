@@ -169,13 +169,13 @@ public class Team {
 
     public void validateSameUniversity(User user) {
         if (!this.university.equals(user.getUniversity())) {
-            throw new DifferentUniversityException("팀 소속 대학과 동일한 대학의 사용자만 가입할 수 있습니다.");
+            throw new DifferentUniversityException();
         }
     }
 
     public void validateCanAcceptNewMember() {
         if (this.memberCount.count() >= MAX_MEMBER_COUNT) {
-            throw new TeamCapacityExceededException("팀 정원이 가득 찼습니다. (최대 100명)");
+            throw new TeamCapacityExceededException();
         }
     }
 }

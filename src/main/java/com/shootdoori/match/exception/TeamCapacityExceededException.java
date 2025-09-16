@@ -1,8 +1,12 @@
 package com.shootdoori.match.exception;
 
-public class TeamCapacityExceededException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-    public TeamCapacityExceededException(String message) {
-        super(message);
+@ResponseStatus(HttpStatus.CONFLICT)
+public class TeamCapacityExceededException extends BusinessException {
+
+    public TeamCapacityExceededException() {
+        super(ErrorCode.TEAM_CAPACITY_EXCEEDED);
     }
 }

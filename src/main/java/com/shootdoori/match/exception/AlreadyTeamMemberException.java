@@ -1,8 +1,12 @@
 package com.shootdoori.match.exception;
 
-public class AlreadyTeamMemberException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-    public AlreadyTeamMemberException(String message) {
-        super(message);
+@ResponseStatus(HttpStatus.CONFLICT)
+public class AlreadyTeamMemberException extends BusinessException {
+
+    public AlreadyTeamMemberException() {
+        super(ErrorCode.ALREADY_TEAM_MEMBER);
     }
 }
