@@ -1,5 +1,6 @@
 package com.shootdoori.match.entity;
 
+import com.shootdoori.match.dto.TeamReviewRequestDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -91,6 +92,28 @@ public class TeamReview {
         this.comment = comment;
         this.punctualityRating = punctualityRating;
         this.sportsmanshipRating = sportsmanshipRating;
+    }
+
+    public static TeamReview from(TeamReviewRequestDto dto, Match match, Team reviewerTeam, Team reviewedTeam) {
+        return new TeamReview(
+                match,
+                reviewerTeam,
+                reviewedTeam,
+                dto.rating(),
+                dto.comment(),
+                dto.punctualityRating(),
+                dto.sportsmanshipRating()
+        );
+    }
+
+    public void update(TeamReview teamReview) {
+        this.match = teamReview.match;
+        this.reviewerTeam = teamReview.reviewerTeam;
+        this.reviewedTeam = teamReview.reviewedTeam;
+        this.rating = teamReview.rating;
+        this.comment = teamReview.comment;
+        this.punctualityRating = teamReview.punctualityRating;
+        this.sportsmanshipRating = teamReview.sportsmanshipRating;
     }
 
     @PrePersist

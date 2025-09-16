@@ -1,4 +1,4 @@
 package com.shootdoori.match.dto;
 
-public record MatchTeamRequestDto(int matchId, int teamId) {
+public record MatchTeamRequestDto(Long matchId, Long teamId) {
 }

@@ -27,21 +27,21 @@ public class TeamReviewController {
         return new ResponseEntity<>(reviewService.getTeamReview(teamId, reviewId), HttpStatus.OK);
     }
 
-    /*
     @PostMapping()
-    public ResponseEntity<Void> post(@PathVariable Long teamId, @RequestBody TeamReviewRequestDto request) {
-        reviewService.postTeamReview(teamId);
+    public ResponseEntity<Void> post(@RequestBody TeamReviewRequestDto request) {
+        reviewService.postTeamReview(request);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PutMapping("/{reviewId}")
-    public ResponseEntity<Void> update(@PathVariable Long teamId, @PathVariable Long reviewId, @RequestBody TeamReviewRequestDto request) {
-        return new ResponseEntity<>(reviewService.updateTeamReview(teamId, reviewId), HttpStatus.NO_CONTENT);
+    public ResponseEntity<Void> update(@PathVariable Long reviewId, @RequestBody TeamReviewRequestDto request) {
+        reviewService.updateTeamReview(reviewId, request);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("/{reviewId}")
-    public ResponseEntity<Void> delete(@PathVariable Long teamId, @PathVariable Long reviewId) {
-        return new ResponseEntity<>(reviewService.deleteTeamReview(teamId, reviewId), HttpStatus.NO_CONTENT);
+    public ResponseEntity<Void> delete(@PathVariable Long reviewId) {
+        reviewService.deleteTeamReview(reviewId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-    */
 }
