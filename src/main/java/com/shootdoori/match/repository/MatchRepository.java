@@ -3,6 +3,8 @@ package com.shootdoori.match.repository;
 import com.shootdoori.match.entity.Match;
 import java.time.LocalDate;
 import java.time.LocalTime;
+
+import com.shootdoori.match.entity.MatchStatus;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -16,15 +18,26 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
 
   @Query("SELECT m FROM Match m " +
       "WHERE (m.team1.teamId = :teamId OR m.team2.teamId = :teamId) " +
-      "AND m.status = com.shootdoori.match.entity.MatchStatus.FINISHED  " +
+      "AND m.status = :status  " +
       "AND (m.matchDate < :cursorDate OR (m.matchDate = :cursorDate AND m.matchTime < :cursorTime)) " +
       "ORDER BY m.matchDate DESC, m.matchTime DESC")
-  Slice<Match> findCompletedMatchesByTeamId(
+  Slice<Match> findMatchesByTeamIdAndStatus(
       @Param("teamId") Long teamId,
+      @Param("status") MatchStatus status,
       @Param("cursorDate") LocalDate cursorDate,
       @Param("cursorTime") LocalTime cursorTime,
       Pageable pageable
   );
+
+    @Query("SELECT m FROM Match m " +
+            "WHERE (m.team1.teamId = :teamId OR m.team2.teamId = :teamId) " +
+            "AND m.status = :status " +
+            "ORDER BY m.matchDate DESC, m.matchTime DESC")
+    Slice<Match> findFirstPageMatchesByTeamIdAndStatus(
+            @Param("teamId") Long teamId,
+            @Param("status") MatchStatus status,
+            Pageable pageable
+    );
 
   Match findByMatchId(int i);
 }
