@@ -4,6 +4,7 @@ import com.shootdoori.match.dto.TeamMemberRequestDto;
 import com.shootdoori.match.dto.TeamMemberResponseDto;
 import com.shootdoori.match.dto.UpdateTeamMemberRequestDto;
 import com.shootdoori.match.service.TeamMemberService;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -24,11 +26,6 @@ public class TeamMemberController {
     public TeamMemberController(TeamMemberService teamMemberService) {
         this.teamMemberService = teamMemberService;
     }
-
-//    @GetMapping
-//    public ResponseEntity<List<TeamMemberResponseDto>> findAllByTeamId(@PathVariable Long teamId) {
-//        ...
-//    }
 
     @PostMapping
     public ResponseEntity<TeamMemberResponseDto> create(@PathVariable Long teamId,
@@ -42,6 +39,14 @@ public class TeamMemberController {
     public ResponseEntity<TeamMemberResponseDto> findByTeamIdAndUserId(@PathVariable Long teamId,
         @PathVariable Long userId) {
         return new ResponseEntity<>(teamMemberService.findByTeamIdAndUserId(teamId, userId),
+            HttpStatus.OK);
+    }
+
+    @GetMapping
+    public ResponseEntity<Page<TeamMemberResponseDto>> findAllByTeamId(@PathVariable Long teamId,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size) {
+        return new ResponseEntity<>(teamMemberService.findAllByTeamId(teamId, page, size),
             HttpStatus.OK);
     }
 

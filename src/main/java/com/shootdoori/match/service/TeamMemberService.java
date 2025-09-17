@@ -15,6 +15,10 @@ import com.shootdoori.match.exception.UserNotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.repository.TeamRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -68,6 +72,15 @@ public class TeamMemberService {
             .orElseThrow(() -> new TeamMemberNotFoundException());
 
         return teamMemberMapper.toTeamMemberResponseDto(teamMember);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<TeamMemberResponseDto> findAllByTeamId(Long teamId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("teamMemberId").ascending());
+
+        Page<TeamMember> teamMemberPage = teamMemberRepository.findAllByTeamId(teamId, pageable);
+
+        return teamMemberPage.map(teamMemberMapper::toTeamMemberResponseDto);
     }
 
     public TeamMemberResponseDto update(Long teamId, Long userId,
