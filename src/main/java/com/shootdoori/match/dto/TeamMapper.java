@@ -30,12 +30,12 @@ public class TeamMapper {
 
     public TeamDetailResponseDto toTeamDetailResponse(Team team) {
         return new TeamDetailResponseDto(team.getTeamId(),
-            team.getTeamName(),
-            team.getDescription(),
-            team.getUniversity(),
+            team.getTeamName().name(),
+            team.getDescription().description(),
+            team.getUniversity().name(),
             team.getSkillLevel(),
             team.getTeamType(),
-            team.getMemberCount(),
+            team.getMemberCount().count(),
             team.getCreatedAt().toString());
     }
 

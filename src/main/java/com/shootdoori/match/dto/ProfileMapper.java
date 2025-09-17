@@ -12,7 +12,7 @@ public class ProfileMapper {
 
         return new ProfileResponse(
             user.getName(),
-            user.getUniversity(),
+            user.getUniversity().name(),
             user.getCreatedAt()
         );
     }
