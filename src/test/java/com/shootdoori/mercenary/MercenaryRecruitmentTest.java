@@ -47,19 +47,13 @@ class MercenaryRecruitmentTest {
     @Mock
     private TeamRepository teamRepository;
 
-    // --- 테스트 픽스처(Test Fixture)로 분리된 객체들 ---
-    // 각 테스트에서 이 객체들을 재사용합니다.
     private Team testTeam;
     private MercenaryRecruitment testRecruitment;
     private RecruitmentCreateRequest createRequest;
 
-    // @BeforeEach: 각 테스트가 실행되기 전에 이 메서드가 호출되어
-    // 항상 깨끗하고 일관된 테스트 환경을 만들어줍니다.
     @BeforeEach
     void setUp() {
         testTeam = Fixture.createTeam();
-        // Fixture로 생성한 Team 객체에 ID를 설정해줍니다.
-        // 이 ID는 다른 테스트에서 일관되게 사용됩니다.
         ReflectionTestUtils.setField(testTeam, "id", 1L);
 
         testRecruitment = Fixture.createRecruitment(testTeam);
@@ -69,14 +63,11 @@ class MercenaryRecruitmentTest {
     @Test
     @DisplayName("용병 모집 공고 생성 - 성공")
     void create_success() {
-        // given
         given(teamRepository.findById(createRequest.teamId())).willReturn(Optional.of(testTeam));
         given(recruitmentRepository.save(any(MercenaryRecruitment.class))).willReturn(testRecruitment);
 
-        // when
         RecruitmentResponse response = mercenaryRecruitmentService.create(createRequest);
 
-        // then
         assertThat(response).isNotNull();
         assertThat(response.message()).isEqualTo(Fixture.MESSAGE);
         verify(teamRepository).findById(testTeam.getTeamId());
@@ -86,7 +77,6 @@ class MercenaryRecruitmentTest {
     @Test
     @DisplayName("용병 모집 공고 생성 - 실패 (유효하지 않은 포지션)")
     void create_fail_invalidPosition() {
-        // given
         RecruitmentCreateRequest request = new RecruitmentCreateRequest(
             testTeam.getTeamId(),
             Fixture.MATCH_DATE,
@@ -98,14 +88,12 @@ class MercenaryRecruitmentTest {
 
         given(teamRepository.findById(request.teamId())).willReturn(Optional.of(testTeam));
 
-        // when & then
         assertThatIllegalArgumentException().isThrownBy(() -> mercenaryRecruitmentService.create(request));
     }
 
     @Test
     @DisplayName("용병 모집 공고 생성 - 실패 (경기 날짜가 과거)")
     void create_fail_matchDateInThePast() {
-        // given
         RecruitmentCreateRequest request = new RecruitmentCreateRequest(
             testTeam.getTeamId(),
             LocalDate.now().minusDays(1),
@@ -117,19 +105,16 @@ class MercenaryRecruitmentTest {
 
         given(teamRepository.findById(request.teamId())).willReturn(Optional.of(testTeam));
 
-        // when & then
         assertThatIllegalArgumentException().isThrownBy(() -> mercenaryRecruitmentService.create(request));
     }
 
     @Test
     @DisplayName("용병 모집 공고 생성 - 실패 (팀 없음)")
     void create_fail_teamNotFound() {
-        // given
         long nonExistentTeamId = 999L;
         RecruitmentCreateRequest request = Fixture.createRecruitmentRequest(nonExistentTeamId);
         given(teamRepository.findById(nonExistentTeamId)).willReturn(Optional.empty());
 
-        // when & then
         assertThrows(TeamNotFoundException.class, () -> {
             mercenaryRecruitmentService.create(request);
         });
@@ -138,17 +123,14 @@ class MercenaryRecruitmentTest {
     @Test
     @DisplayName("용병 모집 공고 전체 조회 (페이지네이션) - 성공")
     void findAllPages_success() {
-        // given
         Pageable pageable = PageRequest.of(0, 10);
         List<MercenaryRecruitment> recruitments = Collections.singletonList(testRecruitment);
         Page<MercenaryRecruitment> recruitmentPage = new PageImpl<>(recruitments, pageable, recruitments.size());
 
         given(recruitmentRepository.findAll(pageable)).willReturn(recruitmentPage);
 
-        // when
         Page<RecruitmentResponse> responsePage = mercenaryRecruitmentService.findAllPages(pageable);
 
-        // then
         assertThat(responsePage).isNotNull();
         assertThat(responsePage.getContent()).hasSize(1);
         assertThat(responsePage.getContent().get(0).message()).isEqualTo(Fixture.MESSAGE);
@@ -157,13 +139,10 @@ class MercenaryRecruitmentTest {
     @Test
     @DisplayName("용병 모집 공고 단건 조회 - 성공")
     void findById_success() {
-        // given
         given(recruitmentRepository.findById(1L)).willReturn(Optional.of(testRecruitment));
 
-        // when
         RecruitmentResponse response = mercenaryRecruitmentService.findById(1L);
 
-        // then
         assertThat(response).isNotNull();
         assertThat(response.message()).isEqualTo(Fixture.MESSAGE);
     }
@@ -171,7 +150,6 @@ class MercenaryRecruitmentTest {
     @Test
     @DisplayName("용병 모집 공고 수정 - 성공")
     void update_success() {
-        // given
         RecruitmentUpdateRequest updateRequest = new RecruitmentUpdateRequest(
             LocalDate.now().plusDays(2),
             LocalTime.of(20, 0),
@@ -181,10 +159,8 @@ class MercenaryRecruitmentTest {
         );
         given(recruitmentRepository.findById(1L)).willReturn(Optional.of(testRecruitment));
 
-        // when
         RecruitmentResponse response = mercenaryRecruitmentService.update(1L, updateRequest);
 
-        // then
         assertThat(response).isNotNull();
         assertThat(response.message()).isEqualTo("Updated Message");
         assertThat(response.matchDate()).isEqualTo(LocalDate.now().plusDays(2));
@@ -193,29 +169,21 @@ class MercenaryRecruitmentTest {
     @Test
     @DisplayName("용병 모집 공고 삭제 - 성공")
     void delete_success() {
-        // given
         given(recruitmentRepository.findById(1L)).willReturn(Optional.of(testRecruitment));
 
-        // when
         mercenaryRecruitmentService.delete(1L);
 
-        // then
         verify(recruitmentRepository).deleteById(1L);
     }
 
     static class Fixture {
-        // 반복되는 값들은 상수로 만들어 재사용합니다.
         public static final String MESSAGE = "Test Message";
         public static final String POSITION = "공격수";
         public static final String SKILL_LEVEL = "아마추어";
         public static final LocalDate MATCH_DATE = LocalDate.now().plusDays(1);
         public static final LocalTime MATCH_START_TIME = LocalTime.of(18, 0);
 
-        // 테스트용 Team 객체를 생성하는 메서드
         public static Team createTeam() {
-            // ID를 포함한 객체를 생성하기 위해 Reflection을 사용하거나,
-            // ID를 세팅할 수 있는 별도의 생성자나 메서드를 두는 것이 좋습니다.
-            // 여기서는 간단하게 표현합니다.
             Team team = new Team(
                 "두리FC",
                 User.create(
@@ -232,12 +200,9 @@ class MercenaryRecruitmentTest {
                 SkillLevel.AMATEUR,
                 "즐겜해요~"
             );
-            // 실제로는 teamId가 필요하므로 setter나 다른 방법으로 ID를 설정해주는 로직이 필요합니다.
-            // 예: ReflectionTestUtils.setField(team, "id", 1L);
             return team;
         }
 
-        // 테스트용 MercenaryRecruitment 객체를 생성하는 메서드
         public static MercenaryRecruitment createRecruitment(Team team) {
             return MercenaryRecruitment.create(
                 team,
@@ -249,7 +214,6 @@ class MercenaryRecruitmentTest {
             );
         }
 
-        // 테스트용 RecruitmentCreateRequest DTO를 생성하는 메서드
         public static RecruitmentCreateRequest createRecruitmentRequest(Long teamId) {
             return new RecruitmentCreateRequest(
                 teamId,
