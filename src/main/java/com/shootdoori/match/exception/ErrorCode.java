@@ -7,7 +7,8 @@ public enum ErrorCode {
     DUPLICATED_USER("이미 존재하는 사용자입니다."),
     TEAM_CAPACITY_EXCEEDED("팀 정원이 가득 찼습니다. (최대 100명)"),
     TEAM_NOT_FOUND("해당 팀을 찾을 수 없습니다."),
-    USER_NOT_FOUND("해당 유저를 찾을 수 없습니다.");
+    USER_NOT_FOUND("해당 유저를 찾을 수 없습니다."),
+    TEAM_MEMBER_NOT_FOUND("해당 팀 멤버를 찾을 수 없습니다.");
 
 
     private final String message;

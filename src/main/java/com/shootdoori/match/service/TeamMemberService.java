@@ -7,7 +7,7 @@ import com.shootdoori.match.entity.TeamMember;
 import com.shootdoori.match.entity.TeamMemberRole;
 import com.shootdoori.match.entity.User;
 import com.shootdoori.match.exception.AlreadyTeamMemberException;
-import com.shootdoori.match.exception.DuplicateMemberException;
+import com.shootdoori.match.exception.TeamMemberNotFoundException;
 import com.shootdoori.match.exception.TeamNotFoundException;
 import com.shootdoori.match.exception.UserNotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;
@@ -61,5 +61,15 @@ public class TeamMemberService {
             savedTeamMember.getUser().getPosition().toString(),
             savedTeamMember.getRole().toString(),
             savedTeamMember.getJoinedAt());
+    }
+
+    public void delete(Long teamId, Long userId) {
+        Team team = teamRepository.findById(teamId)
+            .orElseThrow(() -> new TeamNotFoundException(teamId));
+
+        TeamMember teamMember = teamMemberRepository.findByTeamIdAndUserId(teamId, userId)
+            .orElseThrow(() -> new TeamMemberNotFoundException());
+
+        team.removeMember(teamMember);
     }
 }

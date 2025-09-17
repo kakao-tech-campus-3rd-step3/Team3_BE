@@ -5,6 +5,7 @@ import com.shootdoori.match.dto.TeamMemberResponseDto;
 import com.shootdoori.match.service.TeamMemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/teams/{teamId}/members")
+@RequestMapping("/api/teams/{teamId}/users")
 public class TeamMemberController {
 
     private final TeamMemberService  teamMemberService;
@@ -47,9 +48,11 @@ public class TeamMemberController {
 //
 //    }
 //
-//    @DeleteMapping("/{memberId}")
-//    public ResponseEntity<Void> delete(@PathVariable Long teamId,
-//        @PathVariable Long memberId) {
-//
-//    }
+    @DeleteMapping("/{userId}")
+    public ResponseEntity<Void> delete(@PathVariable Long teamId,
+        @PathVariable Long userId) {
+        teamMemberService.delete(teamId, userId);
+
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
 }

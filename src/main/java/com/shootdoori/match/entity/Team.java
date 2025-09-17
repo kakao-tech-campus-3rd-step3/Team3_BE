@@ -155,7 +155,7 @@ public class Team {
     }
 
     public void validateCanAcceptNewMember() {
-        if (this.memberCount.count() >= MAX_MEMBER_COUNT) {
+        if (this.memberCount.count() >= MAX_MEMBERS) {
             throw new TeamCapacityExceededException();
         }
     }
