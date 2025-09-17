@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "match_table")
@@ -92,7 +93,7 @@ public class Match {
   }
 
   public Team findEnemyTeam(Long teamId) {
-    if(teamId.equals(team1.getTeamId())) {
+      if(Objects.equals(teamId, team1.getTeamId())) {
       return team2;
     }
     else return team1;
