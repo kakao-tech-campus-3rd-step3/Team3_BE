@@ -1,5 +1,6 @@
 package com.shootdoori.match.service;
 
+import com.shootdoori.match.dto.TeamMemberMapper;
 import com.shootdoori.match.dto.TeamMemberRequestDto;
 import com.shootdoori.match.dto.TeamMemberResponseDto;
 import com.shootdoori.match.entity.Team;
@@ -23,12 +24,15 @@ public class TeamMemberService {
     private final TeamMemberRepository teamMemberRepository;
     private final TeamRepository teamRepository;
     private final ProfileRepository profileRepository;
+    private final TeamMemberMapper teamMemberMapper;
 
     public TeamMemberService(TeamMemberRepository teamMemberRepository,
-        TeamRepository teamRepository, ProfileRepository profileRepository) {
+        TeamRepository teamRepository, ProfileRepository profileRepository,
+        TeamMemberMapper teamMemberMapper) {
         this.teamMemberRepository = teamMemberRepository;
         this.teamRepository = teamRepository;
         this.profileRepository = profileRepository;
+        this.teamMemberMapper = teamMemberMapper;
     }
 
     public TeamMemberResponseDto create(Long teamId, TeamMemberRequestDto requestDto) {
@@ -54,13 +58,15 @@ public class TeamMemberService {
         TeamMember teamMember = new TeamMember(team, user, teamMemberRole);
         TeamMember savedTeamMember = teamMemberRepository.save(teamMember);
 
-        return new TeamMemberResponseDto(savedTeamMember.getId(),
-            savedTeamMember.getUser().getId(),
-            savedTeamMember.getUser().getName(),
-            savedTeamMember.getUser().getEmail(),
-            savedTeamMember.getUser().getPosition().toString(),
-            savedTeamMember.getRole().toString(),
-            savedTeamMember.getJoinedAt());
+        return teamMemberMapper.toTeamMemberResponseDto(savedTeamMember);
+    }
+
+    @Transactional(readOnly = true)
+    public TeamMemberResponseDto findByTeamIdAndUserId(Long teamId, Long userId) {
+        TeamMember teamMember = teamMemberRepository.findByTeamIdAndUserId(teamId, userId)
+            .orElseThrow(() -> new TeamMemberNotFoundException());
+
+        return teamMemberMapper.toTeamMemberResponseDto(teamMember);
     }
 
     public void delete(Long teamId, Long userId) {

@@ -6,6 +6,7 @@ import com.shootdoori.match.service.TeamMemberService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/teams/{teamId}/users")
 public class TeamMemberController {
 
-    private final TeamMemberService  teamMemberService;
+    private final TeamMemberService teamMemberService;
 
     public TeamMemberController(TeamMemberService teamMemberService) {
         this.teamMemberService = teamMemberService;
@@ -35,13 +36,14 @@ public class TeamMemberController {
             HttpStatus.CREATED);
     }
 
-//    @GetMapping("/{memberId}")
-//    public ResponseEntity<TeamMemberResponseDto> findById(@PathVariable Long teamId,
-//        @PathVariable Long memberId) {
-//
-//    }
-//
-//    @PutMapping("/{memberId}")
+    @GetMapping("/{userId}}")
+    public ResponseEntity<TeamMemberResponseDto> findByTeamIdAndUserId(@PathVariable Long teamId,
+        @PathVariable Long userId) {
+        return new ResponseEntity<>(teamMemberService.findByTeamIdAndUserId(teamId, userId),
+            HttpStatus.OK);
+    }
+
+    //    @PutMapping("/{memberId}")
 //    public ResponseEntity<Void> update(@PathVariable Long teamId,
 //        @PathVariable Long memberId,
 //        @RequestBody UpdateTeamMemberRequestDto request) {
