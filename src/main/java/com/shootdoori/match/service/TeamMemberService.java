@@ -3,6 +3,7 @@ package com.shootdoori.match.service;
 import com.shootdoori.match.dto.TeamMemberMapper;
 import com.shootdoori.match.dto.TeamMemberRequestDto;
 import com.shootdoori.match.dto.TeamMemberResponseDto;
+import com.shootdoori.match.dto.UpdateTeamMemberRequestDto;
 import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.entity.TeamMember;
 import com.shootdoori.match.entity.TeamMemberRole;
@@ -65,6 +66,19 @@ public class TeamMemberService {
     public TeamMemberResponseDto findByTeamIdAndUserId(Long teamId, Long userId) {
         TeamMember teamMember = teamMemberRepository.findByTeamIdAndUserId(teamId, userId)
             .orElseThrow(() -> new TeamMemberNotFoundException());
+
+        return teamMemberMapper.toTeamMemberResponseDto(teamMember);
+    }
+
+    public TeamMemberResponseDto update(Long teamId, Long userId,
+        UpdateTeamMemberRequestDto requestDto) {
+        Team team = teamRepository.findById(teamId)
+            .orElseThrow(() -> new TeamNotFoundException(teamId));
+
+        TeamMember teamMember = teamMemberRepository.findByTeamIdAndUserId(teamId, userId)
+            .orElseThrow(() -> new TeamMemberNotFoundException());
+
+        teamMember.changeRole(team, requestDto);
 
         return teamMemberMapper.toTeamMemberResponseDto(teamMember);
     }

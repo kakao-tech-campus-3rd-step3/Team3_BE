@@ -1,5 +1,8 @@
 package com.shootdoori.match.entity;
 
+import com.shootdoori.match.dto.UpdateTeamMemberRequestDto;
+import com.shootdoori.match.exception.DuplicateCaptainException;
+import com.shootdoori.match.exception.DuplicateViceCaptainException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -50,7 +53,7 @@ public class TeamMember {
 
     protected TeamMember() {
     }
-  
+
     public TeamMember(Team team, User user, TeamMemberRole role) {
         this.team = team;
         this.user = user;
@@ -93,5 +96,21 @@ public class TeamMember {
 
     public void setTeam(Team team) {
         this.team = team;
+    }
+
+    public void changeRole(Team team, UpdateTeamMemberRequestDto requestDto) {
+        TeamMemberRole newRole = TeamMemberRole.fromDisplayName(requestDto.role());
+
+        if (newRole == TeamMemberRole.LEADER && team.hasCaptain()
+            && this.role != TeamMemberRole.LEADER) {
+            throw new DuplicateCaptainException();
+        }
+
+        if (newRole == TeamMemberRole.VICE_LEADER && team.hasViceCaptain()
+            && this.role != TeamMemberRole.VICE_LEADER) {
+            throw new DuplicateViceCaptainException();
+        }
+
+        this.role = newRole;
     }
 }
