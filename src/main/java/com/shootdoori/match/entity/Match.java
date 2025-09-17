@@ -93,10 +93,9 @@ public class Match {
   }
 
   public Team findEnemyTeam(Long teamId) {
-      if(Objects.equals(teamId, team1.getTeamId())) {
+      if (Objects.equals(teamId, team1.getTeamId())) {
           return team2;
-      }
-      else {
+      } else {
           return team1;
       }
   }
