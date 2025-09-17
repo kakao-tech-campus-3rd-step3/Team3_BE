@@ -1,5 +1,6 @@
 package com.shootdoori.match.entity;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -10,10 +11,13 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "teams")
@@ -54,16 +58,18 @@ public class Team {
     @Column(name = "UPDATED_AT")
     private LocalDateTime updatedAt;
 
+    @OneToMany(mappedBy = "teams", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<TeamMember> memberList = new ArrayList<>();
+    
     protected Team() {
     }
 
     public Team(String teamName, User captain, String university, TeamType teamType,
-        Integer memberCount, SkillLevel skillLevel, String description) {
+        SkillLevel skillLevel, String description) {
         this.teamName = teamName;
         this.captain = captain;
         this.university = university;
         this.teamType = teamType != null ? teamType : TeamType.OTHER;
-        this.memberCount = (memberCount == null || memberCount < 0) ? 0 : memberCount;
         this.skillLevel = skillLevel != null ? skillLevel : SkillLevel.AMATEUR;
         this.description = description;
     }
@@ -118,5 +124,74 @@ public class Team {
 
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public List<TeamMember> getMemberList() {
+        return memberList;
+    }
+
+    private void validateTeamName(String name) {
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("팀 이름은 필수입니다.");
+        }
+        if (name.length() > 100) {
+            throw new IllegalArgumentException("팀 이름은 최대 100자입니다.");
+        }
+    }
+
+    private void validateUniversity(String university) {
+        if (university == null || university.isBlank()) {
+            throw new IllegalArgumentException("대학교는 필수입니다.");
+        }
+        if (university.length() > 100) {
+            throw new IllegalArgumentException("대학교는 최대 100자입니다.");
+        }
+    }
+
+    private void validateDescription(String desc) {
+        if (desc != null && desc.length() > 1000) {
+            throw new IllegalArgumentException("설명은 최대 1000자입니다.");
+        }
+    }
+
+    private void validateMemberCount(int count) {
+        if (count < 0 || count > 100) {
+            throw new IllegalArgumentException("멤버 수는 0~100명입니다.");
+        }
+    }
+
+    public void addMember(TeamMember member) {
+        memberList.add(member);
+        member.setTeam(this);
+    }
+
+    public void removeMember(TeamMember member) {
+        memberList.remove(member);
+        member.setTeam(null);
+    }
+
+    public void increaseMemberCount() {
+        validateMemberCount(this.memberCount + 1);
+        this.memberCount++;
+    }
+
+    public void decreaseMemberCount() {
+        validateMemberCount(this.memberCount - 1);
+        this.memberCount--;
+    }
+
+    public void changeTeamInfo(String teamName,
+        String university,
+        String skillLevel,
+        String description) {
+
+        validateTeamName(teamName);
+        validateUniversity(university);
+        validateDescription(description);
+
+        this.teamName = teamName;
+        this.university = university;
+        this.skillLevel = SkillLevel.fromDisplayName(skillLevel);
+        this.description = description;
     }
 }
