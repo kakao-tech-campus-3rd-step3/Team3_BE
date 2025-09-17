@@ -39,5 +39,5 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
             Pageable pageable
     );
 
-  Match findByMatchId(int i);
+  Match findByMatchId(Long i);
 }

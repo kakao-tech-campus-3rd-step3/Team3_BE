@@ -91,8 +91,8 @@ public class Match {
     return updatedAt;
   }
 
-  public Team findEnemyTeam(int teamId) {
-    if(teamId == team1.getTeamId()) {
+  public Team findEnemyTeam(Long teamId) {
+    if(teamId.equals(team1.getTeamId())) {
       return team2;
     }
     else return team1;
