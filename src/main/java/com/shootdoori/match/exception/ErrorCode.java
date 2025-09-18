@@ -10,8 +10,7 @@ public enum ErrorCode {
     USER_NOT_FOUND("해당 유저를 찾을 수 없습니다."),
     TEAM_MEMBER_NOT_FOUND("해당 팀 멤버를 찾을 수 없습니다."),
     DUPLICATE_CAPTAIN("이미 팀에 회장이 존재합니다."),
-    DUPLICATE_VICE_CAPTAIN("이미 팀에 부회장이 존재합니다."),
-    CANNOT_ABDICATE_LEADERSHIP("리더는 다른 멤버에게 역할을 위임한 후에만 역할을 변경할 수 있습니다.");
+    DUPLICATE_VICE_CAPTAIN("이미 팀에 부회장이 존재합니다.");
 
 
     private final String message;

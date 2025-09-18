@@ -1,7 +1,6 @@
 package com.shootdoori.match.entity;
 
 import com.shootdoori.match.dto.UpdateTeamMemberRequestDto;
-import com.shootdoori.match.exception.CannotAbdicateLeadershipException;
 import com.shootdoori.match.exception.DuplicateCaptainException;
 import com.shootdoori.match.exception.DuplicateViceCaptainException;
 import jakarta.persistence.Column;
@@ -101,10 +100,6 @@ public class TeamMember {
 
     public void changeRole(Team team, UpdateTeamMemberRequestDto requestDto) {
         TeamMemberRole newRole = TeamMemberRole.fromDisplayName(requestDto.role());
-
-        if (this.role == TeamMemberRole.LEADER && newRole != TeamMemberRole.MEMBER) {
-            throw new CannotAbdicateLeadershipException();
-        }
 
         if (newRole == TeamMemberRole.LEADER && team.hasCaptain()
             && this.role != TeamMemberRole.LEADER) {
