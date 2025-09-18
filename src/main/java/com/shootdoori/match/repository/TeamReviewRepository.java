@@ -13,6 +13,6 @@ public interface TeamReviewRepository extends JpaRepository<TeamReview, Long> {
     List<TeamReview> findAllByReviewedTeamTeamId(Long reviewedTeamId);
 
     @Query("SELECT tr FROM TeamReview tr WHERE tr.reviewedTeam.teamId = :reviewedTeamId AND tr.id = :id")
-    TeamReview findByReviewedTeamTeamIdAndId(@Param("reviewedTeamId") Long reviewedTeamId,
+    TeamReview findByReviewedTeam_TeamIdAndId(@Param("reviewedTeamId") Long reviewedTeamId,
         @Param("id") Long id);
 }

@@ -34,7 +34,7 @@ public class TeamReviewService {
     }
 
     public TeamReviewResponseDto getTeamReview(Long teamId, Long reviewId) {
-        return TeamReviewResponseDto.from(teamReviewRepository.findByReviewedTeamTeamIdAndId(teamId, reviewId));
+        return TeamReviewResponseDto.from(teamReviewRepository.findByReviewedTeam_TeamIdAndId(teamId, reviewId));
     }
 
     @Transactional
