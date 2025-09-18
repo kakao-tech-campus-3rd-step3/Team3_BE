@@ -74,6 +74,7 @@ public class User {
         this.email = email;
         this.universityEmail = universityEmail;
         this.phoneNumber = phoneNumber;
+        this.position = Position.CF;
         this.university = UniversityName.of(university);
         this.department = department;
         this.studentYear = studentYear;

@@ -8,8 +8,8 @@ spring:
     activate.on-profile: local
   datasource:
     url: jdbc:mysql://localhost:3306/match_db?useSSL=false&serverTimezone=Asia/Seoul&characterEncoding=utf8
-    username: {mysql 아이디}
-    password: {mysql 비밀번호}
+    username: { mysql id }
+    password: { mysql pw }
   jpa:
     hibernate:
       ddl-auto: update

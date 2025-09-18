@@ -4,5 +4,5 @@ import com.shootdoori.match.entity.TeamMember;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TeamMemberRepository extends JpaRepository<TeamMember, Long> {
-    public boolean existsByTeam_IdAndUser_Id(Long teamId, Long userId);
+    public boolean existsByTeamTeamIdAndUserId(Long teamId, Long userId);
 }

@@ -41,7 +41,7 @@ public class TeamMemberService {
         User user = profileRepository.findById(userId).orElseThrow(
             () -> new UserNotFoundException(userId));
 
-        if (teamMemberRepository.existsByTeam_IdAndUser_Id(teamId, userId)) {
+        if (teamMemberRepository.existsByTeamTeamIdAndUserId(teamId, userId)) {
             throw new AlreadyTeamMemberException();
         }
 

@@ -10,7 +10,7 @@ description = 'Shootdoori project for Spring Boot'
 
 java {
 	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
+		languageVersion = JavaLanguageVersion.of(17)
 	}
 }
 
@@ -24,7 +24,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 
-	runtimeOnly 'com.mysql:mysql-connector-j'
+	runtimeOnly 'com.h2database:h2'
+//	runtimeOnly 'com.mysql:mysql-connector-j'
 
 	// --- 테스트용 ---
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
