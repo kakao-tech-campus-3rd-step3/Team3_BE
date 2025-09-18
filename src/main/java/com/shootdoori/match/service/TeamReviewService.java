@@ -28,13 +28,13 @@ public class TeamReviewService {
     }
 
     public List<TeamReviewResponseDto> getAllTeamReviews(Long teamId) {
-        return teamReviewRepository.findAllByReviewedTeamId(teamId).stream()
+        return teamReviewRepository.findAllByReviewedTeamTeamId(teamId).stream()
                 .map(TeamReviewResponseDto::from)
                 .toList();
     }
 
     public TeamReviewResponseDto getTeamReview(Long teamId, Long reviewId) {
-        return teamReviewRepository.findByReviewedTeamIdAndId(teamId, reviewId);
+        return TeamReviewResponseDto.from(teamReviewRepository.findByReviewedTeamTeamIdAndId(teamId, reviewId));
     }
 
     @Transactional
