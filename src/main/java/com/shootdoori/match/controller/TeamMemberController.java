@@ -35,7 +35,7 @@ public class TeamMemberController {
             HttpStatus.CREATED);
     }
 
-    @GetMapping("/{userId}}")
+    @GetMapping("/{userId}")
     public ResponseEntity<TeamMemberResponseDto> findByTeamIdAndUserId(@PathVariable Long teamId,
         @PathVariable Long userId) {
         return new ResponseEntity<>(teamMemberService.findByTeamIdAndUserId(teamId, userId),

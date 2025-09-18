@@ -50,7 +50,7 @@ public class TeamMemberService {
         User user = profileRepository.findById(userId).orElseThrow(
             () -> new UserNotFoundException(userId));
 
-        if (teamMemberRepository.existsByTeamTeamIdAndUserId(teamId, userId)) {
+        if (teamMemberRepository.existsByTeam_TeamIdAndUser_Id(teamId, userId)) {
             throw new AlreadyTeamMemberException();
         }
 
@@ -68,7 +68,7 @@ public class TeamMemberService {
 
     @Transactional(readOnly = true)
     public TeamMemberResponseDto findByTeamIdAndUserId(Long teamId, Long userId) {
-        TeamMember teamMember = teamMemberRepository.findByTeamIdAndUserId(teamId, userId)
+        TeamMember teamMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId, userId)
             .orElseThrow(() -> new TeamMemberNotFoundException());
 
         return teamMemberMapper.toTeamMemberResponseDto(teamMember);
@@ -78,7 +78,7 @@ public class TeamMemberService {
     public Page<TeamMemberResponseDto> findAllByTeamId(Long teamId, int page, int size) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("teamMemberId").ascending());
 
-        Page<TeamMember> teamMemberPage = teamMemberRepository.findAllByTeamId(teamId, pageable);
+        Page<TeamMember> teamMemberPage = teamMemberRepository.findAllByTeam_TeamId(teamId, pageable);
 
         return teamMemberPage.map(teamMemberMapper::toTeamMemberResponseDto);
     }
@@ -88,7 +88,7 @@ public class TeamMemberService {
         Team team = teamRepository.findById(teamId)
             .orElseThrow(() -> new TeamNotFoundException(teamId));
 
-        TeamMember teamMember = teamMemberRepository.findByTeamIdAndUserId(teamId, userId)
+        TeamMember teamMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId, userId)
             .orElseThrow(() -> new TeamMemberNotFoundException());
 
         teamMember.changeRole(team, requestDto);
@@ -100,7 +100,7 @@ public class TeamMemberService {
         Team team = teamRepository.findById(teamId)
             .orElseThrow(() -> new TeamNotFoundException(teamId));
 
-        TeamMember teamMember = teamMemberRepository.findByTeamIdAndUserId(teamId, userId)
+        TeamMember teamMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId, userId)
             .orElseThrow(() -> new TeamMemberNotFoundException());
 
         team.removeMember(teamMember);
