@@ -7,9 +7,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface TeamMemberRepository extends JpaRepository<TeamMember, Long> {
-    public boolean existsByTeam_IdAndUser_Id(Long teamId, Long userId);
 
     Optional<TeamMember> findByTeamIdAndUserId(Long teamId, Long userId);
 
     Page<TeamMember> findAllByTeamId(Long teamId, Pageable pageable);
+
+    public boolean existsByTeamTeamIdAndUserId(Long teamId, Long userId);
 }
