@@ -91,7 +91,7 @@ public class TeamMemberService {
         TeamMember teamMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId, userId)
             .orElseThrow(() -> new TeamMemberNotFoundException());
 
-        teamMember.changeRole(team, requestDto);
+        teamMember.changeRole(team, TeamMemberRole.fromDisplayName(requestDto.role()));
 
         return teamMemberMapper.toTeamMemberResponseDto(teamMember);
     }

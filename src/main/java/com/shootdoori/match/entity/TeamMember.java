@@ -98,8 +98,7 @@ public class TeamMember {
         this.team = team;
     }
 
-    public void changeRole(Team team, UpdateTeamMemberRequestDto requestDto) {
-        TeamMemberRole newRole = TeamMemberRole.fromDisplayName(requestDto.role());
+    public void changeRole(Team team, TeamMemberRole newRole) {
 
         if (newRole == TeamMemberRole.LEADER && team.hasCaptain()
             && this.role != TeamMemberRole.LEADER) {
