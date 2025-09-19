@@ -54,7 +54,6 @@ class MercenaryRecruitmentTest {
     @BeforeEach
     void setUp() {
         testTeam = Fixture.createTeam();
-        // [수정] Team 엔티티의 ID 필드 이름을 'id'에서 'teamId'로 변경합니다. (가장 가능성 높은 이름)
         ReflectionTestUtils.setField(testTeam, "teamId", 1L);
 
         testRecruitment = Fixture.createRecruitment(testTeam);
