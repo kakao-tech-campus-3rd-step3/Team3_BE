@@ -68,7 +68,7 @@ public class User {
 
     private User(String name, SkillLevel skillLevel, String email, String universityEmail, String password, String phoneNumber,
         Position position, String university, String department, String studentYear, String bio) {
-        validate(name, skillLevel.getDisplayName(), email, universityEmail, phoneNumber, position.getDisplayName(), university, department, studentYear, bio);
+        validate(name, skillLevel.getDisplayName(), email, universityEmail, password, phoneNumber, position.getDisplayName(), university, department, studentYear, bio);
         this.name = name;
         this.skillLevel = skillLevel;
         this.email = email;
@@ -90,12 +90,13 @@ public class User {
             studentYear, bio);
     }
 
-    private void validate(String name, String skillLevel, String email, String universityEmail, String phoneNumber,
+    private void validate(String name, String skillLevel, String email, String universityEmail, String password, String phoneNumber,
         String position, String university, String department, String studentYear, String bio) {
         validateName(name);
         validateSkillLevel(skillLevel);
         validateEmail(email);
         validateUniversityEmail(universityEmail);
+        validatePassword(password);
         validatePhoneNumber(phoneNumber);
         validatePosition(position);
         validateUniversity(university);
@@ -176,6 +177,12 @@ public class User {
         }
         if (university.length() > 100) {
             throw new IllegalArgumentException("대학교 이름은 100자를 초과할 수 없습니다.");
+        }
+    }
+
+    private void validatePassword(String password) {
+        if (password == null || password.isBlank()) {
+            throw new IllegalArgumentException("비밀번호는 필수 입력 값입니다.");
         }
     }
 
