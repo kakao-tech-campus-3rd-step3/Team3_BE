@@ -209,7 +209,7 @@ class MercenaryRecruitmentTest {
                 "두리FC",
                 User.create(
                     "김학생", "아마추어", "student@example.com", "student@kangwon.ac.kr",
-                    "010-1234-5678", "공격수", "강원대학교", "컴퓨터공학과", "20", "안녕하세요!"),
+                    "asdf02~!", "010-1234-5678", "공격수", "강원대학교", "컴퓨터공학과", "20", "안녕하세요!"),
                 "강원대학교", TeamType.CENTRAL_CLUB, SkillLevel.AMATEUR, "즐겜해요~"
             );
         }

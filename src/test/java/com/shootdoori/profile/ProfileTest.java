@@ -26,6 +26,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @ExtendWith(MockitoExtension.class)
 public class ProfileTest {
@@ -35,6 +36,9 @@ public class ProfileTest {
 
     @Mock
     private ProfileMapper profileMapper;
+
+    @Mock
+    private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private ProfileService profileService;
@@ -47,13 +51,13 @@ public class ProfileTest {
     void setup() {
         createRequest = new ProfileCreateRequest(
             "jam", "아마추어", "test@email.com", "test@ac.kr",
-            "010-0000-0000", "공격수", "knu", "cs",
+            "asdf02~!", "010-0000-0000", "공격수", "knu", "cs",
             "20", "hello, world"
         );
 
         user = User.create(
             createRequest.name(), createRequest.skillLevel(), createRequest.email(), createRequest.universityEmail(),
-            createRequest.phoneNumber(), createRequest.position(), createRequest.university(),
+            createRequest.password(), createRequest.phoneNumber(), createRequest.position(), createRequest.university(),
             createRequest.department(), createRequest.studentYear(), createRequest.bio()
         );
     }
@@ -81,6 +85,9 @@ public class ProfileTest {
         // given
         when(profileRepository.existsByEmailOrUniversityEmail(createRequest.email(), createRequest.universityEmail()))
             .thenReturn(false);
+
+        when(passwordEncoder.encode(any(String.class))).thenReturn("encodedPassword");
+
         when(profileRepository.save(any(User.class))).thenReturn(user);
 
         when(profileMapper.toProfileResponse(user)).thenReturn(
@@ -105,7 +112,7 @@ public class ProfileTest {
         // given
         ProfileCreateRequest invalidRequest = new ProfileCreateRequest(
             "jam", "아마추어", "new@email.com", "new@ac.kr",
-            "010-1111-1111", "마법사", "knu", "cs",
+            "asdf02~!", "010-1111-1111", "마법사", "knu", "cs",
             "20", "hello, world"
         );
 
@@ -119,7 +126,7 @@ public class ProfileTest {
         // given
         ProfileCreateRequest duplicateRequest = new ProfileCreateRequest(
             "jam", "아마추어", "duplicate@email.com", "test@kangwon.ac.kr",
-            "010-0000-0000", "공격수", "knu", "cs",
+            "asdf02~!","010-0000-0000", "공격수", "knu", "cs",
             "20", "hello, world"
         );
 
