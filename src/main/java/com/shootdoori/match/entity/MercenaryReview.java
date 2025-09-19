@@ -26,11 +26,7 @@ import org.hibernate.annotations.Check;
 )
 @Check(
     name = "ck_mercenary_review_ratings",
-    constraints =
-        "overall_rating BETWEEN 1 AND 5 " +
-            "AND skill_rating BETWEEN 1 AND 5 " +
-            "AND manner_rating BETWEEN 1 AND 5 " +
-            "AND communication_rating BETWEEN 1 AND 5"
+    constraints = "rating BETWEEN 1 AND 5 "
 )
 public class MercenaryReview {
 
@@ -51,27 +47,19 @@ public class MercenaryReview {
     @JoinColumn(name = "mercenary_user_id", nullable = false)
     private User mercenaryUser;
 
-    @Column(name = "mercenary_name", nullable = false, length = 100)
-    private String mercenaryName;
+    @Min(1)
+    @Max(5)
+    @Column(name = "rating", nullable = false)
+    private Integer rating;
 
-    @Min(1) @Max(5)
-    @Column(name = "overall_rating", nullable = false)
-    private int overallRating;
+    @Column(name = "punctuality_review")
+    private ReviewBinaryEvaluation punctualityReview;
 
-    @Min(1) @Max(5)
-    @Column(name = "skill_rating", nullable = false)
-    private int skillRating;
+    @Column(name = "sportsmanship_review")
+    private ReviewBinaryEvaluation sportsmanshipReview;
 
-    @Min(1) @Max(5)
-    @Column(name = "manner_rating", nullable = false)
-    private int mannerRating;
-
-    @Min(1) @Max(5)
-    @Column(name = "communication_rating", nullable = false)
-    private int communicationRating;
-
-    @Column(name = "comment", length = 300)
-    private String comment;
+    @Column(name = "skill_level_review")
+    private ReviewSkillLevel skillLevelReview;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -83,23 +71,19 @@ public class MercenaryReview {
     }
 
     public MercenaryReview(Match match,
-        Team reviewerTeam,
-        User mercenaryUser,
-        String mercenaryName,
-        int overallRating,
-        int skillRating,
-        int mannerRating,
-        int communicationRating,
-        String comment) {
+                           Team reviewerTeam,
+                           User mercenaryUser,
+                           Integer rating,
+                           ReviewBinaryEvaluation punctualityReview,
+                           ReviewBinaryEvaluation sportsmanshipReview,
+                           ReviewSkillLevel skillLevelReview) {
         this.match = match;
         this.reviewerTeam = reviewerTeam;
         this.mercenaryUser = mercenaryUser;
-        this.mercenaryName = mercenaryName;
-        this.overallRating = overallRating;
-        this.skillRating = skillRating;
-        this.mannerRating = mannerRating;
-        this.communicationRating = communicationRating;
-        this.comment = comment;
+        this.rating = rating;
+        this.punctualityReview = punctualityReview;
+        this.sportsmanshipReview = sportsmanshipReview;
+        this.skillLevelReview = skillLevelReview;
     }
 
     @PrePersist
@@ -128,28 +112,20 @@ public class MercenaryReview {
         return mercenaryUser;
     }
 
-    public String getMercenaryName() {
-        return mercenaryName;
+    public Integer getRating() {
+        return rating;
     }
 
-    public int getOverallRating() {
-        return overallRating;
+    public ReviewBinaryEvaluation getPunctualityReview() {
+        return punctualityReview;
     }
 
-    public int getSkillRating() {
-        return skillRating;
+    public ReviewBinaryEvaluation getSportsmanshipReview() {
+        return sportsmanshipReview;
     }
 
-    public int getMannerRating() {
-        return mannerRating;
-    }
-
-    public int getCommunicationRating() {
-        return communicationRating;
-    }
-
-    public String getComment() {
-        return comment;
+    public ReviewSkillLevel getSkillLevelReview() {
+        return skillLevelReview;
     }
 
     public LocalDateTime getCreatedAt() {

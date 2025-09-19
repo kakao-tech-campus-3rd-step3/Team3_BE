@@ -27,10 +27,7 @@ import org.hibernate.annotations.Check;
 )
 @Check(
     name = "ck_team_review_ratings",
-    constraints =
-        "rating BETWEEN 1 AND 5 " +
-            "AND (punctuality_rating IS NULL OR (punctuality_rating BETWEEN 1 AND 5)) " +
-            "AND (sportsmanship_rating IS NULL OR (sportsmanship_rating BETWEEN 1 AND 5))"
+    constraints = "rating BETWEEN 1 AND 5 "
 )
 public class TeamReview {
 
