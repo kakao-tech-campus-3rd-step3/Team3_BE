@@ -144,4 +144,9 @@ public class MatchQueue {
   public LocalDateTime getUpdatedAt() {
     return updatedAt;
   }
+
+  public void(MatchQueueStatus status, LocalDateTime updatedAt){
+    this.status = status;
+    this.updatedAt = updatedAt;
+  }
 }
