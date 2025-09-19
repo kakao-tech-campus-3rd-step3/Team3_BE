@@ -1,5 +1,7 @@
 package com.shootdoori.match.dto;
 
+import com.shootdoori.match.entity.ReviewBinaryEvaluation;
+import com.shootdoori.match.entity.ReviewSkillLevel;
 import com.shootdoori.match.entity.TeamReview;
 
 public record TeamReviewResponseDto(Long teamReviewId,
@@ -7,9 +9,9 @@ public record TeamReviewResponseDto(Long teamReviewId,
                                     Long reviewerTeamId,
                                     Long reviewedTeamId,
                                     Integer rating,
-                                    String comment,
-                                    Integer punctualityRating,
-                                    Integer sportsmanshipRating) {
+                                    ReviewBinaryEvaluation punctualityReview,
+                                    ReviewBinaryEvaluation sportsmanshipReview,
+                                    ReviewSkillLevel skillLevelReview) {
 
     public static TeamReviewResponseDto from(TeamReview review) {
         return new TeamReviewResponseDto(
@@ -18,9 +20,9 @@ public record TeamReviewResponseDto(Long teamReviewId,
                 review.getReviewerTeam().getTeamId(),
                 review.getReviewedTeam().getTeamId(),
                 review.getRating(),
-                review.getComment(),
-                review.getPunctualityRating(),
-                review.getSportsmanshipRating()
+                review.getPunctualityReview(),
+                review.getSportsmanshipReview(),
+                review.getSkillLevelReview()
         );
     }
 }
