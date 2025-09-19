@@ -35,7 +35,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("용병 모집 서비스 단위 테스트")
+@DisplayName("용병 모집 테스트")
 class MercenaryRecruitmentTest {
 
     @InjectMocks
@@ -47,20 +47,14 @@ class MercenaryRecruitmentTest {
     @Mock
     private TeamRepository teamRepository;
 
-    // --- 테스트 픽스처(Test Fixture)로 분리된 객체들 ---
-    // 각 테스트에서 이 객체들을 재사용합니다.
     private Team testTeam;
     private MercenaryRecruitment testRecruitment;
     private RecruitmentCreateRequest createRequest;
 
-    // @BeforeEach: 각 테스트가 실행되기 전에 이 메서드가 호출되어
-    // 항상 깨끗하고 일관된 테스트 환경을 만들어줍니다.
     @BeforeEach
     void setUp() {
         testTeam = Fixture.createTeam();
-        // Fixture로 생성한 Team 객체에 ID를 설정해줍니다.
-        // 이 ID는 다른 테스트에서 일관되게 사용됩니다.
-        ReflectionTestUtils.setField(testTeam, "id", 1L);
+        ReflectionTestUtils.setField(testTeam, "teamId", 1L);
 
         testRecruitment = Fixture.createRecruitment(testTeam);
         createRequest = Fixture.createRecruitmentRequest(testTeam.getTeamId());
@@ -204,52 +198,33 @@ class MercenaryRecruitmentTest {
     }
 
     static class Fixture {
-        // 반복되는 값들은 상수로 만들어 재사용합니다.
         public static final String MESSAGE = "Test Message";
         public static final String POSITION = "공격수";
         public static final String SKILL_LEVEL = "아마추어";
         public static final LocalDate MATCH_DATE = LocalDate.now().plusDays(1);
         public static final LocalTime MATCH_START_TIME = LocalTime.of(18, 0);
 
-        // 테스트용 Team 객체를 생성하는 메서드
         public static Team createTeam() {
-            // ID를 포함한 객체를 생성하기 위해 Reflection을 사용하거나,
-            // ID를 세팅할 수 있는 별도의 생성자나 메서드를 두는 것이 좋습니다.
-            // 여기서는 간단하게 표현합니다.
-            Team team = new Team(
+            return new Team(
                 "두리FC",
                 User.create(
-                    "김학생",
-                    "student@example.com",
-                    "student@kangwon.ac.kr",
-                    "010-1234-5678",
-                    "강원대학교",
-                    "컴퓨터공학과",
-                    "20",
-                    "안녕하세요!"),
-                "강원대학교",
-                TeamType.CENTRAL_CLUB,
-                SkillLevel.AMATEUR,
-                "즐겜해요~"
+                    "김학생", "아마추어", "student@example.com", "student@kangwon.ac.kr",
+                    "010-1234-5678", "공격수", "강원대학교", "컴퓨터공학과", "20", "안녕하세요!"),
+                "강원대학교", TeamType.CENTRAL_CLUB, SkillLevel.AMATEUR, "즐겜해요~"
             );
-            // 실제로는 teamId가 필요하므로 setter나 다른 방법으로 ID를 설정해주는 로직이 필요합니다.
-            // 예: ReflectionTestUtils.setField(team, "id", 1L);
-            return team;
         }
 
-        // 테스트용 MercenaryRecruitment 객체를 생성하는 메서드
         public static MercenaryRecruitment createRecruitment(Team team) {
             return MercenaryRecruitment.create(
                 team,
                 MATCH_DATE,
                 MATCH_START_TIME,
                 MESSAGE,
-                Position.valueOf(POSITION),
-                SkillLevel.valueOf(SKILL_LEVEL)
+                Position.fromDisplayName(POSITION),
+                SkillLevel.fromDisplayName(SKILL_LEVEL)
             );
         }
 
-        // 테스트용 RecruitmentCreateRequest DTO를 생성하는 메서드
         public static RecruitmentCreateRequest createRecruitmentRequest(Long teamId) {
             return new RecruitmentCreateRequest(
                 teamId,

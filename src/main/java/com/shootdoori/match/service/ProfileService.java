@@ -31,9 +31,11 @@ public class ProfileService {
 
         User user = User.create(
             createRequest.name(),
+            createRequest.skillLevel(),
             createRequest.email(),
             createRequest.universityEmail(),
             createRequest.phoneNumber(),
+            createRequest.position(),
             createRequest.university(),
             createRequest.department(),
             createRequest.studentYear(),
@@ -54,7 +56,7 @@ public class ProfileService {
     public void updateProfile(Long id, ProfileUpdateRequest updateRequest) {
         User profile = profileRepository.findById(id)
             .orElseThrow(() -> new IllegalArgumentException("해당 프로필을 찾을 수 없습니다."));
-        profile.update(updateRequest);
+        profile.update(updateRequest.skillLevel(), updateRequest.position(), updateRequest.bio());
     }
 
     public void deleteProfile(Long id) {

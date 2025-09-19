@@ -4,7 +4,14 @@ import java.time.LocalDateTime;
 
 public record ProfileResponse(
     String name,
+    String skillLevel,
+    String email,
+    String phoneNumber,
+    String position,
     String university,
+    String department,
+    String studentYear,
+    String bio,
     LocalDateTime createdAt
 ) {
 }
