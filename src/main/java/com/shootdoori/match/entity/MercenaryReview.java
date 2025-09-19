@@ -86,6 +86,16 @@ public class MercenaryReview {
         this.skillLevelReview = skillLevelReview;
     }
 
+    public void update(MercenaryReview mercenaryReview) {
+        this.match = mercenaryReview.match;
+        this.reviewerTeam = mercenaryReview.reviewerTeam;
+        this.mercenaryUser = mercenaryReview.mercenaryUser;
+        this.rating = mercenaryReview.rating;
+        this.punctualityReview = mercenaryReview.punctualityReview;
+        this.sportsmanshipReview = mercenaryReview.sportsmanshipReview;
+        this.skillLevelReview = mercenaryReview.skillLevelReview;
+    }
+
     @PrePersist
     public void prePersist() {
         this.createdAt = LocalDateTime.now();

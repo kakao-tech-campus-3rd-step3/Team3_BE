@@ -1,6 +1,5 @@
 package com.shootdoori.match.entity;
 
-import com.shootdoori.match.dto.TeamReviewRequestDto;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
