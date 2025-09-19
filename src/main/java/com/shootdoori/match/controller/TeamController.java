@@ -39,6 +39,7 @@ public class TeamController {
             "아마추어",
             "student@example.com",
             "student@kangwon.ac.kr",
+            "asdf",
             "010-1234-5678",
             "공격수",
             "강원대학교",
