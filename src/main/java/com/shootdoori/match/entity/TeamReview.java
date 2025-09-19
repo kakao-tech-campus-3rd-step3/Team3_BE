@@ -1,17 +1,6 @@
 package com.shootdoori.match.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.time.LocalDateTime;
@@ -52,12 +41,15 @@ public class TeamReview {
     @Column(name = "rating", nullable = false)
     private Integer rating;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "punctuality_review")
     private ReviewBinaryEvaluation punctualityReview;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "sportsmanship_review")
     private ReviewBinaryEvaluation sportsmanshipReview;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "skill_level_review")
     private ReviewSkillLevel skillLevelReview;
 

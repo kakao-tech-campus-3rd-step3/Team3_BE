@@ -32,12 +32,14 @@ public class MercenaryReviewService {
         this.teamRepository = teamRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<MercenaryReviewResponseDto> getAll(Long userId) {
         return mercenaryReviewRepository.findAllByMercenaryUserId(userId).stream()
                 .map(MercenaryReviewResponseDto::from)
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public MercenaryReviewResponseDto get(Long userId, Long reviewId) {
         return MercenaryReviewResponseDto.from(mercenaryReviewRepository.findByMercenaryUserIdAndId(userId, reviewId));
     }

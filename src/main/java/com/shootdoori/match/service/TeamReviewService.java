@@ -27,12 +27,14 @@ public class TeamReviewService {
         this.matchRepository = matchRepository;
     }
 
+    @Transactional(readOnly = true)
     public List<TeamReviewResponseDto> getAll(Long teamId) {
         return teamReviewRepository.findAllByReviewedTeamTeamId(teamId).stream()
                 .map(TeamReviewResponseDto::from)
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public TeamReviewResponseDto get(Long teamId, Long reviewId) {
         return TeamReviewResponseDto.from(teamReviewRepository.findByReviewedTeamTeamIdAndId(teamId, reviewId));
     }
