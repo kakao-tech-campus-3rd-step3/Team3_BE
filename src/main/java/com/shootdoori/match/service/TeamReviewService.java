@@ -27,21 +27,27 @@ public class TeamReviewService {
         this.matchRepository = matchRepository;
     }
 
-    public List<TeamReviewResponseDto> getAllTeamReviews(Long teamId) {
+    public List<TeamReviewResponseDto> getAll(Long teamId) {
         return teamReviewRepository.findAllByReviewedTeamTeamId(teamId).stream()
                 .map(TeamReviewResponseDto::from)
                 .toList();
     }
 
-    public TeamReviewResponseDto getTeamReview(Long teamId, Long reviewId) {
-        return TeamReviewResponseDto.from(teamReviewRepository.findByReviewedTeam_TeamIdAndId(teamId, reviewId));
+    public TeamReviewResponseDto get(Long teamId, Long reviewId) {
+        return TeamReviewResponseDto.from(teamReviewRepository.findByReviewedTeamTeamIdAndId(teamId, reviewId));
     }
 
     @Transactional
-    public void postTeamReview(TeamReviewRequestDto teamReviewRequestDto) {
-        Match match = matchRepository.findByMatchId(teamReviewRequestDto.matchId()) ;
-        Team reviewerTeam = teamRepository.findByTeamId(teamReviewRequestDto.reviewerTeamId());
-        Team reviewedTeam = teamRepository.findByTeamId(teamReviewRequestDto.reviewedTeamId()) ;
+    public void post(TeamReviewRequestDto teamReviewRequestDto) {
+        Match match = matchRepository.findById(teamReviewRequestDto.matchId())
+                .orElseThrow(() -> new IllegalArgumentException("match doesn't exist"));
+
+        Team reviewerTeam = teamRepository.findById(teamReviewRequestDto.reviewerTeamId())
+                .orElseThrow(() -> new IllegalArgumentException("team doesn't exist"));
+
+        Team reviewedTeam = teamRepository.findById(teamReviewRequestDto.reviewedTeamId())
+                .orElseThrow(() -> new IllegalArgumentException("team doesn't exist"));
+
         TeamReview teamReview = TeamReview.from(match, reviewerTeam, reviewedTeam,
                 teamReviewRequestDto.rating(), teamReviewRequestDto.punctualityReview(),
                 teamReviewRequestDto.sportsmanshipReview(), teamReviewRequestDto.skillLevelReview());
@@ -49,17 +55,25 @@ public class TeamReviewService {
     }
 
     @Transactional
-    public void updateTeamReview(Long reviewId, TeamReviewRequestDto teamReviewRequestDto) {
-        TeamReview teamReview = teamReviewRepository.findById(reviewId).orElseThrow(() -> new IllegalArgumentException("ID에 해당하는 리뷰를 찾을 수 없습니다."));
-        Match match = matchRepository.findByMatchId(teamReviewRequestDto.matchId()) ;
-        Team reviewerTeam = teamRepository.findByTeamId(teamReviewRequestDto.reviewerTeamId());
-        Team reviewedTeam = teamRepository.findByTeamId(teamReviewRequestDto.reviewedTeamId()) ;
+    public void update(Long reviewId, TeamReviewRequestDto teamReviewRequestDto) {
+        TeamReview teamReview = teamReviewRepository.findById(reviewId)
+                .orElseThrow(() -> new IllegalArgumentException("teamReview doesn't exist"));
+
+        Match match = matchRepository.findById(teamReviewRequestDto.matchId())
+                .orElseThrow(() -> new IllegalArgumentException("match doesn't exist"));
+
+        Team reviewerTeam = teamRepository.findById(teamReviewRequestDto.reviewerTeamId())
+                .orElseThrow(() -> new IllegalArgumentException("team doesn't exist"));
+
+        Team reviewedTeam = teamRepository.findById(teamReviewRequestDto.reviewedTeamId())
+                .orElseThrow(() -> new IllegalArgumentException("team doesn't exist"));
+
         teamReview.update(TeamReview.from(match, reviewerTeam, reviewedTeam,
                 teamReviewRequestDto.rating(), teamReviewRequestDto.punctualityReview(),
                 teamReviewRequestDto.sportsmanshipReview(), teamReviewRequestDto.skillLevelReview()));
     }
 
-    public void deleteTeamReview(Long reviewId) {
+    public void delete(Long reviewId) {
         teamReviewRepository.deleteById(reviewId);
     }
 }

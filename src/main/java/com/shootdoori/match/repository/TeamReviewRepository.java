@@ -11,6 +11,5 @@ public interface TeamReviewRepository extends JpaRepository<TeamReview, Long> {
 
     List<TeamReview> findAllByReviewedTeamTeamId(Long reviewedTeamId);
 
-    TeamReview findByReviewedTeam_TeamIdAndId(@Param("reviewedTeamId") Long reviewedTeamId,
-        @Param("id") Long id);
+    TeamReview findByReviewedTeamTeamIdAndId(Long teamId, Long reviewId);
 }
