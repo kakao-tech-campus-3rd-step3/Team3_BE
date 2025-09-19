@@ -94,15 +94,15 @@ public class TeamReview {
         this.sportsmanshipRating = sportsmanshipRating;
     }
 
-    public static TeamReview from(TeamReviewRequestDto dto, Match match, Team reviewerTeam, Team reviewedTeam) {
+    public static TeamReview from(Match match, Team reviewerTeam, Team reviewedTeam, Integer rating, String comment, Integer punctualityRating, Integer sportsmanshipRating) {
         return new TeamReview(
                 match,
                 reviewerTeam,
                 reviewedTeam,
-                dto.rating(),
-                dto.comment(),
-                dto.punctualityRating(),
-                dto.sportsmanshipRating()
+                rating,
+                comment,
+                punctualityRating,
+                sportsmanshipRating
         );
     }
 

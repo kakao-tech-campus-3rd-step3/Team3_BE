@@ -42,7 +42,9 @@ public class TeamReviewService {
         Match match = matchRepository.findByMatchId(teamReviewRequestDto.matchId()) ;
         Team reviewerTeam = teamRepository.findByTeamId(teamReviewRequestDto.reviewerTeamId());
         Team reviewedTeam = teamRepository.findByTeamId(teamReviewRequestDto.reviewedTeamId()) ;
-        TeamReview teamReview = TeamReview.from(teamReviewRequestDto, match, reviewerTeam, reviewedTeam);
+        TeamReview teamReview = TeamReview.from(match, reviewerTeam, reviewedTeam,
+                teamReviewRequestDto.rating(), teamReviewRequestDto.comment(), teamReviewRequestDto.punctualityRating(),
+                teamReviewRequestDto.sportsmanshipRating());
         teamReviewRepository.save(teamReview);
     }
 
@@ -52,7 +54,9 @@ public class TeamReviewService {
         Match match = matchRepository.findByMatchId(teamReviewRequestDto.matchId()) ;
         Team reviewerTeam = teamRepository.findByTeamId(teamReviewRequestDto.reviewerTeamId());
         Team reviewedTeam = teamRepository.findByTeamId(teamReviewRequestDto.reviewedTeamId()) ;
-        teamReview.update(TeamReview.from(teamReviewRequestDto, match, reviewerTeam, reviewedTeam));
+        teamReview.update(TeamReview.from(match, reviewerTeam, reviewedTeam,
+                teamReviewRequestDto.rating(), teamReviewRequestDto.comment(), teamReviewRequestDto.punctualityRating(),
+                teamReviewRequestDto.sportsmanshipRating()));
     }
 
     public void deleteTeamReview(Long reviewId) {
