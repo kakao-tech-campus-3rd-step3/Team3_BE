@@ -68,43 +68,37 @@ public class User {
 
     }
 
-    private User(String name, String email, String universityEmail, String phoneNumber,
-        String university, String department, String studentYear, String bio) {
+    private User(String name, SkillLevel skillLevel, String email, String universityEmail, String phoneNumber,
+        Position position, String university, String department, String studentYear, String bio) {
+        validate(name, skillLevel.getDisplayName(), email, universityEmail, phoneNumber, position.getDisplayName(), university, department, studentYear, bio);
         this.name = name;
+        this.skillLevel = skillLevel;
         this.email = email;
         this.universityEmail = universityEmail;
         this.phoneNumber = phoneNumber;
-        this.position = Position.CF;
+        this.position = position;
         this.university = UniversityName.of(university);
         this.department = department;
         this.studentYear = studentYear;
         this.bio = bio;
     }
 
-    public static User create(String name, String email, String universityEmail, String phoneNumber,
-        String university, String department, String studentYear, String bio) {
-        return new User(name, email, universityEmail, phoneNumber, university, department,
+    public static User create(String name, String skillLevelName, String email, String universityEmail, String phoneNumber,
+                              String positionName, String university, String department, String studentYear, String bio) {
+        Position position = Position.fromDisplayName(positionName);
+        SkillLevel skillLevel = SkillLevel.fromDisplayName(skillLevelName);
+        return new User(name, skillLevel, email, universityEmail, phoneNumber, position, university, department,
             studentYear, bio);
     }
 
-    public User(ProfileCreateRequest createRequest) {
-        this.name = createRequest.name();
-        this.skillLevel = SkillLevel.fromDisplayName(createRequest.skillLevel());
-        this.email = createRequest.email();
-        this.universityEmail = createRequest.universityEmail();
-        this.phoneNumber = createRequest.phoneNumber();
-        this.university = UniversityName.of(createRequest.university());
-        this.department = createRequest.department();
-        this.studentYear = createRequest.studentYear();
-        this.bio = createRequest.bio();
-    }
-
-    private void validate(String name, String email, String universityEmail, String phoneNumber,
-        String university, String department, String studentYear, String bio) {
+    private void validate(String name, String skillLevel, String email, String universityEmail, String phoneNumber,
+        String position, String university, String department, String studentYear, String bio) {
         validateName(name);
+        validateSkillLevel(skillLevel);
         validateEmail(email);
         validateUniversityEmail(universityEmail);
         validatePhoneNumber(phoneNumber);
+        validatePosition(position);
         validateUniversity(university);
         validateDepartment(department);
         validateStudentYear(studentYear);
@@ -120,6 +114,18 @@ public class User {
         }
     }
 
+    private void validateSkillLevel(String skillLevel) {
+        if (skillLevel == null || skillLevel.isBlank()) {
+            throw new IllegalArgumentException("스킬 레벨은 필수 입력 값입니다.");
+        }
+
+        try {
+            SkillLevel.fromDisplayName(skillLevel);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("유효하지 않은 스킬 레벨입니다: " + skillLevel);
+        }
+    }
+
     private void validateEmail(String email) {
         if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("이메일은 필수 입력 값입니다.");
@@ -127,7 +133,7 @@ public class User {
         if (email.length() > 255) {
             throw new IllegalArgumentException("이메일 주소는 255자를 초과할 수 없습니다.");
         }
-        if (!email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+        if (!email.matches("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
             throw new IllegalArgumentException("이메일 형식이 올바르지 않습니다.");
         }
     }
@@ -139,7 +145,7 @@ public class User {
         if (universityEmail.length() > 255) {
             throw new IllegalArgumentException("학교 이메일 주소는 255자를 초과할 수 없습니다.");
         }
-        if (!universityEmail.endsWith(".ac.kr")) {
+        if (!universityEmail.endsWith("ac.kr")) {
             throw new IllegalArgumentException("학교 이메일은 'ac.kr' 도메인이어야 합니다.");
         }
     }
@@ -150,6 +156,18 @@ public class User {
         }
         if (!phoneNumber.matches("^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$")) {
             throw new IllegalArgumentException("핸드폰 번호 형식이 올바르지 않습니다. (예: 010-1234-5678)");
+        }
+    }
+
+    private void validatePosition(String position) {
+        if (position == null || position.isBlank()) {
+            throw new IllegalArgumentException("포지션은 필수 입력 값입니다.");
+        }
+
+        try {
+            Position.fromDisplayName(position);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("유효하지 않은 포지션입니다: " + position);
         }
     }
 
@@ -194,6 +212,10 @@ public class User {
         return this.name;
     }
 
+    public SkillLevel getSkillLevel() {
+        return this.skillLevel;
+    }
+
     public String getEmail() {
         return this.email;
     }
@@ -234,8 +256,12 @@ public class User {
         return this.updatedAt;
     }
 
-    public void update(ProfileUpdateRequest updateRequest) {
-        validateName(updateRequest.name());
-        this.name = updateRequest.name();
+    public void update(String skillLevel, String position, String bio) {
+        validateSkillLevel(skillLevel);
+        validatePosition(position);
+        validateBio(bio);
+        this.skillLevel = SkillLevel.fromDisplayName(skillLevel);
+        this.position = Position.fromDisplayName(position);
+        this.bio = bio;
     }
 }

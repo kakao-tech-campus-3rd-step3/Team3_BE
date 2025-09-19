@@ -34,18 +34,18 @@ public class TeamController {
         @RequestBody TeamRequestDto requestDto) {
 
         // TODO: JWT 토큰에서 유저 데이터를 가져와 captain 변수에 넣어야 한다.
-        ProfileCreateRequest createRequest = new ProfileCreateRequest(
+        User captain = User.create(
             "김학생",
             "아마추어",
             "student@example.com",
             "student@kangwon.ac.kr",
             "010-1234-5678",
+            "공격수",
             "강원대학교",
             "컴퓨터공학과",
             "20",
             "안녕하세요! 축구를 좋아하는 대학생입니다."
         );
-        User captain = new User(createRequest);
 
         return new ResponseEntity<>(teamService.create(requestDto, captain), HttpStatus.CREATED);
     }

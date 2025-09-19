@@ -28,6 +28,10 @@ public record ProfileCreateRequest(
     @Pattern(regexp = "^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$", message = "핸드폰 번호 형식이 올바르지 않습니다. (예: 010-1234-5678)")
     String phoneNumber,
 
+    @NotBlank(message = "포지션은 필수 입력 값입니다.")
+    @Size(max = 10)
+    String position,
+
     @NotBlank(message = "대학교 이름은 필수 입력 값입니다.")
     @Size(max = 100, message = "대학교 이름은 100자를 초과할 수 없습니다.")
     String university,
