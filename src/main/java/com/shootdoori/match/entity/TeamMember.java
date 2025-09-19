@@ -3,6 +3,7 @@ package com.shootdoori.match.entity;
 import com.shootdoori.match.dto.UpdateTeamMemberRequestDto;
 import com.shootdoori.match.exception.DuplicateCaptainException;
 import com.shootdoori.match.exception.DuplicateViceCaptainException;
+import com.shootdoori.match.exception.NoPermissionException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -112,5 +113,13 @@ public class TeamMember {
         }
 
         this.role = newRole;
+    }
+
+    public boolean canMakeJoinDecisionFor(Team team) {
+        if (this.team.equals(team) && !this.role.canMakeJoinDecision()) {
+            throw new NoPermissionException();
+        }
+
+        return true;
     }
 }

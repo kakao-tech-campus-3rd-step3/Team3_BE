@@ -23,4 +23,8 @@ public enum TeamMemberRole {
         }
         throw new IllegalArgumentException("Unknown role: " + displayName);
     }
+
+    public boolean canMakeJoinDecision() {
+        return this == LEADER || this == VICE_LEADER;
+    }
 }

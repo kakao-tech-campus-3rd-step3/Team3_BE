@@ -28,6 +28,7 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "team")
@@ -199,5 +200,19 @@ public class Team {
     public boolean hasViceCaptain() {
         return members.stream()
             .anyMatch(m -> m.getRole() == TeamMemberRole.VICE_LEADER);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Team team = (Team) o;
+        return Objects.equals(teamId, team.teamId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(teamId);
     }
 }
