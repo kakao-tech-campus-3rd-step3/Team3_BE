@@ -13,4 +13,6 @@ public interface TeamMemberRepository extends JpaRepository<TeamMember, Long> {
     Page<TeamMember> findAllByTeam_TeamId(Long teamId, Pageable pageable);
 
     public boolean existsByTeam_TeamIdAndUser_Id(Long teamId, Long userId);
+
+    Optional<TeamMember> findByIdAndTeam_TeamId(Long teamMemberId, Long teamId);
 }

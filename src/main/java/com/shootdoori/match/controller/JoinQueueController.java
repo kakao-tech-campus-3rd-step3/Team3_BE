@@ -1,5 +1,6 @@
 package com.shootdoori.match.controller;
 
+import com.shootdoori.match.dto.JoinQueueApproveRequestDto;
 import com.shootdoori.match.dto.JoinQueueRequestDto;
 import com.shootdoori.match.dto.JoinQueueResponseDto;
 import com.shootdoori.match.service.JoinQueueService;
@@ -29,5 +30,16 @@ public class JoinQueueController {
     ) {
         return new ResponseEntity<>(joinQueueService.create(teamId, requestDto),
             HttpStatus.CREATED);
+    }
+
+    @PostMapping("/{joinQueueId}/approve")
+    public ResponseEntity<JoinQueueResponseDto> approve(
+        @PathVariable Long teamId,
+        @PathVariable Long joinQueueId,
+        @RequestBody JoinQueueApproveRequestDto requestDto
+        // TODO: JWT 구현 이후에 Resolver 활용한 approver User ID 주입 필요 (현재는 JoinQueueApproveRequestDto에 존재)
+    ) {
+        return new ResponseEntity<>(joinQueueService.approve(teamId, joinQueueId, requestDto),
+            HttpStatus.OK);
     }
 }

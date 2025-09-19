@@ -116,7 +116,7 @@ public class TeamMember {
     }
 
     public boolean canMakeJoinDecisionFor(Team team) {
-        if (this.team.equals(team) && !this.role.canMakeJoinDecision()) {
+        if (!this.team.equals(team) || !this.role.canMakeJoinDecision()) {
             throw new NoPermissionException();
         }
 
