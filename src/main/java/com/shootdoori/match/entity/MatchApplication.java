@@ -1,20 +1,15 @@
 package com.shootdoori.match.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "match_application")
+@EntityListeners(AuditingEntityListener.class)
 public class MatchApplication {
 
   @Id
@@ -41,12 +36,14 @@ public class MatchApplication {
   @Column(name = "STATUS", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '대기중'")
   private MatchApplicationStatus status = MatchApplicationStatus.PENDING;
 
+  @CreatedDate
   @Column(name = "APPLIED_AT", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
   private LocalDateTime appliedAt;
 
   @Column(name = "RESPONDED_AT")
   private LocalDateTime respondedAt;
 
+  @LastModifiedDate
   @Column(name = "UPDATED_AT", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
   private LocalDateTime updatedAt;
 
@@ -88,11 +85,7 @@ public class MatchApplication {
     return appliedAt;
   }
 
-  public LocalDateTime getRespondedAt(
-
-  ) {
-    return respondedAt;
-  }
+  public LocalDateTime getRespondedAt() {return respondedAt;}
 
   public LocalDateTime getUpdatedAt() {
     return updatedAt;
@@ -103,6 +96,9 @@ public class MatchApplication {
   public void updateApplicationStatus(MatchApplicationStatus status, LocalDateTime respondedAt){
     this.status = status;
     this.respondedAt = respondedAt;
-    this.updatedAt = respondedAt;
+  }
+
+  public void cancelApplication(){
+    this.status = MatchApplicationStatus.CANCELED;
   }
 }
