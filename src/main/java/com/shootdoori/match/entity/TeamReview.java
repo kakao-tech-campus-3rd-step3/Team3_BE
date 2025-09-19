@@ -56,18 +56,14 @@ public class TeamReview {
     @Column(name = "rating", nullable = false)
     private Integer rating;
 
-    @Column(name = "comment", length = 500)
-    private String comment;
+    @Column(name = "punctuality_review")
+    private ReviewBinaryEvaluation punctualityReview;
 
-    @Min(1)
-    @Max(5)
-    @Column(name = "punctuality_rating")
-    private Integer punctualityRating;
+    @Column(name = "sportsmanship_review")
+    private ReviewBinaryEvaluation sportsmanshipReview;
 
-    @Min(1)
-    @Max(5)
-    @Column(name = "sportsmanship_rating")
-    private Integer sportsmanshipRating;
+    @Column(name = "skill_level_review")
+    private ReviewSkillLevel skillLevelReview;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -82,27 +78,33 @@ public class TeamReview {
         Team reviewerTeam,
         Team reviewedTeam,
         Integer rating,
-        String comment,
-        Integer punctualityRating,
-        Integer sportsmanshipRating) {
+        ReviewBinaryEvaluation punctualityReview,
+        ReviewBinaryEvaluation sportsmanshipReview,
+        ReviewSkillLevel skillLevelReview) {
         this.match = match;
         this.reviewerTeam = reviewerTeam;
         this.reviewedTeam = reviewedTeam;
         this.rating = rating;
-        this.comment = comment;
-        this.punctualityRating = punctualityRating;
-        this.sportsmanshipRating = sportsmanshipRating;
+        this.punctualityReview = punctualityReview;
+        this.sportsmanshipReview = sportsmanshipReview;
+        this.skillLevelReview = skillLevelReview;
     }
 
-    public static TeamReview from(Match match, Team reviewerTeam, Team reviewedTeam, Integer rating, String comment, Integer punctualityRating, Integer sportsmanshipRating) {
+    public static TeamReview from(Match match,
+                                  Team reviewerTeam,
+                                  Team reviewedTeam,
+                                  Integer rating,
+                                  ReviewBinaryEvaluation punctualityReview,
+                                  ReviewBinaryEvaluation sportsmanshipReview,
+                                  ReviewSkillLevel skillLevelReview) {
         return new TeamReview(
                 match,
                 reviewerTeam,
                 reviewedTeam,
                 rating,
-                comment,
-                punctualityRating,
-                sportsmanshipRating
+                punctualityReview,
+                sportsmanshipReview,
+                skillLevelReview
         );
     }
 
@@ -111,9 +113,9 @@ public class TeamReview {
         this.reviewerTeam = teamReview.reviewerTeam;
         this.reviewedTeam = teamReview.reviewedTeam;
         this.rating = teamReview.rating;
-        this.comment = teamReview.comment;
-        this.punctualityRating = teamReview.punctualityRating;
-        this.sportsmanshipRating = teamReview.sportsmanshipRating;
+        this.punctualityReview = teamReview.punctualityReview;
+        this.sportsmanshipReview = teamReview.sportsmanshipReview;
+        this.skillLevelReview = teamReview.skillLevelReview;
     }
 
     @PrePersist
@@ -146,16 +148,16 @@ public class TeamReview {
         return rating;
     }
 
-    public String getComment() {
-        return comment;
+    public ReviewBinaryEvaluation getPunctualityReview() {
+        return punctualityReview;
     }
 
-    public Integer getPunctualityRating() {
-        return punctualityRating;
+    public ReviewBinaryEvaluation getSportsmanshipReview() {
+        return sportsmanshipReview;
     }
 
-    public Integer getSportsmanshipRating() {
-        return sportsmanshipRating;
+    public ReviewSkillLevel getSkillLevelReview() {
+        return skillLevelReview;
     }
 
     public LocalDateTime getCreatedAt() {
