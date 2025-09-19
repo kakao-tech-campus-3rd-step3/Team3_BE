@@ -30,6 +30,14 @@ public class MatchApplicationController {
     return ResponseEntity.ok(response);
   }
 
+  @DeleteMapping("/applications/{applicationId}")
+  public ResponseEntity<MatchApplicationResponseDto> cancelMatchApplication(
+    @PathVariable Long applicationId
+  ) {
+    MatchApplicationResponseDto response = matchApplicationService.cancelMatchApplication(applicationId);
+    return ResponseEntity.ok(response);
+  }
+
   @GetMapping("/{teamId}/pending")
   public ResponseEntity<Slice<MatchApplicationResponseDto>> getReceivedPendingApplications(
     @PathVariable Long teamId,

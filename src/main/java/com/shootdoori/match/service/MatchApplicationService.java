@@ -64,6 +64,23 @@ public class MatchApplicationService {
     );
   }
 
+  @Transactional
+  public MatchApplicationResponseDto cancelMatchApplication(Long applicationId) {
+    MatchApplication application = matchApplicationRepository.findById(applicationId)
+      .orElseThrow(() -> new IllegalArgumentException("해당 신청이 존재하지 않습니다. ID=" + applicationId));
+
+    application.cancelApplication();
+
+    return new MatchApplicationResponseDto(
+      application.getApplicationId(),
+      application.getApplicantTeam().getTeamId(),
+      application.getTargetTeam().getTeamId(),
+      application.getApplicationMessage(),
+      application.getStatus()
+    );
+  }
+
+
   @Transactional(readOnly = true)
   public Slice<MatchApplicationResponseDto> getReceivedPendingApplications(Long teamId, Pageable pageable) {
     return matchApplicationRepository.findPendingApplicationsByTargetTeam(teamId, pageable)
