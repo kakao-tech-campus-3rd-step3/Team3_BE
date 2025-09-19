@@ -23,6 +23,10 @@ public class MatchApplication {
   private Long applicationId;
 
   @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "QUEUE_ID", nullable = false)
+  private MatchQueue matchQueue;
+
+  @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "APPLICANT_TEAM_ID", nullable = false)
   private Team applicantTeam;
 
@@ -49,7 +53,8 @@ public class MatchApplication {
   protected MatchApplication() {
   }
 
-  public MatchApplication(Team applicantTeam, Team targetTeam, String applicationMessage) {
+  public MatchApplication(MatchQueue matchQueue, Team applicantTeam, Team targetTeam, String applicationMessage) {
+      this.matchQueue = matchQueue;
       this.applicantTeam = applicantTeam;
       this.targetTeam = targetTeam;
       this.applicationMessage = applicationMessage;
@@ -83,11 +88,21 @@ public class MatchApplication {
     return appliedAt;
   }
 
-  public LocalDateTime getRespondedAt() {
+  public LocalDateTime getRespondedAt(
+
+  ) {
     return respondedAt;
   }
 
   public LocalDateTime getUpdatedAt() {
     return updatedAt;
+  }
+
+  public MatchQueue getMatchQueue(){ return matchQueue; }
+
+  public void updateApplicationStatus(MatchApplicationStatus status, LocalDateTime respondedAt){
+    this.status = status;
+    this.respondedAt = respondedAt;
+    this.updatedAt = respondedAt;
   }
 }
