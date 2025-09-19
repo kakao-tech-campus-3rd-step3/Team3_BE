@@ -68,6 +68,60 @@ public class JoinQueue {
     @Version
     private Long version;
 
+    public Long getId() {
+        return id;
+    }
+
+    public Team getTeam() {
+        return team;
+    }
+
+    public User getApplicant() {
+        return applicant;
+    }
+
+    public JoinQueueStatus getStatus() {
+        return status;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public User getDecidedBy() {
+        return decidedBy;
+    }
+
+    public LocalDateTime getDecidedAt() {
+        return decidedAt;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public Long getVersion() {
+        return version;
+    }
+
+    protected JoinQueue() {
+
+    }
+
+    public JoinQueue(Team team, User applicant, String message) {
+        this.team = team;
+        this.applicant = applicant;
+        this.message = message;
+    }
+
+    public static JoinQueue create(Team team, User applicant, String message) {
+        return new JoinQueue(team, applicant, message);
+    }
+
     public void approve(TeamMember approver, TeamMemberRole role) {
         verifyPending();
         approver.canMakeJoinDecisionFor(this.team);
