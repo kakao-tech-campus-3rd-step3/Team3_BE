@@ -1,8 +1,9 @@
 package com.shootdoori.match.dto;
 
 public record JoinQueueApproveRequestDto(
-    Long approverId,
-    String role
+    Long approverId, // TeamMemberId
+    String role,
+    String decisionReason
 ) {
 
 }

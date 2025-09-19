@@ -11,6 +11,7 @@ public class JoinQueueMapper {
             joinQueue.getTeam().getTeamId(),
             joinQueue.getApplicant().getId(),
             joinQueue.getStatus().getDisplayName(),
+            joinQueue.getDecisionReason(),
             joinQueue.getDecidedBy().toString(),
             joinQueue.getDecidedAt()
         );

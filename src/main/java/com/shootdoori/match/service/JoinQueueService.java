@@ -2,6 +2,7 @@ package com.shootdoori.match.service;
 
 import com.shootdoori.match.dto.JoinQueueApproveRequestDto;
 import com.shootdoori.match.dto.JoinQueueMapper;
+import com.shootdoori.match.dto.JoinQueueRejectRequestDto;
 import com.shootdoori.match.dto.JoinQueueRequestDto;
 import com.shootdoori.match.dto.JoinQueueResponseDto;
 import com.shootdoori.match.entity.JoinQueue;
@@ -20,8 +21,11 @@ import com.shootdoori.match.repository.JoinQueueRepository;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.repository.TeamRepository;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 
 @Service
 public class JoinQueueService {
@@ -93,7 +97,26 @@ public class JoinQueueService {
         team.validateSameUniversity(joinQueue.getApplicant());
         team.validateCanAcceptNewMember();
 
-        joinQueue.approve(approver, role);
+        joinQueue.approve(approver, role, requestDto.decisionReason());
+
+        return joinQueueMapper.toJoinQueueResponseDto(joinQueue);
+    }
+
+    @Transactional
+    public JoinQueueResponseDto reject(Long teamId, Long joinQueueId, JoinQueueRejectRequestDto requestDto) {
+
+        Long approverId = requestDto.approverId();
+        TeamMember approver = teamMemberRepository.findByIdAndTeam_TeamId(approverId, teamId)
+            .orElseThrow(() -> new TeamMemberNotFoundException());
+
+        JoinQueue joinQueue = joinQueueRepository
+            .findByIdAndTeam_TeamIdForUpdate(joinQueueId, teamId)
+            .orElseThrow(() -> new JoinQueueNotFoundException());
+
+        Team team = joinQueue.getTeam();
+        User applicant = joinQueue.getApplicant();
+
+        joinQueue.reject(approver, requestDto.reason());
 
         return joinQueueMapper.toJoinQueueResponseDto(joinQueue);
     }

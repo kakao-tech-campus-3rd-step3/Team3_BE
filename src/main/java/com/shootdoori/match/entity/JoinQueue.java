@@ -50,6 +50,9 @@ public class JoinQueue {
     @Column(name = "message", columnDefinition = "TEXT")
     private String message;
 
+    @Column(name = "decision_reason", columnDefinition = "TEXT")
+    private String decisionReason;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "decided_by")
     private User decidedBy;
@@ -88,6 +91,10 @@ public class JoinQueue {
         return message;
     }
 
+    public String getDecisionReason() {
+        return decisionReason;
+    }
+
     public User getDecidedBy() {
         return decidedBy;
     }
@@ -122,21 +129,23 @@ public class JoinQueue {
         return new JoinQueue(team, applicant, message);
     }
 
-    public void approve(TeamMember approver, TeamMemberRole role) {
+    public void approve(TeamMember approver, TeamMemberRole role, String decisionReason) {
         verifyPending();
         approver.canMakeJoinDecisionFor(this.team);
 
         this.team.recruitMember(this.applicant, role);
         this.status = JoinQueueStatus.APPROVED;
+        this.decisionReason = decisionReason;
         this.decidedBy = approver.getUser();
         this.decidedAt = LocalDateTime.now();
     }
 
-    public void reject(TeamMember approver) {
+    public void reject(TeamMember approver, String decisionReason) {
         verifyPending();
         approver.canMakeJoinDecisionFor(this.team);
 
         this.status = JoinQueueStatus.REJECTED;
+        this.decisionReason = decisionReason;
         this.decidedBy = approver.getUser();
         this.decidedAt = LocalDateTime.now();
     }
