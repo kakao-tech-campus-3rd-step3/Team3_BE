@@ -1,20 +1,15 @@
 package com.shootdoori.match.entity;
 
-import com.shootdoori.match.dto.ProfileCreateRequest;
-import com.shootdoori.match.dto.ProfileUpdateRequest;
 import com.shootdoori.match.value.UniversityName;
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import java.time.LocalDateTime;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.time.LocalDateTime;
 
 @Entity
 public class User {
@@ -35,6 +30,9 @@ public class User {
 
     @Column(name = "university_email", nullable = false, unique = true, length = 255)
     private String universityEmail;
+
+    @Column(nullable = false)
+    private String password;
 
     @Column(name = "phone_number", nullable = false, unique = true, length = 13)
     private String phoneNumber;
@@ -68,13 +66,14 @@ public class User {
 
     }
 
-    private User(String name, SkillLevel skillLevel, String email, String universityEmail, String phoneNumber,
+    private User(String name, SkillLevel skillLevel, String email, String universityEmail, String password, String phoneNumber,
         Position position, String university, String department, String studentYear, String bio) {
         validate(name, skillLevel.getDisplayName(), email, universityEmail, phoneNumber, position.getDisplayName(), university, department, studentYear, bio);
         this.name = name;
         this.skillLevel = skillLevel;
         this.email = email;
         this.universityEmail = universityEmail;
+        this.password = password;
         this.phoneNumber = phoneNumber;
         this.position = position;
         this.university = UniversityName.of(university);
@@ -83,11 +82,11 @@ public class User {
         this.bio = bio;
     }
 
-    public static User create(String name, String skillLevelName, String email, String universityEmail, String phoneNumber,
+    public static User create(String name, String skillLevelName, String email, String universityEmail, String encodedPassword, String phoneNumber,
                               String positionName, String university, String department, String studentYear, String bio) {
         Position position = Position.fromDisplayName(positionName);
         SkillLevel skillLevel = SkillLevel.fromDisplayName(skillLevelName);
-        return new User(name, skillLevel, email, universityEmail, phoneNumber, position, university, department,
+        return new User(name, skillLevel, email, universityEmail, encodedPassword, phoneNumber, position, university, department,
             studentYear, bio);
     }
 
@@ -263,5 +262,11 @@ public class User {
         this.skillLevel = SkillLevel.fromDisplayName(skillLevel);
         this.position = Position.fromDisplayName(position);
         this.bio = bio;
+    }
+
+    public void samePassword(String rawPassword, PasswordEncoder passwordEncoder) {
+        if (!passwordEncoder.matches(rawPassword, this.password)) {
+            throw new RuntimeException("이메일 또는 비밀번호가 일치하지 않습니다.");
+        }
     }
 }
