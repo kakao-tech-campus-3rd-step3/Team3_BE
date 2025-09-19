@@ -150,7 +150,7 @@ public class JoinQueue {
         this.decidedAt = LocalDateTime.now();
     }
 
-    public void cancel(User requester) {
+    public void cancel(User requester, String decisionReason) {
         verifyPending();
 
         if (!requester.equals(this.applicant)) {
@@ -158,6 +158,7 @@ public class JoinQueue {
         }
 
         this.status = JoinQueueStatus.CANCELED;
+        this.decisionReason = decisionReason;
         this.decidedBy = requester;
         this.decidedAt = LocalDateTime.now();
     }

@@ -1,6 +1,7 @@
 package com.shootdoori.match.controller;
 
 import com.shootdoori.match.dto.JoinQueueApproveRequestDto;
+import com.shootdoori.match.dto.JoinQueueCancelRequestDto;
 import com.shootdoori.match.dto.JoinQueueRejectRequestDto;
 import com.shootdoori.match.dto.JoinQueueRequestDto;
 import com.shootdoori.match.dto.JoinQueueResponseDto;
@@ -39,21 +40,31 @@ public class JoinQueueController {
         @PathVariable Long teamId,
         @PathVariable Long joinQueueId,
         @RequestBody JoinQueueApproveRequestDto requestDto
-        // TODO: JWT 구현 이후에 Resolver 활용한 approver User ID 주입 필요 (현재는 JoinQueueApproveRequestDto에 존재)
+        // TODO: JWT 구현 이후에 Resolver 활용한 approver TeamMember ID 주입 필요 (현재는 JoinQueueApproveRequestDto에 존재)
     ) {
         return new ResponseEntity<>(joinQueueService.approve(teamId, joinQueueId, requestDto),
             HttpStatus.OK);
     }
 
-    @Transactional
     @PostMapping("/{joinQueueId}/reject")
     public ResponseEntity<JoinQueueResponseDto> reject(
         @PathVariable Long teamId,
         @PathVariable Long joinQueueId,
         @RequestBody JoinQueueRejectRequestDto requestDto
-        // TODO: JWT 구현 이후에 Resolver 활용한 approver User ID 주입 필요 (현재는 JoinQueueRejectRequestDto에 존재)
+        // TODO: JWT 구현 이후에 Resolver 활용한 approver TeamMember ID 주입 필요 (현재는 JoinQueueRejectRequestDto에 존재)
     ) {
         return new ResponseEntity<>(joinQueueService.reject(teamId, joinQueueId, requestDto),
+            HttpStatus.OK);
+    }
+
+    @PostMapping("/{joinQueueId}/cancel")
+    public ResponseEntity<JoinQueueResponseDto> cancel(
+        @PathVariable Long teamId,
+        @PathVariable Long joinQueueId,
+        @RequestBody JoinQueueCancelRequestDto requestDto
+        // TODO: JWT 구현 이후에 Resolver 활용한 requester User ID 주입 필요 (현재는 JoinQueueCancelRequestDto에 존재)
+    ) {
+        return new ResponseEntity<>(joinQueueService.cancel(teamId, joinQueueId, requestDto),
             HttpStatus.OK);
     }
 }

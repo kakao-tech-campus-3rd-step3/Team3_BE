@@ -1,6 +1,7 @@
 package com.shootdoori.match.service;
 
 import com.shootdoori.match.dto.JoinQueueApproveRequestDto;
+import com.shootdoori.match.dto.JoinQueueCancelRequestDto;
 import com.shootdoori.match.dto.JoinQueueMapper;
 import com.shootdoori.match.dto.JoinQueueRejectRequestDto;
 import com.shootdoori.match.dto.JoinQueueRequestDto;
@@ -21,11 +22,8 @@ import com.shootdoori.match.repository.JoinQueueRepository;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.repository.TeamRepository;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 
 @Service
 public class JoinQueueService {
@@ -103,7 +101,8 @@ public class JoinQueueService {
     }
 
     @Transactional
-    public JoinQueueResponseDto reject(Long teamId, Long joinQueueId, JoinQueueRejectRequestDto requestDto) {
+    public JoinQueueResponseDto reject(Long teamId, Long joinQueueId,
+        JoinQueueRejectRequestDto requestDto) {
 
         Long approverId = requestDto.approverId();
         TeamMember approver = teamMemberRepository.findByIdAndTeam_TeamId(approverId, teamId)
@@ -117,6 +116,22 @@ public class JoinQueueService {
         User applicant = joinQueue.getApplicant();
 
         joinQueue.reject(approver, requestDto.reason());
+
+        return joinQueueMapper.toJoinQueueResponseDto(joinQueue);
+    }
+
+    @Transactional
+    public JoinQueueResponseDto cancel(Long teamId, Long joinQueueId,
+        JoinQueueCancelRequestDto requestDto) {
+
+        Long requesterId = requestDto.requesterId();
+        User requester = profileRepository.findById(requesterId)
+            .orElseThrow(() -> new UserNotFoundException(requesterId));
+
+        JoinQueue joinQueue = joinQueueRepository.findByIdAndTeam_TeamIdForUpdate(joinQueueId, teamId)
+            .orElseThrow(() -> new JoinQueueNotFoundException());
+
+        joinQueue.cancel(requester, requestDto.decisionReason());
 
         return joinQueueMapper.toJoinQueueResponseDto(joinQueue);
     }
