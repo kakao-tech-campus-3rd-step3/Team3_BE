@@ -1,5 +1,6 @@
 package com.shootdoori.match.entity;
 
+import com.shootdoori.match.exception.UnauthorizedException;
 import com.shootdoori.match.value.UniversityName;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
@@ -273,7 +274,7 @@ public class User {
 
     public void samePassword(String rawPassword, PasswordEncoder passwordEncoder) {
         if (!passwordEncoder.matches(rawPassword, this.password)) {
-            throw new RuntimeException("이메일 또는 비밀번호가 일치하지 않습니다.");
+            throw new UnauthorizedException("잘못된 이메일 또는 비밀번호입니다.");
         }
     }
 }

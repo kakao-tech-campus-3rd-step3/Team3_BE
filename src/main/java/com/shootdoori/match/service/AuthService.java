@@ -4,6 +4,7 @@ import com.shootdoori.match.dto.AuthToken;
 import com.shootdoori.match.dto.LoginRequest;
 import com.shootdoori.match.dto.ProfileCreateRequest;
 import com.shootdoori.match.entity.User;
+import com.shootdoori.match.exception.UnauthorizedException;
 import com.shootdoori.match.util.JwtUtil;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ public class AuthService {
         profileService.createProfile(request);
 
         User savedUser = profileService.findByEmail(request.email())
-            .orElseThrow(() -> new RuntimeException("회원가입에 실패하였습니다."));
+            .orElseThrow(() -> new UnauthorizedException("회원가입에 실패하였습니다."));
 
         return new AuthToken(jwtUtil.generateAccessToken(savedUser));
     }
@@ -34,7 +35,7 @@ public class AuthService {
     @Transactional(readOnly = true)
     public AuthToken login(LoginRequest request) {
         User user = profileService.findByEmail(request.email())
-            .orElseThrow(() -> new RuntimeException("잘못된 이메일 또는 비밀번호입니다."));
+            .orElseThrow(() -> new UnauthorizedException("잘못된 이메일 또는 비밀번호입니다."));
 
         user.samePassword(request.password(), passwordEncoder);
         String accessToken = jwtUtil.generateAccessToken(user);
