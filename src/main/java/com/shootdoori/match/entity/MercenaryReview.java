@@ -1,17 +1,6 @@
 package com.shootdoori.match.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
-import jakarta.persistence.Table;
-import jakarta.persistence.UniqueConstraint;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import java.time.LocalDateTime;
@@ -26,11 +15,7 @@ import org.hibernate.annotations.Check;
 )
 @Check(
     name = "ck_mercenary_review_ratings",
-    constraints =
-        "overall_rating BETWEEN 1 AND 5 " +
-            "AND skill_rating BETWEEN 1 AND 5 " +
-            "AND manner_rating BETWEEN 1 AND 5 " +
-            "AND communication_rating BETWEEN 1 AND 5"
+    constraints = "rating BETWEEN 1 AND 5 "
 )
 public class MercenaryReview {
 
@@ -51,27 +36,22 @@ public class MercenaryReview {
     @JoinColumn(name = "mercenary_user_id", nullable = false)
     private User mercenaryUser;
 
-    @Column(name = "mercenary_name", nullable = false, length = 100)
-    private String mercenaryName;
+    @Min(1)
+    @Max(5)
+    @Column(name = "rating", nullable = false)
+    private Integer rating;
 
-    @Min(1) @Max(5)
-    @Column(name = "overall_rating", nullable = false)
-    private int overallRating;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "punctuality_review")
+    private ReviewBinaryEvaluation punctualityReview;
 
-    @Min(1) @Max(5)
-    @Column(name = "skill_rating", nullable = false)
-    private int skillRating;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "sportsmanship_review")
+    private ReviewBinaryEvaluation sportsmanshipReview;
 
-    @Min(1) @Max(5)
-    @Column(name = "manner_rating", nullable = false)
-    private int mannerRating;
-
-    @Min(1) @Max(5)
-    @Column(name = "communication_rating", nullable = false)
-    private int communicationRating;
-
-    @Column(name = "comment", length = 300)
-    private String comment;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "skill_level_review")
+    private ReviewSkillLevel skillLevelReview;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -83,23 +63,29 @@ public class MercenaryReview {
     }
 
     public MercenaryReview(Match match,
-        Team reviewerTeam,
-        User mercenaryUser,
-        String mercenaryName,
-        int overallRating,
-        int skillRating,
-        int mannerRating,
-        int communicationRating,
-        String comment) {
+                           Team reviewerTeam,
+                           User mercenaryUser,
+                           Integer rating,
+                           ReviewBinaryEvaluation punctualityReview,
+                           ReviewBinaryEvaluation sportsmanshipReview,
+                           ReviewSkillLevel skillLevelReview) {
         this.match = match;
         this.reviewerTeam = reviewerTeam;
         this.mercenaryUser = mercenaryUser;
-        this.mercenaryName = mercenaryName;
-        this.overallRating = overallRating;
-        this.skillRating = skillRating;
-        this.mannerRating = mannerRating;
-        this.communicationRating = communicationRating;
-        this.comment = comment;
+        this.rating = rating;
+        this.punctualityReview = punctualityReview;
+        this.sportsmanshipReview = sportsmanshipReview;
+        this.skillLevelReview = skillLevelReview;
+    }
+
+    public void update(MercenaryReview mercenaryReview) {
+        this.match = mercenaryReview.match;
+        this.reviewerTeam = mercenaryReview.reviewerTeam;
+        this.mercenaryUser = mercenaryReview.mercenaryUser;
+        this.rating = mercenaryReview.rating;
+        this.punctualityReview = mercenaryReview.punctualityReview;
+        this.sportsmanshipReview = mercenaryReview.sportsmanshipReview;
+        this.skillLevelReview = mercenaryReview.skillLevelReview;
     }
 
     @PrePersist
@@ -128,28 +114,20 @@ public class MercenaryReview {
         return mercenaryUser;
     }
 
-    public String getMercenaryName() {
-        return mercenaryName;
+    public Integer getRating() {
+        return rating;
     }
 
-    public int getOverallRating() {
-        return overallRating;
+    public ReviewBinaryEvaluation getPunctualityReview() {
+        return punctualityReview;
     }
 
-    public int getSkillRating() {
-        return skillRating;
+    public ReviewBinaryEvaluation getSportsmanshipReview() {
+        return sportsmanshipReview;
     }
 
-    public int getMannerRating() {
-        return mannerRating;
-    }
-
-    public int getCommunicationRating() {
-        return communicationRating;
-    }
-
-    public String getComment() {
-        return comment;
+    public ReviewSkillLevel getSkillLevelReview() {
+        return skillLevelReview;
     }
 
     public LocalDateTime getCreatedAt() {

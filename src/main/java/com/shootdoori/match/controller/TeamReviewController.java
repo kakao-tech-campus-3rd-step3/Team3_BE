@@ -19,29 +19,29 @@ public class TeamReviewController {
 
     @GetMapping()
     public ResponseEntity<List<TeamReviewResponseDto>> getAll(@PathVariable Long teamId) {
-        return new ResponseEntity<>(reviewService.getAllTeamReviews(teamId), HttpStatus.OK);
+        return new ResponseEntity<>(reviewService.getAll(teamId), HttpStatus.OK);
     }
 
     @GetMapping("/{reviewId}")
     public ResponseEntity<TeamReviewResponseDto> get(@PathVariable Long teamId, @PathVariable Long reviewId) {
-        return new ResponseEntity<>(reviewService.getTeamReview(teamId, reviewId), HttpStatus.OK);
+        return new ResponseEntity<>(reviewService.get(teamId, reviewId), HttpStatus.OK);
     }
 
     @PostMapping()
     public ResponseEntity<Void> post(@RequestBody TeamReviewRequestDto request) {
-        reviewService.postTeamReview(request);
+        reviewService.post(request);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
     @PutMapping("/{reviewId}")
     public ResponseEntity<Void> update(@PathVariable Long reviewId, @RequestBody TeamReviewRequestDto request) {
-        reviewService.updateTeamReview(reviewId, request);
+        reviewService.update(reviewId, request);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<Void> delete(@PathVariable Long reviewId) {
-        reviewService.deleteTeamReview(reviewId);
+        reviewService.delete(reviewId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

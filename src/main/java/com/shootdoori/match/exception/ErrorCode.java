@@ -7,7 +7,17 @@ public enum ErrorCode {
     DUPLICATED_USER("이미 존재하는 사용자입니다."),
     TEAM_CAPACITY_EXCEEDED("팀 정원이 가득 찼습니다. (최대 100명)"),
     TEAM_NOT_FOUND("해당 팀을 찾을 수 없습니다."),
-    USER_NOT_FOUND("해당 유저를 찾을 수 없습니다.");
+    USER_NOT_FOUND("해당 유저를 찾을 수 없습니다."),
+    TEAM_MEMBER_NOT_FOUND("해당 팀 멤버를 찾을 수 없습니다."),
+    DUPLICATE_CAPTAIN("이미 팀에 회장이 존재합니다."),
+    DUPLICATE_VICE_CAPTAIN("이미 팀에 부회장이 존재합니다."),
+
+    JOIN_QUEUE_NOT_PENDING("대기중 상태의 신청만 처리할 수 있습니다."),
+    JOIN_QUEUE_INVALID_TRANSITION("현재 상태에서 요청된 상태로 변경할 수 없습니다."),
+    JOIN_QUEUE_ALREADY_PENDING("이미 대기중인 신청이 존재합니다."),
+    JOIN_QUEUE_NOT_FOUND("해당 가입 신청을 찾을 수 없습니다."),
+
+    NO_PERMISSION("허락되지 않은 요청입니다.");
 
 
     private final String message;

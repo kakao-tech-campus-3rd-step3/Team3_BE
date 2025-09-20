@@ -1,14 +1,14 @@
 package com.shootdoori.match.entity;
 
 import com.shootdoori.match.exception.DifferentUniversityException;
+import com.shootdoori.match.exception.DuplicateMemberException;
 import com.shootdoori.match.exception.TeamCapacityExceededException;
+import com.shootdoori.match.exception.TeamFullException;
 import com.shootdoori.match.value.Description;
 import com.shootdoori.match.value.MemberCount;
 import com.shootdoori.match.value.TeamName;
 import com.shootdoori.match.value.UniversityName;
 import jakarta.persistence.AttributeOverride;
-import com.shootdoori.match.exception.DuplicateMemberException;
-import com.shootdoori.match.exception.TeamFullException;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -28,6 +28,7 @@ import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "team")
@@ -147,7 +148,7 @@ public class Team {
     public List<TeamMember> getMembers() {
         return members;
     }
-  
+
     public void validateSameUniversity(User user) {
         if (!this.university.equals(user.getUniversity())) {
             throw new DifferentUniversityException();
@@ -189,5 +190,29 @@ public class Team {
         this.university = UniversityName.of(university);
         this.skillLevel = SkillLevel.fromDisplayName(skillLevel);
         this.description = Description.of(description);
+    }
+
+    public boolean hasCaptain() {
+        return members.stream()
+            .anyMatch(m -> m.getRole() == TeamMemberRole.LEADER);
+    }
+
+    public boolean hasViceCaptain() {
+        return members.stream()
+            .anyMatch(m -> m.getRole() == TeamMemberRole.VICE_LEADER);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        Team team = (Team) o;
+        return Objects.equals(teamId, team.teamId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(teamId);
     }
 }
