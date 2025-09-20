@@ -24,6 +24,11 @@ public record ProfileCreateRequest(
     @Size(max = 255, message = "학교 이메일 주소는 255자를 초과할 수 없습니다.")
     String universityEmail,
 
+    @NotBlank @Size(min = 8, max = 20) @Pattern(
+        regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,20}$",
+        message = "비밀번호는 8자 이상 20자 이하로 영문, 숫자, 특수문자를 포함해야 합니다."
+    ) String password,
+    
     @NotBlank(message = "핸드폰 번호는 필수 입력 값입니다.")
     @Pattern(regexp = "^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$", message = "핸드폰 번호 형식이 올바르지 않습니다. (예: 010-1234-5678)")
     String phoneNumber,
