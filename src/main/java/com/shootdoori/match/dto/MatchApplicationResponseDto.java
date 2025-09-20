@@ -7,5 +7,6 @@ public record MatchApplicationResponseDto(
     Long applicationId,
     Long applicantTeamId,
     Long targetTeamId,
+    String applicationMessage,
     MatchApplicationStatus status
 ) {}
