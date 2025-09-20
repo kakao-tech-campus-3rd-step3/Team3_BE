@@ -22,6 +22,8 @@ import com.shootdoori.match.repository.JoinQueueRepository;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.repository.TeamRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -128,11 +130,20 @@ public class JoinQueueService {
         User requester = profileRepository.findById(requesterId)
             .orElseThrow(() -> new UserNotFoundException(requesterId));
 
-        JoinQueue joinQueue = joinQueueRepository.findByIdAndTeam_TeamIdForUpdate(joinQueueId, teamId)
+        JoinQueue joinQueue = joinQueueRepository.findByIdAndTeam_TeamIdForUpdate(joinQueueId,
+                teamId)
             .orElseThrow(() -> new JoinQueueNotFoundException());
 
         joinQueue.cancel(requester, requestDto.decisionReason());
 
         return joinQueueMapper.toJoinQueueResponseDto(joinQueue);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<JoinQueueResponseDto> findPending(Long teamId, JoinQueueStatus status,
+        Pageable pageable) {
+
+        return joinQueueRepository.findAllByTeam_TeamIdAndStatus(teamId, status, pageable)
+            .map(joinQueueMapper::toJoinQueueResponseDto);
     }
 }
