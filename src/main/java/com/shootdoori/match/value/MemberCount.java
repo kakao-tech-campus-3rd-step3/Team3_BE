@@ -5,12 +5,12 @@ import jakarta.persistence.Embeddable;
 @Embeddable
 public record MemberCount(int count) {
 
-    private static final int MIN_MEMBERS = 1;
+    private static final int MIN_MEMBERS = 0;
     private static final int MAX_MEMBERS = 100;
 
     public MemberCount {
         if (count < MIN_MEMBERS || count > MAX_MEMBERS) {
-            throw new IllegalArgumentException("멤버 수는 1~100명입니다.");
+            throw new com.shootdoori.match.exception.InvalidMemberCountException(count);
         }
     }
 

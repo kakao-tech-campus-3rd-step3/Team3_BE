@@ -39,13 +39,13 @@ public class TeamController {
             "아마추어",
             "student@example.com",
             "student@kangwon.ac.kr",
-            "asdf",
+            "Abcd1234!",
             "010-1234-5678",
-            "공격수",
+            "골키퍼",
             "강원대학교",
             "컴퓨터공학과",
-            "20",
-            "안녕하세요! 축구를 좋아하는 대학생입니다."
+            "25",
+            "축구를 좋아하는 대학생입니다. 골키퍼 포지션을 주로 맡고 있으며, 즐겁게 운동하고 싶습니다!"
         );
 
         return new ResponseEntity<>(teamService.create(requestDto, captain), HttpStatus.CREATED);

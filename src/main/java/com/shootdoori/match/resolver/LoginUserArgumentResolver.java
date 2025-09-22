@@ -1,6 +1,5 @@
 package com.shootdoori.match.resolver;
 
-import com.shootdoori.match.controller.LoginUser;
 import com.shootdoori.match.entity.User;
 import com.shootdoori.match.exception.UnauthorizedException;
 import com.shootdoori.match.repository.ProfileRepository;

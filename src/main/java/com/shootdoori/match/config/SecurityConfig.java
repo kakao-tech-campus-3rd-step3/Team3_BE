@@ -16,6 +16,9 @@ public class SecurityConfig {
         http
             .httpBasic(config -> config.disable())
             .csrf(config -> config.disable())
+            .headers(headers ->
+                headers.frameOptions(frameOptions -> frameOptions.sameOrigin())
+            )
             .sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authorize -> authorize
                 .requestMatchers("/api/auth/**").permitAll()

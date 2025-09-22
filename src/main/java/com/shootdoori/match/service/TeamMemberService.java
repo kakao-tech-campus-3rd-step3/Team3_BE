@@ -60,8 +60,11 @@ public class TeamMemberService {
 
         TeamMemberRole teamMemberRole = TeamMemberRole.fromDisplayName(requestDto.role());
 
-        TeamMember teamMember = new TeamMember(team, user, teamMemberRole);
-        TeamMember savedTeamMember = teamMemberRepository.save(teamMember);
+        team.recruitMember(user, teamMemberRole);
+        teamRepository.save(team);
+
+        TeamMember savedTeamMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId,
+            userId).orElseThrow(() -> new TeamMemberNotFoundException());
 
         return teamMemberMapper.toTeamMemberResponseDto(savedTeamMember);
     }
@@ -76,9 +79,10 @@ public class TeamMemberService {
 
     @Transactional(readOnly = true)
     public Page<TeamMemberResponseDto> findAllByTeamId(Long teamId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("teamMemberId").ascending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
 
-        Page<TeamMember> teamMemberPage = teamMemberRepository.findAllByTeam_TeamId(teamId, pageable);
+        Page<TeamMember> teamMemberPage = teamMemberRepository.findAllByTeam_TeamId(teamId,
+            pageable);
 
         return teamMemberPage.map(teamMemberMapper::toTeamMemberResponseDto);
     }
@@ -104,5 +108,6 @@ public class TeamMemberService {
             .orElseThrow(() -> new TeamMemberNotFoundException());
 
         team.removeMember(teamMember);
+        teamRepository.save(team);
     }
 }
