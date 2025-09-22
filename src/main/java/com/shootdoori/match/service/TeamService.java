@@ -10,6 +10,7 @@ import com.shootdoori.match.exception.CaptainNotFoundException;
 import com.shootdoori.match.exception.TeamNotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamRepository;
+import com.shootdoori.match.value.UniversityName;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -61,7 +62,8 @@ public class TeamService {
     public Page<TeamDetailResponseDto> findAllByUniversity(int page, int size, String university) {
         Pageable pageable = PageRequest.of(page, size, Sort.by("teamName").ascending());
 
-        Page<Team> teamPage = teamRepository.findAllByUniversity(university, pageable);
+        UniversityName universityName = UniversityName.of(university);
+        Page<Team> teamPage = teamRepository.findAllByUniversity(universityName, pageable);
 
         return teamPage.map(teamMapper::toTeamDetailResponse);
     }
