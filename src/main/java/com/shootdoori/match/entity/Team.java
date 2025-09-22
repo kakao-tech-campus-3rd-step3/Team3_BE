@@ -2,6 +2,7 @@ package com.shootdoori.match.entity;
 
 import com.shootdoori.match.exception.DifferentUniversityException;
 import com.shootdoori.match.exception.DuplicateMemberException;
+import com.shootdoori.match.exception.LastTeamMemberRemovalNotAllowedException;
 import com.shootdoori.match.exception.TeamCapacityExceededException;
 import com.shootdoori.match.exception.TeamFullException;
 import com.shootdoori.match.value.Description;
@@ -57,7 +58,7 @@ public class Team {
 
     @Embedded
     @AttributeOverride(name = "count", column = @Column(name = "MEMBER_COUNT", nullable = false))
-    private MemberCount memberCount = MemberCount.of(1);
+    private MemberCount memberCount = MemberCount.of(0);
 
     @Enumerated(EnumType.STRING)
     @Column(name = "SKILL_LEVEL", nullable = false, length = 20)
@@ -77,7 +78,7 @@ public class Team {
     private List<TeamMember> members = new ArrayList<>();
 
 
-    private static final int MIN_MEMBERS = 1;
+    private static final int MIN_MEMBERS = 0;
     private static final int MAX_MEMBERS = 100;
 
     protected Team() {
@@ -176,6 +177,9 @@ public class Team {
     }
 
     public void removeMember(TeamMember member) {
+        if (this.memberCount.count() == 1) {
+            throw new LastTeamMemberRemovalNotAllowedException();
+        }
         members.remove(member);
         this.memberCount = this.memberCount.decrease();
     }
