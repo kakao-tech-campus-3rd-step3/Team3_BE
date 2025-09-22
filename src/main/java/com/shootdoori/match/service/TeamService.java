@@ -8,6 +8,7 @@ import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.entity.User;
 import com.shootdoori.match.exception.CaptainNotFoundException;
 import com.shootdoori.match.exception.TeamNotFoundException;
+import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,11 +21,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class TeamService {
 
+    private final ProfileRepository profileRepository;
     private final TeamRepository teamRepository;
     private final TeamMapper teamMapper;
 
 
-    public TeamService(TeamRepository teamRepository, TeamMapper teamMapper) {
+    public TeamService(ProfileRepository profileRepository, TeamRepository teamRepository,
+        TeamMapper teamMapper) {
+        this.profileRepository = profileRepository;
         this.teamRepository = teamRepository;
         this.teamMapper = teamMapper;
     }
@@ -33,6 +37,11 @@ public class TeamService {
         if (captain == null) {
             throw new CaptainNotFoundException();
         }
+
+        /*
+            TODO: JWT 토큰에서 captain 정보 받아와야 함. 현재는 하나의 User를 생성해 captain으로 대체하였음.
+         */
+        captain = profileRepository.save(captain);
 
         Team team = TeamMapper.toEntity(requestDto, captain);
         Team savedTeam = teamRepository.save(team);
