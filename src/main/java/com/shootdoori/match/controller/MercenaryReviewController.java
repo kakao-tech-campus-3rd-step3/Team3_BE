@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/users/{userId}/reviews")
+@RequestMapping("/api/mercenary-reviews")
 public class MercenaryReviewController {
     private final MercenaryReviewService reviewService;
     public MercenaryReviewController(MercenaryReviewService reviewService) {
@@ -18,13 +18,13 @@ public class MercenaryReviewController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<MercenaryReviewResponseDto>> getAll(@PathVariable Long userId) {
-        return new ResponseEntity<>(reviewService.getAll(userId), HttpStatus.OK);
+    public ResponseEntity<List<MercenaryReviewResponseDto>> getAll(@RequestParam Long profileId) {
+        return new ResponseEntity<>(reviewService.getAll(profileId), HttpStatus.OK);
     }
 
     @GetMapping("/{reviewId}")
-    public ResponseEntity<MercenaryReviewResponseDto> get(@PathVariable Long userId, @PathVariable Long reviewId) {
-        return new ResponseEntity<>(reviewService.get(userId, reviewId), HttpStatus.OK);
+    public ResponseEntity<MercenaryReviewResponseDto> get(@RequestParam Long profileId, @PathVariable Long reviewId) {
+        return new ResponseEntity<>(reviewService.get(profileId, reviewId), HttpStatus.OK);
     }
 
     @PostMapping()
