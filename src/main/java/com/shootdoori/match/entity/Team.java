@@ -73,7 +73,7 @@ public class Team {
     @Column(name = "UPDATED_AT")
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "team", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "team", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
     private List<TeamMember> members = new ArrayList<>();
 
 
@@ -177,7 +177,6 @@ public class Team {
 
     public void removeMember(TeamMember member) {
         members.remove(member);
-        member.setTeam(null);
         this.memberCount = this.memberCount.decrease();
     }
 

@@ -5,6 +5,7 @@ import com.shootdoori.match.dto.TeamDetailResponseDto;
 import com.shootdoori.match.dto.TeamMapper;
 import com.shootdoori.match.dto.TeamRequestDto;
 import com.shootdoori.match.entity.Team;
+import com.shootdoori.match.entity.TeamMemberRole;
 import com.shootdoori.match.entity.User;
 import com.shootdoori.match.exception.CaptainNotFoundException;
 import com.shootdoori.match.exception.TeamNotFoundException;
@@ -45,6 +46,7 @@ public class TeamService {
         captain = profileRepository.save(captain);
 
         Team team = TeamMapper.toEntity(requestDto, captain);
+        team.recruitMember(captain, TeamMemberRole.LEADER);
         Team savedTeam = teamRepository.save(team);
 
         return teamMapper.toCreateTeamResponse(savedTeam);
