@@ -76,7 +76,7 @@ public class TeamMemberService {
 
     @Transactional(readOnly = true)
     public Page<TeamMemberResponseDto> findAllByTeamId(Long teamId, int page, int size) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("teamMemberId").ascending());
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
 
         Page<TeamMember> teamMemberPage = teamMemberRepository.findAllByTeam_TeamId(teamId, pageable);
 
