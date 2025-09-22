@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/reviews")
+@RequestMapping("/api/team-reviews")
 public class TeamReviewController {
     private final TeamReviewService reviewService;
     public TeamReviewController(TeamReviewService reviewService) {

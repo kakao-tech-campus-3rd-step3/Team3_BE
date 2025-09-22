@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/reviews")
+@RequestMapping("/api/mercenary-reviews")
 public class MercenaryReviewController {
     private final MercenaryReviewService reviewService;
     public MercenaryReviewController(MercenaryReviewService reviewService) {
