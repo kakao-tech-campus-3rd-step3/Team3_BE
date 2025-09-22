@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/teams/{teamId}/reviews")
+@RequestMapping("/api/reviews")
 public class TeamReviewController {
     private final TeamReviewService reviewService;
     public TeamReviewController(TeamReviewService reviewService) {
@@ -18,12 +18,12 @@ public class TeamReviewController {
     }
 
     @GetMapping()
-    public ResponseEntity<List<TeamReviewResponseDto>> getAll(@PathVariable Long teamId) {
+    public ResponseEntity<List<TeamReviewResponseDto>> getAll(@RequestParam Long teamId) {
         return new ResponseEntity<>(reviewService.getAll(teamId), HttpStatus.OK);
     }
 
     @GetMapping("/{reviewId}")
-    public ResponseEntity<TeamReviewResponseDto> get(@PathVariable Long teamId, @PathVariable Long reviewId) {
+    public ResponseEntity<TeamReviewResponseDto> get(@RequestParam Long teamId, @PathVariable Long reviewId) {
         return new ResponseEntity<>(reviewService.get(teamId, reviewId), HttpStatus.OK);
     }
 
