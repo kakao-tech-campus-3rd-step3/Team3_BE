@@ -15,7 +15,8 @@ public interface MatchRequestRepository extends JpaRepository<MatchRequest, Long
       "SET mr.status = com.shootdoori.match.entity.MatchRequestStatus.REJECTED " +
       "WHERE mr.targetTeam.teamId = :targetTeamId " +
       "AND mr.status = com.shootdoori.match.entity.MatchRequestStatus.PENDING " +
-      "AND mr.requestId <> :acceptedRequestId")
+      "AND mr.requestId <> :acceptedRequestId " +
+      "AND mr.matchWaiting.waitingId = :waitingId ")
   int rejectOtherRequests(@Param("targetTeamId") Long targetTeamId,
       @Param("acceptedRequestId") Long acceptedRequestId);
 
