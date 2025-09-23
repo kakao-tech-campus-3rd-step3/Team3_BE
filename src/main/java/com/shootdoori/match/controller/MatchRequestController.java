@@ -13,54 +13,54 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/matches")
-public class MatchApplicationController {
+public class MatchRequestController {
 
   private final MatchRequestService matchRequestService;
 
-  public MatchApplicationController(MatchRequestService matchRequestService) {
+  public MatchRequestController(MatchRequestService matchRequestService) {
     this.matchRequestService = matchRequestService;
   }
 
-  @PostMapping("/{waitingId}/apply")
-  public ResponseEntity<MatchRequestResponseDto> applyToMatch(
+  @PostMapping("/{waitingId}/request")
+  public ResponseEntity<MatchRequestResponseDto> requestToMatch(
       @PathVariable Long waitingId,
       @RequestBody MatchRequestRequestDto requestDto
   ) {
-    MatchRequestResponseDto response = matchRequestService.applyToMatch(waitingId, requestDto);
+    MatchRequestResponseDto response = matchRequestService.requestToMatch(waitingId, requestDto);
     return ResponseEntity.ok(response);
   }
 
-  @DeleteMapping("/applications/{applicationId}")
-  public ResponseEntity<MatchRequestResponseDto> cancelMatchApplication(
-    @PathVariable Long applicationId
+  @DeleteMapping("/requests/{requestId}")
+  public ResponseEntity<MatchRequestResponseDto> cancelMatchRequest(
+    @PathVariable Long requestId
   ) {
-    MatchRequestResponseDto response = matchRequestService.cancelMatchApplication(applicationId);
+    MatchRequestResponseDto response = matchRequestService.cancelMatchRequest(requestId);
     return ResponseEntity.ok(response);
   }
 
   @GetMapping("/{teamId}/pending")
-  public ResponseEntity<Slice<MatchRequestResponseDto>> getReceivedPendingApplications(
+  public ResponseEntity<Slice<MatchRequestResponseDto>> getReceivedPendingRequests(
     @PathVariable Long teamId,
-    @PageableDefault(size = 10, sort = "appliedAt", direction = Sort.Direction.DESC) Pageable pageable
+    @PageableDefault(size = 10, sort = "requestAt", direction = Sort.Direction.DESC) Pageable pageable
   ) {
     Slice<MatchRequestResponseDto> slice =
-      matchRequestService.getReceivedPendingApplications(teamId, pageable);
+      matchRequestService.getReceivedPendingRequests(teamId, pageable);
     return ResponseEntity.ok(slice);
   }
 
-  @PatchMapping("/applications/{applicationId}/accept")
-  public ResponseEntity<MatchConfirmedResponseDto> acceptApplication(
-    @PathVariable Long applicationId
+  @PatchMapping("/requests/{requestId}/accept")
+  public ResponseEntity<MatchConfirmedResponseDto> acceptRequest(
+    @PathVariable Long requestId
   ) {
-    MatchConfirmedResponseDto response = matchRequestService.acceptApplication(applicationId);
+    MatchConfirmedResponseDto response = matchRequestService.acceptRequest(requestId);
     return ResponseEntity.ok(response);
   }
 
-  @PatchMapping("/applications/{applicationId}/reject")
-  public ResponseEntity<MatchRequestResponseDto> rejectApplication(
-    @PathVariable Long applicationId
+  @PatchMapping("/requests/{requestId}/reject")
+  public ResponseEntity<MatchRequestResponseDto> rejectRequest(
+    @PathVariable Long requestId
   ) {
-    MatchRequestResponseDto response = matchRequestService.rejectApplication(applicationId);
+    MatchRequestResponseDto response = matchRequestService.rejectRequest(requestId);
     return ResponseEntity.ok(response);
   }
 }

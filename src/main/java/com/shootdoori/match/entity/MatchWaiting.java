@@ -6,12 +6,12 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
-@Table(name = "match_queue")
-public class MatchQueue {
+@Table(name = "match_waiting")
+public class MatchWaiting {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "QUEUE_ID")
+  @Column(name = "WAITING_ID")
   private Long waitingId;
 
   @ManyToOne(fetch = FetchType.LAZY)
@@ -47,7 +47,7 @@ public class MatchQueue {
 
   @Enumerated(EnumType.STRING)
   @Column(name = "STATUS", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '대기중'")
-  private MatchQueueStatus status = MatchQueueStatus.WAITING;
+  private MatchWaitingStatus status = MatchWaitingStatus.WAITING;
 
   @Column(name = "EXPIRES_AT", nullable = false, columnDefinition = "TIMESTAMP DEFAULT (CURRENT_TIMESTAMP + INTERVAL '24' HOUR)")
   private LocalDateTime expiresAt;
@@ -58,22 +58,22 @@ public class MatchQueue {
   @Column(name = "UPDATED_AT", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
   private LocalDateTime updatedAt;
 
-  protected MatchQueue() {}
+  protected MatchWaiting() {}
 
 
-  public MatchQueue(Team team,
-      LocalDate preferredDate,
-      LocalTime preferredTimeStart,
-      LocalTime preferredTimeEnd,
-      Venue preferredVenue,
-      SkillLevel skillLevelMin,
-      SkillLevel skillLevelMax,
-      Boolean universityOnly,
-      String message,
-      MatchQueueStatus status,
-      LocalDateTime expiresAt,
-      LocalDateTime createdAt,
-      LocalDateTime updatedAt) {
+  public MatchWaiting(Team team,
+                      LocalDate preferredDate,
+                      LocalTime preferredTimeStart,
+                      LocalTime preferredTimeEnd,
+                      Venue preferredVenue,
+                      SkillLevel skillLevelMin,
+                      SkillLevel skillLevelMax,
+                      Boolean universityOnly,
+                      String message,
+                      MatchWaitingStatus status,
+                      LocalDateTime expiresAt,
+                      LocalDateTime createdAt,
+                      LocalDateTime updatedAt) {
     this.team = team;
     this.preferredDate = preferredDate;
     this.preferredTimeStart = preferredTimeStart;
@@ -129,7 +129,7 @@ public class MatchQueue {
     return message;
   }
 
-  public MatchQueueStatus getMatchRequestStatus() {
+  public MatchWaitingStatus getMatchRequestStatus() {
     return status;
   }
 
@@ -145,7 +145,7 @@ public class MatchQueue {
     return updatedAt;
   }
 
-  public void updateQueueStatus(MatchQueueStatus status, LocalDateTime updatedAt){
+  public void updateWaitingStatus(MatchWaitingStatus status, LocalDateTime updatedAt){
     this.status = status;
     this.updatedAt = updatedAt;
   }

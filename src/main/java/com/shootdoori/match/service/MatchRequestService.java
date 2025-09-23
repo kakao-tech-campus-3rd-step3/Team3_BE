@@ -1,10 +1,13 @@
 package com.shootdoori.match.service;
 
 
-import com.shootdoori.match.dto.MatchApplicationRequestDto;
-import com.shootdoori.match.dto.MatchApplicationResponseDto;
+import com.shootdoori.match.dto.MatchRequestRequestDto;
+import com.shootdoori.match.dto.MatchRequestResponseDto;
 import com.shootdoori.match.dto.MatchConfirmedResponseDto;
 import com.shootdoori.match.entity.*;
+import com.shootdoori.match.exception.MatchRequestNotFoundException;
+import com.shootdoori.match.exception.MatchWaitingNotFoundException;
+import com.shootdoori.match.exception.TeamNotFoundException;
 import com.shootdoori.match.repository.MatchRequestRepository;
 import com.shootdoori.match.repository.MatchWaitingRepository;
 import com.shootdoori.match.repository.MatchRepository;
@@ -18,17 +21,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
-public class MatchApplicationService {
+public class MatchRequestService {
 
   private final MatchRequestRepository matchRequestRepository;
   private final MatchWaitingRepository matchWaitingRepository;
   private final MatchRepository matchRepository;
   private final TeamRepository teamRepository;
 
-  public MatchApplicationService(MatchRequestRepository matchRequestRepository,
-                                 MatchWaitingRepository matchWaitingRepository,
-                                 MatchRepository matchRepository,
-                                 TeamRepository teamRepository) {
+  public MatchRequestService(MatchRequestRepository matchRequestRepository,
+                             MatchWaitingRepository matchWaitingRepository,
+                             MatchRepository matchRepository,
+                             TeamRepository teamRepository) {
     this.matchRequestRepository = matchRequestRepository;
     this.matchWaitingRepository = matchWaitingRepository;
     this.matchRepository = matchRepository;
@@ -36,76 +39,76 @@ public class MatchApplicationService {
   }
 
   @Transactional
-  public MatchApplicationResponseDto applyToMatch(Long waitingId, MatchApplicationRequestDto requestDto) {
+  public MatchRequestResponseDto requestToMatch(Long waitingId, MatchRequestRequestDto requestDto) {
 
-    MatchWaiting targetQueue = matchWaitingRepository.findById(waitingId)
-        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 매치 대기열입니다."));
+    MatchWaiting targetWaiting = matchWaitingRepository.findById(waitingId)
+        .orElseThrow(() -> new MatchWaitingNotFoundException(waitingId));
 
-    Team applicantTeam = teamRepository.findById(requestDto.applicantTeamId())
-        .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 팀입니다."));
+    Team requestTeam = teamRepository.findById(requestDto.requestTeamId())
+        .orElseThrow(() -> new TeamNotFoundException(requestDto.requestTeamId()));
 
-    MatchRequest application = new MatchRequest(
-        targetQueue,
-        applicantTeam,
-        targetQueue.getTeam(),
-        requestDto.applicationMessage()
+    MatchRequest matchRequest = new MatchRequest(
+      targetWaiting,
+      requestTeam,
+      targetWaiting.getTeam(),
+      requestDto.requestMessage()
     );
 
-    MatchRequest saved = matchRequestRepository.save(application);
+    MatchRequest saved = matchRequestRepository.save(matchRequest);
 
-    return new MatchApplicationResponseDto(
-        saved.getApplicationId(),
-        saved.getApplicantTeam().getTeamId(),
+    return new MatchRequestResponseDto(
+        saved.getRequestId(),
+        saved.getRequestTeam().getTeamId(),
         saved.getTargetTeam().getTeamId(),
-        saved.getApplicationMessage(),
+        saved.getRequestMessage(),
         saved.getStatus()
     );
   }
 
   @Transactional
-  public MatchApplicationResponseDto cancelMatchApplication(Long applicationId) {
-    MatchRequest application = matchRequestRepository.findById(applicationId)
-      .orElseThrow(() -> new IllegalArgumentException("해당 신청이 존재하지 않습니다. ID=" + applicationId));
+  public MatchRequestResponseDto cancelMatchRequest(Long requestId) {
+    MatchRequest matchRequest = matchRequestRepository.findById(requestId)
+      .orElseThrow(() -> new MatchRequestNotFoundException(requestId));
 
-    application.cancelApplication();
+    matchRequest.cancelRequest();
 
-    return new MatchApplicationResponseDto(
-      application.getApplicationId(),
-      application.getApplicantTeam().getTeamId(),
-      application.getTargetTeam().getTeamId(),
-      application.getApplicationMessage(),
-      application.getStatus()
+    return new MatchRequestResponseDto(
+      matchRequest.getRequestId(),
+      matchRequest.getRequestTeam().getTeamId(),
+      matchRequest.getTargetTeam().getTeamId(),
+      matchRequest.getRequestMessage(),
+      matchRequest.getStatus()
     );
   }
 
 
   @Transactional(readOnly = true)
-  public Slice<MatchApplicationResponseDto> getReceivedPendingApplications(Long teamId, Pageable pageable) {
-    return matchRequestRepository.findPendingApplicationsByTargetTeam(teamId, pageable)
-      .map(ma -> new MatchApplicationResponseDto(
-        ma.getApplicationId(),
-        ma.getApplicantTeam().getTeamId(),
-        ma.getTargetTeam().getTeamId(),
-        ma.getApplicationMessage(),
-        ma.getStatus()
+  public Slice<MatchRequestResponseDto> getReceivedPendingRequests(Long teamId, Pageable pageable) {
+    return matchRequestRepository.findPendingRequestsByTargetTeam(teamId, pageable)
+      .map(mr -> new MatchRequestResponseDto(
+        mr.getRequestId(),
+        mr.getRequestTeam().getTeamId(),
+        mr.getTargetTeam().getTeamId(),
+        mr.getRequestMessage(),
+        mr.getStatus()
       ));
   }
 
   @Transactional
-  public MatchConfirmedResponseDto acceptApplication(Long applicationId) {
-    MatchRequest application = matchRequestRepository.findById(applicationId)
-      .orElseThrow(() -> new IllegalArgumentException("해당 신청이 없습니다. id=" + applicationId));
+  public MatchConfirmedResponseDto acceptRequest(Long requestId) {
+    MatchRequest matchRequest = matchRequestRepository.findById(requestId)
+      .orElseThrow(() -> new MatchRequestNotFoundException(requestId));
 
-    MatchWaiting matchWaiting = application.getMatchWaiting();
+    MatchWaiting matchWaiting = matchRequest.getMatchWaiting();
 
-    application.updateRequestStatus(MatchRequestStatus.ACCEPTED, LocalDateTime.now());
-    matchWaiting.updateQueueStatus(MatchWaitingStatus.MATCHED, LocalDateTime.now());
+    matchRequest.updateRequestStatus(MatchRequestStatus.ACCEPTED, LocalDateTime.now());
+    matchWaiting.updateWaitingStatus(MatchWaitingStatus.MATCHED, LocalDateTime.now());
 
-    matchRequestRepository.rejectOtherRequests(application.getTargetTeam().getTeamId(), applicationId);
+    matchRequestRepository.rejectOtherRequests(matchRequest.getTargetTeam().getTeamId(), requestId);
 
     Match match = new Match(
-      application.getTargetTeam(),
-      application.getRequestTeam(),
+      matchRequest.getTargetTeam(),
+      matchRequest.getRequestTeam(),
       matchWaiting.getPreferredDate(),
       matchWaiting.getPreferredTimeStart(),
       matchWaiting.getPreferredVenue(),
@@ -125,18 +128,18 @@ public class MatchApplicationService {
   }
 
   @Transactional
-  public MatchApplicationResponseDto rejectApplication(Long applicationId) {
-    MatchRequest application = matchRequestRepository.findById(applicationId)
-      .orElseThrow(() -> new IllegalArgumentException("해당 신청이 없습니다. id=" + applicationId));
+  public MatchRequestResponseDto rejectRequest(Long requestId) {
+    MatchRequest matchRequest = matchRequestRepository.findById(requestId)
+      .orElseThrow(() -> new MatchRequestNotFoundException(requestId));
 
-    application.updateRequestStatus(MatchRequestStatus.REJECTED, LocalDateTime.now());
+    matchRequest.updateRequestStatus(MatchRequestStatus.REJECTED, LocalDateTime.now());
 
-    return new MatchApplicationResponseDto(
-      application.getApplicationId(),
-      application.getApplicantTeam().getTeamId(),
-      application.getTargetTeam().getTeamId(),
-      application.getApplicationMessage(),
-      application.getStatus()
+    return new MatchRequestResponseDto(
+      matchRequest.getRequestId(),
+      matchRequest.getRequestTeam().getTeamId(),
+      matchRequest.getTargetTeam().getTeamId(),
+      matchRequest.getRequestMessage(),
+      matchRequest.getStatus()
     );
   }
 

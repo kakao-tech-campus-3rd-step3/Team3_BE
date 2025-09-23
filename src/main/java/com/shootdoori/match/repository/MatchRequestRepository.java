@@ -8,19 +8,19 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface MatchApplicationRepository extends JpaRepository<MatchRequest, Long> {
+public interface MatchRequestRepository extends JpaRepository<MatchRequest, Long> {
 
   @Modifying
-  @Query("UPDATE MatchApplication ma " +
-      "SET ma.status = com.shootdoori.match.entity.MatchApplicationStatus.REJECTED " +
-      "WHERE ma.targetTeam.teamId = :targetTeamId " +
-      "AND ma.status = com.shootdoori.match.entity.MatchApplicationStatus.PENDING " +
-      "AND ma.applicationId <> :acceptedRequestId")
+  @Query("UPDATE MatchRequest mr " +
+      "SET mr.status = com.shootdoori.match.entity.MatchRequestStatus.REJECTED " +
+      "WHERE mr.targetTeam.teamId = :targetTeamId " +
+      "AND mr.status = com.shootdoori.match.entity.MatchRequestStatus.PENDING " +
+      "AND mr.requestId <> :acceptedRequestId")
   int rejectOtherRequests(@Param("targetTeamId") Long targetTeamId,
       @Param("acceptedRequestId") Long acceptedRequestId);
 
-  @Query("SELECT ma FROM MatchApplication ma " +
-    "WHERE ma.targetTeam.teamId = :targetTeamId " +
-    "AND ma.status = com.shootdoori.match.entity.MatchApplicationStatus.PENDING")
-  Slice<MatchRequest> findPendingApplicationsByTargetTeam(@Param("teamId") Long teamId, Pageable pageable);
+  @Query("SELECT mr FROM MatchRequest mr " +
+    "WHERE mr.targetTeam.teamId = :targetTeamId " +
+    "AND mr.status = com.shootdoori.match.entity.MatchRequestStatus.PENDING")
+  Slice<MatchRequest> findPendingRequestsByTargetTeam(@Param("teamId") Long teamId, Pageable pageable);
 }

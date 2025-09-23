@@ -1,6 +1,6 @@
 package com.shootdoori.match.dto;
 
-public record MatchApplicationRequestDto(
-    Long applicantTeamId,
-    String applicationMessage
+public record MatchRequestRequestDto(
+    Long requestTeamId,
+    String requestMessage
 ) {}

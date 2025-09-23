@@ -1,6 +1,6 @@
 package com.shootdoori.match.entity;
 
-public enum MatchApplicationStatus {
+public enum MatchRequestStatus {
   PENDING("대기중"),
   ACCEPTED("수락"),
   REJECTED("거절"),
@@ -8,7 +8,7 @@ public enum MatchApplicationStatus {
 
   private final String displayName;
 
-  MatchApplicationStatus(String displayName) {
+  MatchRequestStatus(String displayName) {
     this.displayName = displayName;
   }
 
@@ -16,8 +16,8 @@ public enum MatchApplicationStatus {
     return displayName;
   }
 
-  public static MatchApplicationStatus fromDisplayName(String displayName) {
-    for (MatchApplicationStatus status : values()) {
+  public static MatchRequestStatus fromDisplayName(String displayName) {
+    for (MatchRequestStatus status : values()) {
       if (status.displayName.equals(displayName)) {
         return status;
       }
