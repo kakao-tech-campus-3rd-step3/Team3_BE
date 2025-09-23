@@ -101,17 +101,35 @@ public class TeamMember {
 
     public void changeRole(Team team, TeamMemberRole newRole) {
 
-        if (newRole == TeamMemberRole.LEADER && team.hasCaptain()
-            && this.role != TeamMemberRole.LEADER) {
-            throw new DuplicateCaptainException();
+        if (isPromotionToLeader(newRole)) {
+            validateLeaderPromotion(team);
         }
 
-        if (newRole == TeamMemberRole.VICE_LEADER && team.hasViceCaptain()
-            && this.role != TeamMemberRole.VICE_LEADER) {
-            throw new DuplicateViceCaptainException();
+        if (isPromotionToViceLeader(newRole)) {
+            validateViceLeaderPromotion(team);
         }
 
         this.role = newRole;
+    }
+
+    private boolean isPromotionToLeader(TeamMemberRole newRole) {
+        return newRole == TeamMemberRole.LEADER && this.role != TeamMemberRole.LEADER;
+    }
+
+    private boolean isPromotionToViceLeader(TeamMemberRole newRole) {
+        return newRole == TeamMemberRole.VICE_LEADER && this.role != TeamMemberRole.VICE_LEADER;
+    }
+
+    private void validateLeaderPromotion(Team team) {
+        if (team.hasCaptain()) {
+            throw new DuplicateCaptainException();
+        }
+    }
+
+    private void validateViceLeaderPromotion(Team team) {
+        if (team.hasViceCaptain()) {
+            throw new DuplicateViceCaptainException();
+        }
     }
 
     public boolean canMakeJoinDecisionFor(Team team) {
