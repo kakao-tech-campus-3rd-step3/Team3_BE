@@ -1,5 +1,6 @@
 package com.shootdoori.match.repository;
 
+import com.shootdoori.match.dto.MatchSummaryProjection;
 import com.shootdoori.match.entity.Match;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -16,27 +17,42 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MatchRepository extends JpaRepository<Match, Long> {
 
-  @Query("SELECT m FROM Match m " +
-      "WHERE (m.team1.teamId = :teamId OR m.team2.teamId = :teamId) " +
-      "AND m.status = :status  " +
-      "AND (m.matchDate < :cursorDate OR (m.matchDate = :cursorDate AND m.matchTime < :cursorTime)) " +
-      "ORDER BY m.matchDate DESC, m.matchTime DESC")
-  Slice<Match> findMatchesByTeamIdAndStatus(
-      @Param("teamId") Long teamId,
-      @Param("status") MatchStatus status,
-      @Param("cursorDate") LocalDate cursorDate,
-      @Param("cursorTime") LocalTime cursorTime,
-      Pageable pageable
+  @Query("SELECT new com.shootdoori.match.dto.MatchSummaryProjection(" +
+    "m.matchId, m.matchDate, m.matchTime, m.status, " +
+    "t1.teamName.name, t2.teamName.name, " +
+    "v.venueName, m.createdAt, m.updatedAt) " +
+    "FROM Match m " +
+    "JOIN m.team1 t1 " +
+    "JOIN m.team2 t2 " +
+    "JOIN m.venue v " +
+    "WHERE (t1.teamId = :teamId OR t2.teamId = :teamId) " +
+    "AND m.status = :status " +
+    "AND (m.matchDate < :cursorDate " +
+    "     OR (m.matchDate = :cursorDate AND m.matchTime < :cursorTime)) " +
+    "ORDER BY m.matchDate DESC, m.matchTime DESC")
+  Slice<MatchSummaryProjection> findMatchSummariesByTeamIdAndStatus(
+    @Param("teamId") Long teamId,
+    @Param("status") MatchStatus status,
+    @Param("cursorDate") LocalDate cursorDate,
+    @Param("cursorTime") LocalTime cursorTime,
+    Pageable pageable
   );
 
-  @Query("SELECT m FROM Match m " +
-      "WHERE (m.team1.teamId = :teamId OR m.team2.teamId = :teamId) " +
-      "AND m.status = :status " +
-      "ORDER BY m.matchDate DESC, m.matchTime DESC")
-  Slice<Match> findFirstPageMatchesByTeamIdAndStatus(
-      @Param("teamId") Long teamId,
-      @Param("status") MatchStatus status,
-      Pageable pageable
+  @Query("SELECT new com.shootdoori.match.dto.MatchSummaryProjection(" +
+    "m.matchId, m.matchDate, m.matchTime, m.status, " +
+    "t1.teamName.name, t2.teamName.name, " +
+    "v.venueName, m.createdAt, m.updatedAt) " +
+    "FROM Match m " +
+    "JOIN m.team1 t1 " +
+    "JOIN m.team2 t2 " +
+    "JOIN m.venue v " +
+    "WHERE (t1.teamId = :teamId OR t2.teamId = :teamId) " +
+    "AND m.status = :status " +
+    "ORDER BY m.matchDate DESC, m.matchTime DESC")
+  Slice<MatchSummaryProjection> findFirstPageMatchSummariesByTeamIdAndStatus(
+    @Param("teamId") Long teamId,
+    @Param("status") MatchStatus status,
+    Pageable pageable
   );
 
   Match findByMatchId(Long i);

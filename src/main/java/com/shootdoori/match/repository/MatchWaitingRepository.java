@@ -1,6 +1,6 @@
 package com.shootdoori.match.repository;
 
-import com.shootdoori.match.entity.MatchQueue;
+import com.shootdoori.match.entity.MatchWaiting;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import org.springframework.data.domain.Pageable;
@@ -11,7 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface MatchQueueRepository extends JpaRepository<MatchQueue, Long> {
+public interface MatchQueueRepository extends JpaRepository<MatchWaiting, Long> {
 
     @Query("SELECT mq FROM MatchQueue mq " +
         "WHERE mq.preferredDate = :date " +
@@ -20,7 +20,7 @@ public interface MatchQueueRepository extends JpaRepository<MatchQueue, Long> {
         "AND mq.expiresAt > CURRENT_TIMESTAMP " +
         "AND (:lastTime IS NULL OR mq.preferredTimeStart > :lastTime) " +
         "ORDER BY mq.preferredTimeStart ASC")
-    Slice<MatchQueue> findAvailableMatchesByDateCursor(
+    Slice<MatchWaiting> findAvailableMatchesByDateCursor(
         @Param("date") LocalDate date,
         @Param("teamId") Long teamId,
         @Param("lastTime") LocalTime lastTime,

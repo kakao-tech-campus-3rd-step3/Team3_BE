@@ -1,7 +1,6 @@
 package com.shootdoori.match.repository;
 
-import com.shootdoori.match.entity.MatchApplication;
-import com.shootdoori.match.entity.MatchApplicationStatus;
+import com.shootdoori.match.entity.MatchRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,7 +8,7 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
-public interface MatchApplicationRepository extends JpaRepository<MatchApplication, Long> {
+public interface MatchApplicationRepository extends JpaRepository<MatchRequest, Long> {
 
   @Modifying
   @Query("UPDATE MatchApplication ma " +
@@ -23,5 +22,5 @@ public interface MatchApplicationRepository extends JpaRepository<MatchApplicati
   @Query("SELECT ma FROM MatchApplication ma " +
     "WHERE ma.targetTeam.teamId = :targetTeamId " +
     "AND ma.status = com.shootdoori.match.entity.MatchApplicationStatus.PENDING")
-  Slice<MatchApplication> findPendingApplicationsByTargetTeam(@Param("teamId") Long teamId, Pageable pageable);
+  Slice<MatchRequest> findPendingApplicationsByTargetTeam(@Param("teamId") Long teamId, Pageable pageable);
 }
