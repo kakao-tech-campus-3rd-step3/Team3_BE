@@ -19,8 +19,11 @@ public enum ErrorCode {
     JOIN_QUEUE_ALREADY_PENDING("이미 대기중인 신청이 존재합니다."),
     JOIN_QUEUE_NOT_FOUND("해당 가입 신청을 찾을 수 없습니다."),
 
-    NO_PERMISSION("허락되지 않은 요청입니다.");
+    NO_PERMISSION("허락되지 않은 요청입니다."),
 
+    VENUE_NOT_FOUND("해당 경기장을 찾을 수 없습니다."),
+    MATCH_REQUEST_NOT_FOUND("해당 매치 요청은 존재하지 않습니다."),
+    MATCH_WAITING_NOT_FOUND("해당 매치 대기열은 존재하지 않습니다.");
 
     private final String message;
 
