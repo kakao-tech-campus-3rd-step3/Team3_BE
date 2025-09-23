@@ -139,4 +139,12 @@ public class TeamMember {
 
         return true;
     }
+
+    public boolean isCaptain() {
+        return this.role == TeamMemberRole.LEADER;
+    }
+
+    public boolean isViceCaptain() {
+        return this.role == TeamMemberRole.VICE_LEADER;
+    }
 }

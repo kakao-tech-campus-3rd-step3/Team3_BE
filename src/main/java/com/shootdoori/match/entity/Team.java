@@ -197,12 +197,12 @@ public class Team {
 
     public boolean hasCaptain() {
         return members.stream()
-            .anyMatch(m -> m.getRole() == TeamMemberRole.LEADER);
+            .anyMatch(TeamMember::isCaptain);
     }
 
     public boolean hasViceCaptain() {
         return members.stream()
-            .anyMatch(m -> m.getRole() == TeamMemberRole.VICE_LEADER);
+            .anyMatch(TeamMember::isViceCaptain);
     }
 
     @Override
