@@ -101,7 +101,7 @@ public class MatchApplicationService {
     MatchQueue matchQueue = application.getMatchQueue();
 
     application.updateApplicationStatus(MatchApplicationStatus.ACCEPTED, LocalDateTime.now());
-    matchQueue.updateQueueStatus(MatchQueueStatus.MATCHED, LocalDateTime.now());
+    matchQueue.updateQueueStatus(MatchQueueStatus.MATCHED);
 
     matchApplicationRepository.rejectOtherRequests(application.getTargetTeam().getTeamId(), applicationId);
 

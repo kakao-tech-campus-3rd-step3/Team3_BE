@@ -1,14 +1,23 @@
 package com.shootdoori.match.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Objects;
 
 @Entity
 @Table(name = "match_table")
-public class Match {
+public class Match extends DateEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,12 +46,6 @@ public class Match {
   @Column(name = "STATUS", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '예정'")
   private MatchStatus status = MatchStatus.RECRUITING;
 
-  @Column(name = "CREATED_AT", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-  private LocalDateTime createdAt;
-
-  @Column(name = "UPDATED_AT", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
-  private LocalDateTime updatedAt;
-
   public Match(Team team1, Team team2, LocalDate matchDate, LocalTime matchTime, Venue venue, MatchStatus status) {
     this.team1 = team1;
     this.team2 = team2;
@@ -50,8 +53,6 @@ public class Match {
     this.matchTime = matchTime;
     this.venue = venue;
     this.status = status != null ? status : MatchStatus.RECRUITING;
-    this.createdAt = LocalDateTime.now();
-    this.updatedAt = LocalDateTime.now();
   }
 
   protected Match() {}
@@ -82,14 +83,6 @@ public class Match {
 
   public MatchStatus getStatus() {
     return status;
-  }
-
-  public LocalDateTime getCreatedAt() {
-    return createdAt;
-  }
-
-  public LocalDateTime getUpdatedAt() {
-    return updatedAt;
   }
 
   public Team findEnemyTeam(Long teamId) {

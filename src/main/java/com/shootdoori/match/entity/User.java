@@ -2,10 +2,6 @@ package com.shootdoori.match.entity;
 
 import com.shootdoori.match.exception.UnauthorizedException;
 import com.shootdoori.match.value.UniversityName;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -17,14 +13,10 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.time.LocalDateTime;
 import java.util.Objects;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.time.LocalDateTime;
-
 @Entity
-public class User {
+public class User extends DateEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -65,14 +57,6 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(name = "POSITION", nullable = false, length = 2)
     private Position position;
-
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 
     protected User() {
 
@@ -264,14 +248,6 @@ public class User {
 
     public Position getPosition() {
         return this.position;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return this.createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return this.updatedAt;
     }
 
     public void update(String skillLevel, String position, String bio) {

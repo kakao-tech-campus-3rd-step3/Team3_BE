@@ -1,9 +1,9 @@
 package com.shootdoori.match.entity;
 
-import com.shootdoori.match.dto.UpdateTeamMemberRequestDto;
 import com.shootdoori.match.exception.DuplicateCaptainException;
 import com.shootdoori.match.exception.DuplicateViceCaptainException;
 import com.shootdoori.match.exception.NoPermissionException;
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -14,8 +14,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
@@ -27,7 +25,8 @@ import java.time.LocalDateTime;
         @UniqueConstraint(columnNames = {"team_id", "user_id"})
     }
 )
-public class TeamMember {
+@AttributeOverride(name = "createdAt", column = @Column(name = "joined_at", nullable = false, updatable = false))
+public class TeamMember extends DateEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,11 +45,6 @@ public class TeamMember {
     @Column(name = "role", nullable = false, length = 20)
     private TeamMemberRole role = TeamMemberRole.MEMBER;
 
-    @Column(name = "joined_at", nullable = false, updatable = false)
-    private LocalDateTime joinedAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 
     protected TeamMember() {
     }
@@ -59,16 +53,6 @@ public class TeamMember {
         this.team = team;
         this.user = user;
         this.role = role != null ? role : TeamMemberRole.MEMBER;
-    }
-
-    @PrePersist
-    public void prePersist() {
-        this.joinedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -88,11 +72,7 @@ public class TeamMember {
     }
 
     public LocalDateTime getJoinedAt() {
-        return joinedAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
+        return getCreatedAt();
     }
 
     public void setTeam(Team team) {

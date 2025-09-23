@@ -47,9 +47,7 @@ public class MatchCreateService {
         dto.universityOnly() != null ? dto.universityOnly() : false,
         dto.message(),
         MatchQueueStatus.WAITING,
-        LocalDateTime.now().plusHours(24),
-        LocalDateTime.now(),
-        LocalDateTime.now()
+        LocalDateTime.now().plusHours(24)
     );
 
     MatchQueue saved = matchQueueRepository.save(matchQueue);

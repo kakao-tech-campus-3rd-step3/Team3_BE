@@ -1,9 +1,19 @@
 package com.shootdoori.match.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import java.time.LocalDateTime;
 import org.hibernate.annotations.Check;
 
 @Entity
@@ -17,7 +27,7 @@ import org.hibernate.annotations.Check;
     name = "ck_mercenary_review_ratings",
     constraints = "rating BETWEEN 1 AND 5 "
 )
-public class MercenaryReview {
+public class MercenaryReview extends DateEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -53,11 +63,6 @@ public class MercenaryReview {
     @Column(name = "skill_level_review")
     private ReviewSkillLevel skillLevelReview;
 
-    @Column(name = "created_at", nullable = false, updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 
     protected MercenaryReview() {
     }
@@ -86,16 +91,6 @@ public class MercenaryReview {
         this.punctualityReview = mercenaryReview.punctualityReview;
         this.sportsmanshipReview = mercenaryReview.sportsmanshipReview;
         this.skillLevelReview = mercenaryReview.skillLevelReview;
-    }
-
-    @PrePersist
-    public void prePersist() {
-        this.createdAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    public void preUpdate() {
-        this.updatedAt = LocalDateTime.now();
     }
 
     public Long getId() {
@@ -128,13 +123,5 @@ public class MercenaryReview {
 
     public ReviewSkillLevel getSkillLevelReview() {
         return skillLevelReview;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
     }
 }
