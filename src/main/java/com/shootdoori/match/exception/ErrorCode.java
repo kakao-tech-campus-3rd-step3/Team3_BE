@@ -21,9 +21,15 @@ public enum ErrorCode {
 
     NO_PERMISSION("허락되지 않은 요청입니다."),
 
+
     VENUE_NOT_FOUND("해당 경기장을 찾을 수 없습니다."),
     MATCH_REQUEST_NOT_FOUND("해당 매치 요청은 존재하지 않습니다."),
     MATCH_WAITING_NOT_FOUND("해당 매치 대기열은 존재하지 않습니다.");
+
+    RECRUITMENT_NOT_FOUND("존재하지 않는 모집 공고입니다."),
+
+    PROFILE_NOT_FOUND("해당 프로필을 찾을 수 없습니다.");
+
 
     private final String message;
 
