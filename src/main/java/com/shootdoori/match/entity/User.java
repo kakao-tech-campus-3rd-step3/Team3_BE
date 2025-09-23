@@ -1,27 +1,15 @@
 package com.shootdoori.match.entity;
 
 import com.shootdoori.match.exception.UnauthorizedException;
+import com.shootdoori.match.value.Password;
 import com.shootdoori.match.value.UniversityName;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import java.time.LocalDateTime;
-import java.util.Objects;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 public class User {
@@ -43,8 +31,9 @@ public class User {
     @Column(name = "university_email", nullable = false, unique = true, length = 255)
     private String universityEmail;
 
-    @Column(nullable = false)
-    private String password;
+    @Embedded
+    @AttributeOverride(name = "password", column = @Column(name = "PASSWORD", nullable = false, length = 255))
+    private Password password;
 
     @Column(name = "phone_number", nullable = false, unique = true, length = 13)
     private String phoneNumber;
@@ -85,7 +74,7 @@ public class User {
         this.skillLevel = skillLevel;
         this.email = email;
         this.universityEmail = universityEmail;
-        this.password = password;
+        this.password = Password.of(password);
         this.phoneNumber = phoneNumber;
         this.position = position;
         this.university = UniversityName.of(university);
@@ -283,10 +272,8 @@ public class User {
         this.bio = bio;
     }
 
-    public void samePassword(String rawPassword, PasswordEncoder passwordEncoder) {
-        if (!passwordEncoder.matches(rawPassword, this.password)) {
-            throw new UnauthorizedException("잘못된 이메일 또는 비밀번호입니다.");
-        }
+    public void validatePassword(String rawPassword, PasswordEncoder passwordEncoder) {
+        this.password.validate(rawPassword, passwordEncoder);
     }
 
     @Override

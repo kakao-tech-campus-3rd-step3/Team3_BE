@@ -7,6 +7,7 @@ import com.shootdoori.match.entity.MercenaryRecruitment;
 import com.shootdoori.match.entity.Position;
 import com.shootdoori.match.entity.SkillLevel;
 import com.shootdoori.match.entity.Team;
+import com.shootdoori.match.exception.RecruitmentNotFoundException;
 import com.shootdoori.match.exception.TeamNotFoundException;
 import com.shootdoori.match.repository.MercenaryRecruitmentRepository;
 import com.shootdoori.match.repository.TeamRepository;
@@ -51,7 +52,7 @@ public class MercenaryRecruitmentService {
     @Transactional(readOnly = true)
     public RecruitmentResponse findById(Long id) {
         MercenaryRecruitment recruitment = recruitmentRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 모집 공고입니다."));
+            .orElseThrow(RecruitmentNotFoundException::new);
 
         return new RecruitmentResponse(recruitment);
     }
@@ -60,7 +61,7 @@ public class MercenaryRecruitmentService {
         // TODO: 요청을 보낸 사용자가 이 게시글을 수정할 권한이 있는지 확인하는 로직 추가
 
         MercenaryRecruitment recruitment = recruitmentRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 모집 공고입니다."));
+            .orElseThrow(RecruitmentNotFoundException::new);
 
         Position position = Position.fromDisplayName(updateRequest.position());
         SkillLevel skillLevel = SkillLevel.fromDisplayName(updateRequest.skillLevel());
@@ -75,7 +76,7 @@ public class MercenaryRecruitmentService {
         // TODO: 요청을 보낸 사용자가 이 게시글을 삭제할 권한이 있는지 확인하는 로직 추가
 
         recruitmentRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 모집 공고입니다."));
+            .orElseThrow(RecruitmentNotFoundException::new);
 
         recruitmentRepository.deleteById(id);
     }
