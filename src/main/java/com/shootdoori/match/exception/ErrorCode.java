@@ -19,8 +19,11 @@ public enum ErrorCode {
     JOIN_QUEUE_ALREADY_PENDING("이미 대기중인 신청이 존재합니다."),
     JOIN_QUEUE_NOT_FOUND("해당 가입 신청을 찾을 수 없습니다."),
 
-    NO_PERMISSION("허락되지 않은 요청입니다.");
+    NO_PERMISSION("허락되지 않은 요청입니다."),
 
+    RECRUITMENT_NOT_FOUND("존재하지 않는 모집 공고입니다."),
+
+    PROFILE_NOT_FOUND("해당 프로필을 찾을 수 없습니다.");
 
     private final String message;
 

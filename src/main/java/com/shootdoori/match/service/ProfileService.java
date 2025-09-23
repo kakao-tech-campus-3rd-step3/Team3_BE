@@ -6,6 +6,7 @@ import com.shootdoori.match.dto.ProfileResponse;
 import com.shootdoori.match.dto.ProfileUpdateRequest;
 import com.shootdoori.match.entity.User;
 import com.shootdoori.match.exception.DuplicatedUserException;
+import com.shootdoori.match.exception.ProfileNotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -57,7 +58,7 @@ public class ProfileService {
     @Transactional(readOnly = true)
     public ProfileResponse findProfileById(Long id) {
         User profile = profileRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("해당 프로필을 찾을 수 없습니다."));
+            .orElseThrow(ProfileNotFoundException::new);
         return profileMapper.toProfileResponse(profile);
     }
 
@@ -68,13 +69,13 @@ public class ProfileService {
 
     public void updateProfile(Long id, ProfileUpdateRequest updateRequest) {
         User profile = profileRepository.findById(id)
-            .orElseThrow(() -> new IllegalArgumentException("해당 프로필을 찾을 수 없습니다."));
+            .orElseThrow(ProfileNotFoundException::new);
         profile.update(updateRequest.skillLevel(), updateRequest.position(), updateRequest.bio());
     }
 
     public void deleteProfile(Long id) {
         if (!profileRepository.existsById(id)) {
-            throw new IllegalArgumentException("해당 프로필이 존재하지 않습니다.");
+            throw new ProfileNotFoundException();
         }
         profileRepository.deleteById(id);
     }

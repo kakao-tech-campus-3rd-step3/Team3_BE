@@ -1,6 +1,7 @@
 package com.shootdoori.match.entity;
 
 import com.shootdoori.match.exception.UnauthorizedException;
+import com.shootdoori.match.value.Password;
 import com.shootdoori.match.value.UniversityName;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
@@ -35,8 +36,9 @@ public class User extends DateEntity {
     @Column(name = "university_email", nullable = false, unique = true, length = 255)
     private String universityEmail;
 
-    @Column(nullable = false)
-    private String password;
+    @Embedded
+    @AttributeOverride(name = "password", column = @Column(name = "PASSWORD", nullable = false, length = 255))
+    private Password password;
 
     @Column(name = "phone_number", nullable = false, unique = true, length = 13)
     private String phoneNumber;
@@ -69,7 +71,7 @@ public class User extends DateEntity {
         this.skillLevel = skillLevel;
         this.email = email;
         this.universityEmail = universityEmail;
-        this.password = password;
+        this.password = Password.of(password);
         this.phoneNumber = phoneNumber;
         this.position = position;
         this.university = UniversityName.of(university);
@@ -259,10 +261,8 @@ public class User extends DateEntity {
         this.bio = bio;
     }
 
-    public void samePassword(String rawPassword, PasswordEncoder passwordEncoder) {
-        if (!passwordEncoder.matches(rawPassword, this.password)) {
-            throw new UnauthorizedException("잘못된 이메일 또는 비밀번호입니다.");
-        }
+    public void validatePassword(String rawPassword, PasswordEncoder passwordEncoder) {
+        this.password.validate(rawPassword, passwordEncoder);
     }
 
     @Override
