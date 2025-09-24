@@ -4,6 +4,8 @@ import com.shootdoori.match.dto.AuthToken;
 import com.shootdoori.match.dto.AuthTokenResponse;
 import com.shootdoori.match.dto.LoginRequest;
 import com.shootdoori.match.dto.ProfileCreateRequest;
+import com.shootdoori.match.entity.User;
+import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.AuthService;
 import com.shootdoori.match.service.TokenRefreshService;
 import jakarta.servlet.http.Cookie;
@@ -56,6 +58,35 @@ public class LoginController {
         setRefreshTokenCookie(response, newTokens.refreshToken());
 
         return ResponseEntity.ok(new AuthTokenResponse(newTokens.accessToken()));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(
+        @CookieValue("refreshToken") String refreshToken,
+        HttpServletResponse response
+    ) {
+        authService.logout(refreshToken);
+        expireRefreshTokenCookie(response);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/logout-all")
+    public ResponseEntity<Void> logoutAll(
+        @LoginUser User user,
+        HttpServletResponse response
+    ) {
+        authService.logoutAll(user.getId());
+        expireRefreshTokenCookie(response);
+
+        return ResponseEntity.ok().build();
+    }
+
+    private void expireRefreshTokenCookie(HttpServletResponse response) {
+        Cookie cookie = new Cookie("refreshToken", null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        response.addCookie(cookie);
     }
 
     private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {

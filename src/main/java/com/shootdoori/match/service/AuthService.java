@@ -49,6 +49,17 @@ public class AuthService {
         return issueTokens(user, httpServletRequest);
     }
 
+    @Transactional
+    public void logout(String refreshTokenValue) {
+        String tokenId = jwtUtil.getClaims(refreshTokenValue).getId();
+        refreshTokenRepository.findById(tokenId).ifPresent(refreshTokenRepository::delete);
+    }
+
+    @Transactional
+    public void logoutAll(Long userId) {
+        refreshTokenRepository.deleteAllByUserId(userId);
+    }
+
     private AuthToken issueTokens(User user, HttpServletRequest httpServletRequest) {
         String accessToken = jwtUtil.generateAccessToken(user);
         String refreshTokenValue = jwtUtil.generateRefreshToken(user);
