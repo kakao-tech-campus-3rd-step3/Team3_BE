@@ -1,6 +1,6 @@
 package com.shootdoori.match.entity;
 
-public enum JoinQueueStatus {
+public enum JoinWaitingStatus {
     PENDING("대기중"),
     APPROVED("승인됨"),
     REJECTED("거절됨"),
@@ -8,7 +8,7 @@ public enum JoinQueueStatus {
 
     private final String displayName;
 
-    JoinQueueStatus(String displayName) {
+    JoinWaitingStatus(String displayName) {
         this.displayName = displayName;
     }
 
@@ -16,8 +16,8 @@ public enum JoinQueueStatus {
         return displayName;
     }
 
-    public static JoinQueueStatus fromDisplayName(String displayName) {
-        for (JoinQueueStatus status : values()) {
+    public static JoinWaitingStatus fromDisplayName(String displayName) {
+        for (JoinWaitingStatus status : values()) {
             if (status.displayName.equals(displayName)) {
                 return status;
             }

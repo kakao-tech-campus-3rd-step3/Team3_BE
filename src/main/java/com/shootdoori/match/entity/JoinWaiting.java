@@ -1,6 +1,6 @@
 package com.shootdoori.match.entity;
 
-import com.shootdoori.match.exception.JoinQueueNotPendingException;
+import com.shootdoori.match.exception.JoinWaitingNotPendingException;
 import com.shootdoori.match.exception.NoPermissionException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -19,12 +19,12 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(
-    name = "join_queue",
+    name = "join_waiting",
     indexes = {
-        @Index(name = "idx_join_queue_team_status", columnList = "team_id,status")
+        @Index(name = "idx_join_waiting_team_status", columnList = "team_id,status")
     }
 )
-public class JoinQueue extends DateEntity {
+public class JoinWaiting extends DateEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -40,7 +40,7 @@ public class JoinQueue extends DateEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
-    private JoinQueueStatus status = JoinQueueStatus.PENDING;
+    private JoinWaitingStatus status = JoinWaitingStatus.PENDING;
 
     @Column(name = "message", columnDefinition = "TEXT")
     private String message;
@@ -70,7 +70,7 @@ public class JoinQueue extends DateEntity {
         return applicant;
     }
 
-    public JoinQueueStatus getStatus() {
+    public JoinWaitingStatus getStatus() {
         return status;
     }
 
@@ -94,18 +94,18 @@ public class JoinQueue extends DateEntity {
         return version;
     }
 
-    protected JoinQueue() {
+    protected JoinWaiting() {
 
     }
 
-    public JoinQueue(Team team, User applicant, String message) {
+    public JoinWaiting(Team team, User applicant, String message) {
         this.team = team;
         this.applicant = applicant;
         this.message = message;
     }
 
-    public static JoinQueue create(Team team, User applicant, String message) {
-        return new JoinQueue(team, applicant, message);
+    public static JoinWaiting create(Team team, User applicant, String message) {
+        return new JoinWaiting(team, applicant, message);
     }
 
     public void approve(TeamMember approver, TeamMemberRole role, String decisionReason) {
@@ -113,7 +113,7 @@ public class JoinQueue extends DateEntity {
         approver.canMakeJoinDecisionFor(this.team);
 
         this.team.recruitMember(this.applicant, role);
-        this.status = JoinQueueStatus.APPROVED;
+        this.status = JoinWaitingStatus.APPROVED;
         this.decisionReason = decisionReason;
         this.decidedBy = approver.getUser();
         this.decidedAt = LocalDateTime.now();
@@ -123,7 +123,7 @@ public class JoinQueue extends DateEntity {
         verifyPending();
         approver.canMakeJoinDecisionFor(this.team);
 
-        this.status = JoinQueueStatus.REJECTED;
+        this.status = JoinWaitingStatus.REJECTED;
         this.decisionReason = decisionReason;
         this.decidedBy = approver.getUser();
         this.decidedAt = LocalDateTime.now();
@@ -136,7 +136,7 @@ public class JoinQueue extends DateEntity {
             throw new NoPermissionException();
         }
 
-        this.status = JoinQueueStatus.CANCELED;
+        this.status = JoinWaitingStatus.CANCELED;
         this.decisionReason = decisionReason;
         this.decidedBy = requester;
         this.decidedAt = LocalDateTime.now();
@@ -144,7 +144,7 @@ public class JoinQueue extends DateEntity {
 
     private void verifyPending() {
         if (!this.status.isPending()) {
-            throw new JoinQueueNotPendingException();
+            throw new JoinWaitingNotPendingException();
         }
     }
 }
