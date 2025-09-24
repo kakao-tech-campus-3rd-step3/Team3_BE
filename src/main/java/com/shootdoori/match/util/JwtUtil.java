@@ -1,6 +1,7 @@
 package com.shootdoori.match.util;
 
 import com.shootdoori.match.entity.User;
+import com.shootdoori.match.exception.UnauthorizedException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
@@ -104,9 +105,9 @@ public class JwtUtil {
                 .parseClaimsJws(token)
                 .getBody();
         } catch (ExpiredJwtException ex) {
-            throw new RuntimeException("토큰이 만료되었습니다.", ex);
+            throw new UnauthorizedException("토큰이 만료되었습니다.", ex);
         } catch (JwtException | IllegalArgumentException ex) {
-            throw new RuntimeException("유효하지 않은 토큰입니다.", ex);
+            throw new UnauthorizedException("유효하지 않은 토큰입니다.", ex);
         }
     }
 
