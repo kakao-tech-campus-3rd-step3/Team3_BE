@@ -23,17 +23,14 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
 @Table(name = "team")
-public class Team {
+public class Team extends DateEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -68,12 +65,6 @@ public class Team {
     @AttributeOverride(name = "description", column = @Column(name = "DESCRIPTION", length = 1000))
     private Description description;
 
-    @Column(name = "CREATED_AT", updatable = false)
-    private LocalDateTime createdAt;
-
-    @Column(name = "UPDATED_AT")
-    private LocalDateTime updatedAt;
-
     @OneToMany(mappedBy = "team", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
     private List<TeamMember> members = new ArrayList<>();
 
@@ -92,17 +83,6 @@ public class Team {
         this.teamType = teamType != null ? teamType : TeamType.OTHER;
         this.skillLevel = skillLevel != null ? skillLevel : SkillLevel.AMATEUR;
         this.description = Description.of(description);
-    }
-
-    @PrePersist
-    void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = this.createdAt;
-    }
-
-    @PreUpdate
-    void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
     }
 
 
@@ -136,14 +116,6 @@ public class Team {
 
     public Description getDescription() {
         return description;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
     }
 
     public List<TeamMember> getMembers() {
@@ -197,12 +169,12 @@ public class Team {
 
     public boolean hasCaptain() {
         return members.stream()
-            .anyMatch(m -> m.getRole() == TeamMemberRole.LEADER);
+            .anyMatch(TeamMember::isCaptain);
     }
 
     public boolean hasViceCaptain() {
         return members.stream()
-            .anyMatch(m -> m.getRole() == TeamMemberRole.VICE_LEADER);
+            .anyMatch(TeamMember::isViceCaptain);
     }
 
     @Override
