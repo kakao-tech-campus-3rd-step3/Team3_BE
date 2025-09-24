@@ -3,43 +3,65 @@ package com.shootdoori.match.service;
 import com.shootdoori.match.dto.AuthToken;
 import com.shootdoori.match.dto.LoginRequest;
 import com.shootdoori.match.dto.ProfileCreateRequest;
+import com.shootdoori.match.entity.RefreshToken;
 import com.shootdoori.match.entity.User;
 import com.shootdoori.match.exception.UnauthorizedException;
+import com.shootdoori.match.repository.RefreshTokenRepository;
 import com.shootdoori.match.util.JwtUtil;
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Service
 public class AuthService {
     private final JwtUtil jwtUtil;
     private final ProfileService profileService;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenRepository refreshTokenRepository;
 
-    public AuthService(JwtUtil jwtUtil, ProfileService profileService, PasswordEncoder passwordEncoder) {
+    public AuthService(JwtUtil jwtUtil, ProfileService profileService, PasswordEncoder passwordEncoder, RefreshTokenRepository refreshTokenRepository) {
         this.jwtUtil = jwtUtil;
         this.profileService = profileService;
         this.passwordEncoder = passwordEncoder;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     @Transactional
-    public AuthToken register(ProfileCreateRequest request) {
+    public AuthToken register(ProfileCreateRequest request, HttpServletRequest httpServletRequest) {
         profileService.createProfile(request);
-
         User savedUser = profileService.findByEmail(request.email())
             .orElseThrow(() -> new UnauthorizedException("회원가입에 실패하였습니다."));
 
-        return new AuthToken(jwtUtil.generateAccessToken(savedUser));
+        return issueTokens(savedUser, httpServletRequest);
     }
 
-    @Transactional(readOnly = true)
-    public AuthToken login(LoginRequest request) {
+    @Transactional
+    public AuthToken login(LoginRequest request, HttpServletRequest httpServletRequest) {
         User user = profileService.findByEmail(request.email())
             .orElseThrow(() -> new UnauthorizedException("잘못된 이메일 또는 비밀번호입니다."));
-
         user.validatePassword(request.password(), passwordEncoder);
-        String accessToken = jwtUtil.generateAccessToken(user);
 
-        return new AuthToken(accessToken);
+        return issueTokens(user, httpServletRequest);
+    }
+
+    private AuthToken issueTokens(User user, HttpServletRequest httpServletRequest) {
+        String accessToken = jwtUtil.generateAccessToken(user);
+        String refreshTokenValue = jwtUtil.generateRefreshToken(user);
+
+        Claims claims = jwtUtil.getClaims(refreshTokenValue);
+        String tokenId = claims.getId();
+        LocalDateTime expiryDate = claims.getExpiration().toInstant()
+            .atZone(ZoneId.systemDefault()).toLocalDateTime();
+        String deviceInfo = httpServletRequest.getHeader("User-Agent");
+
+        RefreshToken refreshToken = new RefreshToken(tokenId, user, expiryDate, deviceInfo);
+        refreshTokenRepository.save(refreshToken);
+
+        return new AuthToken(accessToken, refreshTokenValue);
     }
 }
