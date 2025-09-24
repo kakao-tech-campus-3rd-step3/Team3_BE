@@ -102,7 +102,7 @@ public class MatchRequestService {
     MatchWaiting matchWaiting = matchRequest.getMatchWaiting();
 
     matchRequest.updateRequestStatus(MatchRequestStatus.ACCEPTED, LocalDateTime.now());
-    matchWaiting.updateWaitingStatus(MatchWaitingStatus.MATCHED, LocalDateTime.now());
+    matchWaiting.updateWaitingStatus(MatchWaitingStatus.MATCHED);
 
     matchRequestRepository.rejectOtherRequests(matchRequest.getTargetTeam().getTeamId(), requestId);
 
