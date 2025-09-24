@@ -1,7 +1,6 @@
 package com.shootdoori.match.entity;
 
-import com.shootdoori.match.exception.DuplicateCaptainException;
-import com.shootdoori.match.exception.DuplicateViceCaptainException;
+import com.shootdoori.match.exception.DuplicateRoleException;
 import com.shootdoori.match.exception.NoPermissionException;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
@@ -102,13 +101,13 @@ public class TeamMember extends DateEntity {
 
     private void validateLeaderPromotion(Team team) {
         if (team.hasCaptain()) {
-            throw new DuplicateCaptainException();
+            throw new DuplicateRoleException("회장");
         }
     }
 
     private void validateViceLeaderPromotion(Team team) {
         if (team.hasViceCaptain()) {
-            throw new DuplicateViceCaptainException();
+            throw new DuplicateRoleException("부회장");
         }
     }
 

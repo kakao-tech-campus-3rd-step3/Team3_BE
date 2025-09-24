@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class TeamNotFoundException extends BusinessException {
 
     public TeamNotFoundException(Long teamId) {
-        super(ErrorCode.TEAM_NOT_FOUND, teamId.toString());
+        super(ErrorCode.TEAM_NOT_FOUND, "ID: " + teamId);
     }
 }

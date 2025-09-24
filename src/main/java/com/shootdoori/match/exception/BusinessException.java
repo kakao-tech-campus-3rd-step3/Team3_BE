@@ -10,7 +10,7 @@ public class BusinessException extends RuntimeException {
     }
 
     public BusinessException(ErrorCode errorCode, String detail) {
-        super(errorCode.getMessage() + (detail != null ? " id = " + detail : ""));
+        super(errorCode.getMessage() + (detail != null ? " (" + detail + ")" : ""));
         this.errorCode = errorCode;
         this.detail = detail;
     }

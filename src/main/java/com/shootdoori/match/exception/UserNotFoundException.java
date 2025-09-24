@@ -7,6 +7,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class UserNotFoundException extends BusinessException {
 
     public UserNotFoundException(Long userId) {
-        super(ErrorCode.USER_NOT_FOUND, userId.toString());
+        super(ErrorCode.USER_NOT_FOUND, "ID: " + userId);
     }
 }
