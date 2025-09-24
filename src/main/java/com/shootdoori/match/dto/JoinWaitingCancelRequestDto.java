@@ -1,6 +1,6 @@
 package com.shootdoori.match.dto;
 
-public record JoinQueueCancelRequestDto(
+public record JoinWaitingCancelRequestDto(
     Long requesterId, // UserId
     String decisionReason
 ) {

@@ -1,6 +1,6 @@
 package com.shootdoori.match.dto;
 
-public record JoinQueueRejectRequestDto(
+public record JoinWaitingRejectRequestDto(
     Long approverId, // TeamMemberId
     String reason
 ) {
