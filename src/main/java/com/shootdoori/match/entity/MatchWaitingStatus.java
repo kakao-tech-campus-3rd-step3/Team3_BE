@@ -1,6 +1,6 @@
 package com.shootdoori.match.entity;
 
-public enum MatchQueueStatus {
+public enum MatchWaitingStatus {
   WAITING("대기중"),
   MATCHED("완료"),
   CANCELED("취소"),
@@ -8,7 +8,7 @@ public enum MatchQueueStatus {
 
   private final String displayName;
 
-  MatchQueueStatus(String displayName) {
+  MatchWaitingStatus(String displayName) {
     this.displayName = displayName;
   }
 
@@ -16,8 +16,8 @@ public enum MatchQueueStatus {
     return displayName;
   }
 
-  public static MatchQueueStatus fromDisplayName(String displayName) {
-    for (MatchQueueStatus status : values()) {
+  public static MatchWaitingStatus fromDisplayName(String displayName) {
+    for (MatchWaitingStatus status : values()) {
       if (status.displayName.equals(displayName)) {
         return status;
       }

@@ -1,5 +1,6 @@
 package com.shootdoori.match.service;
 
+import com.shootdoori.match.dto.MatchSummaryProjection;
 import com.shootdoori.match.dto.RecentMatchesResponseDto;
 import com.shootdoori.match.entity.Match;
 import com.shootdoori.match.entity.MatchStatus;
@@ -29,9 +30,9 @@ public class MatchStartService {
       LocalTime cursorTime,
       Pageable pageable
   ) {
-      Slice<Match> slice = isFirstPageRequest(cursorDate, cursorTime)
-              ? matchRepository.findFirstPageMatchesByTeamIdAndStatus(teamId, status, pageable)
-              : matchRepository.findMatchesByTeamIdAndStatus(teamId, status, cursorDate, cursorTime, pageable);
+      Slice<MatchSummaryProjection> slice = isFirstPageRequest(cursorDate, cursorTime)
+              ? matchRepository.findFirstPageMatchSummariesByTeamIdAndStatus(teamId, status, pageable)
+              : matchRepository.findMatchSummariesByTeamIdAndStatus(teamId, status, cursorDate, cursorTime, pageable);
 
       return slice.getContent().stream()
         .map(RecentMatchesResponseDto::from)
