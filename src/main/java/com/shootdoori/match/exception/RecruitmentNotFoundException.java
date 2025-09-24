@@ -4,9 +4,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
-public class TeamNotFoundException extends BusinessException {
-
-    public TeamNotFoundException(Long teamId) {
-        super(ErrorCode.TEAM_NOT_FOUND, "ID: " + teamId);
+public class RecruitmentNotFoundException extends BusinessException {
+    public RecruitmentNotFoundException() {
+        super(ErrorCode.RECRUITMENT_NOT_FOUND);
     }
 }

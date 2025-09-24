@@ -4,7 +4,6 @@ import com.shootdoori.match.exception.JoinQueueNotPendingException;
 import com.shootdoori.match.exception.NoPermissionException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -17,9 +16,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import java.time.LocalDateTime;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Table(
@@ -28,8 +24,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
         @Index(name = "idx_join_queue_team_status", columnList = "team_id,status")
     }
 )
-@EntityListeners(AuditingEntityListener.class)
-public class JoinQueue {
+public class JoinQueue extends DateEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -59,14 +54,6 @@ public class JoinQueue {
 
     @Column(name = "decided_at")
     private LocalDateTime decidedAt;
-
-    @CreatedDate
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @LastModifiedDate
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 
     @Version
     private Long version;
@@ -101,14 +88,6 @@ public class JoinQueue {
 
     public LocalDateTime getDecidedAt() {
         return decidedAt;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
     }
 
     public Long getVersion() {

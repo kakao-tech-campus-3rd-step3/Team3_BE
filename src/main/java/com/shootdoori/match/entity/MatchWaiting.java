@@ -1,13 +1,23 @@
 package com.shootdoori.match.entity;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 @Entity
 @Table(name = "match_waiting")
-public class MatchWaiting {
+public class MatchWaiting extends DateEntity{
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,11 +62,6 @@ public class MatchWaiting {
   @Column(name = "EXPIRES_AT", nullable = false, columnDefinition = "TIMESTAMP DEFAULT (CURRENT_TIMESTAMP + INTERVAL '24' HOUR)")
   private LocalDateTime expiresAt;
 
-  @Column(name = "CREATED_AT", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-  private LocalDateTime createdAt;
-
-  @Column(name = "UPDATED_AT", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
-  private LocalDateTime updatedAt;
 
   protected MatchWaiting() {}
 
@@ -71,9 +76,8 @@ public class MatchWaiting {
                       Boolean universityOnly,
                       String message,
                       MatchWaitingStatus status,
-                      LocalDateTime expiresAt,
-                      LocalDateTime createdAt,
-                      LocalDateTime updatedAt) {
+                      LocalDateTime expiresAt
+                      ) {
     this.team = team;
     this.preferredDate = preferredDate;
     this.preferredTimeStart = preferredTimeStart;
@@ -85,8 +89,6 @@ public class MatchWaiting {
     this.message = message;
     this.status = status;
     this.expiresAt = expiresAt;
-    this.createdAt = createdAt;
-    this.updatedAt = updatedAt;
   }
 
   public Long getWaitingId() {
@@ -137,16 +139,7 @@ public class MatchWaiting {
     return expiresAt;
   }
 
-  public LocalDateTime getCreatedAt() {
-    return createdAt;
-  }
-
-  public LocalDateTime getUpdatedAt() {
-    return updatedAt;
-  }
-
-  public void updateWaitingStatus(MatchWaitingStatus status, LocalDateTime updatedAt){
+  public void updateWaitingStatus(MatchWaitingStatus status){
     this.status = status;
-    this.updatedAt = updatedAt;
   }
 }

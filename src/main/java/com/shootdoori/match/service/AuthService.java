@@ -37,7 +37,7 @@ public class AuthService {
         User user = profileService.findByEmail(request.email())
             .orElseThrow(() -> new UnauthorizedException("잘못된 이메일 또는 비밀번호입니다."));
 
-        user.samePassword(request.password(), passwordEncoder);
+        user.validatePassword(request.password(), passwordEncoder);
         String accessToken = jwtUtil.generateAccessToken(user);
 
         return new AuthToken(accessToken);
