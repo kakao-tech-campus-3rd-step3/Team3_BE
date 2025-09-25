@@ -30,7 +30,7 @@ public class MercenaryRecruitmentService {
         // TODO: 요청을 보낸 사용자가 이 게시글을 생성할 권한이 있는지 확인하는 로직 추가
 
         Team team = teamRepository.findById(request.teamId()).orElseThrow(
-            () -> new TeamNotFoundException("해당 팀을 찾을 수 없습니다. id = " + request.teamId()));
+            () -> new TeamNotFoundException(request.teamId()));
 
         Position position = Position.fromDisplayName(request.position());
         SkillLevel skillLevel = SkillLevel.fromDisplayName(request.skillLevel());

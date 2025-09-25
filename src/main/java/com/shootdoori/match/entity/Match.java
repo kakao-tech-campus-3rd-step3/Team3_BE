@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Objects;
 
 @Entity
 @Table(name = "match_table")
@@ -12,7 +13,7 @@ public class Match {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   @Column(name = "MATCH_ID")
-  private Integer matchId;
+  private Long matchId;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "TEAM1_ID", nullable = false)
@@ -55,7 +56,7 @@ public class Match {
 
   protected Match() {}
 
-  public Integer getMatchId() {
+  public Long getMatchId() {
     return matchId;
   }
 
@@ -91,8 +92,8 @@ public class Match {
     return updatedAt;
   }
 
-  public Team findEnemyTeam(int teamId) {
-    if(teamId == team1.getTeamId()) {
+  public Team findEnemyTeam(Long teamId) {
+    if(Objects.equals(teamId, team1.getTeamId())) {
       return team2;
     }
     else return team1;

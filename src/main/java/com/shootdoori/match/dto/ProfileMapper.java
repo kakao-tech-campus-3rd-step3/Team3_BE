@@ -12,7 +12,14 @@ public class ProfileMapper {
 
         return new ProfileResponse(
             user.getName(),
-            user.getUniversity(),
+            user.getSkillLevel().name(),
+            user.getEmail(),
+            user.getPhoneNumber(),
+            user.getPosition().name(),
+            user.getUniversity().name(),
+            user.getDepartment(),
+            user.getStudentYear(),
+            user.getBio(),
             user.getCreatedAt()
         );
     }

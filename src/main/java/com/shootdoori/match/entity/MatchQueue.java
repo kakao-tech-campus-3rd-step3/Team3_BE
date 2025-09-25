@@ -60,6 +60,7 @@ public class MatchQueue {
 
   protected MatchQueue() {}
 
+
   public MatchQueue(Team team,
       LocalDate preferredDate,
       LocalTime preferredTimeStart,
@@ -142,5 +143,10 @@ public class MatchQueue {
 
   public LocalDateTime getUpdatedAt() {
     return updatedAt;
+  }
+
+  public void updateQueueStatus(MatchQueueStatus status, LocalDateTime updatedAt){
+    this.status = status;
+    this.updatedAt = updatedAt;
   }
 }

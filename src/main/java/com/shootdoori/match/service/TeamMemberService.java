@@ -1,15 +1,24 @@
 package com.shootdoori.match.service;
 
+import com.shootdoori.match.dto.TeamMemberMapper;
 import com.shootdoori.match.dto.TeamMemberRequestDto;
 import com.shootdoori.match.dto.TeamMemberResponseDto;
+import com.shootdoori.match.dto.UpdateTeamMemberRequestDto;
 import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.entity.TeamMember;
 import com.shootdoori.match.entity.TeamMemberRole;
 import com.shootdoori.match.entity.User;
+import com.shootdoori.match.exception.AlreadyTeamMemberException;
+import com.shootdoori.match.exception.TeamMemberNotFoundException;
 import com.shootdoori.match.exception.TeamNotFoundException;
+import com.shootdoori.match.exception.UserNotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.repository.TeamRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,14 +29,15 @@ public class TeamMemberService {
     private final TeamMemberRepository teamMemberRepository;
     private final TeamRepository teamRepository;
     private final ProfileRepository profileRepository;
-
-    private static final int MAX_MEMBER_COUNT = 100;
+    private final TeamMemberMapper teamMemberMapper;
 
     public TeamMemberService(TeamMemberRepository teamMemberRepository,
-        TeamRepository teamRepository, ProfileRepository profileRepository) {
+        TeamRepository teamRepository, ProfileRepository profileRepository,
+        TeamMemberMapper teamMemberMapper) {
         this.teamMemberRepository = teamMemberRepository;
         this.teamRepository = teamRepository;
         this.profileRepository = profileRepository;
+        this.teamMemberMapper = teamMemberMapper;
     }
 
     public TeamMemberResponseDto create(Long teamId, TeamMemberRequestDto requestDto) {
@@ -35,34 +45,69 @@ public class TeamMemberService {
         Long userId = requestDto.userId();
 
         Team team = teamRepository.findById(teamId).orElseThrow(() ->
-            new TeamNotFoundException("해당 팀을 찾을 수 없습니다. id = " + teamId));
+            new TeamNotFoundException(teamId));
 
         User user = profileRepository.findById(userId).orElseThrow(
-            () -> new IllegalArgumentException("해당 유저를 찾을 수 없습니다. id = " + userId));
+            () -> new UserNotFoundException(userId));
 
-        if (!team.getUniversity().equals(user.getUniversity())) {
-            throw new IllegalStateException("팀 소속 대학과 동일한 대학의 사용자만 가입할 수 있습니다.");
+        if (teamMemberRepository.existsByTeam_TeamIdAndUser_Id(teamId, userId)) {
+            throw new AlreadyTeamMemberException();
         }
 
-        if (teamMemberRepository.existsByTeam_IdAndUser_Id(teamId, userId)) {
-            throw new IllegalStateException("이미 해당 팀의 멤버입니다.");
-        }
+        team.validateSameUniversity(user);
 
-        if (team.getMemberCount() >= MAX_MEMBER_COUNT) {
-            throw new IllegalStateException("팀 정원이 가득 찼습니다. (최대 100명)");
-        }
+        team.validateCanAcceptNewMember();
 
         TeamMemberRole teamMemberRole = TeamMemberRole.fromDisplayName(requestDto.role());
 
-        TeamMember teamMember = new TeamMember(team, user, teamMemberRole);
-        TeamMember savedTeamMember = teamMemberRepository.save(teamMember);
+        team.recruitMember(user, teamMemberRole);
+        teamRepository.save(team);
 
-        return new TeamMemberResponseDto(savedTeamMember.getId(),
-            savedTeamMember.getUser().getId(),
-            savedTeamMember.getUser().getName(),
-            savedTeamMember.getUser().getEmail(),
-            savedTeamMember.getUser().getPosition().toString(),
-            savedTeamMember.getRole().toString(),
-            savedTeamMember.getJoinedAt());
+        TeamMember savedTeamMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId,
+            userId).orElseThrow(() -> new TeamMemberNotFoundException());
+
+        return teamMemberMapper.toTeamMemberResponseDto(savedTeamMember);
+    }
+
+    @Transactional(readOnly = true)
+    public TeamMemberResponseDto findByTeamIdAndUserId(Long teamId, Long userId) {
+        TeamMember teamMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId, userId)
+            .orElseThrow(() -> new TeamMemberNotFoundException());
+
+        return teamMemberMapper.toTeamMemberResponseDto(teamMember);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<TeamMemberResponseDto> findAllByTeamId(Long teamId, int page, int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").ascending());
+
+        Page<TeamMember> teamMemberPage = teamMemberRepository.findAllByTeam_TeamId(teamId,
+            pageable);
+
+        return teamMemberPage.map(teamMemberMapper::toTeamMemberResponseDto);
+    }
+
+    public TeamMemberResponseDto update(Long teamId, Long userId,
+        UpdateTeamMemberRequestDto requestDto) {
+        Team team = teamRepository.findById(teamId)
+            .orElseThrow(() -> new TeamNotFoundException(teamId));
+
+        TeamMember teamMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId, userId)
+            .orElseThrow(() -> new TeamMemberNotFoundException());
+
+        teamMember.changeRole(team, TeamMemberRole.fromDisplayName(requestDto.role()));
+
+        return teamMemberMapper.toTeamMemberResponseDto(teamMember);
+    }
+
+    public void delete(Long teamId, Long userId) {
+        Team team = teamRepository.findById(teamId)
+            .orElseThrow(() -> new TeamNotFoundException(teamId));
+
+        TeamMember teamMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId, userId)
+            .orElseThrow(() -> new TeamMemberNotFoundException());
+
+        team.removeMember(teamMember);
+        teamRepository.save(team);
     }
 }

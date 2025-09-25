@@ -1,8 +1,14 @@
 package com.shootdoori.match.entity;
 
-import com.shootdoori.match.dto.ProfileCreateRequest;
-import com.shootdoori.match.dto.ProfileUpdateRequest;
+import com.shootdoori.match.exception.UnauthorizedException;
+import com.shootdoori.match.value.UniversityName;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -10,13 +16,16 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
 
 @Entity
 public class User {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -27,23 +36,27 @@ public class User {
     @Enumerated(EnumType.STRING)
     @Column(name = "SKILL_LEVEL", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '아마추어'")
     private SkillLevel skillLevel = SkillLevel.AMATEUR;
-  
+
     @Column(nullable = false, unique = true, length = 255)
     private String email;
 
-    @Column(name = "university_email",nullable = false, unique = true, length = 255)
+    @Column(name = "university_email", nullable = false, unique = true, length = 255)
     private String universityEmail;
 
-    @Column(name = "phone_number",nullable = false, unique = true, length = 13)
+    @Column(nullable = false)
+    private String password;
+
+    @Column(name = "phone_number", nullable = false, unique = true, length = 13)
     private String phoneNumber;
 
-    @Column(nullable = false, length = 100)
-    private String university;
+    @Embedded
+    @AttributeOverride(name = "name", column = @Column(name = "UNIVERSITY", nullable = false, length = 100))
+    private UniversityName university;
 
     @Column(nullable = false, length = 100)
     private String department;
 
-    @Column(name = "student_year",nullable = false, length = 2)
+    @Column(name = "student_year", nullable = false, length = 2)
     private String studentYear;
 
     @Column(length = 500)
@@ -65,40 +78,39 @@ public class User {
 
     }
 
-    private User(String name, String email, String universityEmail, String phoneNumber, String university, String department, String studentYear, String bio) {
-        validate(name, email, universityEmail, phoneNumber, university, department, studentYear, bio);
+    private User(String name, SkillLevel skillLevel, String email, String universityEmail, String password, String phoneNumber,
+        Position position, String university, String department, String studentYear, String bio) {
+        validate(name, skillLevel.getDisplayName(), email, universityEmail, password, phoneNumber, position.getDisplayName(), university, department, studentYear, bio);
         this.name = name;
+        this.skillLevel = skillLevel;
         this.email = email;
         this.universityEmail = universityEmail;
+        this.password = password;
         this.phoneNumber = phoneNumber;
-        this.university = university;
+        this.position = position;
+        this.university = UniversityName.of(university);
         this.department = department;
         this.studentYear = studentYear;
         this.bio = bio;
     }
 
-    public static User create(String name, String email, String universityEmail, String phoneNumber,
-                              String university, String department, String studentYear, String bio) {
-        return new User(name, email, universityEmail, phoneNumber, university, department, studentYear, bio);
+    public static User create(String name, String skillLevelName, String email, String universityEmail, String encodedPassword, String phoneNumber,
+                              String positionName, String university, String department, String studentYear, String bio) {
+        Position position = Position.fromDisplayName(positionName);
+        SkillLevel skillLevel = SkillLevel.fromDisplayName(skillLevelName);
+        return new User(name, skillLevel, email, universityEmail, encodedPassword, phoneNumber, position, university, department,
+            studentYear, bio);
     }
 
-    public User(ProfileCreateRequest createRequest) {
-        this.name = createRequest.name();
-        this.skillLevel = SkillLevel.fromDisplayName(createRequest.skillLevel());
-        this.email = createRequest.email();
-        this.universityEmail = createRequest.universityEmail();
-        this.phoneNumber = createRequest.phoneNumber();
-        this.university = createRequest.university();
-        this.department = createRequest.department();
-        this.studentYear = createRequest.studentYear();
-        this.bio = createRequest.bio();
-    }
-
-    private void validate(String name, String email, String universityEmail, String phoneNumber, String university, String department, String studentYear, String bio) {
+    private void validate(String name, String skillLevel, String email, String universityEmail, String password, String phoneNumber,
+        String position, String university, String department, String studentYear, String bio) {
         validateName(name);
+        validateSkillLevel(skillLevel);
         validateEmail(email);
         validateUniversityEmail(universityEmail);
+        validatePassword(password);
         validatePhoneNumber(phoneNumber);
+        validatePosition(position);
         validateUniversity(university);
         validateDepartment(department);
         validateStudentYear(studentYear);
@@ -114,6 +126,18 @@ public class User {
         }
     }
 
+    private void validateSkillLevel(String skillLevel) {
+        if (skillLevel == null || skillLevel.isBlank()) {
+            throw new IllegalArgumentException("스킬 레벨은 필수 입력 값입니다.");
+        }
+
+        try {
+            SkillLevel.fromDisplayName(skillLevel);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("유효하지 않은 스킬 레벨입니다: " + skillLevel);
+        }
+    }
+
     private void validateEmail(String email) {
         if (email == null || email.isBlank()) {
             throw new IllegalArgumentException("이메일은 필수 입력 값입니다.");
@@ -121,7 +145,7 @@ public class User {
         if (email.length() > 255) {
             throw new IllegalArgumentException("이메일 주소는 255자를 초과할 수 없습니다.");
         }
-        if (!email.matches("^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
+        if (!email.matches("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
             throw new IllegalArgumentException("이메일 형식이 올바르지 않습니다.");
         }
     }
@@ -133,7 +157,7 @@ public class User {
         if (universityEmail.length() > 255) {
             throw new IllegalArgumentException("학교 이메일 주소는 255자를 초과할 수 없습니다.");
         }
-        if (!universityEmail.endsWith(".ac.kr")) {
+        if (!universityEmail.endsWith("ac.kr")) {
             throw new IllegalArgumentException("학교 이메일은 'ac.kr' 도메인이어야 합니다.");
         }
     }
@@ -147,12 +171,30 @@ public class User {
         }
     }
 
+    private void validatePosition(String position) {
+        if (position == null || position.isBlank()) {
+            throw new IllegalArgumentException("포지션은 필수 입력 값입니다.");
+        }
+
+        try {
+            Position.fromDisplayName(position);
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("유효하지 않은 포지션입니다: " + position);
+        }
+    }
+
     private void validateUniversity(String university) {
         if (university == null || university.isBlank()) {
             throw new IllegalArgumentException("대학교 이름은 필수 입력 값입니다.");
         }
         if (university.length() > 100) {
             throw new IllegalArgumentException("대학교 이름은 100자를 초과할 수 없습니다.");
+        }
+    }
+
+    private void validatePassword(String password) {
+        if (password == null || password.isBlank()) {
+            throw new IllegalArgumentException("비밀번호는 필수 입력 값입니다.");
         }
     }
 
@@ -188,6 +230,10 @@ public class User {
         return this.name;
     }
 
+    public SkillLevel getSkillLevel() {
+        return this.skillLevel;
+    }
+
     public String getEmail() {
         return this.email;
     }
@@ -200,7 +246,7 @@ public class User {
         return this.phoneNumber;
     }
 
-    public String getUniversity() {
+    public UniversityName getUniversity() {
         return this.university;
     }
 
@@ -228,8 +274,32 @@ public class User {
         return this.updatedAt;
     }
 
-    public void update(ProfileUpdateRequest updateRequest) {
-        validateName(updateRequest.name());
-        this.name = updateRequest.name();
+    public void update(String skillLevel, String position, String bio) {
+        validateSkillLevel(skillLevel);
+        validatePosition(position);
+        validateBio(bio);
+        this.skillLevel = SkillLevel.fromDisplayName(skillLevel);
+        this.position = Position.fromDisplayName(position);
+        this.bio = bio;
+    }
+
+    public void samePassword(String rawPassword, PasswordEncoder passwordEncoder) {
+        if (!passwordEncoder.matches(rawPassword, this.password)) {
+            throw new UnauthorizedException("잘못된 이메일 또는 비밀번호입니다.");
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        User user = (User) o;
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

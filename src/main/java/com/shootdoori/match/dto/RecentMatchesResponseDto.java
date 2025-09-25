@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public record RecentMatchesResponseDto(
-    Integer matchId,
+    Long matchId,
     Team team1,
     Team team2,
     LocalDate matchDate,

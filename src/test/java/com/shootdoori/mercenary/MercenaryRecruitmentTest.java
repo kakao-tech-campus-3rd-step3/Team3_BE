@@ -19,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -34,7 +35,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
-@DisplayName("용병 모집 서비스 단위 테스트")
+@DisplayName("용병 모집 테스트")
 class MercenaryRecruitmentTest {
 
     @InjectMocks
@@ -46,61 +47,33 @@ class MercenaryRecruitmentTest {
     @Mock
     private TeamRepository teamRepository;
 
-    private final Team testTeam = new Team(
-        "두리FC",
-        User.create(
-            "김학생",
-            "student@example.com",
-            "student@kangwon.ac.kr",
-            "010-1234-5678",
-            "강원대학교",
-            "컴퓨터공학과",
-            "20",
-            "안녕하세요! 축구를 좋아하는 대학생입니다."
-        ),
-        "강원대학교",
-        TeamType.CENTRAL_CLUB,
-        SkillLevel.AMATEUR,
-        "즐겜해요~"
-    );
-
+    private Team testTeam;
     private MercenaryRecruitment testRecruitment;
+    private RecruitmentCreateRequest createRequest;
 
     @BeforeEach
     void setUp() {
-        testRecruitment = MercenaryRecruitment.create(
-            testTeam,
-            LocalDate.now().plusDays(1),
-            LocalTime.of(18, 0),
-            "Test Message",
-            Position.CF,
-            SkillLevel.AMATEUR
-        );
+        testTeam = Fixture.createTeam();
+        ReflectionTestUtils.setField(testTeam, "teamId", 1L);
+
+        testRecruitment = Fixture.createRecruitment(testTeam);
+        createRequest = Fixture.createRecruitmentRequest(testTeam.getTeamId());
     }
 
     @Test
     @DisplayName("용병 모집 공고 생성 - 성공")
     void create_success() {
         // given
-        RecruitmentCreateRequest request = new RecruitmentCreateRequest(
-            1L,
-            LocalDate.now().plusDays(1),
-            LocalTime.of(18, 0),
-            "Test Message",
-            "골키퍼",
-            "아마추어"
-        );
-
-        given(teamRepository.findById(request.teamId())).willReturn(Optional.of(testTeam));
+        given(teamRepository.findById(createRequest.teamId())).willReturn(Optional.of(testTeam));
         given(recruitmentRepository.save(any(MercenaryRecruitment.class))).willReturn(testRecruitment);
 
         // when
-        RecruitmentResponse response = mercenaryRecruitmentService.create(request);
+        RecruitmentResponse response = mercenaryRecruitmentService.create(createRequest);
 
         // then
         assertThat(response).isNotNull();
-        assertThat(response.message()).isEqualTo("Test Message");
-        verify(teamRepository).findById(1L);
+        assertThat(response.message()).isEqualTo(Fixture.MESSAGE);
+        verify(teamRepository).findById(testTeam.getTeamId());
         verify(recruitmentRepository).save(any(MercenaryRecruitment.class));
     }
 
@@ -109,12 +82,12 @@ class MercenaryRecruitmentTest {
     void create_fail_invalidPosition() {
         // given
         RecruitmentCreateRequest request = new RecruitmentCreateRequest(
-            1L,
-            LocalDate.now().plusDays(1),
-            LocalTime.of(18, 0),
-            "Test Message",
+            testTeam.getTeamId(),
+            Fixture.MATCH_DATE,
+            Fixture.MATCH_START_TIME,
+            Fixture.MESSAGE,
             "존재하지 않는 포지션",
-            "아마추어"
+            Fixture.SKILL_LEVEL
         );
 
         given(teamRepository.findById(request.teamId())).willReturn(Optional.of(testTeam));
@@ -128,12 +101,12 @@ class MercenaryRecruitmentTest {
     void create_fail_matchDateInThePast() {
         // given
         RecruitmentCreateRequest request = new RecruitmentCreateRequest(
-            1L,
+            testTeam.getTeamId(),
             LocalDate.now().minusDays(1),
-            LocalTime.of(18, 0),
-            "Test Message",
-            "공격수",
-            "아마추어"
+            Fixture.MATCH_START_TIME,
+            Fixture.MESSAGE,
+            Fixture.POSITION,
+            Fixture.SKILL_LEVEL
         );
 
         given(teamRepository.findById(request.teamId())).willReturn(Optional.of(testTeam));
@@ -146,8 +119,9 @@ class MercenaryRecruitmentTest {
     @DisplayName("용병 모집 공고 생성 - 실패 (팀 없음)")
     void create_fail_teamNotFound() {
         // given
-        RecruitmentCreateRequest request = new RecruitmentCreateRequest(999L, null, null, null, null, null);
-        given(teamRepository.findById(999L)).willReturn(Optional.empty());
+        long nonExistentTeamId = 999L;
+        RecruitmentCreateRequest request = Fixture.createRecruitmentRequest(nonExistentTeamId);
+        given(teamRepository.findById(nonExistentTeamId)).willReturn(Optional.empty());
 
         // when & then
         assertThrows(TeamNotFoundException.class, () -> {
@@ -171,7 +145,7 @@ class MercenaryRecruitmentTest {
         // then
         assertThat(responsePage).isNotNull();
         assertThat(responsePage.getContent()).hasSize(1);
-        assertThat(responsePage.getContent().get(0).message()).isEqualTo("Test Message");
+        assertThat(responsePage.getContent().get(0).message()).isEqualTo(Fixture.MESSAGE);
     }
 
     @Test
@@ -185,7 +159,7 @@ class MercenaryRecruitmentTest {
 
         // then
         assertThat(response).isNotNull();
-        assertThat(response.message()).isEqualTo("Test Message");
+        assertThat(response.message()).isEqualTo(Fixture.MESSAGE);
     }
 
     @Test
@@ -221,5 +195,45 @@ class MercenaryRecruitmentTest {
 
         // then
         verify(recruitmentRepository).deleteById(1L);
+    }
+
+    static class Fixture {
+        public static final String MESSAGE = "Test Message";
+        public static final String POSITION = "공격수";
+        public static final String SKILL_LEVEL = "아마추어";
+        public static final LocalDate MATCH_DATE = LocalDate.now().plusDays(1);
+        public static final LocalTime MATCH_START_TIME = LocalTime.of(18, 0);
+
+        public static Team createTeam() {
+            return new Team(
+                "두리FC",
+                User.create(
+                    "김학생", "아마추어", "student@example.com", "student@kangwon.ac.kr",
+                    "asdf02~!", "010-1234-5678", "공격수", "강원대학교", "컴퓨터공학과", "20", "안녕하세요!"),
+                "강원대학교", TeamType.CENTRAL_CLUB, SkillLevel.AMATEUR, "즐겜해요~"
+            );
+        }
+
+        public static MercenaryRecruitment createRecruitment(Team team) {
+            return MercenaryRecruitment.create(
+                team,
+                MATCH_DATE,
+                MATCH_START_TIME,
+                MESSAGE,
+                Position.fromDisplayName(POSITION),
+                SkillLevel.fromDisplayName(SKILL_LEVEL)
+            );
+        }
+
+        public static RecruitmentCreateRequest createRecruitmentRequest(Long teamId) {
+            return new RecruitmentCreateRequest(
+                teamId,
+                MATCH_DATE,
+                MATCH_START_TIME,
+                MESSAGE,
+                POSITION,
+                SKILL_LEVEL
+            );
+        }
     }
 }

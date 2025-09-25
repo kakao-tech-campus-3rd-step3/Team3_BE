@@ -1,8 +1,12 @@
 package com.shootdoori.match.exception;
 
-public class CaptainNotFoundException extends RuntimeException {
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
-    public CaptainNotFoundException(String message) {
-        super(message);
+@ResponseStatus(HttpStatus.NOT_FOUND)
+public class CaptainNotFoundException extends BusinessException {
+
+    public CaptainNotFoundException() {
+        super(ErrorCode.CAPTAIN_NOT_FOUND);
     }
 }
