@@ -8,6 +8,7 @@ import com.shootdoori.match.entity.User;
 import com.shootdoori.match.exception.DuplicatedUserException;
 import com.shootdoori.match.exception.ProfileNotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;
+import com.shootdoori.match.repository.RefreshTokenRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,11 +22,13 @@ public class ProfileService {
     private final ProfileRepository profileRepository;
     private final ProfileMapper profileMapper;
     private final PasswordEncoder passwordEncoder;
+    private final RefreshTokenRepository refreshTokenRepository;
 
-    public ProfileService(ProfileRepository profileRepository, ProfileMapper profileMapper, PasswordEncoder passwordEncoder) {
+    public ProfileService(ProfileRepository profileRepository, ProfileMapper profileMapper, PasswordEncoder passwordEncoder, RefreshTokenRepository refreshTokenRepository) {
         this.profileRepository = profileRepository;
         this.profileMapper = profileMapper;
         this.passwordEncoder = passwordEncoder;
+        this.refreshTokenRepository = refreshTokenRepository;
     }
 
     public ProfileResponse createProfile(ProfileCreateRequest createRequest) {
@@ -73,10 +76,13 @@ public class ProfileService {
         profile.update(updateRequest.skillLevel(), updateRequest.position(), updateRequest.bio());
     }
 
-    public void deleteProfile(Long id) {
+    public void deleteAccount(Long id) {
         if (!profileRepository.existsById(id)) {
             throw new ProfileNotFoundException();
         }
+
+        refreshTokenRepository.deleteAllByUserId(id);
+
         profileRepository.deleteById(id);
     }
 }
