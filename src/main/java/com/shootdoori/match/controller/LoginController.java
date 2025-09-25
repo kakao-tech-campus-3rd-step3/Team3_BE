@@ -20,6 +20,8 @@ public class LoginController {
     private final AuthService authService;
     private final TokenRefreshService tokenRefreshService;
 
+    private final int COOKIE_MAX_AGE = 7 * 24 * 60 * 60;
+
     public LoginController(AuthService authService, TokenRefreshService tokenRefreshService) {
         this.authService = authService;
         this.tokenRefreshService = tokenRefreshService;
@@ -94,7 +96,7 @@ public class LoginController {
         cookie.setHttpOnly(true);
         cookie.setSecure(true);
         cookie.setPath("/");
-        cookie.setMaxAge(7 * 24 * 60 * 60);
+        cookie.setMaxAge(COOKIE_MAX_AGE);
         response.addCookie(cookie);
     }
 }
