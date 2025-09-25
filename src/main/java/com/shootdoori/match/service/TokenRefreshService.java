@@ -47,7 +47,13 @@ public class TokenRefreshService {
         LocalDateTime newExpiryDate = newClaims.getExpiration().toInstant()
             .atZone(ZoneId.systemDefault()).toLocalDateTime();
 
-        RefreshToken newRefreshToken = new RefreshToken(newTokenId, user, newExpiryDate, storedToken.getDeviceInfo());
+        RefreshToken newRefreshToken = new RefreshToken(
+            newTokenId,
+            user,
+            newExpiryDate,
+            storedToken.getDeviceType(),
+            storedToken.getUserAgent()
+        );
 
         refreshTokenRepository.save(newRefreshToken);
 

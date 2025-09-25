@@ -17,23 +17,29 @@ public class RefreshToken {
 
     private boolean revoked = false;
 
-    private String deviceInfo;
+    @Enumerated(EnumType.STRING)
+    private DeviceType deviceType;
+
+    private String userAgent;
 
     protected RefreshToken() {
     }
 
-    public RefreshToken(String tokenId, User user, LocalDateTime expiryDate, String deviceInfo) {
+    public RefreshToken(String tokenId, User user, LocalDateTime expiryDate, DeviceType deviceType, String userAgent) {
         this.tokenId = tokenId;
         this.user = user;
         this.expiryDate = expiryDate;
-        this.deviceInfo = deviceInfo;
+        this.deviceType = deviceType;
+        this.userAgent = userAgent;
     }
 
     public User getUser() { return user; }
 
     public boolean isRevoked() { return revoked; }
 
-    public String getDeviceInfo() { return deviceInfo; }
+    public DeviceType getDeviceType() { return deviceType; }
+
+    public String getUserAgent() { return userAgent; }
 
     public boolean isExpired() {
         return LocalDateTime.now().isAfter(expiryDate);

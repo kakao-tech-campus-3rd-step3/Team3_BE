@@ -3,6 +3,7 @@ package com.shootdoori.match.service;
 import com.shootdoori.match.dto.AuthToken;
 import com.shootdoori.match.dto.LoginRequest;
 import com.shootdoori.match.dto.ProfileCreateRequest;
+import com.shootdoori.match.entity.DeviceType;
 import com.shootdoori.match.entity.RefreshToken;
 import com.shootdoori.match.entity.User;
 import com.shootdoori.match.exception.UnauthorizedException;
@@ -13,6 +14,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -68,11 +70,29 @@ public class AuthService {
         String tokenId = claims.getId();
         LocalDateTime expiryDate = claims.getExpiration().toInstant()
             .atZone(ZoneId.systemDefault()).toLocalDateTime();
-        String deviceInfo = httpServletRequest.getHeader("User-Agent");
+        String userAgent = httpServletRequest.getHeader("User-Agent");
+        DeviceType deviceType = parseDeviceTypeFromUserAgent(userAgent);
 
-        RefreshToken refreshToken = new RefreshToken(tokenId, user, expiryDate, deviceInfo);
+        RefreshToken refreshToken = new RefreshToken(tokenId, user, expiryDate, deviceType, userAgent);
         refreshTokenRepository.save(refreshToken);
 
         return new AuthToken(accessToken, refreshTokenValue);
+    }
+
+    private DeviceType parseDeviceTypeFromUserAgent(String userAgent) {
+        if (!StringUtils.hasText(userAgent)) {
+            return DeviceType.UNKNOWN;
+        }
+
+        String lowerCaseUserAgent = userAgent.toLowerCase();
+        if (lowerCaseUserAgent.contains("android")) {
+            return DeviceType.ANDROID;
+        }
+
+        if (lowerCaseUserAgent.contains("iphone") || lowerCaseUserAgent.contains("ipad")) {
+            return DeviceType.IOS;
+        }
+
+        return DeviceType.WEB;
     }
 }
