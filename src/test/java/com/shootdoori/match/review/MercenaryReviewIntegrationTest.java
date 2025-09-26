@@ -1,24 +1,34 @@
 package com.shootdoori.match.review;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.shootdoori.match.dto.MercenaryReviewRequestDto;
 import com.shootdoori.match.entity.*;
-import com.shootdoori.match.repository.MercenaryRecruitmentRepository;
-import com.shootdoori.match.repository.TeamRepository;
-import com.shootdoori.match.repository.ProfileRepository;
+import com.shootdoori.match.repository.*;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
+@AutoConfigureMockMvc
+@WithMockUser
 @Transactional
 class MercenaryReviewIntegrationTest {
 
@@ -26,7 +36,13 @@ class MercenaryReviewIntegrationTest {
     private EntityManager em;
 
     @Autowired
-    private MercenaryRecruitmentRepository mercenaryRecruitmentRepository;
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private MercenaryReviewRepository mercenaryReviewRepository;
 
     @Autowired
     private TeamRepository teamRepository;
@@ -34,109 +50,146 @@ class MercenaryReviewIntegrationTest {
     @Autowired
     private ProfileRepository userRepository;
 
-    private Team recruitingTeam;
-    private User captain;
+    @Autowired
+    private VenueRepository venueRepository;
+
+    @Autowired
+    private MatchRepository matchRepository;
+
+    private User user1, user2;
+    private Team team1, team2;
+    private Venue venue;
+    private Match match;
 
     @BeforeEach
     void setUp() {
-        captain = createUser("이용병","test1@naver.com" ,"mercenary_captain@hallym.ac.kr", "010-1111-1111");
-        userRepository.save(captain);
+        user1 = createUser("이용병","test1@naver.com" ,"mercenary_captain@hallym.ac.kr", "010-1111-1111");
+        user2 = createUser("김용병","test2@naver.com" ,"mercenary_captain@kangwon.ac.kr", "010-2222-2222");
+        userRepository.save(user1);
+        userRepository.save(user2);
 
-        recruitingTeam = createTeam("슛돌이 FC", captain);
-        teamRepository.save(recruitingTeam);
+        team1 = createTeam("슛돌이 FC", user1);
+        team2 = createTeam("감자 FC", user2);
+        teamRepository.save(team1);
+        teamRepository.save(team2);
+
+        venue = createVenue("공지천 인조구장");
+        venueRepository.save(venue);
+
+        match = createMatch(team1, team2, venue, MatchStatus.FINISHED);
+        matchRepository.save(match);
 
         em.flush();
         em.clear();
     }
 
     @Test
-    @DisplayName("용병 모집 게시글 생성 성공 테스트")
-    void createMercenaryRecruitment_Success() {
-        // Given
-        LocalDate matchDate = LocalDate.now().plusDays(5);
-        LocalTime matchTime = LocalTime.of(18, 0);
-        String message = "함께 승리할 공격수 한 분 급히 모십니다!";
-        Position position = Position.CF;
-        SkillLevel skillLevel = SkillLevel.SEMI_PRO;
+    @DisplayName("GET /api/mercenary-reviews - 특정 용병이 받은 모든 리뷰 조회 성공")
+    void getAllReviews_Success() throws Exception {
+        // given
+        MercenaryReview review1 = new MercenaryReview(match, team1, user1, 5, ReviewBinaryEvaluation.GOOD, ReviewBinaryEvaluation.GOOD, ReviewSkillLevel.SIMILAR);
+        MercenaryReview review2 = new MercenaryReview(match, team2, user1, 1, ReviewBinaryEvaluation.BAD, ReviewBinaryEvaluation.BAD, ReviewSkillLevel.LOWER);
+        mercenaryReviewRepository.save(review1);
+        mercenaryReviewRepository.save(review2);
 
-        // When
-        MercenaryRecruitment recruitment = MercenaryRecruitment.create(
-                recruitingTeam,
-                matchDate,
-                matchTime,
-                message,
-                position,
-                skillLevel
+        // when & then
+        mockMvc.perform(get("/api/mercenary-reviews")
+                        .param("profileId", user1.getId().toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].reviewerTeamId").value(team1.getTeamId()))
+                .andExpect(jsonPath("$[1].reviewerTeamId").value(team2.getTeamId()))
+                .andExpect(jsonPath("$[0].rating").value(5))
+                .andExpect(jsonPath("$[1].rating").value(1))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("GET /api/mercenary-reviews/{reviewId} - 특정 용병 리뷰 단건 조회 성공")
+    void getSingleReview_Success() throws Exception {
+        // given
+        MercenaryReview review = new MercenaryReview(match, team1, user1, 5, ReviewBinaryEvaluation.GOOD, ReviewBinaryEvaluation.GOOD, ReviewSkillLevel.SIMILAR);
+        MercenaryReview savedReview = mercenaryReviewRepository.save(review);
+
+        // when & then
+        mockMvc.perform(get("/api/mercenary-reviews/{reviewId}", savedReview.getId())
+                        .param("profileId", user1.getId().toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.mercenaryReviewId").value(savedReview.getId()))
+                .andExpect(jsonPath("$.rating").value(savedReview.getRating()))
+                .andDo(print());
+    }
+
+    @Test
+    @DisplayName("POST /api/mercenary-reviews - 용병 리뷰 생성 성공")
+    void postReview_Success() throws Exception {
+        // given
+        MercenaryReviewRequestDto requestDto = new MercenaryReviewRequestDto(
+                match.getMatchId(),
+                team1.getTeamId(),
+                user1.getId(),
+                5,
+                ReviewBinaryEvaluation.GOOD,
+                ReviewBinaryEvaluation.GOOD,
+                ReviewSkillLevel.SIMILAR
         );
-        MercenaryRecruitment savedRecruitment = mercenaryRecruitmentRepository.save(recruitment);
-        em.flush();
-        em.clear();
 
-        // Then
-        MercenaryRecruitment foundRecruitment = mercenaryRecruitmentRepository.findById(savedRecruitment.getId()).orElse(null);
-        assertThat(foundRecruitment).isNotNull();
-        assertThat(foundRecruitment.getTeam().getTeamId()).isEqualTo(recruitingTeam.getTeamId());
-        assertThat(foundRecruitment.getMatchDate()).isEqualTo(matchDate);
-        assertThat(foundRecruitment.getPosition()).isEqualTo(position);
-        assertThat(foundRecruitment.getSkillLevel()).isEqualTo(skillLevel);
-        assertThat(foundRecruitment.getRecruitmentStatus()).isEqualTo(RecruitmentStatus.RECRUITING);
+        // when & then
+        mockMvc.perform(post("/api/mercenary-reviews")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(requestDto)))
+                .andExpect(status().isCreated())
+                .andDo(print());
     }
 
     @Test
-    @DisplayName("경기 시간이 과거일 경우 용병 모집 게시글 생성 실패")
-    void createMercenaryRecruitment_Fail_WithPastDateTime() {
-        // Given
-        LocalDate pastDate = LocalDate.now().minusDays(1); // 과거 날짜
-        LocalTime matchTime = LocalTime.of(10, 0);
+    @DisplayName("PUT /api/mercenary-reviews/{reviewId} - 리뷰 수정 성공")
+    void updateReview_Success() throws Exception {
+        // given
+        MercenaryReview review = new MercenaryReview(match, team1, user1, 5, ReviewBinaryEvaluation.GOOD, ReviewBinaryEvaluation.GOOD, ReviewSkillLevel.SIMILAR);
+        MercenaryReview savedReview = mercenaryReviewRepository.save(review);
 
-        // When & Then
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
-            MercenaryRecruitment.create(
-                    recruitingTeam,
-                    pastDate,
-                    matchTime,
-                    "과거 경기에 대한 모집",
-                    Position.GK,
-                    SkillLevel.AMATEUR
-            );
-        });
-        assertThat(exception.getMessage()).isEqualTo("경기 시간은 현재 시간 이후여야 합니다.");
-    }
-
-    @Test
-    @DisplayName("용병 모집 정보 수정 성공 테스트")
-    void updateRecruitmentInfo_Success() {
-        // Given: 기존 용병 모집 게시글 생성
-        MercenaryRecruitment recruitment = MercenaryRecruitment.create(
-                recruitingTeam,
-                LocalDate.now().plusDays(7),
-                LocalTime.of(20, 0),
-                "원래 메시지",
-                Position.DF,
-                SkillLevel.AMATEUR
+        MercenaryReviewRequestDto updateRequest = new MercenaryReviewRequestDto(
+                match.getMatchId(),
+                team1.getTeamId(),
+                user1.getId(),
+                1, // 평점 1점으로 수정
+                ReviewBinaryEvaluation.BAD, // 나쁨으로 수정
+                ReviewBinaryEvaluation.BAD, // 나쁨으로 수정
+                ReviewSkillLevel.LOWER // 표기보다 낮음으로 수정
         );
-        mercenaryRecruitmentRepository.saveAndFlush(recruitment);
 
-        // When: 정보 수정
-        LocalDate newMatchDate = LocalDate.now().plusDays(8);
-        LocalTime newMatchTime = LocalTime.of(21, 0);
-        String newMessage = "수정된 메시지: 미드필더 구합니다!";
-        Position newPosition = Position.CM;
-        SkillLevel newSkillLevel = SkillLevel.SEMI_PRO;
+        // when & then
+        mockMvc.perform(put("/api/mercenary-reviews/{reviewId}", savedReview.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updateRequest)))
+                .andExpect(status().isNoContent())
+                .andDo(print());
 
-        MercenaryRecruitment foundRecruitment = mercenaryRecruitmentRepository.findById(recruitment.getId()).get();
-        foundRecruitment.updateRecruitmentInfo(newMatchDate, newMatchTime, newMessage, newPosition, newSkillLevel);
-        em.flush();
-        em.clear();
-
-        // Then: 수정된 정보 검증
-        MercenaryRecruitment updatedRecruitment = mercenaryRecruitmentRepository.findById(recruitment.getId()).get();
-        assertThat(updatedRecruitment.getMatchDate()).isEqualTo(newMatchDate);
-        assertThat(updatedRecruitment.getMessage()).isEqualTo(newMessage);
-        assertThat(updatedRecruitment.getPosition()).isEqualTo(newPosition);
-        assertThat(updatedRecruitment.getSkillLevel()).isEqualTo(newSkillLevel);
+        // DB 검증
+        MercenaryReview updatedReview = mercenaryReviewRepository.findById(savedReview.getId()).get();
+        assertThat(updatedReview.getRating()).isEqualTo(1);
+        assertThat(updatedReview.getPunctualityReview()).isEqualTo(ReviewBinaryEvaluation.BAD);
+        assertThat(updatedReview.getSportsmanshipReview()).isEqualTo(ReviewBinaryEvaluation.BAD);
+        assertThat(updatedReview.getSkillLevelReview()).isEqualTo(ReviewSkillLevel.LOWER);
     }
 
+    @Test
+    @DisplayName("DELETE /api/mercenary-reviews/{reviewId} - 리뷰 삭제 성공")
+    void deleteReview_Success() throws Exception {
+        // given
+        MercenaryReview review = new MercenaryReview(match, team1, user1, 5, ReviewBinaryEvaluation.GOOD, ReviewBinaryEvaluation.GOOD, ReviewSkillLevel.SIMILAR);
+        MercenaryReview savedReview = mercenaryReviewRepository.save(review);
+
+        // when & then
+        mockMvc.perform(delete("/api/mercenary-reviews/{reviewId}", savedReview.getId()))
+                .andExpect(status().isNoContent())
+                .andDo(print());
+
+        // DB 검증
+        assertThat(mercenaryReviewRepository.findById(savedReview.getId())).isEmpty();
+    }
 
     // 테스트 데이터 생성용 메서드
 
@@ -147,5 +200,14 @@ class MercenaryReviewIntegrationTest {
 
     private Team createTeam(String name, User captain) {
         return new Team(name, captain, captain.getUniversity().name(), TeamType.OTHER, SkillLevel.AMATEUR, "용병 모집 테스트용 팀입니다.");
+    }
+
+    private Venue createVenue(String name) {
+        return new Venue(name, "주소", BigDecimal.valueOf(37.8), BigDecimal.valueOf(127.7), "010-1234-5678",
+                "테스트", 3000L);
+    }
+
+    private Match createMatch(Team team1, Team team2, Venue venue, MatchStatus status) {
+        return new Match(team1, team2, LocalDate.now().minusDays(1), LocalTime.of(19, 0), venue, status);
     }
 }
