@@ -6,8 +6,8 @@ import com.shootdoori.match.entity.MatchWaiting;
 import com.shootdoori.match.entity.MatchWaitingStatus;
 import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.entity.Venue;
-import com.shootdoori.match.exception.TeamNotFoundException;
-import com.shootdoori.match.exception.VenueNotFoundException;
+import com.shootdoori.match.exception.NotFoundException;
+import com.shootdoori.match.exception.ErrorCode;
 import com.shootdoori.match.repository.MatchWaitingRepository;
 import com.shootdoori.match.repository.TeamRepository;
 import com.shootdoori.match.repository.VenueRepository;
@@ -33,10 +33,10 @@ public class MatchCreateService {
 
   public MatchCreateResponseDto createMatch(MatchCreateRequestDto dto) {
     Team team = teamRepository.findById(dto.teamId())
-        .orElseThrow(() -> new TeamNotFoundException(dto.teamId()));
+        .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(dto.teamId())));
 
     Venue venue = venueRepository.findById(dto.preferredVenueId())
-        .orElseThrow(() -> new VenueNotFoundException(dto.preferredVenueId()));
+        .orElseThrow(() -> new NotFoundException(ErrorCode.VENUE_NOT_FOUND, String.valueOf(dto.preferredVenueId())));
 
     MatchWaiting matchWaiting = new MatchWaiting(
         team,

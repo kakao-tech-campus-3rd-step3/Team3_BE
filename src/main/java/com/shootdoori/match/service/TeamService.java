@@ -7,8 +7,8 @@ import com.shootdoori.match.dto.TeamRequestDto;
 import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.entity.TeamMemberRole;
 import com.shootdoori.match.entity.User;
-import com.shootdoori.match.exception.CaptainNotFoundException;
-import com.shootdoori.match.exception.TeamNotFoundException;
+import com.shootdoori.match.exception.NotFoundException;
+import com.shootdoori.match.exception.ErrorCode;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamRepository;
 import com.shootdoori.match.value.UniversityName;
@@ -37,7 +37,7 @@ public class TeamService {
 
     public CreateTeamResponseDto create(TeamRequestDto requestDto, User captain) {
         if (captain == null) {
-            throw new CaptainNotFoundException();
+            throw new NotFoundException(ErrorCode.CAPTAIN_NOT_FOUND);
         }
 
         /*
@@ -55,7 +55,7 @@ public class TeamService {
     @Transactional(readOnly = true)
     public TeamDetailResponseDto findById(Long id) {
         Team team = teamRepository.findById(id).orElseThrow(() ->
-            new TeamNotFoundException(id));
+            new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(id)));
 
         return teamMapper.toTeamDetailResponse(team);
     }
@@ -72,7 +72,7 @@ public class TeamService {
 
     public TeamDetailResponseDto update(Long id, TeamRequestDto requestDto) {
         Team team = teamRepository.findById(id).orElseThrow(() ->
-            new TeamNotFoundException(id));
+            new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(id)));
 
         team.changeTeamInfo(requestDto.name(), requestDto.university(),
             requestDto.skillLevel(), requestDto.description());
@@ -82,7 +82,7 @@ public class TeamService {
 
     public void delete(Long id) {
         Team team = teamRepository.findById(id).orElseThrow(() ->
-            new TeamNotFoundException(id));
+            new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(id)));
 
         teamRepository.delete(team);
     }

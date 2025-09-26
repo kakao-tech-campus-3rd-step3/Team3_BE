@@ -2,9 +2,7 @@ package com.shootdoori.match.service;
 
 import com.shootdoori.match.dto.*;
 import com.shootdoori.match.entity.*;
-import com.shootdoori.match.exception.MatchRequestNotFoundException;
-import com.shootdoori.match.exception.MatchWaitingNotFoundException;
-import com.shootdoori.match.exception.TeamNotFoundException;
+import com.shootdoori.match.exception.NotFoundException;
 import com.shootdoori.match.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -231,40 +229,40 @@ class MatchRequestServiceTest {
   }
 
   @Test
-  @DisplayName("존재하지 않는 MatchWaiting으로 요청 시 MatchWaitingNotFoundException")
+  @DisplayName("존재하지 않는 MatchWaiting으로 요청 시 NotFoundException")
   void requestToMatch_waitingNotFound() {
     MatchRequestRequestDto dto = new MatchRequestRequestDto(targetTeam.getTeamId(), REQUEST_MESSAGE);
     Throwable thrown = catchThrowable(() ->
       matchRequestService.requestToMatch(NON_EXIST_ID, dto)
     );
 
-    assertThat(thrown).isInstanceOf(MatchWaitingNotFoundException.class)
+    assertThat(thrown).isInstanceOf(NotFoundException.class)
       .hasMessageContaining(NON_EXIST_ID.toString());
   }
 
   @Test
-  @DisplayName("존재하지 않는 요청 팀으로 요청 시 TeamNotFoundException")
+  @DisplayName("존재하지 않는 요청 팀으로 요청 시 NotFoundException")
   void requestToMatch_teamNotFound() {
     MatchRequestRequestDto dto = new MatchRequestRequestDto(NON_EXIST_ID, REQUEST_MESSAGE);
     Throwable thrown = catchThrowable(() ->
       matchRequestService.requestToMatch(savedWaiting.getWaitingId(), dto)
     );
 
-    assertThat(thrown).isInstanceOf(TeamNotFoundException.class)
+    assertThat(thrown).isInstanceOf(NotFoundException.class)
       .hasMessageContaining(NON_EXIST_ID.toString());
   }
 
   // ------------------- cancelMatchRequest 테스트 -------------------
 
   @Test
-  @DisplayName("존재하지 않는 MatchRequest ID로 취소 시 MatchRequestNotFoundException 발생")
+  @DisplayName("존재하지 않는 MatchRequest ID로 취소 시 NotFoundException 발생")
   void cancelMatchRequest_notFound() {
     Throwable thrown = catchThrowable(() ->
       matchRequestService.cancelMatchRequest(NON_EXIST_ID)
     );
 
     assertThat(thrown)
-      .isInstanceOf(MatchRequestNotFoundException.class)
+      .isInstanceOf(NotFoundException.class)
       .hasMessageContaining(NON_EXIST_ID.toString());
   }
 
@@ -292,14 +290,14 @@ class MatchRequestServiceTest {
   // ------------------- getReceivedPendingRequests 테스트 -------------------
 
   @Test
-  @DisplayName("존재하지 않는 팀 ID로 요청 시 TeamNotFoundException")
+  @DisplayName("존재하지 않는 팀 ID로 요청 시 NotFoundException")
   void getReceivedPendingRequests_teamNotFound() {
     Throwable thrown = catchThrowable(() ->
       matchRequestService.getReceivedPendingRequests(NON_EXIST_ID, Pageable.unpaged())
     );
 
     assertThat(thrown)
-      .isInstanceOf(TeamNotFoundException.class)
+      .isInstanceOf(NotFoundException.class)
       .hasMessageContaining(NON_EXIST_ID.toString());
   }
 

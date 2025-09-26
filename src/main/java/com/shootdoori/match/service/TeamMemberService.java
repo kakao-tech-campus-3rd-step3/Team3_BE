@@ -10,9 +10,8 @@ import com.shootdoori.match.entity.TeamMemberRole;
 import com.shootdoori.match.entity.User;
 import com.shootdoori.match.exception.DuplicatedException;
 import com.shootdoori.match.exception.ErrorCode;
-import com.shootdoori.match.exception.TeamMemberNotFoundException;
-import com.shootdoori.match.exception.TeamNotFoundException;
-import com.shootdoori.match.exception.UserNotFoundException;
+import com.shootdoori.match.exception.NotFoundException;
+import com.shootdoori.match.exception.ErrorCode;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.repository.TeamRepository;
@@ -46,10 +45,10 @@ public class TeamMemberService {
         Long userId = requestDto.userId();
 
         Team team = teamRepository.findById(teamId).orElseThrow(() ->
-            new TeamNotFoundException(teamId));
+            new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
 
         User user = profileRepository.findById(userId).orElseThrow(
-            () -> new UserNotFoundException(userId));
+            () -> new NotFoundException(ErrorCode.USER_NOT_FOUND, String.valueOf(userId)));
 
         if (teamMemberRepository.existsByTeam_TeamIdAndUser_Id(teamId, userId)) {
             throw new DuplicatedException(ErrorCode.ALREADY_TEAM_MEMBER);
@@ -65,7 +64,7 @@ public class TeamMemberService {
         teamRepository.save(team);
 
         TeamMember savedTeamMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId,
-            userId).orElseThrow(() -> new TeamMemberNotFoundException());
+            userId).orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
         return teamMemberMapper.toTeamMemberResponseDto(savedTeamMember);
     }
@@ -73,7 +72,7 @@ public class TeamMemberService {
     @Transactional(readOnly = true)
     public TeamMemberResponseDto findByTeamIdAndUserId(Long teamId, Long userId) {
         TeamMember teamMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId, userId)
-            .orElseThrow(() -> new TeamMemberNotFoundException());
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
         return teamMemberMapper.toTeamMemberResponseDto(teamMember);
     }
@@ -91,10 +90,10 @@ public class TeamMemberService {
     public TeamMemberResponseDto update(Long teamId, Long userId,
         UpdateTeamMemberRequestDto requestDto) {
         Team team = teamRepository.findById(teamId)
-            .orElseThrow(() -> new TeamNotFoundException(teamId));
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
 
         TeamMember teamMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId, userId)
-            .orElseThrow(() -> new TeamMemberNotFoundException());
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
         teamMember.changeRole(team, TeamMemberRole.fromDisplayName(requestDto.role()));
 
@@ -103,10 +102,10 @@ public class TeamMemberService {
 
     public void delete(Long teamId, Long userId) {
         Team team = teamRepository.findById(teamId)
-            .orElseThrow(() -> new TeamNotFoundException(teamId));
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
 
         TeamMember teamMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId, userId)
-            .orElseThrow(() -> new TeamMemberNotFoundException());
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
         team.removeMember(teamMember);
         teamRepository.save(team);
