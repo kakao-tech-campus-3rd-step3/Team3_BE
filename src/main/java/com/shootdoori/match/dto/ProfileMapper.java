@@ -14,7 +14,7 @@ public class ProfileMapper {
             user.getName(),
             user.getSkillLevel().name(),
             user.getEmail(),
-            user.getPhoneNumber(),
+            user.getKakaoUserId(),
             user.getPosition().name(),
             user.getUniversity().name(),
             user.getDepartment(),

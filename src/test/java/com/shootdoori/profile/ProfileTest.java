@@ -1,12 +1,5 @@
 package com.shootdoori.profile;
 
-import static org.assertj.core.api.Assertions.as;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import com.shootdoori.match.dto.ProfileCreateRequest;
 import com.shootdoori.match.dto.ProfileMapper;
 import com.shootdoori.match.dto.ProfileResponse;
@@ -17,8 +10,6 @@ import com.shootdoori.match.entity.User;
 import com.shootdoori.match.exception.DuplicatedUserException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.service.ProfileService;
-import java.time.LocalDateTime;
-import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -27,6 +18,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.time.LocalDateTime;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ProfileTest {
@@ -51,13 +51,13 @@ public class ProfileTest {
     void setup() {
         createRequest = new ProfileCreateRequest(
             "jam", "아마추어", "test@email.com", "test@ac.kr",
-            "asdf02~!", "010-0000-0000", "공격수", "knu", "cs",
+            "asdf02~!", "imkim2511", "공격수", "knu", "cs",
             "20", "hello, world"
         );
 
         user = User.create(
             createRequest.name(), createRequest.skillLevel(), createRequest.email(), createRequest.universityEmail(),
-            createRequest.password(), createRequest.phoneNumber(), createRequest.position(), createRequest.university(),
+            createRequest.password(), createRequest.kakaoUserId(), createRequest.position(), createRequest.university(),
             createRequest.department(), createRequest.studentYear(), createRequest.bio()
         );
     }
@@ -91,7 +91,7 @@ public class ProfileTest {
         when(profileRepository.save(any(User.class))).thenReturn(user);
 
         when(profileMapper.toProfileResponse(user)).thenReturn(
-            new ProfileResponse("jam", "AMATEUR", "test@email.com", "010-0000-0000",
+            new ProfileResponse("jam", "AMATEUR", "test@email.com", "imkim25",
                 "FW", "knu", "cs", "20", "hello, world", LocalDateTime.now())
         );
 
@@ -112,7 +112,7 @@ public class ProfileTest {
         // given
         ProfileCreateRequest invalidRequest = new ProfileCreateRequest(
             "jam", "아마추어", "new@email.com", "new@ac.kr",
-            "asdf02~!", "010-1111-1111", "마법사", "knu", "cs",
+            "asdf02~!", "imkim2512", "마법사", "knu", "cs",
             "20", "hello, world"
         );
 
@@ -126,7 +126,7 @@ public class ProfileTest {
         // given
         ProfileCreateRequest duplicateRequest = new ProfileCreateRequest(
             "jam", "아마추어", "duplicate@email.com", "test@kangwon.ac.kr",
-            "asdf02~!","010-0000-0000", "공격수", "knu", "cs",
+            "asdf02~!","imkim2513", "공격수", "knu", "cs",
             "20", "hello, world"
         );
 

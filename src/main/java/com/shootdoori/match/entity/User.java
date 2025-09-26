@@ -1,20 +1,11 @@
 package com.shootdoori.match.entity;
 
-import com.shootdoori.match.exception.UnauthorizedException;
 import com.shootdoori.match.value.Password;
 import com.shootdoori.match.value.UniversityName;
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import java.time.LocalDateTime;
-import java.util.Objects;
+import jakarta.persistence.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.util.Objects;
 
 @Entity
 public class User extends DateEntity {
@@ -40,8 +31,8 @@ public class User extends DateEntity {
     @AttributeOverride(name = "password", column = @Column(name = "PASSWORD", nullable = false, length = 255))
     private Password password;
 
-    @Column(name = "phone_number", nullable = false, unique = true, length = 13)
-    private String phoneNumber;
+    @Column(name = "kakao_user_id", nullable = false, length = 20)
+    private String kakaoUserId;
 
     @Embedded
     @AttributeOverride(name = "name", column = @Column(name = "UNIVERSITY", nullable = false, length = 100))
@@ -64,15 +55,15 @@ public class User extends DateEntity {
 
     }
 
-    private User(String name, SkillLevel skillLevel, String email, String universityEmail, String password, String phoneNumber,
+    private User(String name, SkillLevel skillLevel, String email, String universityEmail, String password, String kakaoUserId,
         Position position, String university, String department, String studentYear, String bio) {
-        validate(name, skillLevel.getDisplayName(), email, universityEmail, password, phoneNumber, position.getDisplayName(), university, department, studentYear, bio);
+        validate(name, skillLevel.getDisplayName(), email, universityEmail, password, kakaoUserId, position.getDisplayName(), university, department, studentYear, bio);
         this.name = name;
         this.skillLevel = skillLevel;
         this.email = email;
         this.universityEmail = universityEmail;
         this.password = Password.of(password);
-        this.phoneNumber = phoneNumber;
+        this.kakaoUserId = kakaoUserId;
         this.position = position;
         this.university = UniversityName.of(university);
         this.department = department;
@@ -80,22 +71,22 @@ public class User extends DateEntity {
         this.bio = bio;
     }
 
-    public static User create(String name, String skillLevelName, String email, String universityEmail, String encodedPassword, String phoneNumber,
+    public static User create(String name, String skillLevelName, String email, String universityEmail, String encodedPassword, String kakaoUserId,
                               String positionName, String university, String department, String studentYear, String bio) {
         Position position = Position.fromDisplayName(positionName);
         SkillLevel skillLevel = SkillLevel.fromDisplayName(skillLevelName);
-        return new User(name, skillLevel, email, universityEmail, encodedPassword, phoneNumber, position, university, department,
+        return new User(name, skillLevel, email, universityEmail, encodedPassword, kakaoUserId, position, university, department,
             studentYear, bio);
     }
 
-    private void validate(String name, String skillLevel, String email, String universityEmail, String password, String phoneNumber,
+    private void validate(String name, String skillLevel, String email, String universityEmail, String password, String kakaoUserId,
         String position, String university, String department, String studentYear, String bio) {
         validateName(name);
         validateSkillLevel(skillLevel);
         validateEmail(email);
         validateUniversityEmail(universityEmail);
         validatePassword(password);
-        validatePhoneNumber(phoneNumber);
+        validateKakaoUserId(kakaoUserId);
         validatePosition(position);
         validateUniversity(university);
         validateDepartment(department);
@@ -148,12 +139,12 @@ public class User extends DateEntity {
         }
     }
 
-    private void validatePhoneNumber(String phoneNumber) {
-        if (phoneNumber == null || phoneNumber.isBlank()) {
-            throw new IllegalArgumentException("핸드폰 번호는 필수 입력 값입니다.");
+    private void validateKakaoUserId(String kakaoUserId) {
+        if (kakaoUserId == null || kakaoUserId.isBlank()) {
+            throw new IllegalArgumentException("카카오톡 채널(친구추가) 아이디는 필수 입력 값입니다.");
         }
-        if (!phoneNumber.matches("^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$")) {
-            throw new IllegalArgumentException("핸드폰 번호 형식이 올바르지 않습니다. (예: 010-1234-5678)");
+        if (!kakaoUserId.matches("^[a-zA-Z0-9_.-]{4,20}$")) {
+            throw new IllegalArgumentException("아이디의 형식이 올바르지 않습니다. 영문, 숫자, 특수문자(-, _, .)를 포함하여 4~20자이어야 합니다.");
         }
     }
 
@@ -228,8 +219,8 @@ public class User extends DateEntity {
         return this.universityEmail;
     }
 
-    public String getPhoneNumber() {
-        return this.phoneNumber;
+    public String getKakaoUserId() {
+        return this.kakaoUserId;
     }
 
     public UniversityName getUniversity() {
