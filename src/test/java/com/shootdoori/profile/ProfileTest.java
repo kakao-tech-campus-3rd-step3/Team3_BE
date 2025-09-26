@@ -70,7 +70,7 @@ public class ProfileTest {
 
         // then
         assertThat(user.getSkillLevel()).isEqualTo(SkillLevel.PRO);
-        assertThat(user.getPosition()).isEqualTo(Position.GK);
+        assertThat(user.getPosition()).isEqualTo(UserPosition.GK);
         assertThat(user.getBio()).isEqualTo("변경된 자기소개");
         assertThat(user.getName()).isEqualTo("jam");
     }
@@ -98,7 +98,7 @@ public class ProfileTest {
         assertThat(response).isNotNull();
         assertThat(response.name()).isEqualTo(createRequest.name());
         assertThat(response.skillLevel()).isEqualTo(SkillLevel.AMATEUR.name());
-        assertThat(response.position()).isEqualTo(Position.FW.name());
+        assertThat(response.position()).isEqualTo(UserPosition.FW.name());
         verify(profileRepository).save(any(User.class));
     }
 

@@ -220,7 +220,7 @@ class MercenaryRecruitmentTest {
                 MATCH_DATE,
                 MATCH_START_TIME,
                 MESSAGE,
-                Position.fromDisplayName(POSITION),
+                MercenaryPosition.fromDisplayName(POSITION),
                 SkillLevel.fromDisplayName(SKILL_LEVEL)
             );
         }

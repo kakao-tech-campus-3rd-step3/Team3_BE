@@ -35,7 +35,7 @@ public class MercenaryRecruitment extends DateEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "POSITION", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '골키퍼'")
-    private Position position;
+    private MercenaryPosition position;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "SKILL_LEVEL", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '아마추어'")
@@ -48,7 +48,7 @@ public class MercenaryRecruitment extends DateEntity {
     protected MercenaryRecruitment() {
     }
 
-    private MercenaryRecruitment(Team team, LocalDate matchDate, LocalTime matchTime, String message, Position position, SkillLevel skillLevel) {
+    private MercenaryRecruitment(Team team, LocalDate matchDate, LocalTime matchTime, String message, MercenaryPosition position, SkillLevel skillLevel) {
         validateTeam(team);
         validate(matchDate, matchTime, message, position, skillLevel);
         this.team = team;
@@ -60,11 +60,11 @@ public class MercenaryRecruitment extends DateEntity {
         this.recruitmentStatus = RecruitmentStatus.RECRUITING;
     }
 
-    public static MercenaryRecruitment create(Team team, LocalDate matchDate, LocalTime matchTime, String message, Position position, SkillLevel skillLevel) {
+    public static MercenaryRecruitment create(Team team, LocalDate matchDate, LocalTime matchTime, String message, MercenaryPosition position, SkillLevel skillLevel) {
         return new MercenaryRecruitment(team, matchDate, matchTime, message, position, skillLevel);
     }
 
-    private void validate(LocalDate matchDate, LocalTime matchTime, String message, Position position, SkillLevel skillLevel) {
+    private void validate(LocalDate matchDate, LocalTime matchTime, String message, MercenaryPosition position, SkillLevel skillLevel) {
         validateMatchDate(matchDate);
         validateMatchTime(matchTime);
         validateMatchDateTime(matchDate, matchTime);
@@ -104,7 +104,7 @@ public class MercenaryRecruitment extends DateEntity {
         }
     }
 
-    private void validatePosition(Position position) {
+    private void validatePosition(MercenaryPosition position) {
         if (position == null) {
             throw new IllegalArgumentException("포지션 정보는 필수입니다.");
         }
@@ -136,7 +136,7 @@ public class MercenaryRecruitment extends DateEntity {
         return this.message;
     }
 
-    public Position getPosition() {
+    public MercenaryPosition getPosition() {
         return this.position;
     }
 
@@ -148,7 +148,7 @@ public class MercenaryRecruitment extends DateEntity {
         return this.recruitmentStatus;
     }
 
-    public void updateRecruitmentInfo(LocalDate matchDate, LocalTime matchTime, String message, Position position, SkillLevel skillLevel) {
+    public void updateRecruitmentInfo(LocalDate matchDate, LocalTime matchTime, String message, MercenaryPosition position, SkillLevel skillLevel) {
         validate(matchDate, matchTime, message, position, skillLevel);
         this.matchDate = matchDate;
         this.matchTime = matchTime;

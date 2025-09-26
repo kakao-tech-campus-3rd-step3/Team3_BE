@@ -4,7 +4,7 @@ import com.shootdoori.match.dto.RecruitmentCreateRequest;
 import com.shootdoori.match.dto.RecruitmentResponse;
 import com.shootdoori.match.dto.RecruitmentUpdateRequest;
 import com.shootdoori.match.entity.MercenaryRecruitment;
-import com.shootdoori.match.entity.Position;
+import com.shootdoori.match.entity.MercenaryPosition;
 import com.shootdoori.match.entity.SkillLevel;
 import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.exception.RecruitmentNotFoundException;
@@ -33,7 +33,7 @@ public class MercenaryRecruitmentService {
         Team team = teamRepository.findById(request.teamId()).orElseThrow(
             () -> new TeamNotFoundException(request.teamId()));
 
-        Position position = Position.fromDisplayName(request.position());
+        MercenaryPosition position = MercenaryPosition.fromDisplayName(request.position());
         SkillLevel skillLevel = SkillLevel.fromDisplayName(request.skillLevel());
 
         MercenaryRecruitment savedRecruitment = recruitmentRepository.save(MercenaryRecruitment.create(
@@ -63,7 +63,7 @@ public class MercenaryRecruitmentService {
         MercenaryRecruitment recruitment = recruitmentRepository.findById(id)
             .orElseThrow(RecruitmentNotFoundException::new);
 
-        Position position = Position.fromDisplayName(updateRequest.position());
+        MercenaryPosition position = MercenaryPosition.fromDisplayName(updateRequest.position());
         SkillLevel skillLevel = SkillLevel.fromDisplayName(updateRequest.skillLevel());
 
         recruitment.updateRecruitmentInfo(
