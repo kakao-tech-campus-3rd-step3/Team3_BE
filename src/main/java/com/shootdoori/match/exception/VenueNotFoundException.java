@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.NOT_FOUND)
 public class VenueNotFoundException extends BusinessException {
-  public VenueNotFoundException(Integer venueId) {
+  public VenueNotFoundException(Long venueId) {
     super(ErrorCode.VENUE_NOT_FOUND, venueId.toString());
   }
 }

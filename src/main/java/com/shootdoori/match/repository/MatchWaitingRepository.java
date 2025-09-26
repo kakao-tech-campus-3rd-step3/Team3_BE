@@ -21,8 +21,8 @@ public interface MatchWaitingRepository extends JpaRepository<MatchWaiting, Long
         "AND (:lastTime IS NULL OR mw.preferredTimeStart > :lastTime) " +
         "ORDER BY mw.preferredTimeStart ASC")
     Slice<MatchWaiting> findAvailableMatchesByDateCursor(
-        @Param("date") LocalDate date,
         @Param("teamId") Long teamId,
+        @Param("date") LocalDate date,
         @Param("lastTime") LocalTime lastTime,
         Pageable pageable
     );

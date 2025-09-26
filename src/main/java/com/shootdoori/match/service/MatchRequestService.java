@@ -1,9 +1,7 @@
 package com.shootdoori.match.service;
 
 
-import com.shootdoori.match.dto.MatchRequestRequestDto;
-import com.shootdoori.match.dto.MatchRequestResponseDto;
-import com.shootdoori.match.dto.MatchConfirmedResponseDto;
+import com.shootdoori.match.dto.*;
 import com.shootdoori.match.entity.*;
 import com.shootdoori.match.exception.MatchRequestNotFoundException;
 import com.shootdoori.match.exception.MatchWaitingNotFoundException;
@@ -36,6 +34,32 @@ public class MatchRequestService {
     this.matchWaitingRepository = matchWaitingRepository;
     this.matchRepository = matchRepository;
     this.teamRepository = teamRepository;
+  }
+
+  @Transactional(readOnly = true)
+  public Slice<MatchWaitingResponseDto> getWaitingMatches(MatchWaitingRequestDto matchWaitingRequestDto, Pageable pageable){
+    Team searchRequestTeam = teamRepository.findById(matchWaitingRequestDto.teamId())
+      .orElseThrow(() -> new TeamNotFoundException(matchWaitingRequestDto.teamId()));
+
+    return matchWaitingRepository.findAvailableMatchesByDateCursor
+        (matchWaitingRequestDto.teamId(),
+          matchWaitingRequestDto.selectDate(),
+          matchWaitingRequestDto.startTime(),
+          pageable)
+      .map(mw -> new MatchWaitingResponseDto(
+        mw.getWaitingId(),
+        mw.getTeam().getTeamId(),
+        mw.getPreferredDate(),
+        mw.getPreferredTimeStart(),
+        mw.getPreferredTimeEnd(),
+        mw.getPreferredVenue().getVenueId(),
+        mw.getSkillLevelMin(),
+        mw.getSkillLevelMax(),
+        mw.getUniversityOnly(),
+        mw.getMessage(),
+        mw.getMatchRequestStatus(),
+        mw.getExpiresAt()
+      ));
   }
 
   @Transactional
@@ -84,6 +108,9 @@ public class MatchRequestService {
 
   @Transactional(readOnly = true)
   public Slice<MatchRequestResponseDto> getReceivedPendingRequests(Long teamId, Pageable pageable) {
+    Team targetTeam = teamRepository.findById(teamId)
+      .orElseThrow(() -> new TeamNotFoundException(teamId));
+
     return matchRequestRepository.findPendingRequestsByTargetTeam(teamId, pageable)
       .map(mr -> new MatchRequestResponseDto(
         mr.getRequestId(),
@@ -104,7 +131,7 @@ public class MatchRequestService {
     matchRequest.updateRequestStatus(MatchRequestStatus.ACCEPTED, LocalDateTime.now());
     matchWaiting.updateWaitingStatus(MatchWaitingStatus.MATCHED);
 
-    matchRequestRepository.rejectOtherRequests(matchRequest.getTargetTeam().getTeamId(), requestId);
+    matchRequestRepository.rejectOtherRequests(matchRequest.getTargetTeam().getTeamId(), requestId, matchWaiting.getWaitingId());
 
     Match match = new Match(
       matchRequest.getTargetTeam(),

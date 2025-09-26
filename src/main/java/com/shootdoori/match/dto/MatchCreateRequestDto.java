@@ -9,7 +9,7 @@ public record MatchCreateRequestDto(
     LocalDate preferredDate,
     LocalTime preferredTimeStart,
     LocalTime preferredTimeEnd,
-    Integer preferredVenueId,
+    Long preferredVenueId,
     SkillLevel skillLevelMin,
     SkillLevel skillLevelMax,
     Boolean universityOnly,
