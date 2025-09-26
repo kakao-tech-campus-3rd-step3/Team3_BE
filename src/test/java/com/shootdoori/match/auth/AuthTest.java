@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shootdoori.match.dto.AuthToken;
 import com.shootdoori.match.dto.LoginRequest;
 import com.shootdoori.match.dto.ProfileCreateRequest;
+import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.RefreshTokenRepository;
 import com.shootdoori.match.service.AuthService;
 import com.shootdoori.match.util.JwtUtil;
@@ -21,6 +22,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -33,6 +35,7 @@ class AuthTest {
     @Autowired private AuthService authService;
     @Autowired private ObjectMapper objectMapper;
     @Autowired private RefreshTokenRepository refreshTokenRepository;
+    @Autowired private ProfileRepository profileRepository;
     @Autowired private JwtUtil jwtUtil;
 
     @Nested
@@ -209,6 +212,42 @@ class AuthTest {
 
             mockMvc.perform(post("/api/auth/refresh")
                     .cookie(refreshTokenCookie))
+                .andExpect(status().isUnauthorized());
+        }
+    }
+
+    @Nested
+    @DisplayName("회원탈퇴 (/api/profiles/me)")
+    class DeleteAccountTests {
+
+        private String accessToken;
+        private Long userId;
+
+        @BeforeEach
+        void setup() {
+            AuthToken tokens = authService.register(
+                AuthFixtures.createProfileRequest(),
+                new MockHttpServletRequest()
+            );
+            accessToken = tokens.accessToken();
+            userId = Long.parseLong(jwtUtil.getUserId(accessToken));
+        }
+
+        @Test
+        @DisplayName("성공: 로그인된 사용자가 정상적으로 회원 탈퇴한다")
+        void deleteAccountSuccess() throws Exception {
+            mockMvc.perform(delete("/api/profiles/me")
+                    .header("Authorization", "Bearer " + accessToken))
+                .andExpect(status().isNoContent());
+
+            assertThat(profileRepository.findById(userId)).isEmpty();
+            assertThat(refreshTokenRepository.countByUserId(userId)).isZero();
+        }
+
+        @Test
+        @DisplayName("실패: 인증되지 않은 사용자가 회원 탈퇴 시 401 Unauthorized 에러가 발생한다")
+        void deleteAccountFailWithoutAuth() throws Exception {
+            mockMvc.perform(delete("/api/profiles/me"))
                 .andExpect(status().isUnauthorized());
         }
     }
