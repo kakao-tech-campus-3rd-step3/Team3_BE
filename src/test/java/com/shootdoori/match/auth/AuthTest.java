@@ -260,7 +260,7 @@ class AuthTest {
         public static ProfileCreateRequest createProfileRequest() {
             return new ProfileCreateRequest(
                 "tester", "아마추어", USER_EMAIL, UNIVERSITY_EMAIL, USER_PASSWORD,
-                "010-1234-5678", "공격수", "강원대학교", "컴퓨터공학과", "25", "안녕하세요"
+                "imkim250", "공격수", "강원대학교", "컴퓨터공학과", "25", "안녕하세요"
             );
         }
 

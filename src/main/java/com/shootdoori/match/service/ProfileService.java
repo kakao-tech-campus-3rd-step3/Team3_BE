@@ -9,6 +9,7 @@ import com.shootdoori.match.exception.DuplicatedUserException;
 import com.shootdoori.match.exception.ProfileNotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.RefreshTokenRepository;
+import com.shootdoori.match.repository.TeamMemberRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,12 +24,14 @@ public class ProfileService {
     private final ProfileMapper profileMapper;
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final TeamMemberRepository teamMemberRepository;
 
-    public ProfileService(ProfileRepository profileRepository, ProfileMapper profileMapper, PasswordEncoder passwordEncoder, RefreshTokenRepository refreshTokenRepository) {
+    public ProfileService(ProfileRepository profileRepository, ProfileMapper profileMapper, PasswordEncoder passwordEncoder, RefreshTokenRepository refreshTokenRepository, TeamMemberRepository teamMemberRepository) {
         this.profileRepository = profileRepository;
         this.profileMapper = profileMapper;
         this.passwordEncoder = passwordEncoder;
         this.refreshTokenRepository = refreshTokenRepository;
+        this.teamMemberRepository = teamMemberRepository;
     }
 
     public ProfileResponse createProfile(ProfileCreateRequest createRequest) {
@@ -46,7 +49,7 @@ public class ProfileService {
             createRequest.email(),
             createRequest.universityEmail(),
             encodePassword,
-            createRequest.phoneNumber(),
+            createRequest.kakaoTalkId(),
             createRequest.position(),
             createRequest.university(),
             createRequest.department(),
@@ -62,7 +65,12 @@ public class ProfileService {
     public ProfileResponse findProfileById(Long id) {
         User profile = profileRepository.findById(id)
             .orElseThrow(ProfileNotFoundException::new);
-        return profileMapper.toProfileResponse(profile);
+
+        Long teamId = teamMemberRepository.findByUser_Id(id)
+            .map(teamMember -> teamMember.getTeam().getTeamId())
+            .orElse(null);
+
+        return profileMapper.toProfileResponse(profile, teamId);
     }
 
     @Transactional
