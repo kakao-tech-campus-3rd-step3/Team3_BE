@@ -32,7 +32,7 @@ public class User extends DateEntity {
     private Password password;
 
     @Column(name = "kakao_user_id", nullable = false, length = 20)
-    private String kakaoUserId;
+    private String kakaoTalkId;
 
     @Embedded
     @AttributeOverride(name = "name", column = @Column(name = "UNIVERSITY", nullable = false, length = 100))
@@ -55,15 +55,15 @@ public class User extends DateEntity {
 
     }
 
-    private User(String name, SkillLevel skillLevel, String email, String universityEmail, String password, String kakaoUserId,
+    private User(String name, SkillLevel skillLevel, String email, String universityEmail, String password, String kakaoTalkId,
         Position position, String university, String department, String studentYear, String bio) {
-        validate(name, skillLevel.getDisplayName(), email, universityEmail, password, kakaoUserId, position.getDisplayName(), university, department, studentYear, bio);
+        validate(name, skillLevel.getDisplayName(), email, universityEmail, password, kakaoTalkId, position.getDisplayName(), university, department, studentYear, bio);
         this.name = name;
         this.skillLevel = skillLevel;
         this.email = email;
         this.universityEmail = universityEmail;
         this.password = Password.of(password);
-        this.kakaoUserId = kakaoUserId;
+        this.kakaoTalkId = kakaoTalkId;
         this.position = position;
         this.university = UniversityName.of(university);
         this.department = department;
@@ -71,22 +71,22 @@ public class User extends DateEntity {
         this.bio = bio;
     }
 
-    public static User create(String name, String skillLevelName, String email, String universityEmail, String encodedPassword, String kakaoUserId,
+    public static User create(String name, String skillLevelName, String email, String universityEmail, String encodedPassword, String kakaoTalkId,
                               String positionName, String university, String department, String studentYear, String bio) {
         Position position = Position.fromDisplayName(positionName);
         SkillLevel skillLevel = SkillLevel.fromDisplayName(skillLevelName);
-        return new User(name, skillLevel, email, universityEmail, encodedPassword, kakaoUserId, position, university, department,
+        return new User(name, skillLevel, email, universityEmail, encodedPassword, kakaoTalkId, position, university, department,
             studentYear, bio);
     }
 
-    private void validate(String name, String skillLevel, String email, String universityEmail, String password, String kakaoUserId,
+    private void validate(String name, String skillLevel, String email, String universityEmail, String password, String kakaoTalkId,
         String position, String university, String department, String studentYear, String bio) {
         validateName(name);
         validateSkillLevel(skillLevel);
         validateEmail(email);
         validateUniversityEmail(universityEmail);
         validatePassword(password);
-        validateKakaoUserId(kakaoUserId);
+        validateKakaoTalkId(kakaoTalkId);
         validatePosition(position);
         validateUniversity(university);
         validateDepartment(department);
@@ -139,11 +139,11 @@ public class User extends DateEntity {
         }
     }
 
-    private void validateKakaoUserId(String kakaoUserId) {
-        if (kakaoUserId == null || kakaoUserId.isBlank()) {
+    private void validateKakaoTalkId(String kakaoTalkId) {
+        if (kakaoTalkId == null || kakaoTalkId.isBlank()) {
             throw new IllegalArgumentException("카카오톡 채널(친구추가) 아이디는 필수 입력 값입니다.");
         }
-        if (!kakaoUserId.matches("^[a-zA-Z0-9_.-]{4,20}$")) {
+        if (!kakaoTalkId.matches("^[a-zA-Z0-9_.-]{4,20}$")) {
             throw new IllegalArgumentException("아이디의 형식이 올바르지 않습니다. 영문, 숫자, 특수문자(-, _, .)를 포함하여 4~20자이어야 합니다.");
         }
     }
@@ -219,8 +219,8 @@ public class User extends DateEntity {
         return this.universityEmail;
     }
 
-    public String getKakaoUserId() {
-        return this.kakaoUserId;
+    public String getKakaoTalkId() {
+        return this.kakaoTalkId;
     }
 
     public UniversityName getUniversity() {

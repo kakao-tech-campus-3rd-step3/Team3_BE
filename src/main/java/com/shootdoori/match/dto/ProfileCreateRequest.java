@@ -31,7 +31,7 @@ public record ProfileCreateRequest(
     
     @NotBlank(message = "카카오톡 채널(친구추가) 아이디는 필수 입력 값입니다.")
     @Pattern(regexp = "^[a-zA-Z0-9_.-]{4,20}$", message = "ID는 4~20자의 영문, 숫자, 특수문자(-, _, .)만 사용 가능합니다.")
-    String kakaoUserId,
+    String kakaoTalkId,
 
     @NotBlank(message = "포지션은 필수 입력 값입니다.")
     @Size(max = 10)

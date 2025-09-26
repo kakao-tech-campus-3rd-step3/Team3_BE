@@ -6,7 +6,7 @@ public record ProfileResponse(
     String name,
     String skillLevel,
     String email,
-    String kakaoUserId,
+    String kakaoTalkId,
     String position,
     String university,
     String department,

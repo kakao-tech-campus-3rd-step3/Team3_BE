@@ -57,7 +57,7 @@ public class ProfileTest {
 
         user = User.create(
             createRequest.name(), createRequest.skillLevel(), createRequest.email(), createRequest.universityEmail(),
-            createRequest.password(), createRequest.kakaoUserId(), createRequest.position(), createRequest.university(),
+            createRequest.password(), createRequest.kakaoTalkId(), createRequest.position(), createRequest.university(),
             createRequest.department(), createRequest.studentYear(), createRequest.bio()
         );
     }

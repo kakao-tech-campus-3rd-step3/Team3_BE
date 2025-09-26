@@ -46,7 +46,7 @@ public class ProfileService {
             createRequest.email(),
             createRequest.universityEmail(),
             encodePassword,
-            createRequest.kakaoUserId(),
+            createRequest.kakaoTalkId(),
             createRequest.position(),
             createRequest.university(),
             createRequest.department(),
