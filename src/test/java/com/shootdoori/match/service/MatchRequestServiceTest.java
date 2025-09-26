@@ -8,6 +8,7 @@ import com.shootdoori.match.exception.TeamNotFoundException;
 import com.shootdoori.match.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -165,29 +166,45 @@ class MatchRequestServiceTest {
 
   // ------------------- getWaitingMatches 테스트 -------------------
 
-  @Test
-  @Transactional
-  void getWaitingMatches_variousScenarios() {
-    // 13시 이후 검색 → 결과 없음
-    MatchWaitingRequestDto requestAfter13 = new MatchWaitingRequestDto(requestTeam1.getTeamId(), LocalDate.now(), LocalTime.of(13, 0));
-    Slice<MatchWaitingResponseDto> resultAfter13 = matchRequestService.getWaitingMatches(requestAfter13, PageRequest.of(0, 10));
-    assertThat(resultAfter13).isEmpty();
+  @Nested
+  class GetWaitingMatchesTest {
 
-    // 09시 이후 검색 → 결과 있음
-    MatchWaitingRequestDto requestAfter9 = new MatchWaitingRequestDto(requestTeam1.getTeamId(), LocalDate.now(), LocalTime.of(9, 0));
-    Slice<MatchWaitingResponseDto> resultAfter9 = matchRequestService.getWaitingMatches(requestAfter9, PageRequest.of(0, 10));
-    assertThat(resultAfter9).hasSize(1);
-    assertThat(resultAfter9.getContent().get(0).waitingId()).isEqualTo(savedWaiting.getWaitingId());
+    @Test
+    @Transactional
+    void after13_noResults() {
+      MatchWaitingRequestDto request = new MatchWaitingRequestDto(
+        requestTeam1.getTeamId(), LocalDate.now(), LocalTime.of(13, 0));
+      Slice<MatchWaitingResponseDto> result = matchRequestService.getWaitingMatches(request, PageRequest.of(0, 10));
+      assertThat(result).isEmpty();
+    }
 
-    // 날짜 다르게 검색 → 결과 없음
-    MatchWaitingRequestDto requestDifferentDate = new MatchWaitingRequestDto(requestTeam1.getTeamId(), LocalDate.now().plusDays(1), LocalTime.of(9, 0));
-    Slice<MatchWaitingResponseDto> resultDifferentDate = matchRequestService.getWaitingMatches(requestDifferentDate, PageRequest.of(0, 10));
-    assertThat(resultDifferentDate).isEmpty();
+    @Test
+    @Transactional
+    void after9_hasResult() {
+      MatchWaitingRequestDto request = new MatchWaitingRequestDto(
+        requestTeam1.getTeamId(), LocalDate.now(), LocalTime.of(9, 0));
+      Slice<MatchWaitingResponseDto> result = matchRequestService.getWaitingMatches(request, PageRequest.of(0, 10));
+      assertThat(result).hasSize(1);
+      assertThat(result.getContent().get(0).waitingId()).isEqualTo(savedWaiting.getWaitingId());
+    }
 
-    // 자기 팀 ID로 검색 → 결과 없음
-    MatchWaitingRequestDto requestSameTeam = new MatchWaitingRequestDto(targetTeam.getTeamId(), LocalDate.now(), LocalTime.of(9, 0));
-    Slice<MatchWaitingResponseDto> resultSameTeam = matchRequestService.getWaitingMatches(requestSameTeam, PageRequest.of(0, 10));
-    assertThat(resultSameTeam).isEmpty();
+    @Test
+    @Transactional
+    void differentDate_noResults() {
+      MatchWaitingRequestDto request = new MatchWaitingRequestDto(
+        requestTeam1.getTeamId(), LocalDate.now().plusDays(1), LocalTime.of(9, 0));
+      Slice<MatchWaitingResponseDto> result = matchRequestService.getWaitingMatches(request, PageRequest.of(0, 10));
+      assertThat(result).isEmpty();
+    }
+
+    @Test
+    @Transactional
+    void sameTeamId_noResults() {
+      MatchWaitingRequestDto request = new MatchWaitingRequestDto(
+        targetTeam.getTeamId(), LocalDate.now(), LocalTime.of(9, 0));
+      Slice<MatchWaitingResponseDto> result = matchRequestService.getWaitingMatches(request, PageRequest.of(0, 10));
+      assertThat(result).isEmpty();
+    }
   }
 
   // ------------------- requestToMatch 테스트 -------------------
