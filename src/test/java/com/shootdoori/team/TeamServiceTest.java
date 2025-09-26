@@ -59,7 +59,6 @@ public class TeamServiceTest {
 
     private TeamService teamService;
     private TeamRequestDto requestDto;
-    private CreateTeamResponseDto createResponseDto;
     private User captain;
     private User newMember;
 
