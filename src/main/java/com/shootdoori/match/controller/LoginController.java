@@ -1,10 +1,15 @@
 package com.shootdoori.match.controller;
 
 import com.shootdoori.match.dto.AuthToken;
+import com.shootdoori.match.dto.AuthTokenResponse;
 import com.shootdoori.match.dto.LoginRequest;
 import com.shootdoori.match.dto.ProfileCreateRequest;
+import com.shootdoori.match.entity.User;
+import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.AuthService;
+import com.shootdoori.match.service.TokenRefreshService;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,29 +18,85 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/auth")
 public class LoginController {
     private final AuthService authService;
+    private final TokenRefreshService tokenRefreshService;
 
-    public LoginController(AuthService authService) {
+    private final int COOKIE_MAX_AGE = 7 * 24 * 60 * 60;
+
+    public LoginController(AuthService authService, TokenRefreshService tokenRefreshService) {
         this.authService = authService;
+        this.tokenRefreshService = tokenRefreshService;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<AuthToken> login(@RequestBody LoginRequest loginRequest) {
-        AuthToken token = authService.login(loginRequest);
+    public ResponseEntity<AuthTokenResponse> login(
+        @RequestBody LoginRequest loginRequest,
+        HttpServletRequest request,
+        HttpServletResponse response
+    ) {
+        AuthToken token = authService.login(loginRequest, request);
+        setRefreshTokenCookie(response, token.refreshToken());
 
-//        // Refresh Token은 HttpOnly 쿠키에 담아 응답
-//        Cookie cookie = new Cookie("refreshToken", token.getRefreshToken());
-//        cookie.setHttpOnly(true);
-//        cookie.setSecure(true); // HTTPS 환경에서만 사용
-//        cookie.setPath("/");
-//        cookie.setMaxAge(....);
-//        response.addCookie(cookie);
-
-        return ResponseEntity.ok(token);
+        return ResponseEntity.ok(new AuthTokenResponse(token.accessToken()));
     }
 
     @PostMapping("/register")
-    public ResponseEntity<AuthToken> register(@RequestBody ProfileCreateRequest profileCreateRequest) {
-        AuthToken token = authService.register(profileCreateRequest);
-        return ResponseEntity.ok(token);
+    public ResponseEntity<AuthTokenResponse> register(
+        @RequestBody ProfileCreateRequest profileCreateRequest,
+        HttpServletRequest request,
+        HttpServletResponse response
+    ) {
+        AuthToken token = authService.register(profileCreateRequest, request);
+        setRefreshTokenCookie(response, token.refreshToken());
+
+        return ResponseEntity.ok(new AuthTokenResponse(token.accessToken()));
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthTokenResponse> refresh(
+        @CookieValue("refreshToken") String refreshToken,
+        HttpServletResponse response
+    ) {
+        AuthToken newTokens = tokenRefreshService.refreshAccessToken(refreshToken);
+        setRefreshTokenCookie(response, newTokens.refreshToken());
+
+        return ResponseEntity.ok(new AuthTokenResponse(newTokens.accessToken()));
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(
+        @CookieValue("refreshToken") String refreshToken,
+        HttpServletResponse response
+    ) {
+        authService.logout(refreshToken);
+        expireRefreshTokenCookie(response);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/logout-all")
+    public ResponseEntity<Void> logoutAll(
+        @LoginUser User user,
+        HttpServletResponse response
+    ) {
+        authService.logoutAll(user.getId());
+        expireRefreshTokenCookie(response);
+
+        return ResponseEntity.ok().build();
+    }
+
+    private void expireRefreshTokenCookie(HttpServletResponse response) {
+        Cookie cookie = new Cookie("refreshToken", null);
+        cookie.setMaxAge(0);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+    }
+
+    private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
+        Cookie cookie = new Cookie("refreshToken", refreshToken);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(true);
+        cookie.setPath("/");
+        cookie.setMaxAge(COOKIE_MAX_AGE);
+        response.addCookie(cookie);
     }
 }
