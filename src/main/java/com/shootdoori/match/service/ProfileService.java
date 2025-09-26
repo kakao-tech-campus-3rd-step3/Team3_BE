@@ -5,8 +5,9 @@ import com.shootdoori.match.dto.ProfileMapper;
 import com.shootdoori.match.dto.ProfileResponse;
 import com.shootdoori.match.dto.ProfileUpdateRequest;
 import com.shootdoori.match.entity.User;
-import com.shootdoori.match.exception.DuplicatedUserException;
-import com.shootdoori.match.exception.ProfileNotFoundException;
+import com.shootdoori.match.exception.DuplicatedException;
+import com.shootdoori.match.exception.ErrorCode;
+import com.shootdoori.match.exception.NotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.RefreshTokenRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
@@ -38,7 +39,7 @@ public class ProfileService {
         if (profileRepository.existsByEmailOrUniversityEmail(
             createRequest.email(), createRequest.universityEmail())
         ) {
-            throw new DuplicatedUserException();
+            throw new DuplicatedException(ErrorCode.DUPLICATED_USER);
         }
 
         String encodePassword = passwordEncoder.encode(createRequest.password());
@@ -64,7 +65,7 @@ public class ProfileService {
     @Transactional(readOnly = true)
     public ProfileResponse findProfileById(Long id) {
         User profile = profileRepository.findById(id)
-            .orElseThrow(ProfileNotFoundException::new);
+            .orElseThrow(() -> new NotFoundException(ErrorCode.PROFILE_NOT_FOUND));
 
         Long teamId = teamMemberRepository.findByUser_Id(id)
             .map(teamMember -> teamMember.getTeam().getTeamId())
@@ -80,13 +81,13 @@ public class ProfileService {
 
     public void updateProfile(Long id, ProfileUpdateRequest updateRequest) {
         User profile = profileRepository.findById(id)
-            .orElseThrow(ProfileNotFoundException::new);
+            .orElseThrow(() -> new NotFoundException(ErrorCode.PROFILE_NOT_FOUND));
         profile.update(updateRequest.skillLevel(), updateRequest.position(), updateRequest.bio());
     }
 
     public void deleteAccount(Long id) {
         if (!profileRepository.existsById(id)) {
-            throw new ProfileNotFoundException();
+            throw new NotFoundException(ErrorCode.PROFILE_NOT_FOUND);
         }
 
         refreshTokenRepository.deleteAllByUserId(id);

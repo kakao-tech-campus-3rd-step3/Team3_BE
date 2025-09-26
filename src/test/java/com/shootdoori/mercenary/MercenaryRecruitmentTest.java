@@ -4,7 +4,7 @@ import com.shootdoori.match.dto.RecruitmentCreateRequest;
 import com.shootdoori.match.dto.RecruitmentResponse;
 import com.shootdoori.match.dto.RecruitmentUpdateRequest;
 import com.shootdoori.match.entity.*;
-import com.shootdoori.match.exception.TeamNotFoundException;
+import com.shootdoori.match.exception.NotFoundException;
 import com.shootdoori.match.repository.MercenaryRecruitmentRepository;
 import com.shootdoori.match.repository.TeamRepository;
 import com.shootdoori.match.service.MercenaryRecruitmentService;
@@ -124,7 +124,7 @@ class MercenaryRecruitmentTest {
         given(teamRepository.findById(nonExistentTeamId)).willReturn(Optional.empty());
 
         // when & then
-        assertThrows(TeamNotFoundException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             mercenaryRecruitmentService.create(request);
         });
     }
@@ -220,7 +220,7 @@ class MercenaryRecruitmentTest {
                 MATCH_DATE,
                 MATCH_START_TIME,
                 MESSAGE,
-                Position.fromDisplayName(POSITION),
+                MercenaryPosition.fromDisplayName(POSITION),
                 SkillLevel.fromDisplayName(SKILL_LEVEL)
             );
         }

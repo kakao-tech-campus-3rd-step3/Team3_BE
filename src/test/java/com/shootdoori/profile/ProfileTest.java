@@ -5,7 +5,7 @@ import com.shootdoori.match.dto.ProfileMapper;
 import com.shootdoori.match.dto.ProfileResponse;
 import com.shootdoori.match.dto.ProfileUpdateRequest;
 import com.shootdoori.match.entity.*;
-import com.shootdoori.match.exception.DuplicatedUserException;
+import com.shootdoori.match.exception.DuplicatedException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.service.ProfileService;
@@ -70,7 +70,7 @@ public class ProfileTest {
 
         // then
         assertThat(user.getSkillLevel()).isEqualTo(SkillLevel.PRO);
-        assertThat(user.getPosition()).isEqualTo(Position.GK);
+        assertThat(user.getPosition()).isEqualTo(UserPosition.GK);
         assertThat(user.getBio()).isEqualTo("변경된 자기소개");
         assertThat(user.getName()).isEqualTo("jam");
     }
@@ -98,7 +98,7 @@ public class ProfileTest {
         assertThat(response).isNotNull();
         assertThat(response.name()).isEqualTo(createRequest.name());
         assertThat(response.skillLevel()).isEqualTo(SkillLevel.AMATEUR.name());
-        assertThat(response.position()).isEqualTo(Position.FW.name());
+        assertThat(response.position()).isEqualTo(UserPosition.FW.name());
         verify(profileRepository).save(any(User.class));
     }
 
@@ -132,7 +132,7 @@ public class ProfileTest {
         )).thenReturn(true);
 
         // when & then
-        assertThrows(DuplicatedUserException.class, () -> profileService.createProfile(duplicateRequest));
+        assertThrows(DuplicatedException.class, () -> profileService.createProfile(duplicateRequest));
     }
 
     @Test

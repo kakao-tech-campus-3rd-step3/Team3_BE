@@ -12,12 +12,9 @@ import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.entity.TeamMember;
 import com.shootdoori.match.entity.TeamMemberRole;
 import com.shootdoori.match.entity.User;
-import com.shootdoori.match.exception.AlreadyTeamMemberException;
-import com.shootdoori.match.exception.DuplicatePendingJoinWaitingException;
-import com.shootdoori.match.exception.JoinWaitingNotFoundException;
-import com.shootdoori.match.exception.TeamMemberNotFoundException;
-import com.shootdoori.match.exception.TeamNotFoundException;
-import com.shootdoori.match.exception.UserNotFoundException;
+import com.shootdoori.match.exception.DuplicatedException;
+import com.shootdoori.match.exception.ErrorCode;
+import com.shootdoori.match.exception.NotFoundException;
 import com.shootdoori.match.repository.JoinWaitingRepository;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
@@ -49,21 +46,21 @@ public class JoinWaitingService {
     @Transactional
     public JoinWaitingResponseDto create(Long teamId, JoinWaitingRequestDto requestDto) {
         Team team = teamRepository.findById(teamId)
-            .orElseThrow(() -> new TeamNotFoundException(teamId));
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
 
         Long applicantId = requestDto.applicantId();
         User applicant = profileRepository.findById(applicantId)
-            .orElseThrow(() -> new UserNotFoundException(applicantId));
+            .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND, String.valueOf(applicantId)));
 
         team.validateSameUniversity(applicant);
 
         if (teamMemberRepository.existsByTeam_TeamIdAndUser_Id(teamId, applicantId)) {
-            throw new AlreadyTeamMemberException();
+            throw new DuplicatedException(ErrorCode.ALREADY_TEAM_MEMBER);
         }
 
         if (joinWaitingRepository.existsByTeam_TeamIdAndApplicant_IdAndStatus(teamId, applicantId,
             JoinWaitingStatus.PENDING)) {
-            throw new DuplicatePendingJoinWaitingException();
+            throw new DuplicatedException(ErrorCode.JOIN_WAITING_ALREADY_PENDING);
         }
 
         JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, requestDto.message());
@@ -81,17 +78,17 @@ public class JoinWaitingService {
 
         Long approverId = requestDto.approverId();
         TeamMember approver = teamMemberRepository.findByIdAndTeam_TeamId(approverId, teamId)
-            .orElseThrow(() -> new TeamMemberNotFoundException());
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
         JoinWaiting joinWaiting = joinWaitingRepository
             .findByIdAndTeam_TeamIdForUpdate(joinWaitingId, teamId)
-            .orElseThrow(() -> new JoinWaitingNotFoundException());
+            .orElseThrow(() -> new NotFoundException(ErrorCode.JOIN_WAITING_NOT_FOUND));
 
         Team team = joinWaiting.getTeam();
         User applicant = joinWaiting.getApplicant();
 
         if (teamMemberRepository.existsByTeam_TeamIdAndUser_Id(teamId, applicant.getId())) {
-            throw new AlreadyTeamMemberException();
+            throw new DuplicatedException(ErrorCode.ALREADY_TEAM_MEMBER);
         }
 
         team.validateSameUniversity(joinWaiting.getApplicant());
@@ -108,11 +105,11 @@ public class JoinWaitingService {
 
         Long approverId = requestDto.approverId();
         TeamMember approver = teamMemberRepository.findByIdAndTeam_TeamId(approverId, teamId)
-            .orElseThrow(() -> new TeamMemberNotFoundException());
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
         JoinWaiting joinWaiting = joinWaitingRepository
             .findByIdAndTeam_TeamIdForUpdate(joinWaitingId, teamId)
-            .orElseThrow(() -> new JoinWaitingNotFoundException());
+            .orElseThrow(() -> new NotFoundException(ErrorCode.JOIN_WAITING_NOT_FOUND));
 
         Team team = joinWaiting.getTeam();
         User applicant = joinWaiting.getApplicant();
@@ -128,11 +125,11 @@ public class JoinWaitingService {
 
         Long requesterId = requestDto.requesterId();
         User requester = profileRepository.findById(requesterId)
-            .orElseThrow(() -> new UserNotFoundException(requesterId));
+            .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND, String.valueOf(requesterId)));
 
         JoinWaiting joinWaiting = joinWaitingRepository.findByIdAndTeam_TeamIdForUpdate(joinWaitingId,
                 teamId)
-            .orElseThrow(() -> new JoinWaitingNotFoundException());
+            .orElseThrow(() -> new NotFoundException(ErrorCode.JOIN_WAITING_NOT_FOUND));
 
         joinWaiting.cancel(requester, requestDto.decisionReason());
 

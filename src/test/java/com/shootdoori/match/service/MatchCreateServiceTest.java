@@ -7,8 +7,7 @@ import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import com.shootdoori.match.dto.MatchCreateRequestDto;
 import com.shootdoori.match.dto.MatchCreateResponseDto;
 import com.shootdoori.match.entity.*;
-import com.shootdoori.match.exception.TeamNotFoundException;
-import com.shootdoori.match.exception.VenueNotFoundException;
+import com.shootdoori.match.exception.NotFoundException;
 import com.shootdoori.match.repository.MatchWaitingRepository;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamRepository;
@@ -93,7 +92,7 @@ class MatchCreateServiceTest {
   }
 
   @Test
-  @DisplayName("존재하지 않는 팀 ID로 요청 시 TeamNotFoundException 발생")
+  @DisplayName("존재하지 않는 팀 ID로 요청 시 NotFoundException 발생")
   void createMatch_teamNotFound() {
     // given
     MatchCreateRequestDto dto = new MatchCreateRequestDto(
@@ -113,12 +112,12 @@ class MatchCreateServiceTest {
 
     // then
     assertThat(thrown)
-      .isInstanceOf(TeamNotFoundException.class)
+      .isInstanceOf(NotFoundException.class)
       .hasMessageContaining(NON_EXIST_ID.toString());
   }
 
   @Test
-  @DisplayName("존재하지 않는 경기장 ID로 요청 시 VenueNotFoundException 발생")
+  @DisplayName("존재하지 않는 경기장 ID로 요청 시 NotFoundException 발생")
   void createMatch_venueNotFound() {
     // given
     MatchCreateRequestDto dto = new MatchCreateRequestDto(
@@ -138,7 +137,7 @@ class MatchCreateServiceTest {
 
     // then
     assertThat(thrown)
-      .isInstanceOf(VenueNotFoundException.class)
+      .isInstanceOf(NotFoundException.class)
       .hasMessageContaining(NON_EXIST_ID.toString());
   }
 

@@ -3,9 +3,8 @@ package com.shootdoori.match.service;
 
 import com.shootdoori.match.dto.*;
 import com.shootdoori.match.entity.*;
-import com.shootdoori.match.exception.MatchRequestNotFoundException;
-import com.shootdoori.match.exception.MatchWaitingNotFoundException;
-import com.shootdoori.match.exception.TeamNotFoundException;
+import com.shootdoori.match.exception.NotFoundException;
+import com.shootdoori.match.exception.ErrorCode;
 import com.shootdoori.match.repository.MatchRequestRepository;
 import com.shootdoori.match.repository.MatchWaitingRepository;
 import com.shootdoori.match.repository.MatchRepository;
@@ -39,7 +38,7 @@ public class MatchRequestService {
   @Transactional(readOnly = true)
   public Slice<MatchWaitingResponseDto> getWaitingMatches(MatchWaitingRequestDto matchWaitingRequestDto, Pageable pageable){
     Team searchRequestTeam = teamRepository.findById(matchWaitingRequestDto.teamId())
-      .orElseThrow(() -> new TeamNotFoundException(matchWaitingRequestDto.teamId()));
+      .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(matchWaitingRequestDto.teamId())));
 
     return matchWaitingRepository.findAvailableMatchesByDateCursor
         (matchWaitingRequestDto.teamId(),
@@ -66,10 +65,10 @@ public class MatchRequestService {
   public MatchRequestResponseDto requestToMatch(Long waitingId, MatchRequestRequestDto requestDto) {
 
     MatchWaiting targetWaiting = matchWaitingRepository.findById(waitingId)
-        .orElseThrow(() -> new MatchWaitingNotFoundException(waitingId));
+        .orElseThrow(() -> new NotFoundException(ErrorCode.MATCH_WAITING_NOT_FOUND, String.valueOf(waitingId)));
 
     Team requestTeam = teamRepository.findById(requestDto.requestTeamId())
-        .orElseThrow(() -> new TeamNotFoundException(requestDto.requestTeamId()));
+        .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(requestDto.requestTeamId())));
 
     MatchRequest matchRequest = new MatchRequest(
       targetWaiting,
@@ -92,7 +91,7 @@ public class MatchRequestService {
   @Transactional
   public MatchRequestResponseDto cancelMatchRequest(Long requestId) {
     MatchRequest matchRequest = matchRequestRepository.findById(requestId)
-      .orElseThrow(() -> new MatchRequestNotFoundException(requestId));
+      .orElseThrow(() -> new NotFoundException(ErrorCode.MATCH_REQUEST_NOT_FOUND, String.valueOf(requestId)));
 
     matchRequest.cancelRequest();
 
@@ -109,7 +108,7 @@ public class MatchRequestService {
   @Transactional(readOnly = true)
   public Slice<MatchRequestResponseDto> getReceivedPendingRequests(Long teamId, Pageable pageable) {
     Team targetTeam = teamRepository.findById(teamId)
-      .orElseThrow(() -> new TeamNotFoundException(teamId));
+      .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
 
     return matchRequestRepository.findPendingRequestsByTargetTeam(teamId, pageable)
       .map(mr -> new MatchRequestResponseDto(
@@ -124,7 +123,7 @@ public class MatchRequestService {
   @Transactional
   public MatchConfirmedResponseDto acceptRequest(Long requestId) {
     MatchRequest matchRequest = matchRequestRepository.findById(requestId)
-      .orElseThrow(() -> new MatchRequestNotFoundException(requestId));
+      .orElseThrow(() -> new NotFoundException(ErrorCode.MATCH_REQUEST_NOT_FOUND, String.valueOf(requestId)));
 
     MatchWaiting matchWaiting = matchRequest.getMatchWaiting();
 
@@ -157,7 +156,7 @@ public class MatchRequestService {
   @Transactional
   public MatchRequestResponseDto rejectRequest(Long requestId) {
     MatchRequest matchRequest = matchRequestRepository.findById(requestId)
-      .orElseThrow(() -> new MatchRequestNotFoundException(requestId));
+      .orElseThrow(() -> new NotFoundException(ErrorCode.MATCH_REQUEST_NOT_FOUND, String.valueOf(requestId)));
 
     matchRequest.updateRequestStatus(MatchRequestStatus.REJECTED, LocalDateTime.now());
 

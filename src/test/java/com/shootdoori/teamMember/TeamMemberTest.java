@@ -9,7 +9,7 @@ import com.shootdoori.match.entity.TeamMember;
 import com.shootdoori.match.entity.TeamMemberRole;
 import com.shootdoori.match.entity.TeamType;
 import com.shootdoori.match.entity.User;
-import com.shootdoori.match.exception.DuplicateRoleException;
+import com.shootdoori.match.exception.DuplicatedException;
 import com.shootdoori.match.exception.NoPermissionException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -80,7 +80,7 @@ public class TeamMemberTest {
         void changeRole_toLeader_throws_whenLeaderExists() {
             // when & then
             assertThatThrownBy(() -> teamMember.changeRole(team, TeamMemberRole.LEADER))
-                .isInstanceOf(DuplicateRoleException.class);
+                .isInstanceOf(DuplicatedException.class);
         }
 
         @Test
@@ -105,7 +105,7 @@ public class TeamMemberTest {
 
             // when & then
             assertThatThrownBy(() -> teamMember.changeRole(team, TeamMemberRole.VICE_LEADER))
-                .isInstanceOf(DuplicateRoleException.class);
+                .isInstanceOf(DuplicatedException.class);
         }
     }
 

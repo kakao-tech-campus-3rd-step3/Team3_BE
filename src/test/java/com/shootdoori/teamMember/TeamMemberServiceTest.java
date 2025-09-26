@@ -16,9 +16,8 @@ import com.shootdoori.match.entity.TeamMember;
 import com.shootdoori.match.entity.TeamMemberRole;
 import com.shootdoori.match.entity.TeamType;
 import com.shootdoori.match.entity.User;
-import com.shootdoori.match.exception.TeamMemberNotFoundException;
-import com.shootdoori.match.exception.TeamNotFoundException;
-import com.shootdoori.match.exception.UserNotFoundException;
+import com.shootdoori.match.exception.DuplicatedException;
+import com.shootdoori.match.exception.NotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.repository.TeamRepository;
@@ -183,7 +182,7 @@ public class TeamMemberServiceTest {
 
             // when & then
             assertThatThrownBy(() -> teamMemberService.create(TEAM_ID, requestDto))
-                .isInstanceOf(TeamNotFoundException.class);
+                .isInstanceOf(NotFoundException.class);
         }
 
         @Test
@@ -200,7 +199,7 @@ public class TeamMemberServiceTest {
 
             // when & then
             assertThatThrownBy(() -> teamMemberService.create(TEAM_ID, requestDto))
-                .isInstanceOf(UserNotFoundException.class);
+                .isInstanceOf(NotFoundException.class);
         }
 
         @Test
@@ -219,7 +218,7 @@ public class TeamMemberServiceTest {
 
             // when & then
             assertThatThrownBy(() -> teamMemberService.create(TEAM_ID, requestDto))
-                .isInstanceOf(com.shootdoori.match.exception.AlreadyTeamMemberException.class);
+                .isInstanceOf(DuplicatedException.class);
         }
     }
 
@@ -256,7 +255,7 @@ public class TeamMemberServiceTest {
             // when & then
             assertThatThrownBy(() ->
                 teamMemberService.findByTeamIdAndUserId(TEAM_ID, USER_ID))
-                .isInstanceOf(TeamMemberNotFoundException.class);
+                .isInstanceOf(NotFoundException.class);
         }
     }
 
@@ -333,7 +332,7 @@ public class TeamMemberServiceTest {
             // when & then
             assertThatThrownBy(() ->
                 teamMemberService.update(NON_EXISTENT_TEAM_ID, USER_ID, requestDto))
-                .isInstanceOf(TeamNotFoundException.class);
+                .isInstanceOf(NotFoundException.class);
         }
 
         @Test
@@ -350,7 +349,7 @@ public class TeamMemberServiceTest {
             // when & then
             assertThatThrownBy(() ->
                 teamMemberService.update(TEAM_ID, NON_EXISTENT_USER_ID, requestDto))
-                .isInstanceOf(TeamMemberNotFoundException.class);
+                .isInstanceOf(NotFoundException.class);
         }
     }
 
@@ -384,7 +383,7 @@ public class TeamMemberServiceTest {
 
             // when & then
             assertThatThrownBy(() -> teamMemberService.delete(NON_EXISTENT_TEAM_ID, USER_ID))
-                .isInstanceOf(TeamNotFoundException.class);
+                .isInstanceOf(NotFoundException.class);
         }
 
         @Test
@@ -397,7 +396,7 @@ public class TeamMemberServiceTest {
 
             // when & then
             assertThatThrownBy(() -> teamMemberService.delete(TEAM_ID, NON_EXISTENT_USER_ID))
-                .isInstanceOf(TeamMemberNotFoundException.class);
+                .isInstanceOf(NotFoundException.class);
         }
     }
 
