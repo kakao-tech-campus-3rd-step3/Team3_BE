@@ -19,8 +19,7 @@ import com.shootdoori.match.entity.TeamMember;
 import com.shootdoori.match.entity.TeamMemberRole;
 import com.shootdoori.match.entity.TeamType;
 import com.shootdoori.match.entity.User;
-import com.shootdoori.match.exception.AlreadyTeamMemberException;
-import com.shootdoori.match.exception.DuplicatePendingJoinWaitingException;
+import com.shootdoori.match.exception.DuplicatedException;
 import com.shootdoori.match.exception.JoinWaitingNotFoundException;
 import com.shootdoori.match.exception.TeamMemberNotFoundException;
 import com.shootdoori.match.exception.TeamNotFoundException;
@@ -207,7 +206,7 @@ public class JoinWaitingServiceTest {
 
             // when & then
             assertThatThrownBy(() -> joinWaitingService.create(TEAM_ID, requestDto))
-                .isInstanceOf(AlreadyTeamMemberException.class);
+                .isInstanceOf(DuplicatedException.class);
         }
 
         @Test
@@ -230,7 +229,7 @@ public class JoinWaitingServiceTest {
 
             // when & then
             assertThatThrownBy(() -> joinWaitingService.create(TEAM_ID, requestDto))
-                .isInstanceOf(DuplicatePendingJoinWaitingException.class);
+                .isInstanceOf(DuplicatedException.class);
         }
 
         @Test
@@ -361,7 +360,7 @@ public class JoinWaitingServiceTest {
             // when & then
             assertThatThrownBy(
                 () -> joinWaitingService.approve(TEAM_ID, JOIN_WAITING_ID, requestDto))
-                .isInstanceOf(AlreadyTeamMemberException.class);
+                .isInstanceOf(DuplicatedException.class);
         }
     }
 

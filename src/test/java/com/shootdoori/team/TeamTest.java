@@ -9,7 +9,7 @@ import com.shootdoori.match.entity.TeamMemberRole;
 import com.shootdoori.match.entity.TeamType;
 import com.shootdoori.match.entity.User;
 import com.shootdoori.match.exception.DifferentUniversityException;
-import com.shootdoori.match.exception.DuplicatedMemberException;
+import com.shootdoori.match.exception.DuplicatedException;
 import com.shootdoori.match.exception.LastTeamMemberRemovalNotAllowedException;
 import com.shootdoori.match.exception.TeamCapacityExceededException;
 import com.shootdoori.match.value.MemberCount;
@@ -153,7 +153,7 @@ public class TeamTest {
             assertThatThrownBy(
                 () ->
                     team.recruitMember(newMember, TeamMemberRole.MEMBER))
-                .isInstanceOf(DuplicatedMemberException.class);
+                .isInstanceOf(DuplicatedException.class);
         }
     }
 

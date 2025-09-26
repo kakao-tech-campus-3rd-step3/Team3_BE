@@ -16,6 +16,7 @@ import com.shootdoori.match.entity.TeamMember;
 import com.shootdoori.match.entity.TeamMemberRole;
 import com.shootdoori.match.entity.TeamType;
 import com.shootdoori.match.entity.User;
+import com.shootdoori.match.exception.DuplicatedException;
 import com.shootdoori.match.exception.TeamMemberNotFoundException;
 import com.shootdoori.match.exception.TeamNotFoundException;
 import com.shootdoori.match.exception.UserNotFoundException;
@@ -219,7 +220,7 @@ public class TeamMemberServiceTest {
 
             // when & then
             assertThatThrownBy(() -> teamMemberService.create(TEAM_ID, requestDto))
-                .isInstanceOf(com.shootdoori.match.exception.AlreadyTeamMemberException.class);
+                .isInstanceOf(DuplicatedException.class);
         }
     }
 

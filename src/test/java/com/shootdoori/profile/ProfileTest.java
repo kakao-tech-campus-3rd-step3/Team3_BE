@@ -5,7 +5,7 @@ import com.shootdoori.match.dto.ProfileMapper;
 import com.shootdoori.match.dto.ProfileResponse;
 import com.shootdoori.match.dto.ProfileUpdateRequest;
 import com.shootdoori.match.entity.*;
-import com.shootdoori.match.exception.DuplicatedUserException;
+import com.shootdoori.match.exception.DuplicatedException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.service.ProfileService;
@@ -132,7 +132,7 @@ public class ProfileTest {
         )).thenReturn(true);
 
         // when & then
-        assertThrows(DuplicatedUserException.class, () -> profileService.createProfile(duplicateRequest));
+        assertThrows(DuplicatedException.class, () -> profileService.createProfile(duplicateRequest));
     }
 
     @Test

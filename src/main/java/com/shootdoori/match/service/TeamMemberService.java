@@ -8,7 +8,8 @@ import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.entity.TeamMember;
 import com.shootdoori.match.entity.TeamMemberRole;
 import com.shootdoori.match.entity.User;
-import com.shootdoori.match.exception.AlreadyTeamMemberException;
+import com.shootdoori.match.exception.DuplicatedException;
+import com.shootdoori.match.exception.ErrorCode;
 import com.shootdoori.match.exception.TeamMemberNotFoundException;
 import com.shootdoori.match.exception.TeamNotFoundException;
 import com.shootdoori.match.exception.UserNotFoundException;
@@ -51,7 +52,7 @@ public class TeamMemberService {
             () -> new UserNotFoundException(userId));
 
         if (teamMemberRepository.existsByTeam_TeamIdAndUser_Id(teamId, userId)) {
-            throw new AlreadyTeamMemberException();
+            throw new DuplicatedException(ErrorCode.ALREADY_TEAM_MEMBER);
         }
 
         team.validateSameUniversity(user);

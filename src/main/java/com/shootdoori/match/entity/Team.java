@@ -1,7 +1,8 @@
 package com.shootdoori.match.entity;
 
 import com.shootdoori.match.exception.DifferentUniversityException;
-import com.shootdoori.match.exception.DuplicatedMemberException;
+import com.shootdoori.match.exception.DuplicatedException;
+import com.shootdoori.match.exception.ErrorCode;
 import com.shootdoori.match.exception.LastTeamMemberRemovalNotAllowedException;
 import com.shootdoori.match.exception.TeamCapacityExceededException;
 import com.shootdoori.match.exception.TeamFullException;
@@ -140,7 +141,7 @@ public class Team extends DateEntity {
         }
 
         if (members.stream().anyMatch(member -> member.getUser().equals(user))) {
-            throw new DuplicatedMemberException("이미 팀에 가입된 사용자입니다.");
+            throw new DuplicatedException(ErrorCode.ALREADY_TEAM_MEMBER);
         }
 
         TeamMember teamMember = new TeamMember(this, user, role);

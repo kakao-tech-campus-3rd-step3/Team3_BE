@@ -5,7 +5,8 @@ import com.shootdoori.match.dto.ProfileMapper;
 import com.shootdoori.match.dto.ProfileResponse;
 import com.shootdoori.match.dto.ProfileUpdateRequest;
 import com.shootdoori.match.entity.User;
-import com.shootdoori.match.exception.DuplicatedUserException;
+import com.shootdoori.match.exception.DuplicatedException;
+import com.shootdoori.match.exception.ErrorCode;
 import com.shootdoori.match.exception.ProfileNotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.RefreshTokenRepository;
@@ -38,7 +39,7 @@ public class ProfileService {
         if (profileRepository.existsByEmailOrUniversityEmail(
             createRequest.email(), createRequest.universityEmail())
         ) {
-            throw new DuplicatedUserException();
+            throw new DuplicatedException(ErrorCode.DUPLICATED_USER);
         }
 
         String encodePassword = passwordEncoder.encode(createRequest.password());
