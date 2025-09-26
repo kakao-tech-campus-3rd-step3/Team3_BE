@@ -12,6 +12,7 @@ public record ProfileResponse(
     String department,
     String studentYear,
     String bio,
-    LocalDateTime createdAt
+    LocalDateTime createdAt,
+    Long teamId
 ) {
 }
