@@ -34,6 +34,7 @@ dependencies {
 
 	// --- 테스트용 ---
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
 	// H2: 단위/슬라이스 테스트용

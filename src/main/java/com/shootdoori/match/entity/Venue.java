@@ -41,6 +41,18 @@ public class Venue extends DateEntity {
 
   protected Venue() {}
 
+  public Venue(String venueName, String address, BigDecimal latitude, BigDecimal longitude, String contactInfo, String facilities, Long pricePerHour) {
+    this.venueName = venueName;
+    this.address = address;
+    this.latitude = latitude;
+    this.longitude = longitude;
+    this.contactInfo = contactInfo;
+    this.facilities = facilities;
+    this.pricePerHour = pricePerHour;
+    this.createdAt = LocalDateTime.now();
+    this.updatedAt = LocalDateTime.now();
+  }
+
   public Long getVenueId() {
     return venueId;
   }
