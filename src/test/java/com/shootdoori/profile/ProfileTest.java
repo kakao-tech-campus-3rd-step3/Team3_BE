@@ -4,11 +4,10 @@ import com.shootdoori.match.dto.ProfileCreateRequest;
 import com.shootdoori.match.dto.ProfileMapper;
 import com.shootdoori.match.dto.ProfileResponse;
 import com.shootdoori.match.dto.ProfileUpdateRequest;
-import com.shootdoori.match.entity.Position;
-import com.shootdoori.match.entity.SkillLevel;
-import com.shootdoori.match.entity.User;
+import com.shootdoori.match.entity.*;
 import com.shootdoori.match.exception.DuplicatedUserException;
 import com.shootdoori.match.repository.ProfileRepository;
+import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.service.ProfileService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -31,14 +31,10 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class ProfileTest {
 
-    @Mock
-    private ProfileRepository profileRepository;
-
-    @Mock
-    private ProfileMapper profileMapper;
-
-    @Mock
-    private PasswordEncoder passwordEncoder;
+    @Mock private ProfileRepository profileRepository;
+    @Mock private TeamMemberRepository teamMemberRepository;
+    @Mock private ProfileMapper profileMapper;
+    @Mock private PasswordEncoder passwordEncoder;
 
     @InjectMocks
     private ProfileService profileService;
@@ -92,7 +88,7 @@ public class ProfileTest {
 
         when(profileMapper.toProfileResponse(user)).thenReturn(
             new ProfileResponse("jam", "AMATEUR", "test@email.com", "imkim25",
-                "FW", "knu", "cs", "20", "hello, world", LocalDateTime.now())
+                "FW", "knu", "cs", "20", "hello, world", LocalDateTime.now(), null)
         );
 
         // when
@@ -137,5 +133,52 @@ public class ProfileTest {
 
         // when & then
         assertThrows(DuplicatedUserException.class, () -> profileService.createProfile(duplicateRequest));
+    }
+
+    @Test
+    @DisplayName("팀에 속한 사용자 프로필 조회 성공 (teamId 포함)")
+    void findProfileById_WithTeam_Success() {
+        // given
+        Team team = new Team("팀이름", user, "knu", TeamType.OTHER, SkillLevel.AMATEUR, "설명");
+        Long teamId = 123L;
+        ReflectionTestUtils.setField(team, "teamId", teamId);
+        TeamMember teamMember = new TeamMember(team, user, TeamMemberRole.MEMBER);
+
+        ProfileResponse expectedResponse = new ProfileResponse(
+            "jam", "AMATEUR", "test@email.com", "imkim25", "FW",
+            "knu", "cs", "20", "hello, world", LocalDateTime.now(), teamId);
+
+        when(profileRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(teamMemberRepository.findByUser_Id(userId)).thenReturn(Optional.of(teamMember));
+        when(profileMapper.toProfileResponse(user, teamId)).thenReturn(expectedResponse);
+
+        // when
+        ProfileResponse actualResponse = profileService.findProfileById(userId);
+
+        // then
+        assertThat(actualResponse).isNotNull();
+        assertThat(actualResponse.teamId()).isEqualTo(teamId);
+        verify(teamMemberRepository).findByUser_Id(userId);
+    }
+
+    @Test
+    @DisplayName("팀에 속하지 않은 사용자 프로필 조회 성공 (teamId는 null)")
+    void findProfileById_WithoutTeam_Success() {
+        // given
+        ProfileResponse expectedResponse = new ProfileResponse(
+            "jam", "AMATEUR", "test@email.com", "imkim25", "FW",
+            "knu", "cs", "20", "hello, world", LocalDateTime.now(), null);
+
+        when(profileRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(teamMemberRepository.findByUser_Id(userId)).thenReturn(Optional.empty());
+        when(profileMapper.toProfileResponse(user, null)).thenReturn(expectedResponse);
+
+        // when
+        ProfileResponse actualResponse = profileService.findProfileById(userId);
+
+        // then
+        assertThat(actualResponse).isNotNull();
+        assertThat(actualResponse.teamId()).isNull();
+        verify(teamMemberRepository).findByUser_Id(userId);
     }
 }
