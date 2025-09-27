@@ -1,8 +1,6 @@
 package com.shootdoori.match.controller;
 
-import com.shootdoori.match.dto.MatchRequestRequestDto;
-import com.shootdoori.match.dto.MatchRequestResponseDto;
-import com.shootdoori.match.dto.MatchConfirmedResponseDto;
+import com.shootdoori.match.dto.*;
 import com.shootdoori.match.service.MatchRequestService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -19,6 +17,15 @@ public class MatchRequestController {
 
   public MatchRequestController(MatchRequestService matchRequestService) {
     this.matchRequestService = matchRequestService;
+  }
+
+  @GetMapping("/waiting")
+  public ResponseEntity<Slice<MatchWaitingResponseDto>> getWaitingMatches(
+    @RequestBody MatchWaitingRequestDto requestDto,
+    @PageableDefault(size = 10, sort = "preferredTimeStart", direction = Sort.Direction.ASC) Pageable pageable
+  ) {
+    Slice<MatchWaitingResponseDto> slice = matchRequestService.getWaitingMatches(requestDto, pageable);
+    return ResponseEntity.ok(slice);
   }
 
   @PostMapping("/{waitingId}/request")

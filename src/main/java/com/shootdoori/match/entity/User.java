@@ -49,14 +49,14 @@ public class User extends DateEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "POSITION", nullable = false, length = 2)
-    private Position position;
+    private UserPosition position;
 
     protected User() {
 
     }
 
     private User(String name, SkillLevel skillLevel, String email, String universityEmail, String password, String kakaoTalkId,
-        Position position, String university, String department, String studentYear, String bio) {
+        UserPosition position, String university, String department, String studentYear, String bio) {
         validate(name, skillLevel.getDisplayName(), email, universityEmail, password, kakaoTalkId, position.getDisplayName(), university, department, studentYear, bio);
         this.name = name;
         this.skillLevel = skillLevel;
@@ -73,7 +73,7 @@ public class User extends DateEntity {
 
     public static User create(String name, String skillLevelName, String email, String universityEmail, String encodedPassword, String kakaoTalkId,
                               String positionName, String university, String department, String studentYear, String bio) {
-        Position position = Position.fromDisplayName(positionName);
+        UserPosition position = UserPosition.fromDisplayName(positionName);
         SkillLevel skillLevel = SkillLevel.fromDisplayName(skillLevelName);
         return new User(name, skillLevel, email, universityEmail, encodedPassword, kakaoTalkId, position, university, department,
             studentYear, bio);
@@ -154,7 +154,7 @@ public class User extends DateEntity {
         }
 
         try {
-            Position.fromDisplayName(position);
+            UserPosition.fromDisplayName(position);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("유효하지 않은 포지션입니다: " + position);
         }
@@ -239,7 +239,7 @@ public class User extends DateEntity {
         return this.bio;
     }
 
-    public Position getPosition() {
+    public UserPosition getPosition() {
         return this.position;
     }
 
@@ -248,7 +248,7 @@ public class User extends DateEntity {
         validatePosition(position);
         validateBio(bio);
         this.skillLevel = SkillLevel.fromDisplayName(skillLevel);
-        this.position = Position.fromDisplayName(position);
+        this.position = UserPosition.fromDisplayName(position);
         this.bio = bio;
     }
 

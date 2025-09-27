@@ -14,8 +14,7 @@ import com.shootdoori.match.entity.SkillLevel;
 import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.entity.TeamType;
 import com.shootdoori.match.entity.User;
-import com.shootdoori.match.exception.CaptainNotFoundException;
-import com.shootdoori.match.exception.TeamNotFoundException;
+import com.shootdoori.match.exception.NotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamRepository;
 import com.shootdoori.match.service.TeamService;
@@ -59,7 +58,6 @@ public class TeamServiceTest {
 
     private TeamService teamService;
     private TeamRequestDto requestDto;
-    private CreateTeamResponseDto createResponseDto;
     private User captain;
     private User newMember;
 
@@ -151,7 +149,7 @@ public class TeamServiceTest {
         // when & then
         assertThatThrownBy(() ->
             teamService.create(requestDto, nullCaptain))
-            .isInstanceOf(CaptainNotFoundException.class);
+            .isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -203,7 +201,7 @@ public class TeamServiceTest {
         // when & then
         assertThatThrownBy(() ->
             teamService.findById(NON_EXISTENT_TEAM_ID))
-            .isInstanceOf(TeamNotFoundException.class);
+            .isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -310,7 +308,7 @@ public class TeamServiceTest {
         // when & then
         assertThatThrownBy(() ->
             teamService.update(NON_EXISTENT_TEAM_ID, updateRequestDto))
-            .isInstanceOf(TeamNotFoundException.class);
+            .isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -342,7 +340,7 @@ public class TeamServiceTest {
 
         // when & then
         assertThatThrownBy(() -> teamService.delete(NON_EXISTENT_TEAM_ID))
-            .isInstanceOf(TeamNotFoundException.class);
+            .isInstanceOf(NotFoundException.class);
     }
 
     private Team createTeam(String name, TeamType teamType, SkillLevel skillLevel,
