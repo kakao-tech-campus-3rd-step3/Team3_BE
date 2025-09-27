@@ -25,15 +25,21 @@ public class ProfileController {
         return new ResponseEntity<>(profileService.createProfile(request), HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Void> updateProfile(@PathVariable Long id, @Valid @RequestBody ProfileUpdateRequest request) {
-        profileService.updateProfile(id, request);
-        return ResponseEntity.noContent().build();
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<ProfileResponse> getProfile(@PathVariable Long id) {
         return new ResponseEntity<>(profileService.findProfileById(id), HttpStatus.OK);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<ProfileResponse> getProfile(@LoginUser User user) {
+        ProfileResponse profile = profileService.findProfileById(user.getId());
+        return ResponseEntity.ok(profile);
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<Void> updateProfile(@LoginUser User user, @Valid @RequestBody ProfileUpdateRequest request) {
+        profileService.updateProfile(user.getId(), request);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/me")
