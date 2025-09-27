@@ -64,15 +64,36 @@ public class ProfileTest {
         // given
         ProfileUpdateRequest updateRequest = new ProfileUpdateRequest("jam", "프로", "골키퍼", "변경된 자기소개");
         when(profileRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(teamMemberRepository.findByUser_Id(userId)).thenReturn(Optional.empty());
+
+        ProfileResponse expectedResponse = new ProfileResponse(
+            "jam",
+            "PRO",
+            "test@email.com",
+            "imkim2511",
+            "GK",
+            "knu",
+            "cs",
+            "20",
+            "변경된 자기소개",
+            user.getCreatedAt(),
+            null
+        );
+        when(profileMapper.toProfileResponse(user, null)).thenReturn(expectedResponse);
 
         // when
-        profileService.updateProfile(userId, updateRequest);
+        ProfileResponse actualResponse = profileService.updateProfile(userId, updateRequest);
 
         // then
+        assertThat(user.getName()).isEqualTo("jam");
         assertThat(user.getSkillLevel()).isEqualTo(SkillLevel.PRO);
         assertThat(user.getPosition()).isEqualTo(UserPosition.GK);
         assertThat(user.getBio()).isEqualTo("변경된 자기소개");
-        assertThat(user.getName()).isEqualTo("jam");
+
+        assertThat(actualResponse).isNotNull();
+        assertThat(actualResponse.skillLevel()).isEqualTo("PRO");
+        assertThat(actualResponse.position()).isEqualTo("GK");
+        assertThat(actualResponse.bio()).isEqualTo("변경된 자기소개");
     }
 
     @Test
