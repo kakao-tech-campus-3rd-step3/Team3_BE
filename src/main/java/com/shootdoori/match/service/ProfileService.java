@@ -4,6 +4,7 @@ import com.shootdoori.match.dto.ProfileCreateRequest;
 import com.shootdoori.match.dto.ProfileMapper;
 import com.shootdoori.match.dto.ProfileResponse;
 import com.shootdoori.match.dto.ProfileUpdateRequest;
+import com.shootdoori.match.entity.TeamMember;
 import com.shootdoori.match.entity.User;
 import com.shootdoori.match.exception.DuplicatedUserException;
 import com.shootdoori.match.exception.ProfileNotFoundException;
@@ -78,10 +79,17 @@ public class ProfileService {
         return profileRepository.findByEmail(email);
     }
 
-    public void updateProfile(Long id, ProfileUpdateRequest updateRequest) {
+    public ProfileResponse updateProfile(Long id, ProfileUpdateRequest updateRequest) {
         User profile = profileRepository.findById(id)
             .orElseThrow(ProfileNotFoundException::new);
+
         profile.update(updateRequest.skillLevel(), updateRequest.position(), updateRequest.bio());
+
+        Long teamId = teamMemberRepository.findByUser_Id(id)
+            .map(teamMember -> teamMember.getTeam().getTeamId())
+            .orElse(null);
+
+        return profileMapper.toProfileResponse(profile, teamId);
     }
 
     public void deleteAccount(Long id) {
