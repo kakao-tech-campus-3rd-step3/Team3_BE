@@ -17,12 +17,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/teams/{teamId}/join-waiting")
 public class JoinWaitingController {
 
     private final JoinWaitingService joinWaitingService;
@@ -31,7 +29,7 @@ public class JoinWaitingController {
         this.joinWaitingService = joinWaitingService;
     }
 
-    @PostMapping
+    @PostMapping("/api/teams/{teamId}/join-waiting")
     public ResponseEntity<JoinWaitingResponseDto> create(
         @PathVariable Long teamId,
         @RequestBody JoinWaitingRequestDto requestDto
@@ -41,7 +39,7 @@ public class JoinWaitingController {
             HttpStatus.CREATED);
     }
 
-    @PostMapping("/{joinWaitingId}/approve")
+    @PostMapping("/api/teams/{teamId}/join-waiting/{joinWaitingId}/approve")
     public ResponseEntity<JoinWaitingResponseDto> approve(
         @PathVariable Long teamId,
         @PathVariable Long joinWaitingId,
@@ -52,7 +50,7 @@ public class JoinWaitingController {
             HttpStatus.OK);
     }
 
-    @PostMapping("/{joinWaitingId}/reject")
+    @PostMapping("/api/teams/{teamId}/join-waiting/{joinWaitingId}/reject")
     public ResponseEntity<JoinWaitingResponseDto> reject(
         @PathVariable Long teamId,
         @PathVariable Long joinWaitingId,
@@ -63,7 +61,7 @@ public class JoinWaitingController {
             HttpStatus.OK);
     }
 
-    @PostMapping("/{joinWaitingId}/cancel")
+    @PostMapping("/api/teams/{teamId}/join-waiting/{joinWaitingId}/cancel")
     public ResponseEntity<JoinWaitingResponseDto> cancel(
         @PathVariable Long teamId,
         @PathVariable Long joinWaitingId,
@@ -74,13 +72,26 @@ public class JoinWaitingController {
             HttpStatus.OK);
     }
 
-    @GetMapping
+    @GetMapping("/api/teams/{teamId}/join-waiting")
     public ResponseEntity<Page<JoinWaitingResponseDto>> findPending(
         @PathVariable Long teamId,
         @RequestParam(defaultValue = "PENDING") JoinWaitingStatus status,
         @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return new ResponseEntity<>(joinWaitingService.findPending(teamId, status, pageable),
+            HttpStatus.OK);
+    }
+
+    @GetMapping("/api/users/{userId}/join-waiting")
+    public ResponseEntity<Page<JoinWaitingResponseDto>> findByApplicant(
+        @PathVariable Long userId,
+        @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+        /*
+            TODO: JWT 구현 이후에 Resolver 활용한 유저 ID 주입 필요 (현재는 PathVariable로 받음)
+            TODO: API endpoint를 전반적으로 수정할 필요성이 있는지 체크 필요
+         */
+    ) {
+        return new ResponseEntity<>(joinWaitingService.findByApplicant(userId, pageable),
             HttpStatus.OK);
     }
 }

@@ -25,4 +25,6 @@ public interface JoinWaitingRepository extends JpaRepository<JoinWaiting, Long> 
     Optional<JoinWaiting> findByIdAndTeam_TeamIdForUpdate(Long id, Long teamId);
 
     Page<JoinWaiting> findAllByTeam_TeamIdAndStatus(Long teamId, JoinWaitingStatus status, Pageable pageable);
+
+    Page<JoinWaiting> findAllByApplicant_Id(Long applicantId, Pageable pageable);
 }

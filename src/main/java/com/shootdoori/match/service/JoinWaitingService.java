@@ -111,9 +111,6 @@ public class JoinWaitingService {
             .findByIdAndTeam_TeamIdForUpdate(joinWaitingId, teamId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.JOIN_WAITING_NOT_FOUND));
 
-        Team team = joinWaiting.getTeam();
-        User applicant = joinWaiting.getApplicant();
-
         joinWaiting.reject(approver, requestDto.reason());
 
         return joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting);
@@ -141,6 +138,17 @@ public class JoinWaitingService {
         Pageable pageable) {
 
         return joinWaitingRepository.findAllByTeam_TeamIdAndStatus(teamId, status, pageable)
+            .map(joinWaitingMapper::toJoinWaitingResponseDto);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<JoinWaitingResponseDto> findByApplicant(Long applicantId,
+        Pageable pageable) {
+
+        profileRepository.findById(applicantId).orElseThrow(() ->
+            new NotFoundException(ErrorCode.USER_NOT_FOUND));
+
+        return joinWaitingRepository.findAllByApplicant_Id(applicantId, pageable)
             .map(joinWaitingMapper::toJoinWaitingResponseDto);
     }
 }
