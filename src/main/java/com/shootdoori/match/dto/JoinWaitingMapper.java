@@ -12,7 +12,7 @@ public class JoinWaitingMapper {
             joinWaiting.getApplicant().getId(),
             joinWaiting.getStatus().getDisplayName(),
             joinWaiting.getDecisionReason(),
-            joinWaiting.getDecidedBy() != null ? joinWaiting.getDecidedBy().toString() : null,
+            joinWaiting.getDecidedBy() != null ? joinWaiting.getDecidedBy().getName() : null,
             joinWaiting.getDecidedAt()
         );
     }
