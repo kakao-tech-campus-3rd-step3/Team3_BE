@@ -470,4 +470,100 @@ public class JoinWaitingServiceTest {
             assertThat(resultDtoPage.getContent().get(1).id()).isEqualTo(2L);
         }
     }
+
+    @Nested
+    @DisplayName("findByApplicant 테스트")
+    class FindByApplicant {
+
+        private Team anotherTeam;
+
+        @BeforeEach
+        void setUpForFindByApplicant() {
+            anotherTeam = new Team(
+                "감자빵 FC",
+                anotherUser,
+                "강원대학교",
+                TeamType.fromDisplayName("과동아리"),
+                SkillLevel.fromDisplayName("아마추어"),
+                "주 2회 연습합니다."
+            );
+            ReflectionTestUtils.setField(anotherTeam, "teamId", 2L);
+        }
+
+        @Test
+        @DisplayName("findByApplicant - 사용자 별 가입 요청 목록 페이징 조회")
+        void findByApplicant_success() {
+            // given
+            Long applicantId = applicant.getId();
+
+            JoinWaiting joinWaiting1 = JoinWaiting.create(team, applicant, "가입요청");
+            JoinWaiting joinWaiting2 = JoinWaiting.create(anotherTeam, applicant, "가입요청2");
+
+            List<JoinWaiting> joinWaitingList = List.of(joinWaiting1, joinWaiting2);
+            PageRequest pageRequest = PageRequest.of(PAGE, SIZE);
+            Page<JoinWaiting> joinWaitingPage = new PageImpl<>(joinWaitingList, pageRequest, 2);
+
+            JoinWaitingResponseDto responseDto1 = new JoinWaitingResponseDto(
+                1L, 1L, applicantId, JoinWaitingStatus.PENDING.getDisplayName(),
+                "저 잘 뜁니다 1", null, null
+            );
+
+            JoinWaitingResponseDto responseDto2 = new JoinWaitingResponseDto(
+                2L, 2L, applicantId, JoinWaitingStatus.PENDING.getDisplayName(),
+                "저 잘 뜁니다 2", null, null
+            );
+
+            when(profileRepository.findById(applicantId)).thenReturn(Optional.of(applicant));
+            when(joinWaitingRepository.findAllByApplicant_Id(applicantId, pageRequest)).thenReturn(
+                joinWaitingPage);
+            when(joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting1)).thenReturn(responseDto1);
+            when(joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting2)).thenReturn(responseDto2);
+
+            // when
+            Page<JoinWaitingResponseDto> resultDtoPage = joinWaitingService.findByApplicant(
+                applicantId, pageRequest);
+
+            // then
+            assertThat(resultDtoPage).hasSize(2);
+            assertThat(resultDtoPage.getContent()).hasSize(2);
+            assertThat(resultDtoPage.getTotalElements()).isEqualTo(2);
+            assertThat(resultDtoPage.getContent().get(0).applicantId()).isEqualTo(applicantId);
+            assertThat(resultDtoPage.getContent().get(1).applicantId()).isEqualTo(applicantId);
+        }
+
+        @Test
+        @DisplayName("findByApplicant - 사용자 없음 예외")
+        void findByApplicant_userNotFound_throws() {
+            // given
+            Long nonExistApplicantId = 100L;
+            PageRequest pageRequest = PageRequest.of(PAGE, SIZE);
+
+            when(profileRepository.findById(nonExistApplicantId)).thenReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() -> joinWaitingService.findByApplicant(nonExistApplicantId, pageRequest))
+                .isInstanceOf(NotFoundException.class);
+        }
+
+        @Test
+        @DisplayName("findByApplicant - 빈 결과 반환")
+        void findByApplicant_emptyResult() {
+            // given
+            Long applicantId = applicant.getId();
+            PageRequest pageRequest = PageRequest.of(PAGE, SIZE);
+            Page<JoinWaiting> emptyPage = new PageImpl<>(List.of(), pageRequest, 0);
+
+            when(profileRepository.findById(applicantId)).thenReturn(Optional.of(applicant));
+            when(joinWaitingRepository.findAllByApplicant_Id(applicantId, pageRequest)).thenReturn(emptyPage);
+
+            // when
+            Page<JoinWaitingResponseDto> resultDtoPage = joinWaitingService.findByApplicant(
+                applicantId, pageRequest);
+
+            // then
+            assertThat(resultDtoPage).hasSize(0);
+            assertThat(resultDtoPage.getContent()).isEmpty();
+            assertThat(resultDtoPage.getTotalElements()).isEqualTo(0);
+        }
+       }
 }
