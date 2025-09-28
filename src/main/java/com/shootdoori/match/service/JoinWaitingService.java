@@ -137,6 +137,9 @@ public class JoinWaitingService {
     public Page<JoinWaitingResponseDto> findPending(Long teamId, JoinWaitingStatus status,
         Pageable pageable) {
 
+        teamRepository.findById(teamId).orElseThrow(() ->
+            new NotFoundException(ErrorCode.TEAM_NOT_FOUND));
+
         return joinWaitingRepository.findAllByTeam_TeamIdAndStatus(teamId, status, pageable)
             .map(joinWaitingMapper::toJoinWaitingResponseDto);
     }
