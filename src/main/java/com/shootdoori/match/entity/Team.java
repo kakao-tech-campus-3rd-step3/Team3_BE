@@ -180,15 +180,16 @@ public class Team extends DateEntity {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) {
+        if (this == o) return true;
+        if (o == null || !(o instanceof Team)) {
             return false;
         }
         Team team = (Team) o;
-        return Objects.equals(teamId, team.teamId);
+        return Objects.equals(getTeamId(), team.getTeamId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(teamId);
+        return Objects.hashCode(getTeamId());
     }
 }
