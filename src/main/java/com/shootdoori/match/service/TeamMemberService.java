@@ -9,9 +9,10 @@ import com.shootdoori.match.entity.TeamMember;
 import com.shootdoori.match.entity.TeamMemberRole;
 import com.shootdoori.match.entity.User;
 import com.shootdoori.match.exception.DuplicatedException;
+import com.shootdoori.match.exception.DifferentException;
 import com.shootdoori.match.exception.ErrorCode;
+import com.shootdoori.match.exception.NoPermissionException;
 import com.shootdoori.match.exception.NotFoundException;
-import com.shootdoori.match.exception.ErrorCode;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.repository.TeamRepository;
@@ -90,7 +91,8 @@ public class TeamMemberService {
     public TeamMemberResponseDto update(Long teamId, Long userId,
         UpdateTeamMemberRequestDto requestDto) {
         Team team = teamRepository.findById(teamId)
-            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
+            .orElseThrow(
+                () -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
 
         TeamMember teamMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId, userId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
@@ -102,12 +104,40 @@ public class TeamMemberService {
 
     public void delete(Long teamId, Long userId) {
         Team team = teamRepository.findById(teamId)
-            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
+            .orElseThrow(
+                () -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
 
         TeamMember teamMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId, userId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
         team.removeMember(teamMember);
         teamRepository.save(team);
+    }
+
+    public TeamMemberResponseDto delegateLeadership(Long teamId, Long currentUserId,
+        Long targetMemberId) {
+        Team team = teamRepository.findById(teamId).orElseThrow(() ->
+            new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
+
+        TeamMember currentMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId,
+                currentUserId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
+
+        TeamMember targetMember = teamMemberRepository.findById(targetMemberId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
+
+        if (!team.equals(targetMember.getTeam())) {
+            throw new DifferentException(ErrorCode.DIFFERENT_TEAM_DELEGATION_NOT_ALLOWED);
+        }
+
+        currentMember.delegateLeadership(targetMember);
+
+        return teamMemberMapper.toTeamMemberResponseDto(targetMember);
+    }
+
+    public TeamMemberResponseDto delegateViceLeadership(Long teamId, Long currentUserId,
+        Long targetMemberId) {
+        // TODO: 부회장 위임 로직 구현 필요 (권한/자기위임/같은 팀 검증 후 역할 변경)
+        throw new NoPermissionException();
     }
 }

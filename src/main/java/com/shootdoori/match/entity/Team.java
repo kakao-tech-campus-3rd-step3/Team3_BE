@@ -1,6 +1,6 @@
 package com.shootdoori.match.entity;
 
-import com.shootdoori.match.exception.DifferentUniversityException;
+import com.shootdoori.match.exception.DifferentException;
 import com.shootdoori.match.exception.DuplicatedException;
 import com.shootdoori.match.exception.ErrorCode;
 import com.shootdoori.match.exception.LastTeamMemberRemovalNotAllowedException;
@@ -125,7 +125,7 @@ public class Team extends DateEntity {
 
     public void validateSameUniversity(User user) {
         if (!this.university.equals(user.getUniversity())) {
-            throw new DifferentUniversityException();
+            throw new DifferentException(ErrorCode.DIFFERENT_UNIVERSITY);
         }
     }
 
