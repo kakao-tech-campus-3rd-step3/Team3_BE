@@ -15,7 +15,7 @@ public enum ErrorCode {
     LAST_TEAM_MEMBER_REMOVAL_NOT_ALLOWED("마지막 멤버는 제거할 수 없습니다.", HttpStatus.BAD_REQUEST),
     INVALID_MEMBER_COUNT("멤버 수가 유효 범위를 벗어났습니다. (0~100명)", HttpStatus.BAD_REQUEST),
 
-    JOIN_WAITING_NOT_PENDING("대기중 상태의 신청만 처리할 수 있습니다.", HttpStatus.CONFLICT),
+    JOIN_WAITING_NOT_PENDING("대기중 상태의 신청만 처리할 수 있습니다.", HttpStatus.BAD_REQUEST),
     JOIN_WAITING_INVALID_TRANSITION("현재 상태에서 요청된 상태로 변경할 수 없습니다.", HttpStatus.BAD_REQUEST),
     JOIN_WAITING_ALREADY_PENDING("이미 대기중인 신청이 존재합니다.", HttpStatus.CONFLICT),
     JOIN_WAITING_NOT_FOUND("해당 가입 신청을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
