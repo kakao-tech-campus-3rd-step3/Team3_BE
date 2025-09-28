@@ -1,14 +1,16 @@
 package com.shootdoori.match.controller;
 
 import com.shootdoori.match.dto.CreateTeamResponseDto;
-import com.shootdoori.match.dto.ProfileCreateRequest;
 import com.shootdoori.match.dto.TeamDetailResponseDto;
 import com.shootdoori.match.dto.TeamRequestDto;
 import com.shootdoori.match.entity.User;
 import com.shootdoori.match.service.TeamService;
+import com.shootdoori.match.util.JwtUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -32,6 +34,10 @@ public class TeamController {
     @PostMapping
     public ResponseEntity<CreateTeamResponseDto> create(
         @RequestBody TeamRequestDto requestDto) {
+        
+
+        // TODO: JWT 토큰 도입 전이므로, 비밀번호 인코딩 로직 추가 (임시)
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
         // TODO: JWT 토큰에서 유저 데이터를 가져와 captain 변수에 넣어야 한다.
         User captain = User.create(
@@ -39,7 +45,7 @@ public class TeamController {
             "아마추어",
             "student@example.com",
             "student@kangwon.ac.kr",
-            "Abcd1234!",
+            "{bcrypt}" + passwordEncoder.encode("Abcd1234!"),
             "imkim25",
             "골키퍼",
             "강원대학교",
