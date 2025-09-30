@@ -142,12 +142,14 @@ class AuthTest {
         @Test
         @DisplayName("성공: 현재 기기에서 로그아웃한다")
         void logoutSuccess() throws Exception {
+            String accessToken = initialTokens.accessToken();
             String refreshToken = initialTokens.refreshToken();
 
             String tokenId = jwtUtil.getClaims(refreshToken).getId();
             Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
 
             mockMvc.perform(post("/api/auth/logout")
+                    .header("Authorization", "Bearer " + accessToken)
                     .cookie(refreshTokenCookie))
                 .andExpect(status().isOk())
                 .andExpect(cookie().maxAge("refreshToken", 0));
