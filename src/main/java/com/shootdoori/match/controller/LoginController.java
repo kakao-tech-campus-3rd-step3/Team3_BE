@@ -85,7 +85,7 @@ public class LoginController {
     }
 
     private void expireRefreshTokenCookie(HttpServletResponse response) {
-        Cookie cookie = new Cookie("refreshToken", "");
+        Cookie cookie = new Cookie("refreshToken", "deleted");
         cookie.setMaxAge(0);
         cookie.setPath("/");
         response.addCookie(cookie);
