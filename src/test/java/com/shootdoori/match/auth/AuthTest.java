@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shootdoori.match.dto.AuthToken;
 import com.shootdoori.match.dto.LoginRequest;
 import com.shootdoori.match.dto.ProfileCreateRequest;
+import jakarta.persistence.EntityManager;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.RefreshTokenRepository;
 import com.shootdoori.match.service.AuthService;
@@ -30,6 +31,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @DisplayName("인증 통합 테스트")
 class AuthTest {
+    @Autowired private EntityManager entityManager;
     @Autowired private MockMvc mockMvc;
     @Autowired private AuthService authService;
     @Autowired private ObjectMapper objectMapper;
@@ -151,6 +153,10 @@ class AuthTest {
                 AuthFixtures.createProfileRequest(),
                 new MockHttpServletRequest()
             );
+
+            // 영속성 컨텍스트 초기화
+            entityManager.flush();
+            entityManager.clear();
         }
 
         @Test
@@ -257,6 +263,10 @@ class AuthTest {
             );
             accessToken = tokens.accessToken();
             userId = Long.parseLong(jwtUtil.getUserId(accessToken));
+
+            // 영속성 컨텍스트 초기화
+            entityManager.flush();
+            entityManager.clear();
         }
 
         @Test
