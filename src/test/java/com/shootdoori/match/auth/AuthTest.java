@@ -153,10 +153,6 @@ class AuthTest {
                 AuthFixtures.createProfileRequest(),
                 new MockHttpServletRequest()
             );
-
-            // 영속성 컨텍스트 초기화
-            entityManager.flush();
-            entityManager.clear();
         }
 
         @Test
@@ -263,10 +259,6 @@ class AuthTest {
             );
             accessToken = tokens.accessToken();
             userId = Long.parseLong(jwtUtil.getUserId(accessToken));
-
-            // 영속성 컨텍스트 초기화
-            entityManager.flush();
-            entityManager.clear();
         }
 
         @Test
