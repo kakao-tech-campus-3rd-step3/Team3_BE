@@ -20,6 +20,7 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.annotation.Propagation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
@@ -127,6 +128,7 @@ class AuthTest {
 
     @Nested
     @DisplayName("로그아웃 (/api/auth/logout, /logout-all)")
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     class LogoutTests {
 
         private AuthToken initialTokens;
@@ -220,6 +222,7 @@ class AuthTest {
 
     @Nested
     @DisplayName("회원탈퇴 (/api/profiles/me)")
+    @Transactional(propagation = Propagation.NOT_SUPPORTED)
     class DeleteAccountTests {
 
         private String accessToken;
