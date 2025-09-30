@@ -26,6 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -199,6 +200,7 @@ class AuthTest {
             mockMvc.perform(post("/api/auth/logout-all")
                     .header("Authorization", "Bearer " + accessToken)
                     .cookie(refreshTokenCookie))
+                .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(cookie().maxAge("refreshToken", 0));
 
@@ -280,6 +282,7 @@ class AuthTest {
         void deleteAccountSuccess() throws Exception {
             mockMvc.perform(delete("/api/profiles/me")
                     .header("Authorization", "Bearer " + accessToken))
+                .andDo(print())
                 .andExpect(status().isNoContent());
 
             assertThat(profileRepository.findById(userId)).isEmpty();
