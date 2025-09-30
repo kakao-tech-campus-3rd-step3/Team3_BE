@@ -1,0 +1,125 @@
+name: Build & Deploy (EC2 / CodeDeploy)
+
+on:
+  push:
+    branches: [ develop, main ]
+
+env:
+  AWS_REGION: ${{ secrets.AWS_RESION }}
+  S3_BUCKET: ${{ secrets.S3_BUCKET }}
+  CODEDEPLOY_APP: ${{ secrets.CODEDEPLOY_APP }}
+  CODEDEPLOY_GROUP_DEV: ${{ secrets.CODEDEPLOY_GROUP_DEV }}
+#  CODEDEPLOY_GROUP_PROD: <나중에-PROD-배포그룹-이름>
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+
+      # develop 브랜치일 때 dev 설정(MySQL) 주입
+      - name: Write minimal Spring configs (develop → dev)
+        if: github.ref == 'refs/heads/develop'
+        run: |
+          mkdir -p src/main/resources
+          cat <<'YML' > src/main/resources/application.yml
+          spring:
+            profiles:
+              active: dev
+          management:
+            endpoints.web.exposure.include: health
+          YML
+          cat <<'YML' > src/main/resources/application-dev.yml
+          spring:
+            datasource:
+              driver-class-name: com.mysql.cj.jdbc.Driver
+              url: ${DB_URL}
+              username: ${DB_USERNAME}
+              password: ${DB_PASSWORD}
+            jpa:
+              hibernate.ddl-auto: update
+              properties:
+                hibernate:
+                  format_sql: true
+              show-sql: true
+          jwt:
+            secret: ${JWT_SECRET}
+            access-token-validity-in-seconds: 360000
+            refresh-token-validity-in-seconds: 360000
+          YML
+
+      # main 브랜치일 때는 prod 프로필만 켜두고 비밀은 EC2/.env 또는 SSM에서 주입
+      - name: Write minimal Spring configs (main → prod)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p src/main/resources
+          cat <<'YML' > src/main/resources/application.yml
+          spring:
+            profiles:
+              active: prod
+          management:
+            endpoints.web.exposure.include: health
+          YML
+
+      - name: Build
+        run: ./gradlew clean build --no-daemon
+
+      # 배포 번들: JAR + appspec.yml + scripts/* + .env
+      - name: Prepare deploy bundle
+        run: |
+          mkdir -p deploy
+          cp build/libs/*.jar deploy/app.jar
+          cp appspec.yml deploy/
+          cp -r scripts deploy/
+          
+          # .env 파일 생성
+          cat > deploy/.env << EOF
+          DB_URL=${{ secrets.DB_URL }}
+          DB_USERNAME=${{ secrets.DB_USERNAME }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          EOF
+          
+          cd deploy && zip -r ../bundle-${GITHUB_SHA}.zip .
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.CICD_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.CICD_SECRET_KEY }}
+
+      - name: Upload to S3
+        run: aws s3 cp bundle-${GITHUB_SHA}.zip s3://${{ env.S3_BUCKET }}/bundle-${GITHUB_SHA}.zip
+
+      # develop → DEV 배포
+      - name: Deploy to DEV (develop)
+        if: github.ref == 'refs/heads/develop'
+        run: |
+          aws deploy create-deployment \
+            --application-name ${{ env.CODEDEPLOY_APP }} \
+            --deployment-group-name ${{ env.CODEDEPLOY_GROUP_DEV }} \
+            --deployment-config-name CodeDeployDefault.AllAtOnce \
+            --s3-location bucket=${{ env.S3_BUCKET }},key=bundle-${GITHUB_SHA}.zip,bundleType=zip
+
+      # main → PROD 배포 (나중에 PROD 배포그룹 만들고 값만 바꾸면 됨)
+      - name: Deploy to PROD (main)
+        if: github.ref == 'refs/heads/main'
+        run: |
+          aws deploy create-deployment \
+            --application-name ${{ env.CODEDEPLOY_APP }} \
+            --deployment-group-name ${{ env.CODEDEPLOY_GROUP_PROD }} \
+            --deployment-config-name CodeDeployDefault.AllAtOnce \
+            --s3-location bucket=${{ env.S3_BUCKET }},key=bundle-${GITHUB_SHA}.zip,bundleType=zip
