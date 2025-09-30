@@ -146,7 +146,7 @@ public class JoinWaitingService {
     }
 
     @Transactional(readOnly = true)
-    public Page<JoinWaitingResponseDto> findByApplicant(Long applicantId,
+    public Page<JoinWaitingResponseDto> findAllByApplicant_IdAndStatusIn(Long applicantId,
         Pageable pageable) {
 
         profileRepository.findById(applicantId).orElseThrow(() ->
