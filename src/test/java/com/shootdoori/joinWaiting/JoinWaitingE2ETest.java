@@ -76,7 +76,7 @@ public class JoinWaitingE2ETest {
         setupTestData();
         
         // JWT 토큰 생성 (applicant 기준)
-        String token = jwtUtil.generateAccessToken(applicantId.toString());
+        String token = jwtUtil.generateAccessToken(applicant);
 
         restClient = RestClient.builder()
             .baseUrl(baseUrl)
