@@ -18,7 +18,7 @@ public interface MatchWaitingRepository extends JpaRepository<MatchWaiting, Long
         "AND mw.status = com.shootdoori.match.entity.MatchWaitingStatus.WAITING " +
         "AND mw.team.id <> :teamId " +
         "AND mw.expiresAt > CURRENT_TIMESTAMP " +
-        "AND (:lastTime IS NULL OR mw.preferredTimeStart > :lastTime) " +
+        "AND (:lastTime IS NULL OR mw.preferredTimeStart >= :lastTime) " +
         "ORDER BY mw.preferredTimeStart ASC")
     Slice<MatchWaiting> findAvailableMatchesByDateCursor(
         @Param("teamId") Long teamId,
