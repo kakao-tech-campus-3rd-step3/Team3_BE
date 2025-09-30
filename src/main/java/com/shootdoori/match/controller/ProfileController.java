@@ -32,7 +32,7 @@ public class ProfileController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<ProfileResponse> getProfile(@LoginUser Long userId) {
+    public ResponseEntity<ProfileResponse> getMyProfile(@LoginUser Long userId) {
         return ResponseEntity.ok(profileService.findProfileById(userId));
     }
 
