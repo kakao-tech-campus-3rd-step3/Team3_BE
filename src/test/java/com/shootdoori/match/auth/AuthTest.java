@@ -78,6 +78,9 @@ class AuthTest {
 
         @BeforeEach
         void setup() {
+            // 이전 비트랜잭션 테스트에서 커밋된 데이터 정리
+            refreshTokenRepository.deleteAll();
+            profileRepository.deleteAll();
             authService.register(
                 AuthFixtures.createProfileRequest(),
                 new MockHttpServletRequest()
@@ -135,6 +138,9 @@ class AuthTest {
 
         @BeforeEach
         void setup() {
+            // 깨끗한 상태로 시작
+            refreshTokenRepository.deleteAll();
+            profileRepository.deleteAll();
             initialTokens = authService.register(
                 AuthFixtures.createProfileRequest(),
                 new MockHttpServletRequest()
@@ -230,6 +236,9 @@ class AuthTest {
 
         @BeforeEach
         void setup() {
+            // 깨끗한 상태로 시작
+            refreshTokenRepository.deleteAll();
+            profileRepository.deleteAll();
             AuthToken tokens = authService.register(
                 AuthFixtures.createProfileRequest(),
                 new MockHttpServletRequest()
