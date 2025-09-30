@@ -91,7 +91,7 @@ public class JoinWaitingController {
             TODO: API endpoint를 전반적으로 수정할 필요성이 있는지 체크 필요
          */
     ) {
-        return new ResponseEntity<>(joinWaitingService.findByApplicant(userId, pageable),
+        return new ResponseEntity<>(joinWaitingService.findAllByApplicant_IdAndStatusIn(userId, pageable),
             HttpStatus.OK);
     }
 }
