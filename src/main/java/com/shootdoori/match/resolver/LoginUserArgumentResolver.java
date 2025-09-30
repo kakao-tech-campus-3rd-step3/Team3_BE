@@ -15,11 +15,7 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 @Component
 public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver {
 
-    private final ProfileRepository profileRepository;
-
-    public LoginUserArgumentResolver(ProfileRepository profileRepository) {
-        this.profileRepository = profileRepository;
-    }
+    public LoginUserArgumentResolver(ProfileRepository profileRepository) {}
 
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
