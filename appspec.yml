@@ -7,12 +7,24 @@ files:
     overwrite: yes
 
 permissions:
-  - object: /
+  - object: /home/ubuntu/app
     owner: ubuntu
     group: ubuntu
+    mode: 755
+    type:
+      - file
+      - directory
 
 hooks:
+  BeforeInstall:
+    - location: scripts/prepare.sh
+      timeout: 120
+      runas: ubuntu
+  AfterInstall:
+    - location: scripts/permissions.sh
+      timeout: 120
+      runas: ubuntu
   ApplicationStart:
     - location: scripts/deploy.sh
-      timeout: 60
+      timeout: 300
       runas: ubuntu
