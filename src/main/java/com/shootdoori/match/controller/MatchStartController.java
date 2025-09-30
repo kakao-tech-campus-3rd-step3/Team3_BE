@@ -2,6 +2,7 @@ package com.shootdoori.match.controller;
 
 import com.shootdoori.match.dto.RecentMatchesResponseDto;
 import com.shootdoori.match.entity.MatchStatus;
+import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.MatchStartService;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -29,16 +30,16 @@ public class MatchStartController {
     this.matchService = matchStartService;
   }
 
-  @GetMapping("/{teamId}/matches")
+  @GetMapping("/me/matches")
   public ResponseEntity<List<RecentMatchesResponseDto>> getRecentCompletedMatches(
-          @PathVariable @Positive Long teamId,
+          @LoginUser Long loginUserId,
           @RequestParam(required = false) MatchStatus status,
           @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate cursorDate,
           @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime cursorTime,
           @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size
   ) {
     List<RecentMatchesResponseDto> matches =
-        matchService.getMatchesByStatus(teamId, status, cursorDate, cursorTime, PageRequest.of(0, size));
+        matchService.getMatchesByStatus(loginUserId, status, cursorDate, cursorTime, PageRequest.of(0, size));
 
     return ResponseEntity.ok(matches);
   }
