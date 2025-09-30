@@ -28,7 +28,7 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
     }
 
     @Override
-    public Object resolveArgument(
+    public Long resolveArgument(
         MethodParameter parameter,
         ModelAndViewContainer mavContainer,
         NativeWebRequest webRequest,
@@ -42,7 +42,6 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
 
         Long userId = (Long) authentication.getPrincipal();
 
-        return profileRepository.findById(userId)
-            .orElseThrow(() -> new UnauthorizedException("사용자를 찾을 수 없습니다."));
+        return userId;
     }
 }

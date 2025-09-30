@@ -4,6 +4,7 @@ import com.shootdoori.match.dto.CreateTeamResponseDto;
 import com.shootdoori.match.dto.TeamDetailResponseDto;
 import com.shootdoori.match.dto.TeamRequestDto;
 import com.shootdoori.match.entity.User;
+import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.TeamService;
 import com.shootdoori.match.util.JwtUtil;
 import org.springframework.data.domain.Page;
@@ -33,28 +34,10 @@ public class TeamController {
 
     @PostMapping
     public ResponseEntity<CreateTeamResponseDto> create(
-        @RequestBody TeamRequestDto requestDto) {
-        
+        @RequestBody TeamRequestDto requestDto,
+        @LoginUser Long userId) {
 
-        // TODO: JWT 토큰 도입 전이므로, 비밀번호 인코딩 로직 추가 (임시)
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
-        // TODO: JWT 토큰에서 유저 데이터를 가져와 captain 변수에 넣어야 한다.
-        User captain = User.create(
-            "김학생",
-            "아마추어",
-            "student@example.com",
-            "student@kangwon.ac.kr",
-            "{bcrypt}" + passwordEncoder.encode("Abcd1234!"),
-            "imkim25",
-            "골키퍼",
-            "강원대학교",
-            "컴퓨터공학과",
-            "25",
-            "축구를 좋아하는 대학생입니다. 골키퍼 포지션을 주로 맡고 있으며, 즐겁게 운동하고 싶습니다!"
-        );
-
-        return new ResponseEntity<>(teamService.create(requestDto, captain), HttpStatus.CREATED);
+        return new ResponseEntity<>(teamService.create(requestDto, userId), HttpStatus.CREATED);
     }
 
     @GetMapping("/{id}")
@@ -77,15 +60,17 @@ public class TeamController {
     @PutMapping("/{id}")
     public ResponseEntity<TeamDetailResponseDto> update(
         @PathVariable Long id,
-        @RequestBody TeamRequestDto requestDto
+        @RequestBody TeamRequestDto requestDto,
+        @LoginUser Long userId
     ) {
-        return new ResponseEntity<TeamDetailResponseDto>(teamService.update(id, requestDto),
+        return new ResponseEntity<TeamDetailResponseDto>(teamService.update(id, requestDto, userId),
             HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        teamService.delete(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id,
+                                       @LoginUser Long userId) {
+        teamService.delete(id, userId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
