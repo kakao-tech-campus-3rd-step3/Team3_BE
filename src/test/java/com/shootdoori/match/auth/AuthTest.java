@@ -39,6 +39,10 @@ class AuthTest {
     @Autowired private ProfileRepository profileRepository;
     @Autowired private JwtUtil jwtUtil;
 
+    private String stripBearer(String token) {
+        return token != null && token.startsWith("Bearer ") ? token.substring(7) : token;
+    }
+
     @Nested
     @DisplayName("회원가입 (/api/auth/register)")
     @Transactional
@@ -187,7 +191,7 @@ class AuthTest {
             );
 
             String accessToken = otherDeviceLoginTokens.accessToken();
-            Long userId = Long.parseLong(jwtUtil.getUserId(accessToken));
+            Long userId = Long.parseLong(jwtUtil.getUserId(stripBearer(accessToken)));
 
             String refreshToken = otherDeviceLoginTokens.refreshToken();
             Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
@@ -268,7 +272,7 @@ class AuthTest {
                 new MockHttpServletRequest()
             );
             accessToken = tokens.accessToken();
-            userId = Long.parseLong(jwtUtil.getUserId(accessToken));
+            userId = Long.parseLong(jwtUtil.getUserId(stripBearer(accessToken)));
         }
 
         @Test
