@@ -149,8 +149,13 @@ class AuthTest {
             // 깨끗한 상태로 시작
             refreshTokenRepository.deleteAll();
             profileRepository.deleteAll();
-            initialTokens = authService.register(
+            // 계정 생성 후 실제 로그인 플로우로 토큰 발급
+            authService.register(
                 AuthFixtures.createProfileRequest(),
+                new MockHttpServletRequest()
+            );
+            initialTokens = authService.login(
+                AuthFixtures.createLoginRequest(),
                 new MockHttpServletRequest()
             );
         }
@@ -253,8 +258,13 @@ class AuthTest {
             // 깨끗한 상태로 시작
             refreshTokenRepository.deleteAll();
             profileRepository.deleteAll();
-            AuthToken tokens = authService.register(
+            // 계정 생성 후 실제 로그인으로 액세스 토큰 발급
+            authService.register(
                 AuthFixtures.createProfileRequest(),
+                new MockHttpServletRequest()
+            );
+            AuthToken tokens = authService.login(
+                AuthFixtures.createLoginRequest(),
                 new MockHttpServletRequest()
             );
             accessToken = tokens.accessToken();
