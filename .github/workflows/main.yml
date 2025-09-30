@@ -98,8 +98,12 @@ jobs:
       - name: Verify artifact exists
         run: ls -l "bundle-${GITHUB_SHA}.zip"
 
-      - name: Normalize S3_BUCKET (strip whitespace)
-        run: echo "S3_BUCKET=$(echo -n \"$S3_BUCKET\" | tr -d '[:space:]')" >> $GITHUB_ENV
+      - name: Normalize S3_BUCKET (trim and unquote)
+        run: |
+          echo "Raw S3_BUCKET=[$S3_BUCKET]"
+          CLEAN_BUCKET=$(printf '%s' "$S3_BUCKET" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//' -e 's/^"//' -e 's/"$//' -e "s/^'//" -e "s/'$//")
+          echo "S3_BUCKET=$CLEAN_BUCKET" >> $GITHUB_ENV
+          echo "Sanitized S3_BUCKET=[$CLEAN_BUCKET]"
 
       - name: Upload to S3
         run: aws s3 cp "bundle-${GITHUB_SHA}.zip" "s3://$S3_BUCKET/bundle-${GITHUB_SHA}.zip" --region "$AWS_REGION"
