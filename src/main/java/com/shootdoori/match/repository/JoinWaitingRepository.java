@@ -3,6 +3,7 @@ package com.shootdoori.match.repository;
 import com.shootdoori.match.entity.JoinWaiting;
 import com.shootdoori.match.entity.JoinWaitingStatus;
 import jakarta.persistence.LockModeType;
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,4 +26,6 @@ public interface JoinWaitingRepository extends JpaRepository<JoinWaiting, Long> 
     Optional<JoinWaiting> findByIdAndTeam_TeamIdForUpdate(Long id, Long teamId);
 
     Page<JoinWaiting> findAllByTeam_TeamIdAndStatus(Long teamId, JoinWaitingStatus status, Pageable pageable);
+
+    Page<JoinWaiting> findAllByApplicant_IdAndStatusIn(Long applicantId, List<JoinWaitingStatus> statuses, Pageable pageable);
 }

@@ -5,6 +5,7 @@ import com.shootdoori.match.dto.*;
 import com.shootdoori.match.entity.*;
 import com.shootdoori.match.exception.NotFoundException;
 import com.shootdoori.match.exception.ErrorCode;
+import com.shootdoori.match.exception.OneselfMatchException;
 import com.shootdoori.match.repository.MatchRequestRepository;
 import com.shootdoori.match.repository.MatchWaitingRepository;
 import com.shootdoori.match.repository.MatchRepository;
@@ -69,6 +70,12 @@ public class MatchRequestService {
 
     Team requestTeam = teamRepository.findById(requestDto.requestTeamId())
         .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(requestDto.requestTeamId())));
+
+    int targetTeamId = targetWaiting.getTeam().getTeamId().intValue();
+    int requestTeamId = requestTeam.getTeamId().intValue();
+    if(targetTeamId == requestTeamId){
+      throw new OneselfMatchException();
+    }
 
     MatchRequest matchRequest = new MatchRequest(
       targetWaiting,

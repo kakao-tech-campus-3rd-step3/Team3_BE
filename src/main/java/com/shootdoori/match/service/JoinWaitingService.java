@@ -19,6 +19,7 @@ import com.shootdoori.match.repository.JoinWaitingRepository;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.repository.TeamRepository;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -111,9 +112,6 @@ public class JoinWaitingService {
             .findByIdAndTeam_TeamIdForUpdate(joinWaitingId, teamId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.JOIN_WAITING_NOT_FOUND));
 
-        Team team = joinWaiting.getTeam();
-        User applicant = joinWaiting.getApplicant();
-
         joinWaiting.reject(approver, requestDto.reason());
 
         return joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting);
@@ -140,7 +138,23 @@ public class JoinWaitingService {
     public Page<JoinWaitingResponseDto> findPending(Long teamId, JoinWaitingStatus status,
         Pageable pageable) {
 
+        teamRepository.findById(teamId).orElseThrow(() ->
+            new NotFoundException(ErrorCode.TEAM_NOT_FOUND));
+
         return joinWaitingRepository.findAllByTeam_TeamIdAndStatus(teamId, status, pageable)
+            .map(joinWaitingMapper::toJoinWaitingResponseDto);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<JoinWaitingResponseDto> findAllByApplicant_IdAndStatusIn(Long applicantId,
+        Pageable pageable) {
+
+        profileRepository.findById(applicantId).orElseThrow(() ->
+            new NotFoundException(ErrorCode.USER_NOT_FOUND));
+
+        List<JoinWaitingStatus> targetStatuses = List.of(JoinWaitingStatus.PENDING, JoinWaitingStatus.REJECTED);
+        
+        return joinWaitingRepository.findAllByApplicant_IdAndStatusIn(applicantId, targetStatuses, pageable)
             .map(joinWaitingMapper::toJoinWaitingResponseDto);
     }
 }

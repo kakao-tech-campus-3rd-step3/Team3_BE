@@ -592,5 +592,30 @@ public class JoinWaitingE2ETest {
             assertThat(responseBody).contains("\"size\":10");
             assertThat(responseBody).contains("\"number\":0");
         }
+
+        @Test
+        @DisplayName("사용자별로 신청 목록을 조회한다.")
+        void findByApplicantJoinWaiting_Success() {
+            // when
+            ResponseEntity<String> response = restClient
+                .get()
+                .uri("/api/users/{userId}/join-waiting", applicantId)
+                .retrieve()
+                .toEntity(String.class);
+
+            // then
+            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+            String responseBody = response.getBody();
+
+            assertThat(responseBody).contains("\"id\":" + joinWaitingId);
+            assertThat(responseBody).contains("\"status\":\"대기중\"");
+            assertThat(responseBody).contains("\"applicantId\":" + applicantId);
+            assertThat(responseBody).contains("\"teamId\":" + teamId);
+
+            assertThat(responseBody).contains("\"totalElements\":1");
+            assertThat(responseBody).contains("\"size\":10");
+            assertThat(responseBody).contains("\"number\":0");
+        }
     }
 }

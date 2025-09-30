@@ -45,7 +45,7 @@ public class MatchRequestController {
     return ResponseEntity.ok(response);
   }
 
-  @GetMapping("/{teamId}/pending")
+  @GetMapping("/receive/{teamId}/pending")
   public ResponseEntity<Slice<MatchRequestResponseDto>> getReceivedPendingRequests(
     @PathVariable Long teamId,
     @PageableDefault(size = 10, sort = "requestAt", direction = Sort.Direction.DESC) Pageable pageable
