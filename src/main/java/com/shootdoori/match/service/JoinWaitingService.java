@@ -19,6 +19,7 @@ import com.shootdoori.match.repository.JoinWaitingRepository;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.repository.TeamRepository;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -151,7 +152,9 @@ public class JoinWaitingService {
         profileRepository.findById(applicantId).orElseThrow(() ->
             new NotFoundException(ErrorCode.USER_NOT_FOUND));
 
-        return joinWaitingRepository.findAllByApplicant_Id(applicantId, pageable)
+        List<JoinWaitingStatus> targetStatuses = List.of(JoinWaitingStatus.PENDING, JoinWaitingStatus.REJECTED);
+        
+        return joinWaitingRepository.findAllByApplicant_IdAndStatusIn(applicantId, targetStatuses, pageable)
             .map(joinWaitingMapper::toJoinWaitingResponseDto);
     }
 }
