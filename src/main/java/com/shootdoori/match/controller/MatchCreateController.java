@@ -2,6 +2,8 @@ package com.shootdoori.match.controller;
 
 import com.shootdoori.match.dto.MatchCreateRequestDto;
 import com.shootdoori.match.dto.MatchCreateResponseDto;
+import com.shootdoori.match.entity.User;
+import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.MatchCreateService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,9 +20,10 @@ public class MatchCreateController {
 
   @PostMapping
   public ResponseEntity<MatchCreateResponseDto> createMatch(
+      @LoginUser Long loginUserId,
       @RequestBody MatchCreateRequestDto matchCreateRequestDto
   ) {
-    MatchCreateResponseDto response = matchCreateService.createMatch(matchCreateRequestDto);
+    MatchCreateResponseDto response = matchCreateService.createMatch(loginUserId, matchCreateRequestDto);
     return ResponseEntity.ok(response);
   }
 }

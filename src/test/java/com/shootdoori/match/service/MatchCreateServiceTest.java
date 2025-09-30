@@ -8,10 +8,7 @@ import com.shootdoori.match.dto.MatchCreateRequestDto;
 import com.shootdoori.match.dto.MatchCreateResponseDto;
 import com.shootdoori.match.entity.*;
 import com.shootdoori.match.exception.NotFoundException;
-import com.shootdoori.match.repository.MatchWaitingRepository;
-import com.shootdoori.match.repository.ProfileRepository;
-import com.shootdoori.match.repository.TeamRepository;
-import com.shootdoori.match.repository.VenueRepository;
+import com.shootdoori.match.repository.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -45,11 +42,15 @@ class MatchCreateServiceTest {
   @Autowired
   private MatchWaitingRepository matchWaitingRepository;
 
+  @Autowired
+  private TeamMemberRepository teamMemberRepository;
+
   private User savedCaptain;
   private Team savedTeam;
   private Venue savedVenue;
 
-  private final Long NON_EXIST_ID = 1000000007L;
+  private final Long NON_EXIST_VENUE_ID = 1000000007L;
+  private final Long NON_EXIST_USER_ID = 1000000007L;
   private final String MESSAGE = "메세지";
 
   @BeforeEach
@@ -79,6 +80,9 @@ class MatchCreateServiceTest {
     );
     savedTeam = teamRepository.save(team);
 
+    TeamMember captainMember = new TeamMember(savedTeam, savedCaptain, TeamMemberRole.LEADER);
+    teamMemberRepository.save(captainMember);
+
     Venue venue = new Venue(
       "강원대 대운동장",
       "춘천",
@@ -92,11 +96,10 @@ class MatchCreateServiceTest {
   }
 
   @Test
-  @DisplayName("존재하지 않는 팀 ID로 요청 시 NotFoundException 발생")
+  @DisplayName("존재하지 않는 사용자 ID로 요청 시 NotFoundException 발생")
   void createMatch_teamNotFound() {
     // given
     MatchCreateRequestDto dto = new MatchCreateRequestDto(
-      NON_EXIST_ID,
       LocalDate.now(),
       LocalTime.of(10, 0),
       LocalTime.of(12, 0),
@@ -108,12 +111,11 @@ class MatchCreateServiceTest {
     );
 
     // when
-    Throwable thrown = catchThrowable(() -> matchCreateService.createMatch(dto));
+    Throwable thrown = catchThrowable(() -> matchCreateService.createMatch(NON_EXIST_USER_ID, dto));
 
     // then
     assertThat(thrown)
-      .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(NON_EXIST_ID.toString());
+      .isInstanceOf(NotFoundException.class);
   }
 
   @Test
@@ -121,11 +123,10 @@ class MatchCreateServiceTest {
   void createMatch_venueNotFound() {
     // given
     MatchCreateRequestDto dto = new MatchCreateRequestDto(
-      savedTeam.getTeamId(),
       LocalDate.now(),
       LocalTime.of(10, 0),
       LocalTime.of(12, 0),
-      NON_EXIST_ID, // 존재하지 않는 venue ID
+      NON_EXIST_VENUE_ID, // 존재하지 않는 venue ID
       SkillLevel.AMATEUR,
       SkillLevel.PRO,
       false,
@@ -133,12 +134,12 @@ class MatchCreateServiceTest {
     );
 
     // when
-    Throwable thrown = catchThrowable(() -> matchCreateService.createMatch(dto));
+    Throwable thrown = catchThrowable(() -> matchCreateService.createMatch(savedCaptain.getId(),dto));
 
     // then
     assertThat(thrown)
       .isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(NON_EXIST_ID.toString());
+      .hasMessageContaining(NON_EXIST_VENUE_ID.toString());
   }
 
   @Test
@@ -146,7 +147,6 @@ class MatchCreateServiceTest {
   void createMatch_success() {
     // given
     MatchCreateRequestDto dto = new MatchCreateRequestDto(
-      savedTeam.getTeamId(),
       LocalDate.now(),
       LocalTime.of(10, 0),
       LocalTime.of(12, 0),
@@ -158,7 +158,7 @@ class MatchCreateServiceTest {
     );
 
     // when
-    MatchCreateResponseDto response = matchCreateService.createMatch(dto);
+    MatchCreateResponseDto response = matchCreateService.createMatch(savedCaptain.getId(),dto);
 
     // then
     assertThat(response).isNotNull();
