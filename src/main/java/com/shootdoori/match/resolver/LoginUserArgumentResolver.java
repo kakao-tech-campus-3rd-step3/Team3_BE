@@ -1,8 +1,6 @@
 package com.shootdoori.match.resolver;
 
-import com.shootdoori.match.entity.User;
 import com.shootdoori.match.exception.UnauthorizedException;
-import com.shootdoori.match.repository.ProfileRepository;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -15,12 +13,10 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 @Component
 public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver {
 
-    public LoginUserArgumentResolver(ProfileRepository profileRepository) {}
-
     @Override
     public boolean supportsParameter(MethodParameter parameter) {
         return parameter.hasParameterAnnotation(LoginUser.class) &&
-            parameter.getParameterType().equals(User.class);
+            parameter.getParameterType().equals(Long.class);
     }
 
     @Override
