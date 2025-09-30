@@ -43,6 +43,13 @@ class AuthTest {
     @DisplayName("회원가입 (/api/auth/register)")
     class RegisterTests {
 
+        @BeforeEach
+        void setup() {
+            // 테스트 간 데이터 격리
+            refreshTokenRepository.deleteAll();
+            profileRepository.deleteAll();
+        }
+
         @Test
         @DisplayName("성공: 새로운 사용자가 정상적으로 회원가입된다")
         void registerSuccess() throws Exception {
@@ -200,6 +207,13 @@ class AuthTest {
     @Nested
     @DisplayName("토큰 재발급 (/api/auth/refresh)")
     class TokenRefreshTests {
+
+        @BeforeEach
+        void setup() {
+            // 테스트 간 데이터 격리
+            refreshTokenRepository.deleteAll();
+            profileRepository.deleteAll();
+        }
 
         @Test
         @DisplayName("성공: 유효한 리프레시 토큰으로 재발급 후, 기존 토큰 사용 시 실패한다 (Rotation 검증)")
