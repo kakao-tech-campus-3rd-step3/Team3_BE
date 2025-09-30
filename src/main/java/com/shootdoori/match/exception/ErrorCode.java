@@ -34,10 +34,12 @@ public enum ErrorCode {
 
     RECRUITMENT_NOT_FOUND("존재하지 않는 모집 공고입니다.", HttpStatus.NOT_FOUND),
 
-    PROFILE_NOT_FOUND("해당 프로필을 찾을 수 없습니다.", HttpStatus.NOT_FOUND);
+    PROFILE_NOT_FOUND("해당 프로필을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+
+  ONESELF_MATCH("자기 자신 팀으로의 매치는 불가능합니다.", HttpStatus.BAD_REQUEST);
 
 
-    private final String message;
+  private final String message;
     private final HttpStatus httpStatus;
 
     ErrorCode(String message, HttpStatus httpStatus) {
