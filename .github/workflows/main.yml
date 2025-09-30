@@ -95,8 +95,14 @@ jobs:
           aws-access-key-id: ${{ secrets.CICD_ACCESS_KEY }}
           aws-secret-access-key: ${{ secrets.CICD_SECRET_KEY }}
 
+      - name: Verify artifact exists
+        run: ls -l "bundle-${GITHUB_SHA}.zip"
+
+      - name: Normalize S3_BUCKET (strip whitespace)
+        run: echo "S3_BUCKET=$(echo -n \"$S3_BUCKET\" | tr -d '[:space:]')" >> $GITHUB_ENV
+
       - name: Upload to S3
-        run: aws s3 cp bundle-${GITHUB_SHA}.zip s3://${{ env.S3_BUCKET }}/bundle-${GITHUB_SHA}.zip
+        run: aws s3 cp "bundle-${GITHUB_SHA}.zip" "s3://$S3_BUCKET/bundle-${GITHUB_SHA}.zip" --region "$AWS_REGION"
 
       # develop → DEV 배포
       - name: Deploy to DEV (develop)
@@ -106,7 +112,7 @@ jobs:
             --application-name ${{ env.CODEDEPLOY_APP }} \
             --deployment-group-name ${{ env.CODEDEPLOY_GROUP_DEV }} \
             --deployment-config-name CodeDeployDefault.AllAtOnce \
-            --s3-location bucket=${{ env.S3_BUCKET }},key=bundle-${GITHUB_SHA}.zip,bundleType=zip
+            --s3-location bucket=$S3_BUCKET,key=bundle-${GITHUB_SHA}.zip,bundleType=zip
 
       # main → PROD 배포
       - name: Deploy to PROD (main)
@@ -116,4 +122,4 @@ jobs:
             --application-name ${{ env.CODEDEPLOY_APP }} \
             --deployment-group-name ${{ env.CODEDEPLOY_GROUP_PROD }} \
             --deployment-config-name CodeDeployDefault.AllAtOnce \
-            --s3-location bucket=${{ env.S3_BUCKET }},key=bundle-${GITHUB_SHA}.zip,bundleType=zip
+            --s3-location bucket=$S3_BUCKET,key=bundle-${GITHUB_SHA}.zip,bundleType=zip
