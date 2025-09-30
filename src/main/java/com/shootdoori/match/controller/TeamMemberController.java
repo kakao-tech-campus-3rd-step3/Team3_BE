@@ -31,9 +31,10 @@ public class TeamMemberController {
 
     @PostMapping("/users")
     public ResponseEntity<TeamMemberResponseDto> create(@PathVariable Long teamId,
-        @RequestBody TeamMemberRequestDto requestDto) {
+                                                        @RequestBody TeamMemberRequestDto requestDto,
+                                                        @LoginUser Long userId) {
 
-        return new ResponseEntity<>(teamMemberService.create(teamId, requestDto),
+        return new ResponseEntity<>(teamMemberService.create(teamId, requestDto, userId),
             HttpStatus.CREATED);
     }
 
@@ -54,16 +55,18 @@ public class TeamMemberController {
 
     @PutMapping("/users/{userId}")
     public ResponseEntity<TeamMemberResponseDto> update(@PathVariable Long teamId,
-        @PathVariable Long userId,
-        @RequestBody UpdateTeamMemberRequestDto requestDto) {
+                                                        @PathVariable Long userId,
+                                                        @RequestBody UpdateTeamMemberRequestDto requestDto,
+                                                        @LoginUser Long loginUserId) {
         return new ResponseEntity<>(
-            teamMemberService.update(teamId, userId, requestDto), HttpStatus.OK);
+            teamMemberService.update(teamId, userId, requestDto, loginUserId), HttpStatus.OK);
     }
 
     @DeleteMapping("/users/{userId}")
     public ResponseEntity<Void> delete(@PathVariable Long teamId,
-        @PathVariable Long userId) {
-        teamMemberService.delete(teamId, userId);
+                                       @PathVariable Long userId,
+                                       @LoginUser Long loginUserId) {
+        teamMemberService.delete(teamId, userId, loginUserId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -72,11 +75,11 @@ public class TeamMemberController {
     public ResponseEntity<TeamMemberResponseDto> delegateLeadership(
         @PathVariable Long teamId,
         @PathVariable Long memberId,
-        @LoginUser User currentUser
+        @LoginUser Long loginUserId
     ) {
         TeamMemberResponseDto responseDto = teamMemberService.delegateLeadership(
             teamId,
-            currentUser.getId(),
+            loginUserId,
             memberId
         );
         return new ResponseEntity<>(responseDto, HttpStatus.OK);
@@ -86,11 +89,11 @@ public class TeamMemberController {
     public ResponseEntity<TeamMemberResponseDto> delegateViceLeadership(
         @PathVariable Long teamId,
         @PathVariable Long memberId,
-        @LoginUser User currentUser
+        @LoginUser Long loginUserId
     ) {
         TeamMemberResponseDto responseDto = teamMemberService.delegateViceLeadership(
             teamId,
-            currentUser.getId(),
+            loginUserId,
             memberId
         );
         return new ResponseEntity<>(responseDto, HttpStatus.OK);

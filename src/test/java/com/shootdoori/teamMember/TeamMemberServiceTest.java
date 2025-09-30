@@ -150,6 +150,7 @@ public class TeamMemberServiceTest {
                 ANOTHER_USER_ID,
                 ROLE_MEMBER
             );
+            ReflectionTestUtils.setField(captain, "id", 1L);
 
             TeamMember anotherTeamMember = new TeamMember(team, anotherUser, TeamMemberRole.MEMBER);
 
@@ -165,7 +166,7 @@ public class TeamMemberServiceTest {
             when(teamMemberMapper.toTeamMemberResponseDto(anotherTeamMember)).thenReturn(expected);
 
             // when
-            TeamMemberResponseDto resultDto = teamMemberService.create(TEAM_ID, requestDto);
+            TeamMemberResponseDto resultDto = teamMemberService.create(TEAM_ID, requestDto, captain.getId());
 
             // then
             assertThat(resultDto).isEqualTo(expected);
@@ -179,11 +180,12 @@ public class TeamMemberServiceTest {
                 USER_ID,
                 ROLE_MEMBER
             );
+            ReflectionTestUtils.setField(captain, "id", 1L);
 
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> teamMemberService.create(TEAM_ID, requestDto))
+            assertThatThrownBy(() -> teamMemberService.create(TEAM_ID, requestDto, captain.getId()))
                 .isInstanceOf(NotFoundException.class);
         }
 
@@ -195,12 +197,13 @@ public class TeamMemberServiceTest {
                 USER_ID,
                 ROLE_MEMBER
             );
+            ReflectionTestUtils.setField(captain, "id", 1L);
 
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
             when(profileRepository.findById(USER_ID)).thenReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> teamMemberService.create(TEAM_ID, requestDto))
+            assertThatThrownBy(() -> teamMemberService.create(TEAM_ID, requestDto, captain.getId()))
                 .isInstanceOf(NotFoundException.class);
         }
 
@@ -212,6 +215,7 @@ public class TeamMemberServiceTest {
                 USER_ID,
                 ROLE_MEMBER
             );
+            ReflectionTestUtils.setField(captain, "id", 1L);
 
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
             when(profileRepository.findById(USER_ID)).thenReturn(Optional.of(user));
@@ -219,7 +223,7 @@ public class TeamMemberServiceTest {
                 true);
 
             // when & then
-            assertThatThrownBy(() -> teamMemberService.create(TEAM_ID, requestDto))
+            assertThatThrownBy(() -> teamMemberService.create(TEAM_ID, requestDto, captain.getId()))
                 .isInstanceOf(DuplicatedException.class);
         }
     }
@@ -304,6 +308,7 @@ public class TeamMemberServiceTest {
             // given
             UpdateTeamMemberRequestDto requestDto = new UpdateTeamMemberRequestDto(
                 ROLE_VICE_LEADER);
+            ReflectionTestUtils.setField(user, "id", 1L);
 
             TeamMemberResponseDto expected = toResponse(teamMember);
 
@@ -315,7 +320,7 @@ public class TeamMemberServiceTest {
 
             // when
             TeamMemberResponseDto resultDto = teamMemberService.update(TEAM_ID, USER_ID,
-                requestDto);
+                requestDto, USER_ID);
 
             // then
             assertThat(resultDto).isEqualTo(expected);
@@ -333,7 +338,7 @@ public class TeamMemberServiceTest {
 
             // when & then
             assertThatThrownBy(() ->
-                teamMemberService.update(NON_EXISTENT_TEAM_ID, USER_ID, requestDto))
+                teamMemberService.update(NON_EXISTENT_TEAM_ID, USER_ID, requestDto, USER_ID))
                 .isInstanceOf(NotFoundException.class);
         }
 
@@ -350,7 +355,7 @@ public class TeamMemberServiceTest {
 
             // when & then
             assertThatThrownBy(() ->
-                teamMemberService.update(TEAM_ID, NON_EXISTENT_USER_ID, requestDto))
+                teamMemberService.update(TEAM_ID, NON_EXISTENT_USER_ID, requestDto, USER_ID))
                 .isInstanceOf(NotFoundException.class);
         }
     }
@@ -371,7 +376,7 @@ public class TeamMemberServiceTest {
                 ANOTHER_USER_ID)).thenReturn(Optional.of(anotherTeamMember));
 
             // when
-            teamMemberService.delete(TEAM_ID, ANOTHER_USER_ID);
+            teamMemberService.delete(TEAM_ID, ANOTHER_USER_ID, ANOTHER_USER_ID);
 
             // then
             verify(teamRepository).save(team);
@@ -384,7 +389,7 @@ public class TeamMemberServiceTest {
             when(teamRepository.findById(NON_EXISTENT_TEAM_ID)).thenReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> teamMemberService.delete(NON_EXISTENT_TEAM_ID, USER_ID))
+            assertThatThrownBy(() -> teamMemberService.delete(NON_EXISTENT_TEAM_ID, USER_ID, USER_ID))
                 .isInstanceOf(NotFoundException.class);
         }
 
@@ -397,7 +402,7 @@ public class TeamMemberServiceTest {
                 NON_EXISTENT_USER_ID)).thenReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> teamMemberService.delete(TEAM_ID, NON_EXISTENT_USER_ID))
+            assertThatThrownBy(() -> teamMemberService.delete(TEAM_ID, NON_EXISTENT_USER_ID, NON_EXISTENT_USER_ID))
                 .isInstanceOf(NotFoundException.class);
         }
     }
