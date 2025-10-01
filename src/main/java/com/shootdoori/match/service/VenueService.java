@@ -22,6 +22,7 @@ public class VenueService {
     Slice<Venue> venues = venueRepository.findAll(pageable);
 
     return venues.map(v -> new VenueSearchResponseDto(
+      v.getVenueId(),
       v.getVenueName(),
       v.getAddress(),
       v.getContactInfo(),
