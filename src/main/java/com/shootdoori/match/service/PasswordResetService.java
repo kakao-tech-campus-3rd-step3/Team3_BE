@@ -39,6 +39,14 @@ public class PasswordResetService {
 
     public void sendVerificationCode(String email) {
         User user = profileRepository.findByEmail(email).orElse(null);
+        if (user == null) {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            return;
+        }
 
         String rawCode = generateOtpCode();
         String encodedCode = passwordEncoder.encode(rawCode);
