@@ -22,6 +22,7 @@ import com.shootdoori.match.repository.JoinWaitingRepository;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.repository.TeamRepository;
+import com.shootdoori.match.util.JwtUtil;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -57,6 +58,9 @@ public class JoinWaitingE2ETest {
     @Autowired
     JoinWaitingRepository joinWaitingRepository;
 
+    @Autowired
+    JwtUtil jwtUtil;
+
     private Team testTeam;
     private User teamLeader;
     private User applicant;
@@ -68,12 +72,16 @@ public class JoinWaitingE2ETest {
     @BeforeEach
     void setUp() {
         baseUrl = "http://localhost:" + port;
+        
+        setupTestData();
+        
+        // JWT 토큰 생성 (applicant 기준)
+        String token = jwtUtil.generateAccessToken(applicant);
 
         restClient = RestClient.builder()
             .baseUrl(baseUrl)
+            .defaultHeader("Authorization", "Bearer " + token)
             .build();
-
-        setupTestData();
     }
 
     private void setupTestData() {

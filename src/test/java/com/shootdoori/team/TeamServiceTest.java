@@ -126,12 +126,12 @@ public class TeamServiceTest {
         ReflectionTestUtils.setField(savedTeam, "teamId", TEAM_ID);
 
         // TODO: JWT 토큰 도입 이후 필요 없는 코드 - save(captain)
-        when(profileRepository.save(captain)).thenReturn(captain);
+        when(profileRepository.findById(captain.getId())).thenReturn(Optional.ofNullable(captain));
         when(teamRepository.save(any(Team.class))).thenReturn(savedTeam);
         when(teamMapper.toCreateTeamResponse(savedTeam)).thenReturn(createResponseDto);
 
         // when
-        CreateTeamResponseDto resultDto = teamService.create(requestDto, captain);
+        CreateTeamResponseDto resultDto = teamService.create(requestDto, captain.getId());
 
         // then
         assertThat(resultDto).isEqualTo(createResponseDto);
@@ -144,11 +144,11 @@ public class TeamServiceTest {
     @DisplayName("create - captain null이면 예외")
     void create_nullCaptain_throws() {
         // given
-        User nullCaptain = null;
+        Long nullUserId = null;
 
         // when & then
         assertThatThrownBy(() ->
-            teamService.create(requestDto, nullCaptain))
+            teamService.create(requestDto, nullUserId))
             .isInstanceOf(NotFoundException.class);
     }
 
@@ -281,7 +281,7 @@ public class TeamServiceTest {
         when(teamMapper.toTeamDetailResponse(existingTeam)).thenReturn(updatedResponseDto);
 
         // when
-        TeamDetailResponseDto resultDto = teamService.update(TEAM_ID, updateRequestDto);
+        TeamDetailResponseDto resultDto = teamService.update(TEAM_ID, updateRequestDto, captain.getId());
 
         // then
         assertThat(resultDto).isNotNull();
@@ -307,7 +307,7 @@ public class TeamServiceTest {
 
         // when & then
         assertThatThrownBy(() ->
-            teamService.update(NON_EXISTENT_TEAM_ID, updateRequestDto))
+            teamService.update(NON_EXISTENT_TEAM_ID, updateRequestDto, captain.getId()))
             .isInstanceOf(NotFoundException.class);
     }
 
@@ -325,7 +325,7 @@ public class TeamServiceTest {
         when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(existingTeam));
 
         // when
-        teamService.delete(TEAM_ID);
+        teamService.delete(TEAM_ID, captain.getId());
 
         // then
         verify(teamRepository).findById(TEAM_ID);
@@ -339,7 +339,7 @@ public class TeamServiceTest {
         when(teamRepository.findById(NON_EXISTENT_TEAM_ID)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> teamService.delete(NON_EXISTENT_TEAM_ID))
+        assertThatThrownBy(() -> teamService.delete(NON_EXISTENT_TEAM_ID, captain.getId()))
             .isInstanceOf(NotFoundException.class);
     }
 

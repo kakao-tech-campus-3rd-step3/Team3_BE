@@ -472,13 +472,15 @@ public class JoinWaitingServiceTest {
     }
 
     @Nested
-    @DisplayName("findByApplicant 테스트")
-    class FindByApplicant {
+    @DisplayName("findAllByApplicant_IdAndStatusIn 테스트")
+    class findAllByApplicantIdAndStatusIn {
 
         private Team anotherTeam;
+        private List<JoinWaitingStatus> targetStatuses = List.of(JoinWaitingStatus.PENDING,
+            JoinWaitingStatus.REJECTED);
 
         @BeforeEach
-        void setUpForFindByApplicant() {
+        void setUpForfindAllByApplicantIdAndStatusIn() {
             anotherTeam = new Team(
                 "감자빵 FC",
                 anotherUser,
@@ -491,8 +493,8 @@ public class JoinWaitingServiceTest {
         }
 
         @Test
-        @DisplayName("findByApplicant - 사용자 별 가입 요청 목록 페이징 조회")
-        void findByApplicant_success() {
+        @DisplayName("findAllByApplicant_IdAndStatusIn - 사용자 별 가입 요청 목록 페이징 조회")
+        void findAllByApplicant_IdAndStatusIn_success() {
             // given
             Long applicantId = applicant.getId();
 
@@ -514,13 +516,13 @@ public class JoinWaitingServiceTest {
             );
 
             when(profileRepository.findById(applicantId)).thenReturn(Optional.of(applicant));
-            when(joinWaitingRepository.findAllByApplicant_Id(applicantId, pageRequest)).thenReturn(
-                joinWaitingPage);
+            when(joinWaitingRepository.findAllByApplicant_IdAndStatusIn(applicantId,
+                targetStatuses, pageRequest)).thenReturn(joinWaitingPage);
             when(joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting1)).thenReturn(responseDto1);
             when(joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting2)).thenReturn(responseDto2);
 
             // when
-            Page<JoinWaitingResponseDto> resultDtoPage = joinWaitingService.findByApplicant(
+            Page<JoinWaitingResponseDto> resultDtoPage = joinWaitingService.findAllByApplicant_IdAndStatusIn(
                 applicantId, pageRequest);
 
             // then
@@ -532,8 +534,8 @@ public class JoinWaitingServiceTest {
         }
 
         @Test
-        @DisplayName("findByApplicant - 사용자 없음 예외")
-        void findByApplicant_userNotFound_throws() {
+        @DisplayName("findAllByApplicant_IdAndStatusIn - 사용자 없음 예외")
+        void findAllByApplicant_IdAndStatusIn_userNotFound_throws() {
             // given
             Long nonExistApplicantId = 100L;
             PageRequest pageRequest = PageRequest.of(PAGE, SIZE);
@@ -541,23 +543,27 @@ public class JoinWaitingServiceTest {
             when(profileRepository.findById(nonExistApplicantId)).thenReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> joinWaitingService.findByApplicant(nonExistApplicantId, pageRequest))
+            assertThatThrownBy(
+                () -> joinWaitingService.findAllByApplicant_IdAndStatusIn(
+                    nonExistApplicantId, pageRequest))
                 .isInstanceOf(NotFoundException.class);
         }
 
         @Test
-        @DisplayName("findByApplicant - 빈 결과 반환")
-        void findByApplicant_emptyResult() {
+        @DisplayName("findAllByApplicant_IdAndStatusIn - 빈 결과 반환")
+        void findAllByApplicant_IdAndStatusIn_emptyResult() {
             // given
             Long applicantId = applicant.getId();
             PageRequest pageRequest = PageRequest.of(PAGE, SIZE);
             Page<JoinWaiting> emptyPage = new PageImpl<>(List.of(), pageRequest, 0);
 
             when(profileRepository.findById(applicantId)).thenReturn(Optional.of(applicant));
-            when(joinWaitingRepository.findAllByApplicant_Id(applicantId, pageRequest)).thenReturn(emptyPage);
+            when(joinWaitingRepository.findAllByApplicant_IdAndStatusIn(applicantId, targetStatuses,
+                pageRequest)).thenReturn(
+                emptyPage);
 
             // when
-            Page<JoinWaitingResponseDto> resultDtoPage = joinWaitingService.findByApplicant(
+            Page<JoinWaitingResponseDto> resultDtoPage = joinWaitingService.findAllByApplicant_IdAndStatusIn(
                 applicantId, pageRequest);
 
             // then
@@ -565,5 +571,5 @@ public class JoinWaitingServiceTest {
             assertThat(resultDtoPage.getContent()).isEmpty();
             assertThat(resultDtoPage.getTotalElements()).isEqualTo(0);
         }
-       }
+    }
 }
