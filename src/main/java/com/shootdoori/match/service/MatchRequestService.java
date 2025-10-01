@@ -190,7 +190,7 @@ public class MatchRequestService {
       matchWaiting.getPreferredDate(),
       matchWaiting.getPreferredTimeStart(),
       matchWaiting.getPreferredVenue(),
-      MatchStatus.MATCHED
+      MatchStatus.FINISHED // FE 연동 위한 잠정 변경 MATCHED->FINISHED
     );
     matchRepository.save(match);
 
