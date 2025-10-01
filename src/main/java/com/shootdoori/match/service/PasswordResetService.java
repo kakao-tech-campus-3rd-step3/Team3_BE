@@ -3,6 +3,7 @@ package com.shootdoori.match.service;
 import com.shootdoori.match.entity.PasswordOtpToken;
 import com.shootdoori.match.entity.PasswordResetToken;
 import com.shootdoori.match.entity.User;
+import com.shootdoori.match.exception.ErrorCode;
 import com.shootdoori.match.exception.UnauthorizedException;
 import com.shootdoori.match.repository.PasswordOtpTokenRepository;
 import com.shootdoori.match.repository.PasswordResetTokenRepository;
@@ -68,7 +69,7 @@ public class PasswordResetService {
 
     public String verifyCodeAndIssueToken(String email, String code) {
         PasswordOtpToken otpToken = otpTokenRepository.findByUser_Email(email)
-                .orElseThrow(() -> new UnauthorizedException("인증번호를 발급하지 못했습니다."));
+                .orElseThrow(() -> new UnauthorizedException(ErrorCode.OTP_NOT_FOUND));
         otpToken.validateCode(code, passwordEncoder);
 
         User user = otpToken.getUser();
@@ -89,7 +90,7 @@ public class PasswordResetService {
 
     public void resetPasswordWithToken(String token, String newPassword) {
         PasswordResetToken resetToken = resetTokenRepository.findByToken(token)
-            .orElseThrow(() -> new UnauthorizedException("인증이 필요합니다."));
+            .orElseThrow(() -> new UnauthorizedException(ErrorCode.INVALID_TOKEN));
         resetToken.validateExpiryDate();
 
         User user = resetToken.getUser();

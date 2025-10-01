@@ -36,7 +36,12 @@ public enum ErrorCode {
 
     PROFILE_NOT_FOUND("해당 프로필을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
-  ONESELF_MATCH("자기 자신 팀으로의 매치는 불가능합니다.", HttpStatus.BAD_REQUEST);
+    ONESELF_MATCH("자기 자신 팀으로의 매치는 불가능합니다.", HttpStatus.BAD_REQUEST),
+
+    INVALID_TOKEN("유효하지 않은 토큰입니다.", HttpStatus.UNAUTHORIZED),
+    EXPIRED_TOKEN("토큰이 만료되었습니다.", HttpStatus.UNAUTHORIZED),
+    OTP_NOT_FOUND("유효한 인증번호가 존재하지 않습니다.", HttpStatus.NOT_FOUND),
+    INVALID_OTP("인증번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED);
 
 
   private final String message;

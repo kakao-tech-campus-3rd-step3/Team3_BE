@@ -1,5 +1,6 @@
 package com.shootdoori.match.entity;
 
+import com.shootdoori.match.exception.ErrorCode;
 import com.shootdoori.match.exception.UnauthorizedException;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -32,7 +33,7 @@ public abstract class BasePasswordToken {
 
     public void validateExpiryDate() {
         if (isExpired()) {
-            throw new UnauthorizedException("토큰이 만료되었습니다.");
+            throw new UnauthorizedException(ErrorCode.EXPIRED_TOKEN);
         }
     }
 
