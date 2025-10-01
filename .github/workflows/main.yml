@@ -66,7 +66,6 @@ jobs:
         if: github.ref == 'refs/heads/main'
         run: ./gradlew clean bootJar -Dspring.profiles.active=prod -x test --no-daemon
 
-      # 배포 번들: JAR + appspec.yml + scripts/* + .env
       - name: Prepare deploy bundle
         run: |
           mkdir -p deploy
@@ -74,17 +73,22 @@ jobs:
           cp appspec.yml deploy/
           cp -r scripts deploy/
 
-          # 브랜치별 프로필 값
           if [ "${GITHUB_REF##*/}" = "develop" ]; then PROFILE=dev; else PROFILE=prod; fi
 
-          # .env 파일 생성(EC2에서 scripts/deploy.sh가 읽음)
-          cat > deploy/.env << EOF
-          DB_URL=${{ secrets.DB_URL }}
-          DB_USERNAME=${{ secrets.DB_USERNAME }}
-          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
-          JWT_SECRET=${{ secrets.JWT_SECRET }}
-          SPRING_PROFILES_ACTIVE=${PROFILE}
-          EOF
+          esc() { printf "%s" "$1" | sed "s/'/'\"'\"'/g"; }
+
+          DB_URL_VAL="${{ secrets.DB_URL }}"
+          DB_USER_VAL="${{ secrets.DB_USERNAME }}"
+          DB_PASS_VAL="${{ secrets.DB_PASSWORD }}"
+          JWT_SECRET_VAL="${{ secrets.JWT_SECRET }}"
+
+          {
+            printf "SPRING_PROFILES_ACTIVE=%s\n" "$PROFILE"
+            printf "DB_URL='%s'\n"      "$(esc "$DB_URL_VAL")"
+            printf "DB_USERNAME='%s'\n" "$(esc "$DB_USER_VAL")"
+            printf "DB_PASSWORD='%s'\n" "$(esc "$DB_PASS_VAL")"
+            printf "JWT_SECRET='%s'\n"  "$(esc "$JWT_SECRET_VAL")"
+          } > deploy/.env
 
           cd deploy && zip -r ../bundle-${GITHUB_SHA}.zip .
 
