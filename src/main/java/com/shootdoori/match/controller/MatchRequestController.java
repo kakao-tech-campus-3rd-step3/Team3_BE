@@ -7,8 +7,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @RestController
 @RequestMapping("/api/matches")
@@ -23,9 +27,11 @@ public class MatchRequestController {
   @GetMapping("/waiting")
   public ResponseEntity<Slice<MatchWaitingResponseDto>> getWaitingMatches(
     @LoginUser Long loginUserId,
-    @RequestBody MatchWaitingRequestDto requestDto,
+    @RequestParam("selectDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate selectDate,
+    @RequestParam("startTime") @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime startTime,
     @PageableDefault(size = 10, sort = "preferredTimeStart", direction = Sort.Direction.ASC) Pageable pageable
   ) {
+    MatchWaitingRequestDto requestDto = new MatchWaitingRequestDto(selectDate, startTime);
     Slice<MatchWaitingResponseDto> slice = matchRequestService.getWaitingMatches(loginUserId, requestDto, pageable);
     return ResponseEntity.ok(slice);
   }
