@@ -256,6 +256,10 @@ public class User extends DateEntity {
         this.password.validate(rawPassword, passwordEncoder);
     }
 
+    public void changePassword(String encodedPassword) {
+        this.password = Password.of(encodedPassword);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || getClass() != o.getClass()) {

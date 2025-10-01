@@ -12,4 +12,8 @@ public class UnauthorizedException extends RuntimeException {
     public UnauthorizedException(String message, Throwable cause) {
         super(message, cause);
     }
+
+    public UnauthorizedException(ErrorCode errorCode) {
+        super(errorCode.getMessage());
+    }
 }
