@@ -55,6 +55,7 @@ public class MatchRequestService {
       .map(mw -> new MatchWaitingResponseDto(
         mw.getWaitingId(),
         mw.getTeam().getTeamId(),
+        mw.getTeam().getTeamName(),
         mw.getPreferredDate(),
         mw.getPreferredTimeStart(),
         mw.getPreferredTimeEnd(),
@@ -98,7 +99,9 @@ public class MatchRequestService {
     return new MatchRequestResponseDto(
         saved.getRequestId(),
         saved.getRequestTeam().getTeamId(),
+        saved.getRequestTeam().getTeamName(),
         saved.getTargetTeam().getTeamId(),
+        saved.getTargetTeam().getTeamName(),
         saved.getRequestMessage(),
         saved.getStatus()
     );
@@ -127,7 +130,9 @@ public class MatchRequestService {
     return new MatchRequestResponseDto(
       matchRequest.getRequestId(),
       matchRequest.getRequestTeam().getTeamId(),
+      matchRequest.getRequestTeam().getTeamName(),
       matchRequest.getTargetTeam().getTeamId(),
+      matchRequest.getTargetTeam().getTeamName(),
       matchRequest.getRequestMessage(),
       matchRequest.getStatus()
     );
@@ -147,7 +152,9 @@ public class MatchRequestService {
       .map(mr -> new MatchRequestResponseDto(
         mr.getRequestId(),
         mr.getRequestTeam().getTeamId(),
+        mr.getRequestTeam().getTeamName(),
         mr.getTargetTeam().getTeamId(),
+        mr.getTargetTeam().getTeamName(),
         mr.getRequestMessage(),
         mr.getStatus()
       ));
@@ -190,7 +197,9 @@ public class MatchRequestService {
     return new MatchConfirmedResponseDto(
       match.getMatchId(),
       match.getTeam1().getTeamId(),
+      match.getTeam1().getTeamName(),
       match.getTeam2().getTeamId(),
+      match.getTeam2().getTeamName(),
       match.getMatchDate(),
       match.getMatchTime(),
       match.getVenue().getVenueId(),
@@ -222,7 +231,9 @@ public class MatchRequestService {
     return new MatchRequestResponseDto(
       matchRequest.getRequestId(),
       matchRequest.getRequestTeam().getTeamId(),
+      matchRequest.getRequestTeam().getTeamName(),
       matchRequest.getTargetTeam().getTeamId(),
+      matchRequest.getTargetTeam().getTeamName(),
       matchRequest.getRequestMessage(),
       matchRequest.getStatus()
     );
