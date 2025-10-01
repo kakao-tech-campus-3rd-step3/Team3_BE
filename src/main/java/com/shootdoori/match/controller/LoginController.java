@@ -4,7 +4,6 @@ import com.shootdoori.match.dto.AuthToken;
 import com.shootdoori.match.dto.AuthTokenResponse;
 import com.shootdoori.match.dto.LoginRequest;
 import com.shootdoori.match.dto.ProfileCreateRequest;
-import com.shootdoori.match.entity.User;
 import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.AuthService;
 import com.shootdoori.match.service.TokenRefreshService;
@@ -75,17 +74,17 @@ public class LoginController {
 
     @PostMapping("/logout-all")
     public ResponseEntity<Void> logoutAll(
-        @LoginUser User user,
+        @LoginUser Long userId,
         HttpServletResponse response
     ) {
-        authService.logoutAll(user.getId());
+        authService.logoutAll(userId);
         expireRefreshTokenCookie(response);
 
         return ResponseEntity.ok().build();
     }
 
     private void expireRefreshTokenCookie(HttpServletResponse response) {
-        Cookie cookie = new Cookie("refreshToken", null);
+        Cookie cookie = new Cookie("refreshToken", "deleted");
         cookie.setMaxAge(0);
         cookie.setPath("/");
         response.addCookie(cookie);

@@ -41,12 +41,18 @@ public class TeamMemberService {
         this.teamMemberMapper = teamMemberMapper;
     }
 
-    public TeamMemberResponseDto create(Long teamId, TeamMemberRequestDto requestDto) {
+    public TeamMemberResponseDto create(Long teamId,
+                                        TeamMemberRequestDto requestDto,
+                                        Long captainId) {
 
         Long userId = requestDto.userId();
 
         Team team = teamRepository.findById(teamId).orElseThrow(() ->
             new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
+
+        if (!team.getCaptain().getId().equals(captainId)) {
+            throw new NoPermissionException();
+        }
 
         User user = profileRepository.findById(userId).orElseThrow(
             () -> new NotFoundException(ErrorCode.USER_NOT_FOUND, String.valueOf(userId)));
@@ -89,26 +95,34 @@ public class TeamMemberService {
     }
 
     public TeamMemberResponseDto update(Long teamId, Long userId,
-        UpdateTeamMemberRequestDto requestDto) {
+        UpdateTeamMemberRequestDto requestDto, Long loginUserId) {
         Team team = teamRepository.findById(teamId)
             .orElseThrow(
                 () -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
 
         TeamMember teamMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId, userId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
+
+        if (!teamMember.getUser().getId().equals(loginUserId)){
+            throw new NoPermissionException();
+        }
 
         teamMember.changeRole(team, TeamMemberRole.fromDisplayName(requestDto.role()));
 
         return teamMemberMapper.toTeamMemberResponseDto(teamMember);
     }
 
-    public void delete(Long teamId, Long userId) {
+    public void delete(Long teamId, Long userId, Long loginUserId) {
         Team team = teamRepository.findById(teamId)
             .orElseThrow(
                 () -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
 
         TeamMember teamMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId, userId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
+
+        if(!teamMember.getUser().getId().equals(loginUserId)){
+            throw new NoPermissionException();
+        }
 
         team.removeMember(teamMember);
         teamRepository.save(team);

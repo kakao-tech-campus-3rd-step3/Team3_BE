@@ -7,6 +7,7 @@ import com.shootdoori.match.dto.TeamRequestDto;
 import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.entity.TeamMemberRole;
 import com.shootdoori.match.entity.User;
+import com.shootdoori.match.exception.NoPermissionException;
 import com.shootdoori.match.exception.NotFoundException;
 import com.shootdoori.match.exception.ErrorCode;
 import com.shootdoori.match.repository.ProfileRepository;
@@ -18,6 +19,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Objects;
 
 @Service
 @Transactional
@@ -35,16 +38,8 @@ public class TeamService {
         this.teamMapper = teamMapper;
     }
 
-    public CreateTeamResponseDto create(TeamRequestDto requestDto, User captain) {
-        if (captain == null) {
-            throw new NotFoundException(ErrorCode.CAPTAIN_NOT_FOUND);
-        }
-
-        /*
-            TODO: JWT 토큰에서 captain 정보 받아와야 함. 현재는 하나의 User를 생성해 captain으로 대체하였음.
-         */
-        captain = profileRepository.save(captain);
-
+    public CreateTeamResponseDto create(TeamRequestDto requestDto, Long userId) {
+        User captain = profileRepository.findById(userId).orElseThrow(() -> new NotFoundException(ErrorCode.CAPTAIN_NOT_FOUND));
         Team team = TeamMapper.toEntity(requestDto, captain);
         team.recruitMember(captain, TeamMemberRole.LEADER);
         Team savedTeam = teamRepository.save(team);
@@ -70,9 +65,14 @@ public class TeamService {
         return teamPage.map(teamMapper::toTeamDetailResponse);
     }
 
-    public TeamDetailResponseDto update(Long id, TeamRequestDto requestDto) {
+    public TeamDetailResponseDto update(Long id, TeamRequestDto requestDto, Long userId) {
         Team team = teamRepository.findById(id).orElseThrow(() ->
             new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(id)));
+
+        // 기존 팀장과 요청을 보낸 유저가 동일하지 않다면 권한 없음으로 거부
+        if(!Objects.equals(team.getCaptain().getId(), userId)) {
+            throw new NoPermissionException();
+        }
 
         team.changeTeamInfo(requestDto.name(), requestDto.university(),
             requestDto.skillLevel(), requestDto.description());
@@ -80,9 +80,14 @@ public class TeamService {
         return teamMapper.toTeamDetailResponse(team);
     }
 
-    public void delete(Long id) {
+    public void delete(Long id, Long userId) {
         Team team = teamRepository.findById(id).orElseThrow(() ->
             new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(id)));
+
+        // 기존 팀장과 요청을 보낸 유저가 동일하지 않다면 권한 없음으로 거부
+        if(!Objects.equals(team.getCaptain().getId(), userId)) {
+            throw new NoPermissionException();
+        }
 
         teamRepository.delete(team);
     }
