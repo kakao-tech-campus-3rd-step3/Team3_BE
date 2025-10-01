@@ -45,11 +45,10 @@ public class JoinWaitingService {
     }
 
     @Transactional
-    public JoinWaitingResponseDto create(Long teamId, JoinWaitingRequestDto requestDto) {
+    public JoinWaitingResponseDto create(Long teamId, Long applicantId, JoinWaitingRequestDto requestDto) {
         Team team = teamRepository.findById(teamId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
 
-        Long applicantId = requestDto.applicantId();
         User applicant = profileRepository.findById(applicantId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND, String.valueOf(applicantId)));
 
@@ -73,13 +72,14 @@ public class JoinWaitingService {
 
     @Transactional
     public JoinWaitingResponseDto approve(Long teamId, Long joinWaitingId,
-        JoinWaitingApproveRequestDto requestDto) {
+        Long loginUserId, JoinWaitingApproveRequestDto requestDto) {
+
+        TeamMember approver = teamMemberRepository.findByUser_Id(loginUserId)
+          .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
+
+        Long approverId = approver.getId();
 
         TeamMemberRole role = TeamMemberRole.fromDisplayName(requestDto.role());
-
-        Long approverId = requestDto.approverId();
-        TeamMember approver = teamMemberRepository.findByIdAndTeam_TeamId(approverId, teamId)
-            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
         JoinWaiting joinWaiting = joinWaitingRepository
             .findByIdAndTeam_TeamIdForUpdate(joinWaitingId, teamId)
@@ -102,10 +102,9 @@ public class JoinWaitingService {
 
     @Transactional
     public JoinWaitingResponseDto reject(Long teamId, Long joinWaitingId,
-        JoinWaitingRejectRequestDto requestDto) {
+        Long loginUserId, JoinWaitingRejectRequestDto requestDto) {
 
-        Long approverId = requestDto.approverId();
-        TeamMember approver = teamMemberRepository.findByIdAndTeam_TeamId(approverId, teamId)
+        TeamMember approver = teamMemberRepository.findByUser_Id(loginUserId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
         JoinWaiting joinWaiting = joinWaitingRepository
@@ -119,9 +118,8 @@ public class JoinWaitingService {
 
     @Transactional
     public JoinWaitingResponseDto cancel(Long teamId, Long joinWaitingId,
-        JoinWaitingCancelRequestDto requestDto) {
+        Long requesterId, JoinWaitingCancelRequestDto requestDto) {
 
-        Long requesterId = requestDto.requesterId();
         User requester = profileRepository.findById(requesterId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.USER_NOT_FOUND, String.valueOf(requesterId)));
 

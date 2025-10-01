@@ -4,7 +4,11 @@ import com.shootdoori.match.dto.MatchTeamRequestDto;
 import com.shootdoori.match.dto.TeamResponseDto;
 import com.shootdoori.match.entity.Match;
 import com.shootdoori.match.entity.Team;
+import com.shootdoori.match.entity.TeamMember;
+import com.shootdoori.match.exception.ErrorCode;
+import com.shootdoori.match.exception.NotFoundException;
 import com.shootdoori.match.repository.MatchRepository;
+import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.repository.TeamRepository;
 import org.springframework.stereotype.Service;
 
@@ -12,10 +16,14 @@ import org.springframework.stereotype.Service;
 public class MatchCompleteService {
     private final TeamRepository teamRepository;
     private final MatchRepository matchRepository;
+    private final TeamMemberRepository teamMemberRepository;
 
-    public MatchCompleteService(TeamRepository teamRepository, MatchRepository matchRepository){
+    public MatchCompleteService(TeamRepository teamRepository,
+                                MatchRepository matchRepository,
+                                TeamMemberRepository teamMemberRepository){
         this.teamRepository = teamRepository;
         this.matchRepository = matchRepository;
+        this.teamMemberRepository = teamMemberRepository;
     }
 
     /**
@@ -23,11 +31,16 @@ public class MatchCompleteService {
      * @param matchTeamRequestDto 매치 id, 내 팀 id
      * @return TeamResponseDto 적 팀 정보
      */
-    public TeamResponseDto getEnemyTeam(MatchTeamRequestDto matchTeamRequestDto) {
+    public TeamResponseDto getEnemyTeam(Long loginUserId, MatchTeamRequestDto matchTeamRequestDto) {
         Long enemyTeamId;
         Match match = matchRepository.findByMatchId(matchTeamRequestDto.matchId());
 
-        Team enemyTeam = match.findEnemyTeam(matchTeamRequestDto.teamId());
+        TeamMember teamMember = teamMemberRepository.findByUser_Id(loginUserId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
+
+        Team team = teamMember.getTeam();
+
+        Team enemyTeam = match.findEnemyTeam(team.getTeamId());
         return new TeamResponseDto(enemyTeam);
     }
 }

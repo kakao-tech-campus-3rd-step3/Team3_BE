@@ -6,6 +6,7 @@ import com.shootdoori.match.dto.JoinWaitingRejectRequestDto;
 import com.shootdoori.match.dto.JoinWaitingRequestDto;
 import com.shootdoori.match.dto.JoinWaitingResponseDto;
 import com.shootdoori.match.entity.JoinWaitingStatus;
+import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.JoinWaitingService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,10 +33,12 @@ public class JoinWaitingController {
     @PostMapping("/api/teams/{teamId}/join-waiting")
     public ResponseEntity<JoinWaitingResponseDto> create(
         @PathVariable Long teamId,
+        @LoginUser Long loginUserId,
         @RequestBody JoinWaitingRequestDto requestDto
         // TODO: JWT 구현 이후에 Resolver 활용한 유저 ID 주입 필요 (현재는 JoinWaitingRequestDto에 존재)
+        // -> JoinWaitingRequestDto 에서 applicantId 필드 제거, @LoginUser로 얻은 loginUserId가 이를 대체하고 서비스로 넘기도록 변경
     ) {
-        return new ResponseEntity<>(joinWaitingService.create(teamId, requestDto),
+        return new ResponseEntity<>(joinWaitingService.create(teamId, loginUserId, requestDto),
             HttpStatus.CREATED);
     }
 
@@ -43,10 +46,12 @@ public class JoinWaitingController {
     public ResponseEntity<JoinWaitingResponseDto> approve(
         @PathVariable Long teamId,
         @PathVariable Long joinWaitingId,
+        @LoginUser Long loginUserId,
         @RequestBody JoinWaitingApproveRequestDto requestDto
         // TODO: JWT 구현 이후에 Resolver 활용한 approver TeamMember ID 주입 필요 (현재는 JoinWaitingApproveRequestDto에 존재)
+        // -> JoinWaitingApproveRequestDto의 팀멤버 id에 해당하는 approverId 제거, @LoginUser로 얻은 아이디로 서비스에서 팀멤버 아이디 조회하여 처리
     ) {
-        return new ResponseEntity<>(joinWaitingService.approve(teamId, joinWaitingId, requestDto),
+        return new ResponseEntity<>(joinWaitingService.approve(teamId, joinWaitingId, loginUserId, requestDto),
             HttpStatus.OK);
     }
 
@@ -54,10 +59,12 @@ public class JoinWaitingController {
     public ResponseEntity<JoinWaitingResponseDto> reject(
         @PathVariable Long teamId,
         @PathVariable Long joinWaitingId,
+        @LoginUser Long loginUserId,
         @RequestBody JoinWaitingRejectRequestDto requestDto
         // TODO: JWT 구현 이후에 Resolver 활용한 approver TeamMember ID 주입 필요 (현재는 JoinWaitingRejectRequestDto에 존재)
+        // -> JoinWaitingRejectRequestDto의 팀멤버 id에 해당하는 approverId 제거, @LoginUser로 얻은 아이디로 서비스에서 팀멤버 아이디 조회하여 처리
     ) {
-        return new ResponseEntity<>(joinWaitingService.reject(teamId, joinWaitingId, requestDto),
+        return new ResponseEntity<>(joinWaitingService.reject(teamId, joinWaitingId, loginUserId, requestDto),
             HttpStatus.OK);
     }
 
@@ -65,10 +72,12 @@ public class JoinWaitingController {
     public ResponseEntity<JoinWaitingResponseDto> cancel(
         @PathVariable Long teamId,
         @PathVariable Long joinWaitingId,
+        @LoginUser Long loginUserId,
         @RequestBody JoinWaitingCancelRequestDto requestDto
         // TODO: JWT 구현 이후에 Resolver 활용한 requester User ID 주입 필요 (현재는 JoinWaitingCancelRequestDto에 존재)
+        // -> JoinWaitingCancelRequestDto의 유저 id에 해당하는 requesterId 제거, @LoginUser로 얻은 아이디로 서비스에서 팀멤버 아이디 조회하여 처리
     ) {
-        return new ResponseEntity<>(joinWaitingService.cancel(teamId, joinWaitingId, requestDto),
+        return new ResponseEntity<>(joinWaitingService.cancel(teamId, joinWaitingId, loginUserId, requestDto),
             HttpStatus.OK);
     }
 
@@ -82,16 +91,17 @@ public class JoinWaitingController {
             HttpStatus.OK);
     }
 
-    @GetMapping("/api/users/{userId}/join-waiting")
+    @GetMapping("/api/users/me/join-waiting")
     public ResponseEntity<Page<JoinWaitingResponseDto>> findByApplicant(
-        @PathVariable Long userId,
+        @LoginUser Long loginUserId,
         @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
         /*
             TODO: JWT 구현 이후에 Resolver 활용한 유저 ID 주입 필요 (현재는 PathVariable로 받음)
             TODO: API endpoint를 전반적으로 수정할 필요성이 있는지 체크 필요
+            // PathVariable을 @LoginUser로 대체 / API endpoint 수정 {userId} -> me 로
          */
     ) {
-        return new ResponseEntity<>(joinWaitingService.findAllByApplicant_IdAndStatusIn(userId, pageable),
+        return new ResponseEntity<>(joinWaitingService.findAllByApplicant_IdAndStatusIn(loginUserId, pageable),
             HttpStatus.OK);
     }
 }

@@ -1,6 +1,7 @@
 package com.shootdoori.match.controller;
 
 import com.shootdoori.match.dto.*;
+import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.MatchRequestService;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -21,53 +22,58 @@ public class MatchRequestController {
 
   @GetMapping("/waiting")
   public ResponseEntity<Slice<MatchWaitingResponseDto>> getWaitingMatches(
+    @LoginUser Long loginUserId,
     @RequestBody MatchWaitingRequestDto requestDto,
     @PageableDefault(size = 10, sort = "preferredTimeStart", direction = Sort.Direction.ASC) Pageable pageable
   ) {
-    Slice<MatchWaitingResponseDto> slice = matchRequestService.getWaitingMatches(requestDto, pageable);
+    Slice<MatchWaitingResponseDto> slice = matchRequestService.getWaitingMatches(loginUserId, requestDto, pageable);
     return ResponseEntity.ok(slice);
   }
 
   @PostMapping("/{waitingId}/request")
   public ResponseEntity<MatchRequestResponseDto> requestToMatch(
+      @LoginUser Long loginUserId,
       @PathVariable Long waitingId,
       @RequestBody MatchRequestRequestDto requestDto
   ) {
-    MatchRequestResponseDto response = matchRequestService.requestToMatch(waitingId, requestDto);
+    MatchRequestResponseDto response = matchRequestService.requestToMatch(loginUserId, waitingId, requestDto);
     return ResponseEntity.ok(response);
   }
 
   @DeleteMapping("/requests/{requestId}")
   public ResponseEntity<MatchRequestResponseDto> cancelMatchRequest(
+    @LoginUser Long loginUserId,
     @PathVariable Long requestId
   ) {
-    MatchRequestResponseDto response = matchRequestService.cancelMatchRequest(requestId);
+    MatchRequestResponseDto response = matchRequestService.cancelMatchRequest(loginUserId, requestId);
     return ResponseEntity.ok(response);
   }
 
-  @GetMapping("/receive/{teamId}/pending")
+  @GetMapping("/receive/me/pending")
   public ResponseEntity<Slice<MatchRequestResponseDto>> getReceivedPendingRequests(
-    @PathVariable Long teamId,
+    @LoginUser Long loginUserId,
     @PageableDefault(size = 10, sort = "requestAt", direction = Sort.Direction.DESC) Pageable pageable
   ) {
     Slice<MatchRequestResponseDto> slice =
-      matchRequestService.getReceivedPendingRequests(teamId, pageable);
+      matchRequestService.getReceivedPendingRequests(loginUserId, pageable);
     return ResponseEntity.ok(slice);
   }
 
   @PatchMapping("/requests/{requestId}/accept")
   public ResponseEntity<MatchConfirmedResponseDto> acceptRequest(
+    @LoginUser Long loginUserId,
     @PathVariable Long requestId
   ) {
-    MatchConfirmedResponseDto response = matchRequestService.acceptRequest(requestId);
+    MatchConfirmedResponseDto response = matchRequestService.acceptRequest(loginUserId, requestId);
     return ResponseEntity.ok(response);
   }
 
   @PatchMapping("/requests/{requestId}/reject")
   public ResponseEntity<MatchRequestResponseDto> rejectRequest(
+    @LoginUser Long loginUserId,
     @PathVariable Long requestId
   ) {
-    MatchRequestResponseDto response = matchRequestService.rejectRequest(requestId);
+    MatchRequestResponseDto response = matchRequestService.rejectRequest(loginUserId, requestId);
     return ResponseEntity.ok(response);
   }
 }

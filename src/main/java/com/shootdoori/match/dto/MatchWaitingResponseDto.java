@@ -2,6 +2,8 @@ package com.shootdoori.match.dto;
 
 import com.shootdoori.match.entity.MatchWaitingStatus;
 import com.shootdoori.match.entity.SkillLevel;
+import com.shootdoori.match.value.TeamName;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -9,6 +11,7 @@ import java.time.LocalTime;
 public record MatchWaitingResponseDto(
   Long waitingId,
   Long teamId,
+  TeamName teamName,
   LocalDate preferredDate,
   LocalTime preferredTimeStart,
   LocalTime preferredTimeEnd,

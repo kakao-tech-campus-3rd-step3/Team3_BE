@@ -5,7 +5,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 public record MatchCreateRequestDto(
-    Long teamId,
     LocalDate preferredDate,
     LocalTime preferredTimeStart,
     LocalTime preferredTimeEnd,
