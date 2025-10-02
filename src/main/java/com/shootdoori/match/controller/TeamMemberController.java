@@ -61,11 +61,10 @@ public class TeamMemberController {
             teamMemberService.update(teamId, userId, requestDto, loginUserId), HttpStatus.OK);
     }
 
-    @DeleteMapping("/users/{userId}")
-    public ResponseEntity<Void> delete(@PathVariable Long teamId,
-                                       @PathVariable Long userId,
-                                       @LoginUser Long loginUserId) {
-        teamMemberService.delete(teamId, userId, loginUserId);
+    @DeleteMapping("/users/me")
+    public ResponseEntity<Void> leave(@PathVariable Long teamId,
+                                     @LoginUser Long loginUserId) {
+        teamMemberService.leave(teamId, loginUserId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

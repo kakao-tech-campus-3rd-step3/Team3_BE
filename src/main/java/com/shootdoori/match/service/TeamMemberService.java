@@ -121,19 +121,19 @@ public class TeamMemberService {
         return teamMemberMapper.toTeamMemberResponseDto(targetMember);
     }
 
-    public void delete(Long teamId, Long userId, Long loginUserId) {
+    public void leave(Long teamId, Long loginUserId) {
         Team team = teamRepository.findById(teamId)
             .orElseThrow(
                 () -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
 
-        TeamMember teamMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId, userId)
+        TeamMember loginMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId, loginUserId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
-        if (!teamMember.getUser().getId().equals(loginUserId)) {
+        if (loginMember.isCaptain()) {
             throw new NoPermissionException();
         }
 
-        team.removeMember(teamMember);
+        team.removeMember(loginMember);
         teamRepository.save(team);
     }
 
@@ -166,5 +166,9 @@ public class TeamMemberService {
 
     private boolean isForbiddenSelfRoleChange(Long targetUserId, Long loginUserId, TeamMember actor) {
         return loginUserId.equals(targetUserId) && (actor.isCaptain() || actor.isViceCaptain());
+    }
+
+    private boolean isEqualsCaptainId(Team team, Long loginUserId) {
+        return team.getCaptain().getId().equals(loginUserId);
     }
 }
