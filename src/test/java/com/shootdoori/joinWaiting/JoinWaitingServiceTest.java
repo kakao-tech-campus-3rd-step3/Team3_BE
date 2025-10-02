@@ -164,7 +164,7 @@ public class JoinWaitingServiceTest {
             JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "파트라슈처럼 뛰겠습니다.");
 
             JoinWaitingResponseDto expected = new JoinWaitingResponseDto(
-                JOIN_WAITING_ID, TEAM_ID, applicantId,
+                JOIN_WAITING_ID, applicant.getName(), TEAM_ID, applicantId,
                 JoinWaitingStatus.PENDING.getDisplayName(),
                 null, null, null
             );
@@ -281,9 +281,9 @@ public class JoinWaitingServiceTest {
                 .thenReturn(false);
 
             JoinWaitingResponseDto expected = new JoinWaitingResponseDto(
-                JOIN_WAITING_ID, TEAM_ID, applicantId,
+                JOIN_WAITING_ID, applicant.getName(), TEAM_ID, applicantId,
                 JoinWaitingStatus.APPROVED.getDisplayName(),
-                "승인합니다", teamLeader.toString(), FIXED_TIME
+                "승인합니다", teamLeader.getName(), FIXED_TIME
             );
 
             when(joinWaitingMapper.toJoinWaitingResponseDto(any(JoinWaiting.class))).thenReturn(
@@ -375,9 +375,9 @@ public class JoinWaitingServiceTest {
                 .thenReturn(Optional.of(joinWaiting));
 
             JoinWaitingResponseDto expected = new JoinWaitingResponseDto(
-                JOIN_WAITING_ID, TEAM_ID, applicantId,
+                JOIN_WAITING_ID, applicant.getName(), TEAM_ID, applicantId,
                 JoinWaitingStatus.REJECTED.getDisplayName(),
-                "죄송합니다", teamLeader.toString(), FIXED_TIME
+                "죄송합니다", teamLeader.getName(), FIXED_TIME
             );
             when(joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting)).thenReturn(expected);
 
@@ -412,9 +412,9 @@ public class JoinWaitingServiceTest {
                 .thenReturn(Optional.of(joinWaiting));
 
             JoinWaitingResponseDto expected = new JoinWaitingResponseDto(
-                JOIN_WAITING_ID, TEAM_ID, applicantId,
+                JOIN_WAITING_ID, applicant.getName(), TEAM_ID, applicantId,
                 JoinWaitingStatus.CANCELED.getDisplayName(),
-                "개인 사정으로 취소합니다.", applicant.toString(), FIXED_TIME
+                "개인 사정으로 취소합니다.", applicant.getName(), FIXED_TIME
             );
             when(joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting)).thenReturn(expected);
 
@@ -444,11 +444,11 @@ public class JoinWaitingServiceTest {
             Page<JoinWaiting> joinWaitingPage = new PageImpl<>(joinWaitingList, pageRequest, 2);
 
             JoinWaitingResponseDto responseDto1 = new JoinWaitingResponseDto(
-                1L, TEAM_ID, applicant.getId(), JoinWaitingStatus.PENDING.getDisplayName(), null,
+                1L, applicant.getName(), TEAM_ID, applicant.getId(), JoinWaitingStatus.PENDING.getDisplayName(), null,
                 null, null
             );
             JoinWaitingResponseDto responseDto2 = new JoinWaitingResponseDto(
-                2L, TEAM_ID, anotherUser.getId(), JoinWaitingStatus.PENDING.getDisplayName(), null,
+                2L, anotherUser.getName(), TEAM_ID, anotherUser.getId(), JoinWaitingStatus.PENDING.getDisplayName(), null,
                 null, null
             );
 
@@ -498,12 +498,12 @@ public class JoinWaitingServiceTest {
             Page<JoinWaiting> joinWaitingPage = new PageImpl<>(joinWaitingList, pageRequest, 2);
 
             JoinWaitingResponseDto responseDto1 = new JoinWaitingResponseDto(
-                1L, 1L, applicantId, JoinWaitingStatus.PENDING.getDisplayName(),
+                1L, applicant.getName(), 1L, applicantId, JoinWaitingStatus.PENDING.getDisplayName(),
                 "저 잘 뜁니다 1", null, null
             );
 
             JoinWaitingResponseDto responseDto2 = new JoinWaitingResponseDto(
-                2L, 2L, applicantId, JoinWaitingStatus.PENDING.getDisplayName(),
+                2L, applicant.getName(), 2L, applicantId, JoinWaitingStatus.PENDING.getDisplayName(),
                 "저 잘 뜁니다 2", null, null
             );
 

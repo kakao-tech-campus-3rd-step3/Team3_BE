@@ -8,6 +8,7 @@ public class JoinWaitingMapper {
     public JoinWaitingResponseDto toJoinWaitingResponseDto(JoinWaiting joinWaiting) {
         return new JoinWaitingResponseDto(
             joinWaiting.getId(),
+            joinWaiting.getApplicant().getName(),
             joinWaiting.getTeam().getTeamId(),
             joinWaiting.getApplicant().getId(),
             joinWaiting.getStatus().getDisplayName(),
