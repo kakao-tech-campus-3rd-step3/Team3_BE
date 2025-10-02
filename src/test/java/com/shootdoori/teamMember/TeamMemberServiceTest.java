@@ -119,7 +119,7 @@ public class TeamMemberServiceTest {
 
         team.recruitMember(captain, TeamMemberRole.LEADER);
 
-        teamMember = new TeamMember(team, user, TeamMemberRole.LEADER);
+        teamMember = new TeamMember(team, captain, TeamMemberRole.LEADER);
 
         anotherUser = User.create(
             "손응민",
@@ -166,7 +166,8 @@ public class TeamMemberServiceTest {
             when(teamMemberMapper.toTeamMemberResponseDto(anotherTeamMember)).thenReturn(expected);
 
             // when
-            TeamMemberResponseDto resultDto = teamMemberService.create(TEAM_ID, requestDto, captain.getId());
+            TeamMemberResponseDto resultDto = teamMemberService.create(TEAM_ID, requestDto,
+                captain.getId());
 
             // then
             assertThat(resultDto).isEqualTo(expected);
@@ -310,21 +311,27 @@ public class TeamMemberServiceTest {
                 ROLE_VICE_LEADER);
             ReflectionTestUtils.setField(user, "id", 1L);
 
-            TeamMemberResponseDto expected = toResponse(teamMember);
+            TeamMember anotherTeamMember = new TeamMember(team, anotherUser, TeamMemberRole.MEMBER);
 
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
             when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID, USER_ID)).thenReturn(
                 Optional.of(teamMember));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
+                ANOTHER_USER_ID)).thenReturn(
+                Optional.of(anotherTeamMember));
+
+            TeamMemberResponseDto expected = toResponse(anotherTeamMember);
+
             when(teamMemberMapper.toTeamMemberResponseDto(any(TeamMember.class))).thenReturn(
                 expected);
 
             // when
-            TeamMemberResponseDto resultDto = teamMemberService.update(TEAM_ID, USER_ID,
+            TeamMemberResponseDto resultDto = teamMemberService.update(TEAM_ID, ANOTHER_USER_ID,
                 requestDto, USER_ID);
 
             // then
             assertThat(resultDto).isEqualTo(expected);
-            assertThat(teamMember.getRole()).isEqualTo(TeamMemberRole.VICE_LEADER);
+            assertThat(anotherTeamMember.getRole()).isEqualTo(TeamMemberRole.VICE_LEADER);
         }
 
         @Test
@@ -350,8 +357,6 @@ public class TeamMemberServiceTest {
                 ROLE_VICE_LEADER);
 
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
-            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
-                NON_EXISTENT_USER_ID)).thenReturn(Optional.empty());
 
             // when & then
             assertThatThrownBy(() ->
@@ -361,49 +366,179 @@ public class TeamMemberServiceTest {
     }
 
     @Nested
-    @DisplayName("delete")
-    class DeleteTest {
+    @DisplayName("leave")
+    class LeaveTest {
 
         @Test
-        @DisplayName("delete - 성공")
-        void delete_success() {
+        @DisplayName("leave - 성공")
+        void leave_success() {
             // given
-            TeamMember anotherTeamMember = new TeamMember(team, anotherUser, TeamMemberRole.MEMBER);
+            TeamMember loginMember = new TeamMember(team, anotherUser, TeamMemberRole.MEMBER);
             team.recruitMember(anotherUser, TeamMemberRole.MEMBER);
 
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
             when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
-                ANOTHER_USER_ID)).thenReturn(Optional.of(anotherTeamMember));
+                ANOTHER_USER_ID)).thenReturn(Optional.of(loginMember));
 
             // when
-            teamMemberService.delete(TEAM_ID, ANOTHER_USER_ID, ANOTHER_USER_ID);
+            teamMemberService.leave(TEAM_ID, ANOTHER_USER_ID);
 
             // then
             verify(teamRepository).save(team);
         }
 
         @Test
-        @DisplayName("delete - 팀 없음 예외")
-        void delete_teamNotFound_throws() {
+        @DisplayName("leave - 팀 없음 예외")
+        void leave_teamNotFound_throws() {
             // given
             when(teamRepository.findById(NON_EXISTENT_TEAM_ID)).thenReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> teamMemberService.delete(NON_EXISTENT_TEAM_ID, USER_ID, USER_ID))
+            assertThatThrownBy(() -> teamMemberService.leave(NON_EXISTENT_TEAM_ID, USER_ID))
                 .isInstanceOf(NotFoundException.class);
         }
 
         @Test
-        @DisplayName("delete - 팀 멤버 없음 예외")
-        void delete_memberNotFound_throws() {
+        @DisplayName("leave - 팀 멤버 없음 예외")
+        void leave_memberNotFound_throws() {
             // given
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
             when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
                 NON_EXISTENT_USER_ID)).thenReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> teamMemberService.delete(TEAM_ID, NON_EXISTENT_USER_ID, NON_EXISTENT_USER_ID))
+            assertThatThrownBy(() -> teamMemberService.leave(TEAM_ID, NON_EXISTENT_USER_ID))
                 .isInstanceOf(NotFoundException.class);
+        }
+
+        @Test
+        @DisplayName("leave - 회장 본인 탈퇴 금지")
+        void leave_captain_forbidden() {
+            // given
+            ReflectionTestUtils.setField(anotherUser, "id", ANOTHER_USER_ID);
+            TeamMember loginLeader = new TeamMember(team, anotherUser, TeamMemberRole.LEADER);
+
+            when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
+                ANOTHER_USER_ID)).thenReturn(Optional.of(loginLeader));
+
+            // when & then
+            assertThatThrownBy(() -> teamMemberService.leave(TEAM_ID, ANOTHER_USER_ID))
+                .isInstanceOf(NoPermissionException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("kick")
+    class KickTest {
+
+        private Long leaderMemberId = 1L;
+        private Long viceLeaderMemberId = 2L;
+
+        private TeamMember leaderMember;
+        private TeamMember viceLeaderMember;
+
+        @BeforeEach
+        void setUpKick() {
+            ReflectionTestUtils.setField(user, "id", leaderMemberId);
+            ReflectionTestUtils.setField(anotherUser, "id", viceLeaderMemberId);
+        
+            team.recruitMember(user, TeamMemberRole.LEADER);
+            team.recruitMember(anotherUser, TeamMemberRole.VICE_LEADER);
+
+            leaderMember = new TeamMember(team, user, TeamMemberRole.LEADER);
+            viceLeaderMember = new TeamMember(team, anotherUser, TeamMemberRole.VICE_LEADER);
+        }
+
+        @Test
+        @DisplayName("kick - 회장이 부회장 멤버 강퇴성공")
+        void kick_success() {
+            // given
+            when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
+                USER_ID)).thenReturn(Optional.of(leaderMember));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
+                ANOTHER_USER_ID)).thenReturn(Optional.of(viceLeaderMember));
+
+            // when
+            teamMemberService.kick(TEAM_ID, ANOTHER_USER_ID, USER_ID);
+
+            // then
+            verify(teamRepository).save(team);
+        }
+
+        @Test
+        @DisplayName("kick - 일반 멤버는 강퇴 권한 없음")
+        void kick_noPermission_whenActorIsMember() {
+            // given
+            TeamMember loginMember = new TeamMember(team, user, TeamMemberRole.MEMBER);
+            TeamMember targetMember = new TeamMember(team, anotherUser, TeamMemberRole.MEMBER);
+
+            when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
+                USER_ID)).thenReturn(Optional.of(loginMember));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
+                ANOTHER_USER_ID)).thenReturn(Optional.of(targetMember));
+
+            // when & then
+            assertThatThrownBy(() -> teamMemberService.kick(TEAM_ID, ANOTHER_USER_ID, USER_ID))
+                .isInstanceOf(NoPermissionException.class);
+        }
+
+        @Test
+        @DisplayName("kick - 회장 강퇴 시도 금지 (대상=LEADER)")
+        void kick_forbid_kickingLeader() {
+            // given
+            TeamMember actorLeader = new TeamMember(team, user, TeamMemberRole.LEADER);
+            TeamMember targetLeader = new TeamMember(team, anotherUser, TeamMemberRole.LEADER);
+
+            when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
+                USER_ID)).thenReturn(Optional.of(actorLeader));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
+                ANOTHER_USER_ID)).thenReturn(Optional.of(targetLeader));
+
+            // when & then
+            assertThatThrownBy(() -> teamMemberService.kick(TEAM_ID, ANOTHER_USER_ID, USER_ID))
+                .isInstanceOf(NoPermissionException.class);
+        }
+
+        @Test
+        @DisplayName("kick - 부회장 강퇴는 회장만 가능")
+        void kick_leaderCanKickViceLeader_success() {
+            // given
+            TeamMember actorLeader = new TeamMember(team, user, TeamMemberRole.LEADER);
+            TeamMember targetVice = new TeamMember(team, anotherUser, TeamMemberRole.VICE_LEADER);
+
+            when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
+                USER_ID)).thenReturn(Optional.of(actorLeader));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
+                ANOTHER_USER_ID)).thenReturn(Optional.of(targetVice));
+            
+            // when
+            teamMemberService.kick(TEAM_ID, ANOTHER_USER_ID, USER_ID);
+
+            // then
+            verify(teamRepository).save(team);
+        }
+
+        @Test
+        @DisplayName("kick - 부회장 강퇴는 회장만 가능 (부회장은 불가)")
+        void kick_viceLeaderCannotKickViceLeader_forbidden() {
+            // given
+            TeamMember actorVice = new TeamMember(team, user, TeamMemberRole.VICE_LEADER);
+            TeamMember targetVice = new TeamMember(team, anotherUser, TeamMemberRole.VICE_LEADER);
+
+            when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
+                USER_ID)).thenReturn(Optional.of(actorVice));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
+                ANOTHER_USER_ID)).thenReturn(Optional.of(targetVice));
+
+            // when & then
+            assertThatThrownBy(() -> teamMemberService.kick(TEAM_ID, ANOTHER_USER_ID, USER_ID))
+                .isInstanceOf(NoPermissionException.class);
         }
     }
 
@@ -448,7 +583,8 @@ public class TeamMemberServiceTest {
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
             when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
                 currentLeaderId)).thenReturn(Optional.of(currentLeader));
-            when(teamMemberRepository.findById(newLeaderMemberId)).thenReturn(Optional.of(newLeader));
+            when(teamMemberRepository.findById(newLeaderMemberId)).thenReturn(
+                Optional.of(newLeader));
             when(teamMemberMapper.toTeamMemberResponseDto(newLeader)).thenReturn(expected);
 
             // when
@@ -493,11 +629,12 @@ public class TeamMemberServiceTest {
         void delegateLeadership_newLeaderNotFound_throws() {
             // given
             Long NON_EXISTENT_MEMBER_ID = 9999L;
-            
+
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
             when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
                 currentLeaderId)).thenReturn(Optional.of(currentLeader));
-            when(teamMemberRepository.findById(NON_EXISTENT_MEMBER_ID)).thenReturn(Optional.empty());
+            when(teamMemberRepository.findById(NON_EXISTENT_MEMBER_ID)).thenReturn(
+                Optional.empty());
 
             // when & then
             assertThatThrownBy(() -> teamMemberService.delegateLeadership(TEAM_ID, currentLeaderId,
@@ -512,7 +649,8 @@ public class TeamMemberServiceTest {
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
             when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
                 anotherMemberId)).thenReturn(Optional.of(anotherMember));
-            when(teamMemberRepository.findById(newLeaderMemberId)).thenReturn(Optional.of(newLeader));
+            when(teamMemberRepository.findById(newLeaderMemberId)).thenReturn(
+                Optional.of(newLeader));
 
             // when & then
             assertThatThrownBy(() -> teamMemberService.delegateLeadership(TEAM_ID, anotherMemberId,
@@ -527,7 +665,8 @@ public class TeamMemberServiceTest {
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
             when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
                 currentLeaderId)).thenReturn(Optional.of(currentLeader));
-            when(teamMemberRepository.findById(currentLeaderMemberId)).thenReturn(Optional.of(currentLeader));
+            when(teamMemberRepository.findById(currentLeaderMemberId)).thenReturn(
+                Optional.of(currentLeader));
 
             // when & then
             assertThatThrownBy(

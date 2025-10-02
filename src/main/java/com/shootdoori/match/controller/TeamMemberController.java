@@ -3,7 +3,6 @@ package com.shootdoori.match.controller;
 import com.shootdoori.match.dto.TeamMemberRequestDto;
 import com.shootdoori.match.dto.TeamMemberResponseDto;
 import com.shootdoori.match.dto.UpdateTeamMemberRequestDto;
-import com.shootdoori.match.entity.User;
 import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.TeamMemberService;
 import org.springframework.data.domain.Page;
@@ -62,12 +61,19 @@ public class TeamMemberController {
             teamMemberService.update(teamId, userId, requestDto, loginUserId), HttpStatus.OK);
     }
 
-    @DeleteMapping("/users/{userId}")
-    public ResponseEntity<Void> delete(@PathVariable Long teamId,
-                                       @PathVariable Long userId,
-                                       @LoginUser Long loginUserId) {
-        teamMemberService.delete(teamId, userId, loginUserId);
+    @DeleteMapping("/users/me")
+    public ResponseEntity<Void> leave(@PathVariable Long teamId,
+                                     @LoginUser Long loginUserId) {
+        teamMemberService.leave(teamId, loginUserId);
 
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @DeleteMapping("/users/{userId}")
+    public ResponseEntity<Void> kick(@PathVariable Long teamId,
+        @PathVariable Long userId,
+        @LoginUser Long loginUserId) {
+        teamMemberService.kick(teamId, userId, loginUserId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 

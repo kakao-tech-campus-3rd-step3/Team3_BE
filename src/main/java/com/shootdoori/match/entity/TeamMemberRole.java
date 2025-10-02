@@ -27,4 +27,14 @@ public enum TeamMemberRole {
     public boolean canMakeJoinDecision() {
         return this == LEADER || this == VICE_LEADER;
     }
+
+    public boolean canKick(TeamMemberRole targetRole) {
+        if (targetRole == LEADER) {
+            return false;
+        }
+        if (targetRole == VICE_LEADER) {
+            return this == LEADER;
+        }
+        return this == LEADER || this == VICE_LEADER;
+    }
 }
