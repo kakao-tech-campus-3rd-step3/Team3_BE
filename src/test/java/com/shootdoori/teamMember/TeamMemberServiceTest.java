@@ -166,7 +166,8 @@ public class TeamMemberServiceTest {
             when(teamMemberMapper.toTeamMemberResponseDto(anotherTeamMember)).thenReturn(expected);
 
             // when
-            TeamMemberResponseDto resultDto = teamMemberService.create(TEAM_ID, requestDto, captain.getId());
+            TeamMemberResponseDto resultDto = teamMemberService.create(TEAM_ID, requestDto,
+                captain.getId());
 
             // then
             assertThat(resultDto).isEqualTo(expected);
@@ -310,21 +311,27 @@ public class TeamMemberServiceTest {
                 ROLE_VICE_LEADER);
             ReflectionTestUtils.setField(user, "id", 1L);
 
-            TeamMemberResponseDto expected = toResponse(teamMember);
+            TeamMember anotherTeamMember = new TeamMember(team, anotherUser, TeamMemberRole.MEMBER);
 
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
             when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID, USER_ID)).thenReturn(
                 Optional.of(teamMember));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
+                ANOTHER_USER_ID)).thenReturn(
+                Optional.of(anotherTeamMember));
+
+            TeamMemberResponseDto expected = toResponse(anotherTeamMember);
+
             when(teamMemberMapper.toTeamMemberResponseDto(any(TeamMember.class))).thenReturn(
                 expected);
 
             // when
-            TeamMemberResponseDto resultDto = teamMemberService.update(TEAM_ID, USER_ID,
+            TeamMemberResponseDto resultDto = teamMemberService.update(TEAM_ID, ANOTHER_USER_ID,
                 requestDto, USER_ID);
 
             // then
             assertThat(resultDto).isEqualTo(expected);
-            assertThat(teamMember.getRole()).isEqualTo(TeamMemberRole.VICE_LEADER);
+            assertThat(anotherTeamMember.getRole()).isEqualTo(TeamMemberRole.VICE_LEADER);
         }
 
         @Test
@@ -350,8 +357,6 @@ public class TeamMemberServiceTest {
                 ROLE_VICE_LEADER);
 
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
-            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
-                NON_EXISTENT_USER_ID)).thenReturn(Optional.empty());
 
             // when & then
             assertThatThrownBy(() ->
@@ -464,7 +469,8 @@ public class TeamMemberServiceTest {
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
             when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
                 currentLeaderId)).thenReturn(Optional.of(currentLeader));
-            when(teamMemberRepository.findById(newLeaderMemberId)).thenReturn(Optional.of(newLeader));
+            when(teamMemberRepository.findById(newLeaderMemberId)).thenReturn(
+                Optional.of(newLeader));
             when(teamMemberMapper.toTeamMemberResponseDto(newLeader)).thenReturn(expected);
 
             // when
@@ -509,11 +515,12 @@ public class TeamMemberServiceTest {
         void delegateLeadership_newLeaderNotFound_throws() {
             // given
             Long NON_EXISTENT_MEMBER_ID = 9999L;
-            
+
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
             when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
                 currentLeaderId)).thenReturn(Optional.of(currentLeader));
-            when(teamMemberRepository.findById(NON_EXISTENT_MEMBER_ID)).thenReturn(Optional.empty());
+            when(teamMemberRepository.findById(NON_EXISTENT_MEMBER_ID)).thenReturn(
+                Optional.empty());
 
             // when & then
             assertThatThrownBy(() -> teamMemberService.delegateLeadership(TEAM_ID, currentLeaderId,
@@ -528,7 +535,8 @@ public class TeamMemberServiceTest {
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
             when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
                 anotherMemberId)).thenReturn(Optional.of(anotherMember));
-            when(teamMemberRepository.findById(newLeaderMemberId)).thenReturn(Optional.of(newLeader));
+            when(teamMemberRepository.findById(newLeaderMemberId)).thenReturn(
+                Optional.of(newLeader));
 
             // when & then
             assertThatThrownBy(() -> teamMemberService.delegateLeadership(TEAM_ID, anotherMemberId,
@@ -543,7 +551,8 @@ public class TeamMemberServiceTest {
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
             when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
                 currentLeaderId)).thenReturn(Optional.of(currentLeader));
-            when(teamMemberRepository.findById(currentLeaderMemberId)).thenReturn(Optional.of(currentLeader));
+            when(teamMemberRepository.findById(currentLeaderMemberId)).thenReturn(
+                Optional.of(currentLeader));
 
             // when & then
             assertThatThrownBy(
