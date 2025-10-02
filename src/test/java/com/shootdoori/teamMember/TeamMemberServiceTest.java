@@ -361,49 +361,65 @@ public class TeamMemberServiceTest {
     }
 
     @Nested
-    @DisplayName("delete")
-    class DeleteTest {
+    @DisplayName("leave")
+    class LeaveTest {
 
         @Test
-        @DisplayName("delete - 성공")
-        void delete_success() {
+        @DisplayName("leave - 성공")
+        void leave_success() {
             // given
-            TeamMember anotherTeamMember = new TeamMember(team, anotherUser, TeamMemberRole.MEMBER);
+            TeamMember loginMember = new TeamMember(team, anotherUser, TeamMemberRole.MEMBER);
             team.recruitMember(anotherUser, TeamMemberRole.MEMBER);
 
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
             when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
-                ANOTHER_USER_ID)).thenReturn(Optional.of(anotherTeamMember));
+                ANOTHER_USER_ID)).thenReturn(Optional.of(loginMember));
 
             // when
-            teamMemberService.delete(TEAM_ID, ANOTHER_USER_ID, ANOTHER_USER_ID);
+            teamMemberService.leave(TEAM_ID, ANOTHER_USER_ID);
 
             // then
             verify(teamRepository).save(team);
         }
 
         @Test
-        @DisplayName("delete - 팀 없음 예외")
-        void delete_teamNotFound_throws() {
+        @DisplayName("leave - 팀 없음 예외")
+        void leave_teamNotFound_throws() {
             // given
             when(teamRepository.findById(NON_EXISTENT_TEAM_ID)).thenReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> teamMemberService.delete(NON_EXISTENT_TEAM_ID, USER_ID, USER_ID))
+            assertThatThrownBy(() -> teamMemberService.leave(NON_EXISTENT_TEAM_ID, USER_ID))
                 .isInstanceOf(NotFoundException.class);
         }
 
         @Test
-        @DisplayName("delete - 팀 멤버 없음 예외")
-        void delete_memberNotFound_throws() {
+        @DisplayName("leave - 팀 멤버 없음 예외")
+        void leave_memberNotFound_throws() {
             // given
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
             when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
                 NON_EXISTENT_USER_ID)).thenReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> teamMemberService.delete(TEAM_ID, NON_EXISTENT_USER_ID, NON_EXISTENT_USER_ID))
+            assertThatThrownBy(() -> teamMemberService.leave(TEAM_ID, NON_EXISTENT_USER_ID))
                 .isInstanceOf(NotFoundException.class);
+        }
+
+        @Test
+        @DisplayName("leave - 회장 본인 탈퇴 금지")
+        void leave_captain_forbidden() {
+            // given
+            ReflectionTestUtils.setField(anotherUser, "id", ANOTHER_USER_ID);
+            TeamMember loginLeader = new TeamMember(team, anotherUser, TeamMemberRole.LEADER);
+
+            when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
+                ANOTHER_USER_ID)).thenReturn(Optional.of(loginLeader));
+
+            // when & then
+            assertThatThrownBy(() -> teamMemberService.leave(TEAM_ID, ANOTHER_USER_ID))
+                .isInstanceOf(NoPermissionException.class);
         }
     }
 
