@@ -21,11 +21,10 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
-
-import static org.mockito.Mockito.lenient;
 
 @ExtendWith(MockitoExtension.class)
 class PasswordResetServiceTest {
@@ -130,8 +129,8 @@ class PasswordResetServiceTest {
         when(profileRepository.findByEmail(testEmail)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> passwordResetService.sendVerificationCode(testEmail))
-            .isInstanceOf(NullPointerException.class);
+        assertThatCode(() -> passwordResetService.sendVerificationCode(testEmail))
+            .doesNotThrowAnyException();
 
         verify(otpTokenRepository, never()).save(any());
         verify(mailService, never()).sendEmail(anyString(), anyString(), anyString());
