@@ -82,12 +82,22 @@ jobs:
           DB_PASS_VAL="${{ secrets.DB_PASSWORD }}"
           JWT_SECRET_VAL="${{ secrets.JWT_SECRET }}"
 
+          MAIL_HOST_VAL="${{ secrets.MAIL_HOST }}"
+          MAIL_PORT_VAL="${{ secrets.MAIL_PORT }}"
+          MAIL_USERNAME_VAL="${{ secrets.MAIL_USERNAME }}"
+          MAIL_PASSWORD_VAL="${{ secrets.MAIL_PASSWORD }}"
+
           {
             printf "SPRING_PROFILES_ACTIVE=%s\n" "$PROFILE"
             printf "DB_URL='%s'\n"      "$(esc "$DB_URL_VAL")"
             printf "DB_USERNAME='%s'\n" "$(esc "$DB_USER_VAL")"
             printf "DB_PASSWORD='%s'\n" "$(esc "$DB_PASS_VAL")"
             printf "JWT_SECRET='%s'\n"  "$(esc "$JWT_SECRET_VAL")"
+
+            printf "MAIL_HOST='%s'\n"   "$(esc "$MAIL_HOST_VAL")"
+            printf "MAIL_PORT=%s\n"     "$MAIL_PORT_VAL"
+            printf "MAIL_USERNAME='%s'\n" "$(esc "$MAIL_USERNAME_VAL")"
+            printf "MAIL_PASSWORD='%s'\n" "$(esc "$MAIL_PASSWORD_VAL")"
           } > deploy/.env
 
           cd deploy && zip -r ../bundle-${GITHUB_SHA}.zip .
