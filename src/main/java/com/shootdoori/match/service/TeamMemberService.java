@@ -126,7 +126,8 @@ public class TeamMemberService {
             .orElseThrow(
                 () -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
 
-        TeamMember loginMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId, loginUserId)
+        TeamMember loginMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId,
+                loginUserId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
         if (loginMember.isCaptain()) {
@@ -134,6 +135,26 @@ public class TeamMemberService {
         }
 
         team.removeMember(loginMember);
+        teamRepository.save(team);
+    }
+
+    public void kick(Long teamId, Long userId, Long loginUserId) {
+        Team team = teamRepository.findById(teamId)
+            .orElseThrow(
+                () -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
+
+        TeamMember loginMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId,
+                loginUserId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
+
+        TeamMember targetMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId, userId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
+
+        if (!loginMember.getRole().canKick(targetMember.getRole())) {
+            throw new NoPermissionException();
+        }
+
+        team.removeMember(targetMember);
         teamRepository.save(team);
     }
 
@@ -164,7 +185,8 @@ public class TeamMemberService {
         throw new NoPermissionException();
     }
 
-    private boolean isForbiddenSelfRoleChange(Long targetUserId, Long loginUserId, TeamMember actor) {
+    private boolean isForbiddenSelfRoleChange(Long targetUserId, Long loginUserId,
+        TeamMember actor) {
         return loginUserId.equals(targetUserId) && (actor.isCaptain() || actor.isViceCaptain());
     }
 

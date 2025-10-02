@@ -69,6 +69,14 @@ public class TeamMemberController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @DeleteMapping("/users/{userId}")
+    public ResponseEntity<Void> kick(@PathVariable Long teamId,
+        @PathVariable Long userId,
+        @LoginUser Long loginUserId) {
+        teamMemberService.kick(teamId, userId, loginUserId);
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
     @PostMapping("/members/{memberId}/delegate-leadership")
     public ResponseEntity<TeamMemberResponseDto> delegateLeadership(
         @PathVariable Long teamId,
