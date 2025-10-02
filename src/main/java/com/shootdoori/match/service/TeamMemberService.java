@@ -8,8 +8,8 @@ import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.entity.TeamMember;
 import com.shootdoori.match.entity.TeamMemberRole;
 import com.shootdoori.match.entity.User;
-import com.shootdoori.match.exception.DuplicatedException;
 import com.shootdoori.match.exception.DifferentException;
+import com.shootdoori.match.exception.DuplicatedException;
 import com.shootdoori.match.exception.ErrorCode;
 import com.shootdoori.match.exception.NoPermissionException;
 import com.shootdoori.match.exception.NotFoundException;
@@ -42,8 +42,8 @@ public class TeamMemberService {
     }
 
     public TeamMemberResponseDto create(Long teamId,
-                                        TeamMemberRequestDto requestDto,
-                                        Long captainId) {
+        TeamMemberRequestDto requestDto,
+        Long captainId) {
 
         Long userId = requestDto.userId();
 
@@ -94,22 +94,31 @@ public class TeamMemberService {
         return teamMemberPage.map(teamMemberMapper::toTeamMemberResponseDto);
     }
 
-    public TeamMemberResponseDto update(Long teamId, Long userId,
+    public TeamMemberResponseDto update(Long teamId, Long targetUserId,
         UpdateTeamMemberRequestDto requestDto, Long loginUserId) {
+
         Team team = teamRepository.findById(teamId)
             .orElseThrow(
                 () -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
 
-        TeamMember teamMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId, userId)
+        TeamMember actor = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId, loginUserId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
-        if (!teamMember.getUser().getId().equals(loginUserId)){
+        TeamMember targetMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId,
+                targetUserId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
+
+        if (isForbiddenSelfRoleChange(targetUserId, loginUserId, actor)) {
+            throw new DuplicatedException(ErrorCode.SELF_DELEGATION_NOT_ALLOWED);
+        }
+
+        if (!actor.getRole().canMakeJoinDecision()) {
             throw new NoPermissionException();
         }
 
-        teamMember.changeRole(team, TeamMemberRole.fromDisplayName(requestDto.role()));
+        targetMember.changeRole(team, TeamMemberRole.fromDisplayName(requestDto.role()));
 
-        return teamMemberMapper.toTeamMemberResponseDto(teamMember);
+        return teamMemberMapper.toTeamMemberResponseDto(targetMember);
     }
 
     public void delete(Long teamId, Long userId, Long loginUserId) {
@@ -120,7 +129,7 @@ public class TeamMemberService {
         TeamMember teamMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId, userId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
-        if(!teamMember.getUser().getId().equals(loginUserId)){
+        if (!teamMember.getUser().getId().equals(loginUserId)) {
             throw new NoPermissionException();
         }
 
@@ -153,5 +162,9 @@ public class TeamMemberService {
         Long targetMemberId) {
         // TODO: 부회장 위임 로직 구현 필요 (권한/자기위임/같은 팀 검증 후 역할 변경)
         throw new NoPermissionException();
+    }
+
+    private boolean isForbiddenSelfRoleChange(Long targetUserId, Long loginUserId, TeamMember actor) {
+        return loginUserId.equals(targetUserId) && (actor.isCaptain() || actor.isViceCaptain());
     }
 }

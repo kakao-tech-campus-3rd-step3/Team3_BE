@@ -3,7 +3,6 @@ package com.shootdoori.match.controller;
 import com.shootdoori.match.dto.TeamMemberRequestDto;
 import com.shootdoori.match.dto.TeamMemberResponseDto;
 import com.shootdoori.match.dto.UpdateTeamMemberRequestDto;
-import com.shootdoori.match.entity.User;
 import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.TeamMemberService;
 import org.springframework.data.domain.Page;
