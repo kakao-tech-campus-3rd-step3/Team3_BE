@@ -12,6 +12,7 @@ import com.shootdoori.match.repository.*;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
+import com.shootdoori.match.value.TeamName;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -169,37 +170,41 @@ public class MatchRequestService {
       .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
     Team determineTeam = teamMember.getTeam();
-
     Long determineTeamId = determineTeam.getTeamId();
 
     MatchWaiting matchWaiting = matchRequest.getMatchWaiting();
     Long waitingTeamId = matchWaiting.getTeam().getTeamId();
 
-    if(determineTeamId.longValue() != waitingTeamId.longValue()){
+    if (!determineTeamId.equals(waitingTeamId)) {
       throw new NoPermissionException();
     }
+
+    Team targetTeam = matchRequest.getTargetTeam();
+    Team requestTeam = matchRequest.getRequestTeam();
+    TeamName targetTeamName = targetTeam.getTeamName();
+    TeamName requestTeamName = requestTeam.getTeamName();
 
     matchRequest.updateRequestStatus(MatchRequestStatus.ACCEPTED, LocalDateTime.now());
     matchWaiting.updateWaitingStatus(MatchWaitingStatus.MATCHED);
 
-    matchRequestRepository.rejectOtherRequests(matchRequest.getTargetTeam().getTeamId(), requestId, matchWaiting.getWaitingId());
+    matchRequestRepository.rejectOtherRequests(targetTeam.getTeamId(), requestId, matchWaiting.getWaitingId());
 
     Match match = new Match(
-      matchRequest.getTargetTeam(),
-      matchRequest.getRequestTeam(),
+      targetTeam,
+      requestTeam,
       matchWaiting.getPreferredDate(),
       matchWaiting.getPreferredTimeStart(),
       matchWaiting.getPreferredVenue(),
-      MatchStatus.FINISHED // FE 연동 위한 잠정 변경 MATCHED->FINISHED
+      MatchStatus.FINISHED // 임시 변경
     );
     matchRepository.save(match);
 
     return new MatchConfirmedResponseDto(
       match.getMatchId(),
-      match.getTeam1().getTeamId(),
-      match.getTeam1().getTeamName(),
-      match.getTeam2().getTeamId(),
-      match.getTeam2().getTeamName(),
+      targetTeam.getTeamId(),
+      targetTeamName,
+      requestTeam.getTeamId(),
+      requestTeamName,
       match.getMatchDate(),
       match.getMatchTime(),
       match.getVenue().getVenueId(),
