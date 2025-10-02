@@ -119,7 +119,7 @@ public class TeamMemberServiceTest {
 
         team.recruitMember(captain, TeamMemberRole.LEADER);
 
-        teamMember = new TeamMember(team, user, TeamMemberRole.LEADER);
+        teamMember = new TeamMember(team, captain, TeamMemberRole.LEADER);
 
         anotherUser = User.create(
             "손응민",
@@ -424,6 +424,120 @@ public class TeamMemberServiceTest {
 
             // when & then
             assertThatThrownBy(() -> teamMemberService.leave(TEAM_ID, ANOTHER_USER_ID))
+                .isInstanceOf(NoPermissionException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("kick")
+    class KickTest {
+
+        private Long leaderMemberId = 1L;
+        private Long viceLeaderMemberId = 2L;
+
+        private TeamMember leaderMember;
+        private TeamMember viceLeaderMember;
+
+        @BeforeEach
+        void setUpKick() {
+            ReflectionTestUtils.setField(user, "id", leaderMemberId);
+            ReflectionTestUtils.setField(anotherUser, "id", viceLeaderMemberId);
+        
+            team.recruitMember(user, TeamMemberRole.LEADER);
+            team.recruitMember(anotherUser, TeamMemberRole.VICE_LEADER);
+
+            leaderMember = new TeamMember(team, user, TeamMemberRole.LEADER);
+            viceLeaderMember = new TeamMember(team, anotherUser, TeamMemberRole.VICE_LEADER);
+        }
+
+        @Test
+        @DisplayName("kick - 회장이 부회장 멤버 강퇴성공")
+        void kick_success() {
+            // given
+            when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
+                USER_ID)).thenReturn(Optional.of(leaderMember));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
+                ANOTHER_USER_ID)).thenReturn(Optional.of(viceLeaderMember));
+
+            // when
+            teamMemberService.kick(TEAM_ID, ANOTHER_USER_ID, USER_ID);
+
+            // then
+            verify(teamRepository).save(team);
+        }
+
+        @Test
+        @DisplayName("kick - 일반 멤버는 강퇴 권한 없음")
+        void kick_noPermission_whenActorIsMember() {
+            // given
+            TeamMember loginMember = new TeamMember(team, user, TeamMemberRole.MEMBER);
+            TeamMember targetMember = new TeamMember(team, anotherUser, TeamMemberRole.MEMBER);
+
+            when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
+                USER_ID)).thenReturn(Optional.of(loginMember));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
+                ANOTHER_USER_ID)).thenReturn(Optional.of(targetMember));
+
+            // when & then
+            assertThatThrownBy(() -> teamMemberService.kick(TEAM_ID, ANOTHER_USER_ID, USER_ID))
+                .isInstanceOf(NoPermissionException.class);
+        }
+
+        @Test
+        @DisplayName("kick - 회장 강퇴 시도 금지 (대상=LEADER)")
+        void kick_forbid_kickingLeader() {
+            // given
+            TeamMember actorLeader = new TeamMember(team, user, TeamMemberRole.LEADER);
+            TeamMember targetLeader = new TeamMember(team, anotherUser, TeamMemberRole.LEADER);
+
+            when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
+                USER_ID)).thenReturn(Optional.of(actorLeader));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
+                ANOTHER_USER_ID)).thenReturn(Optional.of(targetLeader));
+
+            // when & then
+            assertThatThrownBy(() -> teamMemberService.kick(TEAM_ID, ANOTHER_USER_ID, USER_ID))
+                .isInstanceOf(NoPermissionException.class);
+        }
+
+        @Test
+        @DisplayName("kick - 부회장 강퇴는 회장만 가능")
+        void kick_leaderCanKickViceLeader_success() {
+            // given
+            TeamMember actorLeader = new TeamMember(team, user, TeamMemberRole.LEADER);
+            TeamMember targetVice = new TeamMember(team, anotherUser, TeamMemberRole.VICE_LEADER);
+
+            when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
+                USER_ID)).thenReturn(Optional.of(actorLeader));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
+                ANOTHER_USER_ID)).thenReturn(Optional.of(targetVice));
+            
+            // when
+            teamMemberService.kick(TEAM_ID, ANOTHER_USER_ID, USER_ID);
+
+            // then
+            verify(teamRepository).save(team);
+        }
+
+        @Test
+        @DisplayName("kick - 부회장 강퇴는 회장만 가능 (부회장은 불가)")
+        void kick_viceLeaderCannotKickViceLeader_forbidden() {
+            // given
+            TeamMember actorVice = new TeamMember(team, user, TeamMemberRole.VICE_LEADER);
+            TeamMember targetVice = new TeamMember(team, anotherUser, TeamMemberRole.VICE_LEADER);
+
+            when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
+                USER_ID)).thenReturn(Optional.of(actorVice));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
+                ANOTHER_USER_ID)).thenReturn(Optional.of(targetVice));
+
+            // when & then
+            assertThatThrownBy(() -> teamMemberService.kick(TEAM_ID, ANOTHER_USER_ID, USER_ID))
                 .isInstanceOf(NoPermissionException.class);
         }
     }
