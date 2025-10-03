@@ -16,8 +16,8 @@
 //import com.shootdoori.match.entity.TeamMemberRole;
 //import com.shootdoori.match.entity.TeamType;
 //import com.shootdoori.match.entity.User;
-//import com.shootdoori.match.exception.ErrorCode;
-//import com.shootdoori.match.exception.NotFoundException;
+//import com.shootdoori.match.exception.common.ErrorCode;
+//import com.shootdoori.match.exception.common.NotFoundException;
 //import com.shootdoori.match.repository.JoinWaitingRepository;
 //import com.shootdoori.match.repository.ProfileRepository;
 //import com.shootdoori.match.repository.TeamMemberRepository;

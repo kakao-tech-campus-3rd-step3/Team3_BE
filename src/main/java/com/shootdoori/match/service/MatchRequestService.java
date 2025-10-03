@@ -3,14 +3,13 @@ package com.shootdoori.match.service;
 
 import com.shootdoori.match.dto.*;
 import com.shootdoori.match.entity.*;
-import com.shootdoori.match.exception.NoPermissionException;
-import com.shootdoori.match.exception.NotFoundException;
-import com.shootdoori.match.exception.ErrorCode;
-import com.shootdoori.match.exception.OneselfMatchException;
+import com.shootdoori.match.exception.common.NoPermissionException;
+import com.shootdoori.match.exception.common.NotFoundException;
+import com.shootdoori.match.exception.common.ErrorCode;
+import com.shootdoori.match.exception.domain.match.OneselfMatchException;
 import com.shootdoori.match.repository.*;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 import com.shootdoori.match.value.TeamName;
 import org.springframework.data.domain.Pageable;

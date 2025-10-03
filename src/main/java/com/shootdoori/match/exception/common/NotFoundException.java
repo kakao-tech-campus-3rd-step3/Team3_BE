@@ -1,4 +1,4 @@
-package com.shootdoori.match.exception;
+package com.shootdoori.match.exception.common;
 
 public class NotFoundException extends BusinessException {
 

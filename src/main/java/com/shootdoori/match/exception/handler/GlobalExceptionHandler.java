@@ -1,5 +1,7 @@
-package com.shootdoori.match.exception;
+package com.shootdoori.match.exception.handler;
 
+import com.shootdoori.match.exception.common.BusinessException;
+import com.shootdoori.match.exception.common.ErrorCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;

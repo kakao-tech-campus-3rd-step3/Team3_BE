@@ -1,5 +1,7 @@
-package com.shootdoori.match.exception;
+package com.shootdoori.match.exception.domain.joinwaiting;
 
+import com.shootdoori.match.exception.common.BusinessException;
+import com.shootdoori.match.exception.common.ErrorCode;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 

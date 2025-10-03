@@ -4,7 +4,7 @@ import com.shootdoori.match.dto.RecruitmentCreateRequest;
 import com.shootdoori.match.dto.RecruitmentResponse;
 import com.shootdoori.match.dto.RecruitmentUpdateRequest;
 import com.shootdoori.match.entity.*;
-import com.shootdoori.match.exception.NotFoundException;
+import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.MercenaryRecruitmentRepository;
 import com.shootdoori.match.repository.TeamRepository;
 import com.shootdoori.match.service.MercenaryRecruitmentService;

@@ -1,7 +1,7 @@
 package com.shootdoori.match.entity;
 
-import com.shootdoori.match.exception.JoinWaitingNotPendingException;
-import com.shootdoori.match.exception.NoPermissionException;
+import com.shootdoori.match.exception.domain.joinwaiting.JoinWaitingNotPendingException;
+import com.shootdoori.match.exception.common.NoPermissionException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

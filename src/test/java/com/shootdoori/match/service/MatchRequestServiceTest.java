@@ -2,7 +2,7 @@ package com.shootdoori.match.service;
 
 import com.shootdoori.match.dto.*;
 import com.shootdoori.match.entity.*;
-import com.shootdoori.match.exception.NotFoundException;
+import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

@@ -7,7 +7,7 @@ import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 import com.shootdoori.match.dto.MatchCreateRequestDto;
 import com.shootdoori.match.dto.MatchCreateResponseDto;
 import com.shootdoori.match.entity.*;
-import com.shootdoori.match.exception.NotFoundException;
+import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.*;
 
 import java.math.BigDecimal;
@@ -15,7 +15,6 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Optional;
 
-import com.shootdoori.match.util.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;

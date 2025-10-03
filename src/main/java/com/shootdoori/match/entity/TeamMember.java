@@ -1,9 +1,9 @@
 package com.shootdoori.match.entity;
 
-import com.shootdoori.match.exception.DifferentException;
-import com.shootdoori.match.exception.DuplicatedException;
-import com.shootdoori.match.exception.ErrorCode;
-import com.shootdoori.match.exception.NoPermissionException;
+import com.shootdoori.match.exception.common.DifferentException;
+import com.shootdoori.match.exception.common.DuplicatedException;
+import com.shootdoori.match.exception.common.ErrorCode;
+import com.shootdoori.match.exception.common.NoPermissionException;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

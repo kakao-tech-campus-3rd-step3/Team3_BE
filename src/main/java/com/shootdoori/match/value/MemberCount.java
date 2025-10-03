@@ -1,5 +1,6 @@
 package com.shootdoori.match.value;
 
+import com.shootdoori.match.exception.domain.team.InvalidMemberCountException;
 import jakarta.persistence.Embeddable;
 
 @Embeddable
@@ -10,7 +11,7 @@ public record MemberCount(int count) {
 
     public MemberCount {
         if (count < MIN_MEMBERS || count > MAX_MEMBERS) {
-            throw new com.shootdoori.match.exception.InvalidMemberCountException(count);
+            throw new InvalidMemberCountException(count);
         }
     }
 

@@ -1,4 +1,4 @@
-package com.shootdoori.match.exception;
+package com.shootdoori.match.exception.domain.team;
 
 public class TeamFullException extends RuntimeException {
 

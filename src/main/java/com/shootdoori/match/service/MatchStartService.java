@@ -2,12 +2,11 @@ package com.shootdoori.match.service;
 
 import com.shootdoori.match.dto.MatchSummaryProjection;
 import com.shootdoori.match.dto.RecentMatchesResponseDto;
-import com.shootdoori.match.entity.Match;
 import com.shootdoori.match.entity.MatchStatus;
 import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.entity.TeamMember;
-import com.shootdoori.match.exception.ErrorCode;
-import com.shootdoori.match.exception.NotFoundException;
+import com.shootdoori.match.exception.common.ErrorCode;
+import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.MatchRepository;
 import java.time.LocalDate;
 import java.time.LocalTime;
