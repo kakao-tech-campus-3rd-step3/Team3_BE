@@ -131,7 +131,7 @@ public class MatchWaiting extends DateEntity{
     return message;
   }
 
-  public MatchWaitingStatus getMatchRequestStatus() {
+  public MatchWaitingStatus getMatchWaitingStatus() {
     return status;
   }
 
@@ -142,4 +142,9 @@ public class MatchWaiting extends DateEntity{
   public void updateWaitingStatus(MatchWaitingStatus status){
     this.status = status;
   }
+
+  public void cancelMatchWaiting(){
+    this.status = MatchWaitingStatus.CANCELED;
+  }
+
 }
