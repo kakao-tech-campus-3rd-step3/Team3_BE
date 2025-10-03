@@ -94,12 +94,11 @@ public class ProfileService {
     }
 
     public void deleteAccount(Long id) {
-        if (!profileRepository.existsById(id)) {
-            throw new NotFoundException(ErrorCode.PROFILE_NOT_FOUND);
-        }
+        User user = profileRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.PROFILE_NOT_FOUND));
+
+        user.requestDeletion();
 
         refreshTokenRepository.deleteAllByUserId(id);
-
-        profileRepository.deleteById(id);
     }
 }
