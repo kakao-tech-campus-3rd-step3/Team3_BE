@@ -59,6 +59,10 @@ class MatchCreateServiceTest {
   private final Long NON_EXIST_USER_ID = 1000000007L;
   private final String MESSAGE = "메세지";
 
+  public static final LocalTime TEN_OCLOCK = LocalTime.of(10, 0);
+  public static final LocalTime TWELVE_OCLOCK = LocalTime.of(12, 0);
+
+
   @BeforeEach
   void setUp() {
     User captain = User.create(
@@ -125,8 +129,8 @@ class MatchCreateServiceTest {
     // given
     MatchCreateRequestDto dto = new MatchCreateRequestDto(
       LocalDate.now(),
-      LocalTime.of(10, 0),
-      LocalTime.of(12, 0),
+      TEN_OCLOCK,
+      TWELVE_OCLOCK,
       savedVenue.getVenueId(),
       SkillLevel.AMATEUR,
       SkillLevel.PRO,
@@ -148,8 +152,8 @@ class MatchCreateServiceTest {
     // given
     MatchCreateRequestDto dto = new MatchCreateRequestDto(
       LocalDate.now(),
-      LocalTime.of(10, 0),
-      LocalTime.of(12, 0),
+      TEN_OCLOCK,
+      TWELVE_OCLOCK,
       NON_EXIST_VENUE_ID, // 존재하지 않는 venue ID
       SkillLevel.AMATEUR,
       SkillLevel.PRO,
@@ -172,8 +176,8 @@ class MatchCreateServiceTest {
     // given
     MatchCreateRequestDto dto = new MatchCreateRequestDto(
       LocalDate.now(),
-      LocalTime.of(10, 0),
-      LocalTime.of(12, 0),
+      TEN_OCLOCK,
+      TWELVE_OCLOCK,
       savedVenue.getVenueId(),
       SkillLevel.AMATEUR,
       SkillLevel.PRO,
@@ -207,8 +211,8 @@ class MatchCreateServiceTest {
     // given - 먼저 매치 생성
     MatchCreateRequestDto dto = new MatchCreateRequestDto(
       LocalDate.now(),
-      LocalTime.of(10, 0),
-      LocalTime.of(12, 0),
+      TEN_OCLOCK,
+      TWELVE_OCLOCK,
       savedVenue.getVenueId(),
       SkillLevel.AMATEUR,
       SkillLevel.PRO,
@@ -236,8 +240,8 @@ class MatchCreateServiceTest {
     // given - 먼저 매치 생성
     MatchCreateRequestDto dto = new MatchCreateRequestDto(
       LocalDate.now(),
-      LocalTime.of(10, 0),
-      LocalTime.of(12, 0),
+      TEN_OCLOCK,
+      TWELVE_OCLOCK,
       savedVenue.getVenueId(),
       SkillLevel.AMATEUR,
       SkillLevel.PRO,
@@ -261,8 +265,8 @@ class MatchCreateServiceTest {
     // given - 먼저 생성된 매치 생성
     MatchCreateRequestDto dto1 = new MatchCreateRequestDto(
       LocalDate.now(),
-      LocalTime.of(10, 0),
-      LocalTime.of(12, 0),
+      TEN_OCLOCK,
+      TWELVE_OCLOCK,
       savedVenue.getVenueId(),
       SkillLevel.AMATEUR,
       SkillLevel.PRO,
@@ -277,8 +281,8 @@ class MatchCreateServiceTest {
     // 나중에 생성된 매치
     MatchCreateRequestDto dto2 = new MatchCreateRequestDto(
       LocalDate.now(),
-      LocalTime.of(14, 0),
-      LocalTime.of(16, 0),
+      TEN_OCLOCK,
+      TWELVE_OCLOCK,
       savedVenue.getVenueId(),
       SkillLevel.AMATEUR,
       SkillLevel.PRO,
