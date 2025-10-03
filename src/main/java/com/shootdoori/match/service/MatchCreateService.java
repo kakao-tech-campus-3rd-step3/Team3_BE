@@ -5,9 +5,11 @@ import com.shootdoori.match.dto.MatchCreateResponseDto;
 import com.shootdoori.match.dto.MatchWaitingCancelResponseDto;
 import com.shootdoori.match.dto.MatchWaitingResponseDto;
 import com.shootdoori.match.entity.*;
-import com.shootdoori.match.exception.NoPermissionException;
-import com.shootdoori.match.exception.NotFoundException;
-import com.shootdoori.match.exception.ErrorCode;
+
+import com.shootdoori.match.exception.common.NoPermissionException;
+import com.shootdoori.match.exception.common.NotFoundException;
+import com.shootdoori.match.exception.common.ErrorCode;
+
 import com.shootdoori.match.repository.MatchWaitingRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.repository.TeamRepository;
@@ -16,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 

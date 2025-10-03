@@ -1,7 +1,7 @@
 package com.shootdoori.match.entity;
 
-import com.shootdoori.match.exception.ErrorCode;
-import com.shootdoori.match.exception.UnauthorizedException;
+import com.shootdoori.match.exception.common.ErrorCode;
+import com.shootdoori.match.exception.common.UnauthorizedException;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 

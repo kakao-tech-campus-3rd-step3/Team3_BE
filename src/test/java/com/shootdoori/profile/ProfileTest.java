@@ -5,7 +5,7 @@ import com.shootdoori.match.dto.ProfileMapper;
 import com.shootdoori.match.dto.ProfileResponse;
 import com.shootdoori.match.dto.ProfileUpdateRequest;
 import com.shootdoori.match.entity.*;
-import com.shootdoori.match.exception.DuplicatedException;
+import com.shootdoori.match.exception.common.DuplicatedException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.service.ProfileService;

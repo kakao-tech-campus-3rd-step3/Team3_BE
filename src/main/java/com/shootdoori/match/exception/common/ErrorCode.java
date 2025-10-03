@@ -1,4 +1,4 @@
-package com.shootdoori.match.exception;
+package com.shootdoori.match.exception.common;
 
 import org.springframework.http.HttpStatus;
 

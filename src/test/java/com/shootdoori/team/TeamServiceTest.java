@@ -14,7 +14,7 @@ import com.shootdoori.match.entity.SkillLevel;
 import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.entity.TeamType;
 import com.shootdoori.match.entity.User;
-import com.shootdoori.match.exception.NotFoundException;
+import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamRepository;
 import com.shootdoori.match.service.TeamService;

@@ -1,11 +1,11 @@
 package com.shootdoori.match.entity;
 
-import com.shootdoori.match.exception.DifferentException;
-import com.shootdoori.match.exception.DuplicatedException;
-import com.shootdoori.match.exception.ErrorCode;
-import com.shootdoori.match.exception.LastTeamMemberRemovalNotAllowedException;
-import com.shootdoori.match.exception.TeamCapacityExceededException;
-import com.shootdoori.match.exception.TeamFullException;
+import com.shootdoori.match.exception.common.DifferentException;
+import com.shootdoori.match.exception.common.DuplicatedException;
+import com.shootdoori.match.exception.common.ErrorCode;
+import com.shootdoori.match.exception.domain.team.LastTeamMemberRemovalNotAllowedException;
+import com.shootdoori.match.exception.domain.team.TeamCapacityExceededException;
+import com.shootdoori.match.exception.domain.team.TeamFullException;
 import com.shootdoori.match.value.Description;
 import com.shootdoori.match.value.MemberCount;
 import com.shootdoori.match.value.TeamName;

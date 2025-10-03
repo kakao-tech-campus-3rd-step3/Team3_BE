@@ -1,6 +1,6 @@
 package com.shootdoori.match.resolver;
 
-import com.shootdoori.match.exception.UnauthorizedException;
+import com.shootdoori.match.exception.common.UnauthorizedException;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
