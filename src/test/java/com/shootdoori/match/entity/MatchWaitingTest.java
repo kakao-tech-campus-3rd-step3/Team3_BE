@@ -57,6 +57,6 @@ class MatchWaitingTest {
 
     matchWaiting.updateWaitingStatus(MatchWaitingStatus.MATCHED);
 
-    assertEquals(MatchWaitingStatus.MATCHED, matchWaiting.getMatchRequestStatus());
+    assertEquals(MatchWaitingStatus.MATCHED, matchWaiting.getMatchWaitingStatus());
   }
 }

@@ -371,7 +371,7 @@ class MatchRequestServiceTest {
     assertThat(updatedRequest2.getStatus()).isEqualTo(MatchRequestStatus.REJECTED);
 
     // 3) waiting 상태 MATCHED
-    assertThat(updatedWaiting.getMatchRequestStatus()).isEqualTo(MatchWaitingStatus.MATCHED);
+    assertThat(updatedWaiting.getMatchWaitingStatus()).isEqualTo(MatchWaitingStatus.MATCHED);
 
     // 4) Match 생성 확인
     assertThat(match.getTeam1().getTeamId()).isEqualTo(targetTeam.getTeamId());

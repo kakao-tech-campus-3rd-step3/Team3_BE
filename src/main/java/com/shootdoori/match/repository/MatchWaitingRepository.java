@@ -26,5 +26,13 @@ public interface MatchWaitingRepository extends JpaRepository<MatchWaiting, Long
         @Param("lastTime") LocalTime lastTime,
         Pageable pageable
     );
+
+    @Query("SELECT mw FROM MatchWaiting mw " +
+        "WHERE mw.team.id = :teamId " +
+        "ORDER BY mw.createdAt DESC")
+    Slice<MatchWaiting> findMyTeamMatchWaitingHistory(
+        @Param("teamId") Long teamId,
+        Pageable pageable
+    );
 }
 

@@ -24,6 +24,10 @@ public enum TeamMemberRole {
         throw new IllegalArgumentException("Unknown role: " + displayName);
     }
 
+    public static boolean isNotLeader (TeamMemberRole nowRole) {
+        return nowRole != LEADER;
+    }
+
     public boolean canMakeJoinDecision() {
         return this == LEADER || this == VICE_LEADER;
     }

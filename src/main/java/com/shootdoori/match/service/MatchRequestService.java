@@ -64,7 +64,7 @@ public class MatchRequestService {
         mw.getSkillLevelMax(),
         mw.getUniversityOnly(),
         mw.getMessage(),
-        mw.getMatchRequestStatus(),
+        mw.getMatchWaitingStatus(),
         mw.getExpiresAt()
       ));
   }
