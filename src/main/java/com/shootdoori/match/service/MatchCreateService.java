@@ -3,15 +3,14 @@ package com.shootdoori.match.service;
 import com.shootdoori.match.dto.MatchCreateRequestDto;
 import com.shootdoori.match.dto.MatchCreateResponseDto;
 import com.shootdoori.match.entity.*;
-import com.shootdoori.match.exception.NotFoundException;
-import com.shootdoori.match.exception.ErrorCode;
+import com.shootdoori.match.exception.common.NotFoundException;
+import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.repository.MatchWaitingRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.repository.TeamRepository;
 import com.shootdoori.match.repository.VenueRepository;
 import jakarta.transaction.Transactional;
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 

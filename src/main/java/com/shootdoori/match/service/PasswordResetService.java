@@ -3,8 +3,8 @@ package com.shootdoori.match.service;
 import com.shootdoori.match.entity.PasswordOtpToken;
 import com.shootdoori.match.entity.PasswordResetToken;
 import com.shootdoori.match.entity.User;
-import com.shootdoori.match.exception.ErrorCode;
-import com.shootdoori.match.exception.UnauthorizedException;
+import com.shootdoori.match.exception.common.ErrorCode;
+import com.shootdoori.match.exception.common.UnauthorizedException;
 import com.shootdoori.match.repository.PasswordOtpTokenRepository;
 import com.shootdoori.match.repository.PasswordResetTokenRepository;
 import com.shootdoori.match.repository.ProfileRepository;
@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
-import java.util.Objects;
 import java.util.UUID;
 
 @Service

@@ -6,7 +6,7 @@ import com.shootdoori.match.dto.ProfileCreateRequest;
 import com.shootdoori.match.entity.DeviceType;
 import com.shootdoori.match.entity.RefreshToken;
 import com.shootdoori.match.entity.User;
-import com.shootdoori.match.exception.UnauthorizedException;
+import com.shootdoori.match.exception.common.UnauthorizedException;
 import com.shootdoori.match.repository.RefreshTokenRepository;
 import com.shootdoori.match.util.JwtUtil;
 import io.jsonwebtoken.Claims;
