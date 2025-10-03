@@ -61,7 +61,7 @@ class MatchRequestServiceTest {
   private Venue savedVenue;
   private MatchWaiting savedWaiting;
 
-  private final Long NON_EXIST_TEAM_ID = 1000000007L;
+  private final Long NON_EXIST_WAITING_ID = 1000000007L;
   private final Long NON_EXIST_REQUEST_ID = 1000000007L;
   private final Long NON_EXIST_USER_ID = 1000000007L;
   private final String REQUEST_MESSAGE = "요청 메세지";
@@ -229,7 +229,7 @@ class MatchRequestServiceTest {
       REQUEST_MESSAGE
     );
 
-    MatchRequestResponseDto response = matchRequestService.requestToMatch(requestTeam1.getTeamId(),savedWaiting.getWaitingId(), dto);
+    MatchRequestResponseDto response = matchRequestService.requestToMatch(requestTeamCaptain1.getId(),savedWaiting.getWaitingId(), dto);
 
     assertThat(response).isNotNull();
     assertThat(response.requestTeamId()).isEqualTo(requestTeam1.getTeamId());
@@ -247,22 +247,11 @@ class MatchRequestServiceTest {
   void requestToMatch_waitingNotFound() {
     MatchRequestRequestDto dto = new MatchRequestRequestDto(REQUEST_MESSAGE);
     Throwable thrown = catchThrowable(() ->
-      matchRequestService.requestToMatch(targetTeam.getTeamId(), NON_EXIST_TEAM_ID, dto)
+      matchRequestService.requestToMatch(targetTeamCaptain.getId(), NON_EXIST_WAITING_ID, dto)
     );
 
     assertThat(thrown).isInstanceOf(NotFoundException.class)
-      .hasMessageContaining(NON_EXIST_TEAM_ID.toString());
-  }
-
-  @Test
-  @DisplayName("존재하지 않는 요청 팀으로 요청 시 NotFoundException")
-  void requestToMatch_teamNotFound() {
-    MatchRequestRequestDto dto = new MatchRequestRequestDto(REQUEST_MESSAGE);
-    Throwable thrown = catchThrowable(() ->
-      matchRequestService.requestToMatch(NON_EXIST_TEAM_ID, savedWaiting.getWaitingId(), dto)
-    );
-
-    assertThat(thrown).isInstanceOf(NotFoundException.class);
+      .hasMessageContaining(NON_EXIST_WAITING_ID.toString());
   }
 
   // ------------------- cancelMatchRequest 테스트 -------------------
@@ -271,7 +260,7 @@ class MatchRequestServiceTest {
   @DisplayName("존재하지 않는 MatchRequest ID로 취소 시 NotFoundException 발생")
   void cancelMatchRequest_notFound() {
     Throwable thrown = catchThrowable(() ->
-      matchRequestService.cancelMatchRequest(requestTeam1.getTeamId(), NON_EXIST_REQUEST_ID)
+      matchRequestService.cancelMatchRequest(requestTeamCaptain1.getId(), NON_EXIST_REQUEST_ID)
     );
 
     assertThat(thrown)
@@ -284,10 +273,10 @@ class MatchRequestServiceTest {
   void cancelMatchRequest_success() {
     // given
     MatchRequestRequestDto dto = new MatchRequestRequestDto(REQUEST_MESSAGE);
-    MatchRequestResponseDto savedRequest = matchRequestService.requestToMatch(requestTeam1.getTeamId(), savedWaiting.getWaitingId(), dto);
+    MatchRequestResponseDto savedRequest = matchRequestService.requestToMatch(requestTeamCaptain1.getId(), savedWaiting.getWaitingId(), dto);
 
     // when
-    MatchRequestResponseDto canceled = matchRequestService.cancelMatchRequest(requestTeam1.getTeamId(), savedRequest.requestId());
+    MatchRequestResponseDto canceled = matchRequestService.cancelMatchRequest(requestTeamCaptain1.getId(), savedRequest.requestId());
 
     // then
     assertThat(canceled).isNotNull();
@@ -320,13 +309,13 @@ class MatchRequestServiceTest {
     MatchRequestRequestDto dto1 = new MatchRequestRequestDto(REQUEST_MESSAGE_1);
     MatchRequestRequestDto dto2 = new MatchRequestRequestDto(REQUEST_MESSAGE_2);
 
-    matchRequestService.requestToMatch(requestTeam1.getTeamId(), savedWaiting.getWaitingId(), dto1);
+    matchRequestService.requestToMatch(requestTeamCaptain1.getId(), savedWaiting.getWaitingId(), dto1);
     try {
       Thread.sleep(1100);
     } catch (InterruptedException e) {
       e.printStackTrace();
     }
-    matchRequestService.requestToMatch(requestTeam2.getTeamId(), savedWaiting.getWaitingId(), dto2);
+    matchRequestService.requestToMatch(requestTeamCaptain2.getId(), savedWaiting.getWaitingId(), dto2);
 
     Pageable pageable = Pageable.ofSize(10);
 
@@ -349,10 +338,10 @@ class MatchRequestServiceTest {
   @DisplayName("acceptRequest 정상 동작 테스트 - team1 수락 시 ACCEPTED, team2 자동 REJECTED, Match 생성 및 상태 MATCHED, MatchWaiting의 경우도 MATCHED")
   void acceptRequest_success() {
     // given: 두 팀이 waiting에 요청
-    MatchRequestResponseDto savedRequest1 = matchRequestService.requestToMatch(requestTeam1.getTeamId(), savedWaiting.getWaitingId(),
+    MatchRequestResponseDto savedRequest1 = matchRequestService.requestToMatch(requestTeamCaptain1.getId(), savedWaiting.getWaitingId(),
       new MatchRequestRequestDto(REQUEST_MESSAGE_1));
 
-    MatchRequestResponseDto savedRequest2 = matchRequestService.requestToMatch(requestTeam2.getTeamId(), savedWaiting.getWaitingId(),
+    MatchRequestResponseDto savedRequest2 = matchRequestService.requestToMatch(requestTeamCaptain2.getId(), savedWaiting.getWaitingId(),
       new MatchRequestRequestDto(REQUEST_MESSAGE_2));
 
     // when: team1 요청 수락
@@ -386,7 +375,7 @@ class MatchRequestServiceTest {
   @DisplayName("MatchRequest 거절 시 상태가 REJECTED로 변경")
   void rejectRequest_success() {
     MatchRequestRequestDto dto = new MatchRequestRequestDto(REQUEST_MESSAGE);
-    MatchRequestResponseDto savedRequest = matchRequestService.requestToMatch(requestTeam1.getTeamId(), savedWaiting.getWaitingId(), dto);
+    MatchRequestResponseDto savedRequest = matchRequestService.requestToMatch(requestTeamCaptain1.getId(), savedWaiting.getWaitingId(), dto);
 
     MatchRequestResponseDto rejected = matchRequestService.rejectRequest(targetTeamCaptain.getId(), savedRequest.requestId());
 
