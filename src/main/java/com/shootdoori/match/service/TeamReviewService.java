@@ -5,6 +5,8 @@ import com.shootdoori.match.dto.TeamReviewResponseDto;
 import com.shootdoori.match.entity.Match;
 import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.entity.TeamReview;
+import com.shootdoori.match.exception.common.ErrorCode;
+import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.MatchRepository;
 import com.shootdoori.match.repository.TeamRepository;
 import com.shootdoori.match.repository.TeamReviewRepository;
@@ -42,13 +44,13 @@ public class TeamReviewService {
     @Transactional
     public void post(TeamReviewRequestDto teamReviewRequestDto) {
         Match match = matchRepository.findById(teamReviewRequestDto.matchId())
-                .orElseThrow(() -> new IllegalArgumentException("match doesn't exist"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.MATCH_NOT_FOUND));
 
         Team reviewerTeam = teamRepository.findById(teamReviewRequestDto.reviewerTeamId())
-                .orElseThrow(() -> new IllegalArgumentException("team doesn't exist"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND));
 
         Team reviewedTeam = teamRepository.findById(teamReviewRequestDto.reviewedTeamId())
-                .orElseThrow(() -> new IllegalArgumentException("team doesn't exist"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND));
 
         TeamReview teamReview = TeamReview.from(match, reviewerTeam, reviewedTeam,
                 teamReviewRequestDto.rating(), teamReviewRequestDto.punctualityReview(),
@@ -59,16 +61,16 @@ public class TeamReviewService {
     @Transactional
     public void update(Long reviewId, TeamReviewRequestDto teamReviewRequestDto) {
         TeamReview teamReview = teamReviewRepository.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException("teamReview doesn't exist"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_REVIEW_NOT_FOUND));
 
         Match match = matchRepository.findById(teamReviewRequestDto.matchId())
-                .orElseThrow(() -> new IllegalArgumentException("match doesn't exist"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.MATCH_NOT_FOUND));
 
         Team reviewerTeam = teamRepository.findById(teamReviewRequestDto.reviewerTeamId())
-                .orElseThrow(() -> new IllegalArgumentException("team doesn't exist"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND));
 
         Team reviewedTeam = teamRepository.findById(teamReviewRequestDto.reviewedTeamId())
-                .orElseThrow(() -> new IllegalArgumentException("team doesn't exist"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND));
 
         teamReview.update(TeamReview.from(match, reviewerTeam, reviewedTeam,
                 teamReviewRequestDto.rating(), teamReviewRequestDto.punctualityReview(),
