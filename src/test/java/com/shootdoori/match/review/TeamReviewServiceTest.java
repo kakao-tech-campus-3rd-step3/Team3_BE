@@ -8,7 +8,6 @@ import com.shootdoori.match.repository.MatchRepository;
 import com.shootdoori.match.repository.TeamRepository;
 import com.shootdoori.match.repository.TeamReviewRepository;
 import com.shootdoori.match.service.TeamReviewService;
-import org.hibernate.annotations.NotFound;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
