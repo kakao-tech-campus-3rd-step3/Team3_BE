@@ -89,15 +89,14 @@ public class MatchCreateService {
 
     TeamMemberRole loginUserRole = teamMember.getRole();
 
-    if(loginUserRole != TeamMemberRole.LEADER ){
+    if(TeamMemberRole.isNotLeader(loginUserRole)){
       throw new NoPermissionException();
     }
 
     Team matchWaitingCancelteam = teamMember.getTeam();
-    Long matchWaitingCancelTeamId = matchWaitingCancelteam.getTeamId();
-    Long existMatchWaitingTeamId = matchWaiting.getTeam().getTeamId();
+    Team existMatchWaitingTeam = matchWaiting.getTeam();
 
-    if(!matchWaitingCancelTeamId.equals(existMatchWaitingTeamId)){
+    if(!matchWaitingCancelteam.equals(existMatchWaitingTeam)){
       throw new NoPermissionException();
     }
 
