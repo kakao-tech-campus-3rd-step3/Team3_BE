@@ -1,5 +1,6 @@
 package com.shootdoori.match.dto;
 
+import com.shootdoori.match.entity.MatchWaiting;
 import com.shootdoori.match.entity.MatchWaitingStatus;
 import com.shootdoori.match.entity.SkillLevel;
 import com.shootdoori.match.value.TeamName;
@@ -22,4 +23,22 @@ public record MatchWaitingResponseDto(
   String message,
   MatchWaitingStatus status,
   LocalDateTime expiresAt
-) {}
+) {
+  public static MatchWaitingResponseDto from(MatchWaiting mw) {
+    return new MatchWaitingResponseDto(
+      mw.getWaitingId(),
+      mw.getTeam().getTeamId(),
+      mw.getTeam().getTeamName(),
+      mw.getPreferredDate(),
+      mw.getPreferredTimeStart(),
+      mw.getPreferredTimeEnd(),
+      mw.getPreferredVenue().getVenueId(),
+      mw.getSkillLevelMin(),
+      mw.getSkillLevelMax(),
+      mw.getUniversityOnly(),
+      mw.getMessage(),
+      mw.getMatchWaitingStatus(),
+      mw.getExpiresAt()
+    );
+  }
+}
