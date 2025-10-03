@@ -10,6 +10,7 @@ public class JoinWaitingMapper {
             joinWaiting.getId(),
             joinWaiting.getApplicant().getName(),
             joinWaiting.getTeam().getTeamId(),
+            joinWaiting.getTeam().getTeamName().name(),
             joinWaiting.getApplicant().getId(),
             joinWaiting.getStatus().getDisplayName(),
             joinWaiting.getDecisionReason(),
