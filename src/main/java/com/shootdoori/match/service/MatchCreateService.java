@@ -17,11 +17,12 @@ import com.shootdoori.match.repository.MatchWaitingRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.repository.TeamRepository;
 import com.shootdoori.match.repository.VenueRepository;
-import java.time.LocalDateTime;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Service
 @Transactional
@@ -33,9 +34,9 @@ public class MatchCreateService {
     private final TeamMemberRepository teamMemberRepository;
 
     public MatchCreateService(MatchWaitingRepository matchWaitingRepository,
-        TeamRepository teamRepository,
-        VenueRepository venueRepository,
-        TeamMemberRepository teamMemberRepository) {
+                              TeamRepository teamRepository,
+                              VenueRepository venueRepository,
+                              TeamMemberRepository teamMemberRepository) {
         this.matchWaitingRepository = matchWaitingRepository;
         this.teamRepository = teamRepository;
         this.venueRepository = venueRepository;

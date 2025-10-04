@@ -9,13 +9,14 @@ import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.MatchRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
 
 @Service
 public class MatchStartService {
@@ -25,7 +26,7 @@ public class MatchStartService {
     private final TeamMemberRepository teamMemberRepository;
 
     public MatchStartService(MatchRepository matchRepository,
-        TeamMemberRepository teamMemberRepository) {
+                             TeamMemberRepository teamMemberRepository) {
         this.matchRepository = matchRepository;
         this.teamMemberRepository = teamMemberRepository;
     }
@@ -47,7 +48,7 @@ public class MatchStartService {
             ? matchRepository.findFirstPageMatchSummariesByTeamIdAndStatus(team.getTeamId(), status,
             pageable)
             : matchRepository.findMatchSummariesByTeamIdAndStatus(team.getTeamId(), status,
-                cursorDate, cursorTime, pageable);
+            cursorDate, cursorTime, pageable);
 
         return slice.getContent().stream()
             .map(RecentMatchesResponseDto::from)
