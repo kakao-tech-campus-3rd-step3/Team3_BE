@@ -14,15 +14,8 @@ public abstract class DateEntity {
     @Column(updatable = false)
     private LocalDateTime createdAt;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private UserStatus status = UserStatus.ACTIVE;
-
     @LastModifiedDate
     private LocalDateTime updatedAt;
-
-    @LastModifiedDate
-    private LocalDateTime statusChangedAt;
 
     public LocalDateTime getCreatedAt() {
         return createdAt;
@@ -30,17 +23,5 @@ public abstract class DateEntity {
 
     public LocalDateTime getUpdatedAt()  {
         return updatedAt;
-    }
-
-    public UserStatus getUserStatus() {
-        return status;
-    }
-
-    public void activate() {
-        this.status = UserStatus.ACTIVE;
-    }
-
-    public void requestDeletion() {
-        this.status = UserStatus.PENDING_DELETION;
     }
 }
