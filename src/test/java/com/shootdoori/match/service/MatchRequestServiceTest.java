@@ -1,6 +1,13 @@
 package com.shootdoori.match.service;
 
-import com.shootdoori.match.dto.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+
+import com.shootdoori.match.dto.MatchConfirmedResponseDto;
+import com.shootdoori.match.dto.MatchRequestRequestDto;
+import com.shootdoori.match.dto.MatchRequestResponseDto;
+import com.shootdoori.match.dto.MatchWaitingRequestDto;
+import com.shootdoori.match.dto.MatchWaitingResponseDto;
 import com.shootdoori.match.entity.match.Match;
 import com.shootdoori.match.entity.match.MatchStatus;
 import com.shootdoori.match.entity.match.request.MatchRequest;
@@ -9,14 +16,25 @@ import com.shootdoori.match.entity.match.waiting.MatchWaiting;
 import com.shootdoori.match.entity.match.waiting.MatchWaitingSkillLevel;
 import com.shootdoori.match.entity.match.waiting.MatchWaitingStatus;
 import com.shootdoori.match.entity.team.Team;
-import com.shootdoori.match.entity.team.TeamSkillLevel;
-import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.team.TeamMemberRole;
+import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.entity.venue.Venue;
 import com.shootdoori.match.exception.common.NotFoundException;
-import com.shootdoori.match.repository.*;
+import com.shootdoori.match.repository.MatchRepository;
+import com.shootdoori.match.repository.MatchRequestRepository;
+import com.shootdoori.match.repository.MatchWaitingRepository;
+import com.shootdoori.match.repository.ProfileRepository;
+import com.shootdoori.match.repository.TeamMemberRepository;
+import com.shootdoori.match.repository.TeamRepository;
+import com.shootdoori.match.repository.VenueRepository;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -27,15 +45,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 
 @SpringBootTest
 @Transactional

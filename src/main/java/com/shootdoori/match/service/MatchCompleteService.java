@@ -14,13 +14,14 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class MatchCompleteService {
+
     private final TeamRepository teamRepository;
     private final MatchRepository matchRepository;
     private final TeamMemberRepository teamMemberRepository;
 
     public MatchCompleteService(TeamRepository teamRepository,
-                                MatchRepository matchRepository,
-                                TeamMemberRepository teamMemberRepository) {
+        MatchRepository matchRepository,
+        TeamMemberRepository teamMemberRepository) {
         this.teamRepository = teamRepository;
         this.matchRepository = matchRepository;
         this.teamMemberRepository = teamMemberRepository;

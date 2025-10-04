@@ -2,19 +2,15 @@ package com.shootdoori.match.repository;
 
 import com.shootdoori.match.dto.MatchSummaryProjection;
 import com.shootdoori.match.entity.match.Match;
+import com.shootdoori.match.entity.match.MatchStatus;
 import java.time.LocalDate;
 import java.time.LocalTime;
-
-import com.shootdoori.match.entity.match.MatchStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
 
 @Repository
 public interface MatchRepository extends JpaRepository<Match, Long> {

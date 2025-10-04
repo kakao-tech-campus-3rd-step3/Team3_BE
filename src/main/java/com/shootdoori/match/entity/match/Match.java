@@ -1,8 +1,8 @@
 package com.shootdoori.match.entity.match;
 
 import com.shootdoori.match.entity.common.DateEntity;
-import com.shootdoori.match.entity.venue.Venue;
 import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.venue.Venue;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -49,7 +49,8 @@ public class Match extends DateEntity {
     @Column(name = "STATUS", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '예정'")
     private MatchStatus status = MatchStatus.RECRUITING;
 
-    public Match(Team team1, Team team2, LocalDate matchDate, LocalTime matchTime, Venue venue, MatchStatus status) {
+    public Match(Team team1, Team team2, LocalDate matchDate, LocalTime matchTime, Venue venue,
+        MatchStatus status) {
         this.team1 = team1;
         this.team2 = team2;
         this.matchDate = matchDate;
@@ -92,8 +93,8 @@ public class Match extends DateEntity {
     public Team findEnemyTeam(Long teamId) {
         if (Objects.equals(teamId, team1.getTeamId())) {
             return team2;
-        } else return team1;
+        }
+
+        return team1;
     }
-    else return team1;
-  }
 }

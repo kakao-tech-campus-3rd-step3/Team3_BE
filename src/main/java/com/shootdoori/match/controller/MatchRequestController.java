@@ -1,18 +1,29 @@
 package com.shootdoori.match.controller;
 
-import com.shootdoori.match.dto.*;
+import com.shootdoori.match.dto.MatchConfirmedResponseDto;
+import com.shootdoori.match.dto.MatchRequestRequestDto;
+import com.shootdoori.match.dto.MatchRequestResponseDto;
+import com.shootdoori.match.dto.MatchWaitingRequestDto;
+import com.shootdoori.match.dto.MatchWaitingResponseDto;
 import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.MatchRequestService;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/matches")
@@ -32,7 +43,8 @@ public class MatchRequestController {
         @PageableDefault(size = 10, sort = "preferredTimeStart", direction = Sort.Direction.ASC) Pageable pageable
     ) {
         MatchWaitingRequestDto requestDto = new MatchWaitingRequestDto(selectDate, startTime);
-        Slice<MatchWaitingResponseDto> slice = matchRequestService.getWaitingMatches(loginUserId, requestDto, pageable);
+        Slice<MatchWaitingResponseDto> slice = matchRequestService.getWaitingMatches(loginUserId,
+            requestDto, pageable);
         return ResponseEntity.ok(slice);
     }
 
@@ -42,7 +54,8 @@ public class MatchRequestController {
         @PathVariable Long waitingId,
         @RequestBody MatchRequestRequestDto requestDto
     ) {
-        MatchRequestResponseDto response = matchRequestService.requestToMatch(loginUserId, waitingId, requestDto);
+        MatchRequestResponseDto response = matchRequestService.requestToMatch(loginUserId,
+            waitingId, requestDto);
         return ResponseEntity.ok(response);
     }
 
@@ -51,7 +64,8 @@ public class MatchRequestController {
         @LoginUser Long loginUserId,
         @PathVariable Long requestId
     ) {
-        MatchRequestResponseDto response = matchRequestService.cancelMatchRequest(loginUserId, requestId);
+        MatchRequestResponseDto response = matchRequestService.cancelMatchRequest(loginUserId,
+            requestId);
         return ResponseEntity.ok(response);
     }
 
@@ -70,7 +84,8 @@ public class MatchRequestController {
         @LoginUser Long loginUserId,
         @PathVariable Long requestId
     ) {
-        MatchConfirmedResponseDto response = matchRequestService.acceptRequest(loginUserId, requestId);
+        MatchConfirmedResponseDto response = matchRequestService.acceptRequest(loginUserId,
+            requestId);
         return ResponseEntity.ok(response);
     }
 
@@ -79,7 +94,8 @@ public class MatchRequestController {
         @LoginUser Long loginUserId,
         @PathVariable Long requestId
     ) {
-        MatchRequestResponseDto response = matchRequestService.rejectRequest(loginUserId, requestId);
+        MatchRequestResponseDto response = matchRequestService.rejectRequest(loginUserId,
+            requestId);
         return ResponseEntity.ok(response);
     }
 }
