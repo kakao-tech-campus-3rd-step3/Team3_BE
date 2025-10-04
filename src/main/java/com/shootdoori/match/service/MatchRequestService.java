@@ -1,11 +1,7 @@
 package com.shootdoori.match.service;
 
 
-import com.shootdoori.match.dto.MatchConfirmedResponseDto;
-import com.shootdoori.match.dto.MatchRequestRequestDto;
-import com.shootdoori.match.dto.MatchRequestResponseDto;
-import com.shootdoori.match.dto.MatchWaitingRequestDto;
-import com.shootdoori.match.dto.MatchWaitingResponseDto;
+import com.shootdoori.match.dto.*;
 import com.shootdoori.match.entity.match.Match;
 import com.shootdoori.match.entity.match.MatchStatus;
 import com.shootdoori.match.entity.match.request.MatchRequest;
@@ -18,17 +14,14 @@ import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NoPermissionException;
 import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.exception.domain.match.OneselfMatchException;
-import com.shootdoori.match.repository.MatchRepository;
-import com.shootdoori.match.repository.MatchRequestRepository;
-import com.shootdoori.match.repository.MatchWaitingRepository;
-import com.shootdoori.match.repository.TeamMemberRepository;
-import com.shootdoori.match.repository.TeamRepository;
+import com.shootdoori.match.repository.*;
 import com.shootdoori.match.value.TeamName;
-import java.time.LocalDateTime;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
 
 @Service
 public class MatchRequestService {
@@ -40,10 +33,10 @@ public class MatchRequestService {
     private final TeamMemberRepository teamMemberRepository;
 
     public MatchRequestService(MatchRequestRepository matchRequestRepository,
-        MatchWaitingRepository matchWaitingRepository,
-        MatchRepository matchRepository,
-        TeamRepository teamRepository,
-        TeamMemberRepository teamMemberRepository) {
+                               MatchWaitingRepository matchWaitingRepository,
+                               MatchRepository matchRepository,
+                               TeamRepository teamRepository,
+                               TeamMemberRepository teamMemberRepository) {
         this.matchRequestRepository = matchRequestRepository;
         this.matchWaitingRepository = matchWaitingRepository;
         this.matchRepository = matchRepository;
@@ -53,7 +46,7 @@ public class MatchRequestService {
 
     @Transactional(readOnly = true)
     public Slice<MatchWaitingResponseDto> getWaitingMatches(Long loginUserId,
-        MatchWaitingRequestDto matchWaitingRequestDto, Pageable pageable) {
+                                                            MatchWaitingRequestDto matchWaitingRequestDto, Pageable pageable) {
         TeamMember teamMember = teamMemberRepository.findByUser_Id(loginUserId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
@@ -85,7 +78,7 @@ public class MatchRequestService {
 
     @Transactional
     public MatchRequestResponseDto requestToMatch(Long loginUserId, Long waitingId,
-        MatchRequestRequestDto requestDto) {
+                                                  MatchRequestRequestDto requestDto) {
         TeamMember teamMember = teamMemberRepository.findByUser_Id(loginUserId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
@@ -158,7 +151,7 @@ public class MatchRequestService {
 
     @Transactional(readOnly = true)
     public Slice<MatchRequestResponseDto> getReceivedPendingRequests(Long loginUserId,
-        Pageable pageable) {
+                                                                     Pageable pageable) {
         TeamMember teamMember = teamMemberRepository.findByUser_Id(loginUserId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 

@@ -23,7 +23,7 @@ public class MatchCompleteController {
 
     @GetMapping("/enemyTeam")
     public ResponseEntity<TeamResponseDto> getEnemyTeam(@LoginUser Long loginUserId,
-        @RequestBody MatchTeamRequestDto matchTeamDto) {
+                                                        @RequestBody MatchTeamRequestDto matchTeamDto) {
         return new ResponseEntity<>(matchCompleteService.getEnemyTeam(loginUserId, matchTeamDto),
             HttpStatus.OK);
     }

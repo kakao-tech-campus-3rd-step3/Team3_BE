@@ -20,8 +20,8 @@ public class MatchCompleteService {
     private final TeamMemberRepository teamMemberRepository;
 
     public MatchCompleteService(TeamRepository teamRepository,
-        MatchRepository matchRepository,
-        TeamMemberRepository teamMemberRepository) {
+                                MatchRepository matchRepository,
+                                TeamMemberRepository teamMemberRepository) {
         this.teamRepository = teamRepository;
         this.matchRepository = matchRepository;
         this.teamMemberRepository = teamMemberRepository;

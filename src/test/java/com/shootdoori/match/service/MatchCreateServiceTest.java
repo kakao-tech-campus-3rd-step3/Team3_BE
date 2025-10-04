@@ -1,9 +1,5 @@
 package com.shootdoori.match.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.assertj.core.api.ThrowableAssert.catchThrowable;
-
 import com.shootdoori.match.dto.MatchCreateRequestDto;
 import com.shootdoori.match.dto.MatchCreateResponseDto;
 import com.shootdoori.match.dto.MatchWaitingCancelResponseDto;
@@ -11,24 +7,12 @@ import com.shootdoori.match.dto.MatchWaitingResponseDto;
 import com.shootdoori.match.entity.match.waiting.MatchWaiting;
 import com.shootdoori.match.entity.match.waiting.MatchWaitingSkillLevel;
 import com.shootdoori.match.entity.match.waiting.MatchWaitingStatus;
-import com.shootdoori.match.entity.team.Team;
-import com.shootdoori.match.entity.team.TeamMember;
-import com.shootdoori.match.entity.team.TeamMemberRole;
-import com.shootdoori.match.entity.team.TeamSkillLevel;
-import com.shootdoori.match.entity.team.TeamType;
+import com.shootdoori.match.entity.team.*;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.entity.venue.Venue;
 import com.shootdoori.match.exception.common.NoPermissionException;
 import com.shootdoori.match.exception.common.NotFoundException;
-import com.shootdoori.match.repository.MatchWaitingRepository;
-import com.shootdoori.match.repository.ProfileRepository;
-import com.shootdoori.match.repository.TeamMemberRepository;
-import com.shootdoori.match.repository.TeamRepository;
-import com.shootdoori.match.repository.VenueRepository;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.Optional;
+import com.shootdoori.match.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -37,6 +21,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.assertj.core.api.ThrowableAssert.catchThrowable;
 
 @SpringBootTest
 @Transactional

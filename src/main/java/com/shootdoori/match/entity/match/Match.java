@@ -3,17 +3,8 @@ package com.shootdoori.match.entity.match;
 import com.shootdoori.match.entity.common.DateEntity;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.venue.Venue;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Objects;
@@ -50,7 +41,7 @@ public class Match extends DateEntity {
     private MatchStatus status = MatchStatus.RECRUITING;
 
     public Match(Team team1, Team team2, LocalDate matchDate, LocalTime matchTime, Venue venue,
-        MatchStatus status) {
+                 MatchStatus status) {
         this.team1 = team1;
         this.team2 = team2;
         this.matchDate = matchDate;

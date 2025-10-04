@@ -1,8 +1,8 @@
 package com.shootdoori.match.dto;
 
 import com.shootdoori.match.entity.match.waiting.MatchWaiting;
-import com.shootdoori.match.entity.match.waiting.MatchWaitingStatus;
 import com.shootdoori.match.entity.match.waiting.MatchWaitingSkillLevel;
+import com.shootdoori.match.entity.match.waiting.MatchWaitingStatus;
 import com.shootdoori.match.value.TeamName;
 
 import java.time.LocalDate;
@@ -10,19 +10,19 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public record MatchWaitingResponseDto(
-  Long waitingId,
-  Long teamId,
-  TeamName teamName,
-  LocalDate preferredDate,
-  LocalTime preferredTimeStart,
-  LocalTime preferredTimeEnd,
-  Long preferredVenueId,
-  MatchWaitingSkillLevel skillLevelMin,
-  MatchWaitingSkillLevel skillLevelMax,
-  Boolean universityOnly,
-  String message,
-  MatchWaitingStatus status,
-  LocalDateTime expiresAt
+    Long waitingId,
+    Long teamId,
+    TeamName teamName,
+    LocalDate preferredDate,
+    LocalTime preferredTimeStart,
+    LocalTime preferredTimeEnd,
+    Long preferredVenueId,
+    MatchWaitingSkillLevel skillLevelMin,
+    MatchWaitingSkillLevel skillLevelMax,
+    Boolean universityOnly,
+    String message,
+    MatchWaitingStatus status,
+    LocalDateTime expiresAt
 ) {
     public static MatchWaitingResponseDto from(MatchWaiting mw) {
         return new MatchWaitingResponseDto(
