@@ -13,6 +13,5 @@ public interface ProfileRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByEmail(String email);
 
-    // 일정 시간 전에 삭제 요청된 유저 조회
     List<User> findByStatusAndStatusChangedAtBefore(UserStatus status, LocalDateTime before);
 }
