@@ -11,12 +11,16 @@ import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.entity.venue.Venue;
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MatchWaitingTest {
 
@@ -68,8 +72,8 @@ class MatchWaitingTest {
       LocalDateTime.now().plusDays(1)
     );
 
-    matchWaiting.updateWaitingStatus(MatchWaitingStatus.MATCHED);
+        matchWaiting.updateWaitingStatus(MatchWaitingStatus.MATCHED);
 
-    assertEquals(MatchWaitingStatus.MATCHED, matchWaiting.getMatchWaitingStatus());
-  }
+        assertEquals(MatchWaitingStatus.MATCHED, matchWaiting.getMatchWaitingStatus());
+    }
 }

@@ -1,7 +1,5 @@
 package com.shootdoori.match.entity;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.shootdoori.match.entity.match.Match;
 import com.shootdoori.match.entity.match.MatchStatus;
 import com.shootdoori.match.entity.team.Team;
@@ -15,6 +13,8 @@ import java.time.LocalTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MatchTest {
 
@@ -51,6 +51,6 @@ class MatchTest {
   void createMatchWithDefaultStatus() {
     Match match = new Match(team1, team2, MATCH_DATE, MATCH_TIME, venue, null);
 
-    assertEquals(MatchStatus.RECRUITING, match.getStatus());
-  }
+        assertEquals(MatchStatus.RECRUITING, match.getStatus());
+    }
 }

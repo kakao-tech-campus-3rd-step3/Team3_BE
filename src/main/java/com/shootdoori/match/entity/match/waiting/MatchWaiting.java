@@ -22,27 +22,27 @@ import java.time.LocalTime;
 @Table(name = "match_waiting")
 public class MatchWaiting extends DateEntity {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "WAITING_ID")
-  private Long waitingId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "WAITING_ID")
+    private Long waitingId;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "TEAM_ID", nullable = false)
-  private Team team;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "TEAM_ID", nullable = false)
+    private Team team;
 
-  @Column(name = "PREFERRED_DATE", nullable = false)
-  private LocalDate preferredDate;
+    @Column(name = "PREFERRED_DATE", nullable = false)
+    private LocalDate preferredDate;
 
-  @Column(name = "PREFERRED_TIME_START", nullable = false)
-  private LocalTime preferredTimeStart;
+    @Column(name = "PREFERRED_TIME_START", nullable = false)
+    private LocalTime preferredTimeStart;
 
-  @Column(name = "PREFERRED_TIME_END", nullable = false)
-  private LocalTime preferredTimeEnd;
+    @Column(name = "PREFERRED_TIME_END", nullable = false)
+    private LocalTime preferredTimeEnd;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "PREFERRED_VENUE_ID", nullable = false)
-  private Venue preferredVenue;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PREFERRED_VENUE_ID", nullable = false)
+    private Venue preferredVenue;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "SKILL_LEVEL_MIN", nullable = false)
@@ -52,21 +52,22 @@ public class MatchWaiting extends DateEntity {
   @Column(name = "SKILL_LEVEL_MAX", nullable = false)
   private MatchWaitingSkillLevel skillLevelMax;
 
-  @Column(name = "UNIVERSITY_ONLY", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
-  private Boolean universityOnly = false;
+    @Column(name = "UNIVERSITY_ONLY", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
+    private Boolean universityOnly = false;
 
-  @Column(name = "MESSAGE", columnDefinition = "TEXT")
-  private String message;
+    @Column(name = "MESSAGE", columnDefinition = "TEXT")
+    private String message;
 
-  @Enumerated(EnumType.STRING)
-  @Column(name = "STATUS", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '대기중'")
-  private MatchWaitingStatus status = MatchWaitingStatus.WAITING;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "STATUS", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '대기중'")
+    private MatchWaitingStatus status = MatchWaitingStatus.WAITING;
 
-  @Column(name = "EXPIRES_AT", nullable = false, columnDefinition = "TIMESTAMP DEFAULT (CURRENT_TIMESTAMP + INTERVAL '24' HOUR)")
-  private LocalDateTime expiresAt;
+    @Column(name = "EXPIRES_AT", nullable = false, columnDefinition = "TIMESTAMP DEFAULT (CURRENT_TIMESTAMP + INTERVAL '24' HOUR)")
+    private LocalDateTime expiresAt;
 
 
-  protected MatchWaiting() {}
+    protected MatchWaiting() {
+    }
 
 
   public MatchWaiting(Team team,
@@ -94,29 +95,29 @@ public class MatchWaiting extends DateEntity {
     this.expiresAt = expiresAt;
   }
 
-  public Long getWaitingId() {
-    return waitingId;
-  }
+    public Long getWaitingId() {
+        return waitingId;
+    }
 
-  public Team getTeam() {
-    return team;
-  }
+    public Team getTeam() {
+        return team;
+    }
 
-  public LocalDate getPreferredDate() {
-    return preferredDate;
-  }
+    public LocalDate getPreferredDate() {
+        return preferredDate;
+    }
 
-  public LocalTime getPreferredTimeStart() {
-    return preferredTimeStart;
-  }
+    public LocalTime getPreferredTimeStart() {
+        return preferredTimeStart;
+    }
 
-  public LocalTime getPreferredTimeEnd() {
-    return preferredTimeEnd;
-  }
+    public LocalTime getPreferredTimeEnd() {
+        return preferredTimeEnd;
+    }
 
-  public Venue getPreferredVenue() {
-    return preferredVenue;
-  }
+    public Venue getPreferredVenue() {
+        return preferredVenue;
+    }
 
   public MatchWaitingSkillLevel getSkillLevelMin() {
     return skillLevelMin;
@@ -126,28 +127,28 @@ public class MatchWaiting extends DateEntity {
     return skillLevelMax;
   }
 
-  public Boolean getUniversityOnly() {
-    return universityOnly;
-  }
+    public Boolean getUniversityOnly() {
+        return universityOnly;
+    }
 
-  public String getMessage() {
-    return message;
-  }
+    public String getMessage() {
+        return message;
+    }
 
-  public MatchWaitingStatus getMatchWaitingStatus() {
-    return status;
-  }
+    public MatchWaitingStatus getMatchWaitingStatus() {
+        return status;
+    }
 
-  public LocalDateTime getExpiresAt() {
-    return expiresAt;
-  }
+    public LocalDateTime getExpiresAt() {
+        return expiresAt;
+    }
 
-  public void updateWaitingStatus(MatchWaitingStatus status){
-    this.status = status;
-  }
+    public void updateWaitingStatus(MatchWaitingStatus status) {
+        this.status = status;
+    }
 
-  public void cancelMatchWaiting(){
-    this.status = MatchWaitingStatus.CANCELED;
-  }
+    public void cancelMatchWaiting() {
+        this.status = MatchWaitingStatus.CANCELED;
+    }
 
 }

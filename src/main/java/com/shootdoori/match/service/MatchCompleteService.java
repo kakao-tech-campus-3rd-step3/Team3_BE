@@ -20,7 +20,7 @@ public class MatchCompleteService {
 
     public MatchCompleteService(TeamRepository teamRepository,
                                 MatchRepository matchRepository,
-                                TeamMemberRepository teamMemberRepository){
+                                TeamMemberRepository teamMemberRepository) {
         this.teamRepository = teamRepository;
         this.matchRepository = matchRepository;
         this.teamMemberRepository = teamMemberRepository;
@@ -28,6 +28,7 @@ public class MatchCompleteService {
 
     /**
      * 매치 정보 조회 후 상대 팀 정보 조회하는 서비스
+     *
      * @param matchTeamRequestDto 매치 id, 내 팀 id
      * @return TeamResponseDto 적 팀 정보
      */

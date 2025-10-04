@@ -13,4 +13,5 @@ public record MatchCreateRequestDto(
     MatchWaitingSkillLevel skillLevelMax,
     Boolean universityOnly,
     String message
-) {}
+) {
+}

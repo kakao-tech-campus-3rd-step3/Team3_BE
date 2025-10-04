@@ -17,17 +17,17 @@ public record RecentMatchesResponseDto(
     LocalDateTime createdAt,
     LocalDateTime updatedAt
 ) {
-  public static RecentMatchesResponseDto from(MatchSummaryProjection matchSummaryProjection) {
-    return new RecentMatchesResponseDto(
-      matchSummaryProjection.matchId(),
-      matchSummaryProjection.team1Name(),
-      matchSummaryProjection.team2Name(),
-      matchSummaryProjection.matchDate(),
-      matchSummaryProjection.matchTime(),
-      matchSummaryProjection.venueName(),
-      matchSummaryProjection.status(),
-      matchSummaryProjection.createdAt(),
-      matchSummaryProjection.updatedAt()
-    );
-  }
+    public static RecentMatchesResponseDto from(MatchSummaryProjection matchSummaryProjection) {
+        return new RecentMatchesResponseDto(
+            matchSummaryProjection.matchId(),
+            matchSummaryProjection.team1Name(),
+            matchSummaryProjection.team2Name(),
+            matchSummaryProjection.matchDate(),
+            matchSummaryProjection.matchTime(),
+            matchSummaryProjection.venueName(),
+            matchSummaryProjection.status(),
+            matchSummaryProjection.createdAt(),
+            matchSummaryProjection.updatedAt()
+        );
+    }
 }
