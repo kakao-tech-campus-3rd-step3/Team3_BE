@@ -4,8 +4,13 @@ import com.shootdoori.match.dto.MatchCreateRequestDto;
 import com.shootdoori.match.dto.MatchCreateResponseDto;
 import com.shootdoori.match.dto.MatchWaitingCancelResponseDto;
 import com.shootdoori.match.dto.MatchWaitingResponseDto;
-import com.shootdoori.match.entity.*;
 
+import com.shootdoori.match.entity.match.waiting.MatchWaiting;
+import com.shootdoori.match.entity.match.waiting.MatchWaitingStatus;
+import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.team.TeamMember;
+import com.shootdoori.match.entity.team.TeamMemberRole;
+import com.shootdoori.match.entity.venue.Venue;
 import com.shootdoori.match.exception.common.NoPermissionException;
 import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.exception.common.ErrorCode;

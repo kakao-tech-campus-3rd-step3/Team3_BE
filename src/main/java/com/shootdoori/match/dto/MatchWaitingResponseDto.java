@@ -1,8 +1,8 @@
 package com.shootdoori.match.dto;
 
-import com.shootdoori.match.entity.MatchWaiting;
-import com.shootdoori.match.entity.MatchWaitingStatus;
-import com.shootdoori.match.entity.MatchWaitingSkillLevel;
+import com.shootdoori.match.entity.match.waiting.MatchWaiting;
+import com.shootdoori.match.entity.match.waiting.MatchWaitingStatus;
+import com.shootdoori.match.entity.match.waiting.MatchWaitingSkillLevel;
 import com.shootdoori.match.value.TeamName;
 
 import java.time.LocalDate;

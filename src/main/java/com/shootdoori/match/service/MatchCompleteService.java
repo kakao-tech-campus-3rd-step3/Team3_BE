@@ -2,9 +2,9 @@ package com.shootdoori.match.service;
 
 import com.shootdoori.match.dto.MatchTeamRequestDto;
 import com.shootdoori.match.dto.TeamResponseDto;
-import com.shootdoori.match.entity.Match;
-import com.shootdoori.match.entity.Team;
-import com.shootdoori.match.entity.TeamMember;
+import com.shootdoori.match.entity.match.Match;
+import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.MatchRepository;

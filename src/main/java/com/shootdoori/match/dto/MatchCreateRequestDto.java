@@ -1,6 +1,6 @@
 package com.shootdoori.match.dto;
 
-import com.shootdoori.match.entity.MatchWaitingSkillLevel;
+import com.shootdoori.match.entity.match.waiting.MatchWaitingSkillLevel;
 import java.time.LocalDate;
 import java.time.LocalTime;
 

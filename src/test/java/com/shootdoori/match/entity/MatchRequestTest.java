@@ -2,6 +2,10 @@ package com.shootdoori.match.entity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.shootdoori.match.entity.match.request.MatchRequest;
+import com.shootdoori.match.entity.match.request.MatchRequestStatus;
+import com.shootdoori.match.entity.match.waiting.MatchWaiting;
+import com.shootdoori.match.entity.team.Team;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

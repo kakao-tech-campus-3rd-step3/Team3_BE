@@ -1,6 +1,6 @@
 package com.shootdoori.match.repository;
 
-import com.shootdoori.match.entity.User;
+import com.shootdoori.match.entity.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

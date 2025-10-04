@@ -1,6 +1,6 @@
 package com.shootdoori.match.service;
 
-import com.shootdoori.match.entity.EmailVerificationCode;
+import com.shootdoori.match.entity.auth.EmailVerificationCode;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.UnauthorizedException;
 import com.shootdoori.match.repository.EmailVerificationCodeRepository;

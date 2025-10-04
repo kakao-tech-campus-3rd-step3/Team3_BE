@@ -1,12 +1,11 @@
 package com.shootdoori.match.repository;
 
 import com.shootdoori.match.dto.MatchSummaryProjection;
-import com.shootdoori.match.entity.Match;
+import com.shootdoori.match.entity.match.Match;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
-import com.shootdoori.match.entity.MatchStatus;
-import org.springframework.data.domain.Page;
+import com.shootdoori.match.entity.match.MatchStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;

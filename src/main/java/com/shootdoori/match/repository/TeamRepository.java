@@ -1,6 +1,6 @@
 package com.shootdoori.match.repository;
 
-import com.shootdoori.match.entity.Team;
+import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.value.UniversityName;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

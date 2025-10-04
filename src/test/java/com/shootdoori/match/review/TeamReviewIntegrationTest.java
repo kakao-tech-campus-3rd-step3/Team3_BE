@@ -2,7 +2,16 @@ package com.shootdoori.match.review;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shootdoori.match.dto.TeamReviewRequestDto;
-import com.shootdoori.match.entity.*;
+import com.shootdoori.match.entity.match.Match;
+import com.shootdoori.match.entity.match.MatchStatus;
+import com.shootdoori.match.entity.review.ReviewBinaryEvaluation;
+import com.shootdoori.match.entity.review.ReviewSkillLevel;
+import com.shootdoori.match.entity.review.TeamReview;
+import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.team.TeamType;
+import com.shootdoori.match.entity.user.User;
+import com.shootdoori.match.entity.venue.Venue;
 import com.shootdoori.match.repository.*;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;

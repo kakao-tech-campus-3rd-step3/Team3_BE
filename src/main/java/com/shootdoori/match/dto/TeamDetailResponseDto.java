@@ -1,7 +1,7 @@
 package com.shootdoori.match.dto;
 
-import com.shootdoori.match.entity.TeamSkillLevel;
-import com.shootdoori.match.entity.TeamType;
+import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.team.TeamType;
 
 public record TeamDetailResponseDto(
     Long id,

@@ -1,6 +1,6 @@
 package com.shootdoori.match.repository;
 
-import com.shootdoori.match.entity.TeamMember;
+import com.shootdoori.match.entity.team.TeamMember;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

@@ -1,6 +1,6 @@
 package com.shootdoori.match.dto;
 
-import com.shootdoori.match.entity.TeamMember;
+import com.shootdoori.match.entity.team.TeamMember;
 import org.springframework.stereotype.Component;
 
 @Component

@@ -2,6 +2,11 @@ package com.shootdoori.match.entity;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.shootdoori.match.entity.match.waiting.MatchWaiting;
+import com.shootdoori.match.entity.match.waiting.MatchWaitingSkillLevel;
+import com.shootdoori.match.entity.match.waiting.MatchWaitingStatus;
+import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.venue.Venue;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;

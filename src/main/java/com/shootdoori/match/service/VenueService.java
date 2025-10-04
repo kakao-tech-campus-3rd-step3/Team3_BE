@@ -1,7 +1,7 @@
 package com.shootdoori.match.service;
 
 import com.shootdoori.match.dto.VenueSearchResponseDto;
-import com.shootdoori.match.entity.Venue;
+import com.shootdoori.match.entity.venue.Venue;
 import com.shootdoori.match.repository.VenueRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;

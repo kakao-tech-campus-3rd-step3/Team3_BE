@@ -1,9 +1,9 @@
 package com.shootdoori.match.dto;
 
-import com.shootdoori.match.entity.TeamSkillLevel;
-import com.shootdoori.match.entity.Team;
-import com.shootdoori.match.entity.TeamType;
-import com.shootdoori.match.entity.User;
+import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.team.TeamType;
+import com.shootdoori.match.entity.user.User;
 
 import java.time.LocalDateTime;
 
