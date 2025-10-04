@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shootdoori.match.dto.AuthToken;
 import com.shootdoori.match.dto.LoginRequest;
 import com.shootdoori.match.dto.ProfileCreateRequest;
+import com.shootdoori.match.entity.User;
+import com.shootdoori.match.entity.UserStatus;
 import jakarta.persistence.EntityManager;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.RefreshTokenRepository;
@@ -261,10 +263,9 @@ class AuthTest {
 
         @BeforeEach
         void setup() {
-            // 깨끗한 상태로 시작
             refreshTokenRepository.deleteAll();
             profileRepository.deleteAll();
-            // 계정 생성 후 실제 로그인으로 액세스 토큰 발급
+
             authService.register(
                 AuthFixtures.createProfileRequest(),
                 new MockHttpServletRequest()
@@ -278,19 +279,20 @@ class AuthTest {
         }
 
         @Test
-        @DisplayName("성공: 로그인된 사용자가 정상적으로 회원 탈퇴한다")
+        @DisplayName("성공: 로그인된 사용자가 정상적으로 회원 탈퇴를 요청한다")
         void deleteAccountSuccess() throws Exception {
             mockMvc.perform(delete("/api/profiles/me")
                     .header("Authorization", "Bearer " + accessToken))
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
-            assertThat(profileRepository.findById(userId)).isEmpty();
+            User user = profileRepository.findById(userId).orElseThrow();
+            assertThat(user.getUserStatus()).isEqualTo(UserStatus.PENDING_DELETION);
             assertThat(refreshTokenRepository.countByUserId(userId)).isZero();
         }
 
         @Test
-        @DisplayName("실패: 인증되지 않은 사용자가 회원 탈퇴 시 401 Unauthorized 에러가 발생한다")
+        @DisplayName("실패: 인증되지 않은 사용자가 회원탈퇴 요청 시 401 Unauthorized 에러가 발생한다")
         void deleteAccountFailWithoutAuth() throws Exception {
             mockMvc.perform(delete("/api/profiles/me"))
                 .andExpect(status().isUnauthorized());
