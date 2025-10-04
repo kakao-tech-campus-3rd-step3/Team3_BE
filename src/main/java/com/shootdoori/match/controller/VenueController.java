@@ -12,14 +12,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/venues")
 public class VenueController {
 
-  private final VenueService venueService;
+    private final VenueService venueService;
 
-  public VenueController(VenueService venueService) {
-    this.venueService = venueService;
-  }
+    public VenueController(VenueService venueService) {
+        this.venueService = venueService;
+    }
 
-  @GetMapping
-  public Slice<VenueSearchResponseDto> getAllVenues(Pageable pageable) {
-    return venueService.getAllVenues(pageable);
-  }
+    @GetMapping
+    public Slice<VenueSearchResponseDto> getAllVenues(Pageable pageable) {
+        return venueService.getAllVenues(pageable);
+    }
 }
