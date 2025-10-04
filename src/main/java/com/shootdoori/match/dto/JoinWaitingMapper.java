@@ -1,6 +1,6 @@
 package com.shootdoori.match.dto;
 
-import com.shootdoori.match.entity.JoinWaiting;
+import com.shootdoori.match.entity.team.join.JoinWaiting;
 import org.springframework.stereotype.Component;
 
 @Component

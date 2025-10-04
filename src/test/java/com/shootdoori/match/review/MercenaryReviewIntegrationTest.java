@@ -2,7 +2,16 @@ package com.shootdoori.match.review;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shootdoori.match.dto.MercenaryReviewRequestDto;
-import com.shootdoori.match.entity.*;
+import com.shootdoori.match.entity.match.Match;
+import com.shootdoori.match.entity.match.MatchStatus;
+import com.shootdoori.match.entity.review.MercenaryReview;
+import com.shootdoori.match.entity.review.ReviewBinaryEvaluation;
+import com.shootdoori.match.entity.review.ReviewSkillLevel;
+import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.team.TeamType;
+import com.shootdoori.match.entity.user.User;
+import com.shootdoori.match.entity.venue.Venue;
 import com.shootdoori.match.repository.*;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -199,7 +208,7 @@ class MercenaryReviewIntegrationTest {
     }
 
     private Team createTeam(String name, User captain) {
-        return new Team(name, captain, captain.getUniversity().name(), TeamType.OTHER, SkillLevel.AMATEUR, "용병 모집 테스트용 팀입니다.");
+        return new Team(name, captain, captain.getUniversity().name(), TeamType.OTHER, TeamSkillLevel.AMATEUR, "용병 모집 테스트용 팀입니다.");
     }
 
     private Venue createVenue(String name) {

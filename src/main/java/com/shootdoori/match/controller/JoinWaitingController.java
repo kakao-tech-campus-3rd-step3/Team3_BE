@@ -5,7 +5,7 @@ import com.shootdoori.match.dto.JoinWaitingCancelRequestDto;
 import com.shootdoori.match.dto.JoinWaitingRejectRequestDto;
 import com.shootdoori.match.dto.JoinWaitingRequestDto;
 import com.shootdoori.match.dto.JoinWaitingResponseDto;
-import com.shootdoori.match.entity.JoinWaitingStatus;
+import com.shootdoori.match.entity.team.join.JoinWaitingStatus;
 import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.JoinWaitingService;
 import org.springframework.data.domain.Page;

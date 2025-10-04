@@ -2,9 +2,9 @@ package com.shootdoori.match.service;
 
 import com.shootdoori.match.dto.TeamReviewRequestDto;
 import com.shootdoori.match.dto.TeamReviewResponseDto;
-import com.shootdoori.match.entity.Match;
-import com.shootdoori.match.entity.Team;
-import com.shootdoori.match.entity.TeamReview;
+import com.shootdoori.match.entity.match.Match;
+import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.review.TeamReview;
 import com.shootdoori.match.repository.MatchRepository;
 import com.shootdoori.match.repository.TeamRepository;
 import com.shootdoori.match.repository.TeamReviewRepository;

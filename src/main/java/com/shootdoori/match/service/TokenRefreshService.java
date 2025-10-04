@@ -1,9 +1,9 @@
 package com.shootdoori.match.service;
 
 import com.shootdoori.match.dto.AuthToken;
-import com.shootdoori.match.entity.RefreshToken;
-import com.shootdoori.match.entity.User;
-import com.shootdoori.match.exception.UnauthorizedException;
+import com.shootdoori.match.entity.auth.RefreshToken;
+import com.shootdoori.match.entity.user.User;
+import com.shootdoori.match.exception.common.UnauthorizedException;
 import com.shootdoori.match.repository.RefreshTokenRepository;
 import com.shootdoori.match.util.JwtUtil;
 import io.jsonwebtoken.Claims;

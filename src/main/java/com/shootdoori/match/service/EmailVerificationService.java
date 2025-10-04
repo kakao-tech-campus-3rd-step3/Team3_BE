@@ -1,8 +1,8 @@
 package com.shootdoori.match.service;
 
-import com.shootdoori.match.entity.EmailVerificationCode;
-import com.shootdoori.match.exception.ErrorCode;
-import com.shootdoori.match.exception.UnauthorizedException;
+import com.shootdoori.match.entity.auth.EmailVerificationCode;
+import com.shootdoori.match.exception.common.ErrorCode;
+import com.shootdoori.match.exception.common.UnauthorizedException;
 import com.shootdoori.match.repository.EmailVerificationCodeRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;

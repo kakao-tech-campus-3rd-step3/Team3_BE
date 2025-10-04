@@ -1,6 +1,6 @@
 package com.shootdoori.match.dto;
 
-import com.shootdoori.match.entity.MercenaryRecruitment;
+import com.shootdoori.match.entity.mercenary.MercenaryRecruitment;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
