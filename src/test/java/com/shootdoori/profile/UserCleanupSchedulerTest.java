@@ -1,8 +1,8 @@
 package com.shootdoori.profile;
 
 import com.shootdoori.match.config.UserCleanupScheduler;
-import com.shootdoori.match.entity.User;
-import com.shootdoori.match.entity.UserStatus;
+import com.shootdoori.match.entity.user.User;
+import com.shootdoori.match.entity.user.UserStatus;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.service.UserCleanupService;
 import org.junit.jupiter.api.DisplayName;

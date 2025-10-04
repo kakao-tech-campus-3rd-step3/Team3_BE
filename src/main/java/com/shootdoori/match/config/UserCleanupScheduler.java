@@ -1,7 +1,7 @@
 package com.shootdoori.match.config;
 
-import com.shootdoori.match.entity.User;
-import com.shootdoori.match.entity.UserStatus;
+import com.shootdoori.match.entity.user.User;
+import com.shootdoori.match.entity.user.UserStatus;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.service.UserCleanupService;
 import org.springframework.scheduling.annotation.Scheduled;

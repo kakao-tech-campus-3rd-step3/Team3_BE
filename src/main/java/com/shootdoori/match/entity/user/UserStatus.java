@@ -1,4 +1,4 @@
-package com.shootdoori.match.entity;
+package com.shootdoori.match.entity.user;
 
 public enum UserStatus {
     ACTIVE,

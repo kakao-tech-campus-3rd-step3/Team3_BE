@@ -1,7 +1,7 @@
 package com.shootdoori.match.service;
 
-import com.shootdoori.match.entity.Team;
-import com.shootdoori.match.entity.User;
+import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.repository.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
