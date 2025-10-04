@@ -11,23 +11,23 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class VenueService {
 
-  private final VenueRepository venueRepository;
+    private final VenueRepository venueRepository;
 
-  public VenueService(VenueRepository venueRepository) {
-    this.venueRepository = venueRepository;
-  }
+    public VenueService(VenueRepository venueRepository) {
+        this.venueRepository = venueRepository;
+    }
 
-  @Transactional(readOnly = true)
-  public Slice<VenueSearchResponseDto> getAllVenues(Pageable pageable) {
-    Slice<Venue> venues = venueRepository.findAll(pageable);
+    @Transactional(readOnly = true)
+    public Slice<VenueSearchResponseDto> getAllVenues(Pageable pageable) {
+        Slice<Venue> venues = venueRepository.findAll(pageable);
 
-    return venues.map(v -> new VenueSearchResponseDto(
-      v.getVenueId(),
-      v.getVenueName(),
-      v.getAddress(),
-      v.getContactInfo(),
-      v.getFacilities(),
-      v.getPricePerHour()
-    ));
-  }
+        return venues.map(v -> new VenueSearchResponseDto(
+            v.getVenueId(),
+            v.getVenueName(),
+            v.getAddress(),
+            v.getContactInfo(),
+            v.getFacilities(),
+            v.getPricePerHour()
+        ));
+    }
 }

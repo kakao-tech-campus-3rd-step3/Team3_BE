@@ -12,93 +12,97 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 public class MatchRequest {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  @Column(name = "REQUEST_ID")
-  private Long requestId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "REQUEST_ID")
+    private Long requestId;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "WAITING_ID", nullable = false)
-  private MatchWaiting matchWaiting;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "WAITING_ID", nullable = false)
+    private MatchWaiting matchWaiting;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "REQUEST_TEAM_ID", nullable = false)
-  private Team requestTeam;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "REQUEST_TEAM_ID", nullable = false)
+    private Team requestTeam;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "TARGET_TEAM_ID", nullable = false)
-  private Team targetTeam;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "TARGET_TEAM_ID", nullable = false)
+    private Team targetTeam;
 
-  @Column(name = "REQUEST_MESSAGE", columnDefinition = "TEXT")
-  private String requestMessage;
+    @Column(name = "REQUEST_MESSAGE", columnDefinition = "TEXT")
+    private String requestMessage;
 
-  @Enumerated(EnumType.STRING)
-  @Column(name = "STATUS", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '대기중'")
-  private MatchRequestStatus status = MatchRequestStatus.PENDING;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "STATUS", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '대기중'")
+    private MatchRequestStatus status = MatchRequestStatus.PENDING;
 
-  @CreatedDate
-  @Column(name = "REQUEST_AT", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-  private LocalDateTime requestAt;
+    @CreatedDate
+    @Column(name = "REQUEST_AT", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime requestAt;
 
-  @Column(name = "RESPONDED_AT")
-  private LocalDateTime respondedAt;
+    @Column(name = "RESPONDED_AT")
+    private LocalDateTime respondedAt;
 
-  @LastModifiedDate
-  @Column(name = "UPDATED_AT", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
-  private LocalDateTime updatedAt;
+    @LastModifiedDate
+    @Column(name = "UPDATED_AT", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    private LocalDateTime updatedAt;
 
-  protected MatchRequest() {
-  }
+    protected MatchRequest() {
+    }
 
-  public MatchRequest(MatchWaiting matchWaiting, Team requestTeam, Team targetTeam, String requestMessage) {
-      this.matchWaiting = matchWaiting;
-      this.requestTeam = requestTeam;
-      this.targetTeam = targetTeam;
-      this.requestMessage = requestMessage;
-      this.status = MatchRequestStatus.PENDING;
-      this.requestAt = LocalDateTime.now();
-      this.respondedAt = null;
-      this.updatedAt = LocalDateTime.now();
-  }
+    public MatchRequest(MatchWaiting matchWaiting, Team requestTeam, Team targetTeam, String requestMessage) {
+        this.matchWaiting = matchWaiting;
+        this.requestTeam = requestTeam;
+        this.targetTeam = targetTeam;
+        this.requestMessage = requestMessage;
+        this.status = MatchRequestStatus.PENDING;
+        this.requestAt = LocalDateTime.now();
+        this.respondedAt = null;
+        this.updatedAt = LocalDateTime.now();
+    }
 
-  public Long getRequestId() {
-    return requestId;
-  }
+    public Long getRequestId() {
+        return requestId;
+    }
 
-  public Team getRequestTeam() {
-    return requestTeam;
-  }
+    public Team getRequestTeam() {
+        return requestTeam;
+    }
 
-  public Team getTargetTeam() {
-    return targetTeam;
-  }
+    public Team getTargetTeam() {
+        return targetTeam;
+    }
 
-  public String getRequestMessage() {
-    return requestMessage;
-  }
+    public String getRequestMessage() {
+        return requestMessage;
+    }
 
-  public MatchRequestStatus getStatus() {
-    return status;
-  }
+    public MatchRequestStatus getStatus() {
+        return status;
+    }
 
-  public LocalDateTime getRequestAt() {
-    return requestAt;
-  }
+    public LocalDateTime getRequestAt() {
+        return requestAt;
+    }
 
-  public LocalDateTime getRespondedAt() {return respondedAt;}
+    public LocalDateTime getRespondedAt() {
+        return respondedAt;
+    }
 
-  public LocalDateTime getUpdatedAt() {
-    return updatedAt;
-  }
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
 
-  public MatchWaiting getMatchWaiting(){ return matchWaiting; }
+    public MatchWaiting getMatchWaiting() {
+        return matchWaiting;
+    }
 
-  public void updateRequestStatus(MatchRequestStatus status, LocalDateTime respondedAt){
-    this.status = status;
-    this.respondedAt = respondedAt;
-  }
+    public void updateRequestStatus(MatchRequestStatus status, LocalDateTime respondedAt) {
+        this.status = status;
+        this.respondedAt = respondedAt;
+    }
 
-  public void cancelRequest(){
-    this.status = MatchRequestStatus.CANCELED;
-  }
+    public void cancelRequest() {
+        this.status = MatchRequestStatus.CANCELED;
+    }
 }

@@ -16,37 +16,37 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/matches")
 public class MatchCreateController {
 
-  private final MatchCreateService matchCreateService;
+    private final MatchCreateService matchCreateService;
 
-  public MatchCreateController(MatchCreateService matchCreateService) {
-    this.matchCreateService = matchCreateService;
-  }
+    public MatchCreateController(MatchCreateService matchCreateService) {
+        this.matchCreateService = matchCreateService;
+    }
 
-  @PostMapping
-  public ResponseEntity<MatchCreateResponseDto> createMatch(
-      @LoginUser Long loginUserId,
-      @RequestBody MatchCreateRequestDto matchCreateRequestDto
-  ) {
-    MatchCreateResponseDto response = matchCreateService.createMatch(loginUserId, matchCreateRequestDto);
-    return ResponseEntity.ok(response);
-  }
+    @PostMapping
+    public ResponseEntity<MatchCreateResponseDto> createMatch(
+        @LoginUser Long loginUserId,
+        @RequestBody MatchCreateRequestDto matchCreateRequestDto
+    ) {
+        MatchCreateResponseDto response = matchCreateService.createMatch(loginUserId, matchCreateRequestDto);
+        return ResponseEntity.ok(response);
+    }
 
-  @PatchMapping("/waiting/{matchWaitingId}/cancel")
-  public ResponseEntity<MatchWaitingCancelResponseDto> cancelMatchWaiting(
-    @LoginUser Long loginUserId,
-    @PathVariable Long matchWaitingId
-  ) {
-    MatchWaitingCancelResponseDto response = matchCreateService.cancelMatchWaiting(loginUserId, matchWaitingId);
-    return ResponseEntity.ok(response);
-  }
+    @PatchMapping("/waiting/{matchWaitingId}/cancel")
+    public ResponseEntity<MatchWaitingCancelResponseDto> cancelMatchWaiting(
+        @LoginUser Long loginUserId,
+        @PathVariable Long matchWaitingId
+    ) {
+        MatchWaitingCancelResponseDto response = matchCreateService.cancelMatchWaiting(loginUserId, matchWaitingId);
+        return ResponseEntity.ok(response);
+    }
 
-  @GetMapping("/waiting/me")
-  public ResponseEntity<Slice<MatchWaitingResponseDto>> getMyWaitingMatches(
-    @LoginUser Long loginUserId,
-    @PageableDefault(size = 10, sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable
-  ) {
-    Slice<MatchWaitingResponseDto> response = matchCreateService.getMyWaitingMatches(loginUserId, pageable);
-    return ResponseEntity.ok(response);
-  }
+    @GetMapping("/waiting/me")
+    public ResponseEntity<Slice<MatchWaitingResponseDto>> getMyWaitingMatches(
+        @LoginUser Long loginUserId,
+        @PageableDefault(size = 10, sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable
+    ) {
+        Slice<MatchWaitingResponseDto> response = matchCreateService.getMyWaitingMatches(loginUserId, pageable);
+        return ResponseEntity.ok(response);
+    }
 
 }

@@ -1,6 +1,7 @@
 package com.shootdoori.match.dto;
 
 import com.shootdoori.match.entity.SkillLevel;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 
@@ -13,4 +14,5 @@ public record MatchCreateRequestDto(
     SkillLevel skillLevelMax,
     Boolean universityOnly,
     String message
-) {}
+) {
+}

@@ -6,10 +6,10 @@ import com.shootdoori.match.value.TeamName;
 import java.time.LocalDateTime;
 
 public record MatchWaitingCancelResponseDto(
-  Long waitingId,
-  Long teamId,
-  TeamName teamName,
-  MatchWaitingStatus status,
-  LocalDateTime expiresAt
+    Long waitingId,
+    Long teamId,
+    TeamName teamName,
+    MatchWaitingStatus status,
+    LocalDateTime expiresAt
 ) {
 }
