@@ -210,7 +210,7 @@ class MercenaryRecruitmentTest {
                 User.create(
                     "김학생", "아마추어", "student@example.com", "student@kangwon.ac.kr",
                     "asdf02~!", "imkim25", "공격수", "강원대학교", "컴퓨터공학과", "20", "안녕하세요!"),
-                "강원대학교", TeamType.CENTRAL_CLUB, SkillLevel.AMATEUR, "즐겜해요~"
+                "강원대학교", TeamType.CENTRAL_CLUB, TeamSkillLevel.AMATEUR, "즐겜해요~"
             );
         }
 
@@ -221,7 +221,7 @@ class MercenaryRecruitmentTest {
                 MATCH_START_TIME,
                 MESSAGE,
                 MercenaryPosition.fromDisplayName(POSITION),
-                SkillLevel.fromDisplayName(SKILL_LEVEL)
+                MercenaryRecruitmentSkillLevel.fromDisplayName(SKILL_LEVEL)
             );
         }
 
