@@ -19,7 +19,7 @@ public class User extends DateEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "SKILL_LEVEL", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '아마추어'")
-    private SkillLevel skillLevel = SkillLevel.AMATEUR;
+    private UserSkillLevel skillLevel = UserSkillLevel.AMATEUR;
 
     @Column(nullable = false, unique = true, length = 255)
     private String email;
@@ -55,7 +55,7 @@ public class User extends DateEntity {
 
     }
 
-    private User(String name, SkillLevel skillLevel, String email, String universityEmail, String password, String kakaoTalkId,
+    private User(String name, UserSkillLevel skillLevel, String email, String universityEmail, String password, String kakaoTalkId,
         UserPosition position, String university, String department, String studentYear, String bio) {
         validate(name, skillLevel.getDisplayName(), email, universityEmail, password, kakaoTalkId, position.getDisplayName(), university, department, studentYear, bio);
         this.name = name;
@@ -74,7 +74,7 @@ public class User extends DateEntity {
     public static User create(String name, String skillLevelName, String email, String universityEmail, String encodedPassword, String kakaoTalkId,
                               String positionName, String university, String department, String studentYear, String bio) {
         UserPosition position = UserPosition.fromDisplayName(positionName);
-        SkillLevel skillLevel = SkillLevel.fromDisplayName(skillLevelName);
+        UserSkillLevel skillLevel = UserSkillLevel.fromDisplayName(skillLevelName);
         return new User(name, skillLevel, email, universityEmail, encodedPassword, kakaoTalkId, position, university, department,
             studentYear, bio);
     }
@@ -109,7 +109,7 @@ public class User extends DateEntity {
         }
 
         try {
-            SkillLevel.fromDisplayName(skillLevel);
+            UserSkillLevel.fromDisplayName(skillLevel);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("유효하지 않은 스킬 레벨입니다: " + skillLevel);
         }
@@ -207,7 +207,7 @@ public class User extends DateEntity {
         return this.name;
     }
 
-    public SkillLevel getSkillLevel() {
+    public UserSkillLevel getSkillLevel() {
         return this.skillLevel;
     }
 
@@ -247,7 +247,7 @@ public class User extends DateEntity {
         validateSkillLevel(skillLevel);
         validatePosition(position);
         validateBio(bio);
-        this.skillLevel = SkillLevel.fromDisplayName(skillLevel);
+        this.skillLevel = UserSkillLevel.fromDisplayName(skillLevel);
         this.position = UserPosition.fromDisplayName(position);
         this.bio = bio;
     }
