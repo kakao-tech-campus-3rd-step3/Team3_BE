@@ -10,35 +10,35 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public record MatchWaitingResponseDto(
-  Long waitingId,
-  Long teamId,
-  TeamName teamName,
-  LocalDate preferredDate,
-  LocalTime preferredTimeStart,
-  LocalTime preferredTimeEnd,
-  Long preferredVenueId,
-  SkillLevel skillLevelMin,
-  SkillLevel skillLevelMax,
-  Boolean universityOnly,
-  String message,
-  MatchWaitingStatus status,
-  LocalDateTime expiresAt
+    Long waitingId,
+    Long teamId,
+    TeamName teamName,
+    LocalDate preferredDate,
+    LocalTime preferredTimeStart,
+    LocalTime preferredTimeEnd,
+    Long preferredVenueId,
+    SkillLevel skillLevelMin,
+    SkillLevel skillLevelMax,
+    Boolean universityOnly,
+    String message,
+    MatchWaitingStatus status,
+    LocalDateTime expiresAt
 ) {
-  public static MatchWaitingResponseDto from(MatchWaiting mw) {
-    return new MatchWaitingResponseDto(
-      mw.getWaitingId(),
-      mw.getTeam().getTeamId(),
-      mw.getTeam().getTeamName(),
-      mw.getPreferredDate(),
-      mw.getPreferredTimeStart(),
-      mw.getPreferredTimeEnd(),
-      mw.getPreferredVenue().getVenueId(),
-      mw.getSkillLevelMin(),
-      mw.getSkillLevelMax(),
-      mw.getUniversityOnly(),
-      mw.getMessage(),
-      mw.getMatchWaitingStatus(),
-      mw.getExpiresAt()
-    );
-  }
+    public static MatchWaitingResponseDto from(MatchWaiting mw) {
+        return new MatchWaitingResponseDto(
+            mw.getWaitingId(),
+            mw.getTeam().getTeamId(),
+            mw.getTeam().getTeamName(),
+            mw.getPreferredDate(),
+            mw.getPreferredTimeStart(),
+            mw.getPreferredTimeEnd(),
+            mw.getPreferredVenue().getVenueId(),
+            mw.getSkillLevelMin(),
+            mw.getSkillLevelMax(),
+            mw.getUniversityOnly(),
+            mw.getMessage(),
+            mw.getMatchWaitingStatus(),
+            mw.getExpiresAt()
+        );
+    }
 }

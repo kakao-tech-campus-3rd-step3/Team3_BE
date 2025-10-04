@@ -11,4 +11,5 @@ public record MatchRequestResponseDto(
     TeamName targetTeamName,
     String requestMessage,
     MatchRequestStatus status
-) {}
+) {
+}

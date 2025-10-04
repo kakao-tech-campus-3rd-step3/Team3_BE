@@ -10,20 +10,20 @@ import org.springframework.data.repository.query.Param;
 
 public interface MatchRequestRepository extends JpaRepository<MatchRequest, Long> {
 
-  @Modifying(clearAutomatically = true)
-  @Query("UPDATE MatchRequest mr " +
-      "SET mr.status = com.shootdoori.match.entity.MatchRequestStatus.REJECTED " +
-      "WHERE mr.targetTeam.teamId = :targetTeamId " +
-      "AND mr.status = com.shootdoori.match.entity.MatchRequestStatus.PENDING " +
-      "AND mr.requestId <> :acceptedRequestId " +
-      "AND mr.matchWaiting.waitingId = :waitingId ")
-  int rejectOtherRequests(@Param("targetTeamId") Long targetTeamId,
-      @Param("acceptedRequestId") Long acceptedRequestId,
-      @Param("waitingId") Long waitingId);
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE MatchRequest mr " +
+        "SET mr.status = com.shootdoori.match.entity.MatchRequestStatus.REJECTED " +
+        "WHERE mr.targetTeam.teamId = :targetTeamId " +
+        "AND mr.status = com.shootdoori.match.entity.MatchRequestStatus.PENDING " +
+        "AND mr.requestId <> :acceptedRequestId " +
+        "AND mr.matchWaiting.waitingId = :waitingId ")
+    int rejectOtherRequests(@Param("targetTeamId") Long targetTeamId,
+                            @Param("acceptedRequestId") Long acceptedRequestId,
+                            @Param("waitingId") Long waitingId);
 
-  @Query("SELECT mr FROM MatchRequest mr " +
-    "WHERE mr.targetTeam.teamId = :targetTeamId " +
-    "AND mr.status = com.shootdoori.match.entity.MatchRequestStatus.PENDING " +
-    "ORDER BY mr.requestAt ASC ")
-  Slice<MatchRequest> findPendingRequestsByTargetTeam(@Param("targetTeamId") Long targetTeamId, Pageable pageable);
+    @Query("SELECT mr FROM MatchRequest mr " +
+        "WHERE mr.targetTeam.teamId = :targetTeamId " +
+        "AND mr.status = com.shootdoori.match.entity.MatchRequestStatus.PENDING " +
+        "ORDER BY mr.requestAt ASC ")
+    Slice<MatchRequest> findPendingRequestsByTargetTeam(@Param("targetTeamId") Long targetTeamId, Pageable pageable);
 }
