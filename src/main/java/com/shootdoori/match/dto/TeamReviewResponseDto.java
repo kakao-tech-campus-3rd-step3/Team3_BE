@@ -1,8 +1,8 @@
 package com.shootdoori.match.dto;
 
-import com.shootdoori.match.entity.ReviewBinaryEvaluation;
-import com.shootdoori.match.entity.ReviewSkillLevel;
-import com.shootdoori.match.entity.TeamReview;
+import com.shootdoori.match.entity.review.ReviewBinaryEvaluation;
+import com.shootdoori.match.entity.review.ReviewSkillLevel;
+import com.shootdoori.match.entity.review.TeamReview;
 
 public record TeamReviewResponseDto(Long teamReviewId,
                                     Long matchId,

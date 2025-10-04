@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/matches")
 public class MatchCompleteController {
+
     private final MatchCompleteService matchCompleteService;
 
     public MatchCompleteController(MatchCompleteService matchCompleteService) {
@@ -22,7 +23,8 @@ public class MatchCompleteController {
 
     @GetMapping("/enemyTeam")
     public ResponseEntity<TeamResponseDto> getEnemyTeam(@LoginUser Long loginUserId,
-                                                        @RequestBody MatchTeamRequestDto matchTeamDto) {
-        return new ResponseEntity<>(matchCompleteService.getEnemyTeam(loginUserId, matchTeamDto), HttpStatus.OK);
+        @RequestBody MatchTeamRequestDto matchTeamDto) {
+        return new ResponseEntity<>(matchCompleteService.getEnemyTeam(loginUserId, matchTeamDto),
+            HttpStatus.OK);
     }
 }

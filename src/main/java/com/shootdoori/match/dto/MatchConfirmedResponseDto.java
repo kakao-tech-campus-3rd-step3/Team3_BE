@@ -1,6 +1,6 @@
 package com.shootdoori.match.dto;
 
-import com.shootdoori.match.entity.MatchStatus;
+import com.shootdoori.match.entity.match.MatchStatus;
 import com.shootdoori.match.value.TeamName;
 
 import java.time.LocalDate;

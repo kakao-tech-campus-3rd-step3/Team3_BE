@@ -1,6 +1,6 @@
 package com.shootdoori.match.dto;
 
-import com.shootdoori.match.entity.User;
+import com.shootdoori.match.entity.user.User;
 import org.springframework.stereotype.Component;
 
 @Component

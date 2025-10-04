@@ -3,10 +3,10 @@ package com.shootdoori.match.service;
 import com.shootdoori.match.dto.RecruitmentCreateRequest;
 import com.shootdoori.match.dto.RecruitmentResponse;
 import com.shootdoori.match.dto.RecruitmentUpdateRequest;
-import com.shootdoori.match.entity.MercenaryRecruitment;
-import com.shootdoori.match.entity.MercenaryPosition;
-import com.shootdoori.match.entity.SkillLevel;
-import com.shootdoori.match.entity.Team;
+import com.shootdoori.match.entity.mercenary.MercenaryRecruitment;
+import com.shootdoori.match.entity.mercenary.MercenaryPosition;
+import com.shootdoori.match.entity.mercenary.MercenaryRecruitmentSkillLevel;
+import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.repository.MercenaryRecruitmentRepository;
@@ -34,7 +34,7 @@ public class MercenaryRecruitmentService {
             () -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(request.teamId())));
 
         MercenaryPosition position = MercenaryPosition.fromDisplayName(request.position());
-        SkillLevel skillLevel = SkillLevel.fromDisplayName(request.skillLevel());
+        MercenaryRecruitmentSkillLevel skillLevel = MercenaryRecruitmentSkillLevel.fromDisplayName(request.skillLevel());
 
         MercenaryRecruitment savedRecruitment = recruitmentRepository.save(MercenaryRecruitment.create(
             team, request.matchDate(), request.matchTime(), request.message(), position, skillLevel));
@@ -64,7 +64,7 @@ public class MercenaryRecruitmentService {
             .orElseThrow(() -> new NotFoundException(ErrorCode.RECRUITMENT_NOT_FOUND));
 
         MercenaryPosition position = MercenaryPosition.fromDisplayName(updateRequest.position());
-        SkillLevel skillLevel = SkillLevel.fromDisplayName(updateRequest.skillLevel());
+        MercenaryRecruitmentSkillLevel skillLevel = MercenaryRecruitmentSkillLevel.fromDisplayName(updateRequest.skillLevel());
 
         recruitment.updateRecruitmentInfo(
             updateRequest.matchDate(), updateRequest.matchTime(), updateRequest.message(), position, skillLevel);

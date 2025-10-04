@@ -1,6 +1,6 @@
 package com.shootdoori.match.dto;
 
-import com.shootdoori.match.entity.MatchRequestStatus;
+import com.shootdoori.match.entity.match.request.MatchRequestStatus;
 import com.shootdoori.match.value.TeamName;
 
 public record MatchRequestResponseDto(

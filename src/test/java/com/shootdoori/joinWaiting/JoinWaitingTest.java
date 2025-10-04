@@ -3,14 +3,14 @@ package com.shootdoori.joinWaiting;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.shootdoori.match.entity.JoinWaiting;
-import com.shootdoori.match.entity.JoinWaitingStatus;
-import com.shootdoori.match.entity.SkillLevel;
-import com.shootdoori.match.entity.Team;
-import com.shootdoori.match.entity.TeamMember;
-import com.shootdoori.match.entity.TeamMemberRole;
-import com.shootdoori.match.entity.TeamType;
-import com.shootdoori.match.entity.User;
+import com.shootdoori.match.entity.team.join.JoinWaiting;
+import com.shootdoori.match.entity.team.join.JoinWaitingStatus;
+import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.team.TeamMember;
+import com.shootdoori.match.entity.team.TeamMemberRole;
+import com.shootdoori.match.entity.team.TeamType;
+import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.domain.joinwaiting.JoinWaitingNotPendingException;
 import com.shootdoori.match.exception.common.NoPermissionException;
 import org.junit.jupiter.api.BeforeEach;
@@ -81,7 +81,7 @@ public class JoinWaitingTest {
             teamLeader,
             "강원대학교",
             TeamType.fromDisplayName("과동아리"),
-            SkillLevel.fromDisplayName("세미프로"),
+            TeamSkillLevel.fromDisplayName("세미프로"),
             "주 3회 연습합니다."
         );
 

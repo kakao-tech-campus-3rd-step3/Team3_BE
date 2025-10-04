@@ -10,12 +10,12 @@ import com.shootdoori.match.dto.TeamMemberMapper;
 import com.shootdoori.match.dto.TeamMemberRequestDto;
 import com.shootdoori.match.dto.TeamMemberResponseDto;
 import com.shootdoori.match.dto.UpdateTeamMemberRequestDto;
-import com.shootdoori.match.entity.SkillLevel;
-import com.shootdoori.match.entity.Team;
-import com.shootdoori.match.entity.TeamMember;
-import com.shootdoori.match.entity.TeamMemberRole;
-import com.shootdoori.match.entity.TeamType;
-import com.shootdoori.match.entity.User;
+import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.team.TeamMember;
+import com.shootdoori.match.entity.team.TeamMemberRole;
+import com.shootdoori.match.entity.team.TeamType;
+import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.DifferentException;
 import com.shootdoori.match.exception.common.DuplicatedException;
 import com.shootdoori.match.exception.common.NoPermissionException;
@@ -113,7 +113,7 @@ public class TeamMemberServiceTest {
             captain,
             "강원대학교",
             TeamType.CENTRAL_CLUB,
-            SkillLevel.AMATEUR,
+            TeamSkillLevel.AMATEUR,
             "주 2회 연습합니다."
         );
 
@@ -686,7 +686,7 @@ public class TeamMemberServiceTest {
                 captain,
                 "강원대학교",
                 TeamType.CENTRAL_CLUB,
-                SkillLevel.AMATEUR,
+                TeamSkillLevel.AMATEUR,
                 "춘천 유포리 막국수를 사랑하는 모임"
             );
 

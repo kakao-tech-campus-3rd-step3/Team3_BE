@@ -4,7 +4,14 @@ import com.shootdoori.match.dto.ProfileCreateRequest;
 import com.shootdoori.match.dto.ProfileMapper;
 import com.shootdoori.match.dto.ProfileResponse;
 import com.shootdoori.match.dto.ProfileUpdateRequest;
-import com.shootdoori.match.entity.*;
+import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.team.TeamType;
+import com.shootdoori.match.entity.team.TeamMember;
+import com.shootdoori.match.entity.team.TeamMemberRole;
+import com.shootdoori.match.entity.user.User;
+import com.shootdoori.match.entity.user.UserPosition;
+import com.shootdoori.match.entity.user.UserSkillLevel;
 import com.shootdoori.match.exception.common.DuplicatedException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
@@ -86,7 +93,7 @@ public class ProfileTest {
 
         // then
         assertThat(user.getName()).isEqualTo("jam");
-        assertThat(user.getSkillLevel()).isEqualTo(SkillLevel.PRO);
+        assertThat(user.getSkillLevel()).isEqualTo(UserSkillLevel.PRO);
         assertThat(user.getPosition()).isEqualTo(UserPosition.GK);
         assertThat(user.getBio()).isEqualTo("변경된 자기소개");
 
@@ -118,7 +125,7 @@ public class ProfileTest {
         // then
         assertThat(response).isNotNull();
         assertThat(response.name()).isEqualTo(createRequest.name());
-        assertThat(response.skillLevel()).isEqualTo(SkillLevel.AMATEUR.name());
+        assertThat(response.skillLevel()).isEqualTo(UserSkillLevel.AMATEUR.name());
         assertThat(response.position()).isEqualTo(UserPosition.FW.name());
         verify(profileRepository).save(any(User.class));
     }
@@ -160,7 +167,7 @@ public class ProfileTest {
     @DisplayName("팀에 속한 사용자 프로필 조회 성공 (teamId 포함)")
     void findProfileById_WithTeam_Success() {
         // given
-        Team team = new Team("팀이름", user, "knu", TeamType.OTHER, SkillLevel.AMATEUR, "설명");
+        Team team = new Team("팀이름", user, "knu", TeamType.OTHER, TeamSkillLevel.AMATEUR, "설명");
         Long teamId = 123L;
         ReflectionTestUtils.setField(team, "teamId", teamId);
         TeamMember teamMember = new TeamMember(team, user, TeamMemberRole.MEMBER);

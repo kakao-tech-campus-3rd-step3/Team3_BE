@@ -1,11 +1,14 @@
 package com.shootdoori.match.controller;
 
 import com.shootdoori.match.dto.RecentMatchesResponseDto;
-import com.shootdoori.match.entity.MatchStatus;
+import com.shootdoori.match.entity.match.MatchStatus;
 import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.MatchStartService;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.List;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
@@ -13,10 +16,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/teams")
@@ -37,7 +36,8 @@ public class MatchStartController {
         @RequestParam(defaultValue = "10") @Min(1) @Max(100) int size
     ) {
         List<RecentMatchesResponseDto> matches =
-            matchService.getMatchesByStatus(loginUserId, status, cursorDate, cursorTime, PageRequest.of(0, size));
+            matchService.getMatchesByStatus(loginUserId, status, cursorDate, cursorTime,
+                PageRequest.of(0, size));
 
         return ResponseEntity.ok(matches);
     }

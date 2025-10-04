@@ -1,9 +1,40 @@
 package com.shootdoori.match.service;
 
-import com.shootdoori.match.dto.*;
-import com.shootdoori.match.entity.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+
+import com.shootdoori.match.dto.MatchConfirmedResponseDto;
+import com.shootdoori.match.dto.MatchRequestRequestDto;
+import com.shootdoori.match.dto.MatchRequestResponseDto;
+import com.shootdoori.match.dto.MatchWaitingRequestDto;
+import com.shootdoori.match.dto.MatchWaitingResponseDto;
+import com.shootdoori.match.entity.match.Match;
+import com.shootdoori.match.entity.match.MatchStatus;
+import com.shootdoori.match.entity.match.request.MatchRequest;
+import com.shootdoori.match.entity.match.request.MatchRequestStatus;
+import com.shootdoori.match.entity.match.waiting.MatchWaiting;
+import com.shootdoori.match.entity.match.waiting.MatchWaitingSkillLevel;
+import com.shootdoori.match.entity.match.waiting.MatchWaitingStatus;
+import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.team.TeamMember;
+import com.shootdoori.match.entity.team.TeamMemberRole;
+import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.team.TeamType;
+import com.shootdoori.match.entity.user.User;
+import com.shootdoori.match.entity.venue.Venue;
 import com.shootdoori.match.exception.common.NotFoundException;
-import com.shootdoori.match.repository.*;
+import com.shootdoori.match.repository.MatchRepository;
+import com.shootdoori.match.repository.MatchRequestRepository;
+import com.shootdoori.match.repository.MatchWaitingRepository;
+import com.shootdoori.match.repository.ProfileRepository;
+import com.shootdoori.match.repository.TeamMemberRepository;
+import com.shootdoori.match.repository.TeamRepository;
+import com.shootdoori.match.repository.VenueRepository;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -14,15 +45,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 
 @SpringBootTest
 @Transactional
@@ -115,35 +137,35 @@ class MatchRequestServiceTest {
         );
         requestTeamCaptain2 = profileRepository.save(matchRequestTeamCaptain2);
 
-        Team matchCreateTeam = new Team(
-            "매치 생성후 Waiting 중인 팀",
-            targetTeamCaptain,
-            "강원대학교",
-            TeamType.OTHER,
-            SkillLevel.AMATEUR,
-            "매치 생성후 Waiting 중인 팀"
-        );
-        targetTeam = teamRepository.save(matchCreateTeam);
+    Team matchCreateTeam = new Team(
+      "매치 생성후 Waiting 중인 팀",
+      targetTeamCaptain,
+      "강원대학교",
+      TeamType.OTHER,
+      TeamSkillLevel.AMATEUR,
+      "매치 생성후 Waiting 중인 팀"
+    );
+    targetTeam = teamRepository.save(matchCreateTeam);
 
-        Team matchRequestTeam1 = new Team(
-            "매치에 신청하는 1번째 팀",
-            requestTeamCaptain1,
-            "강원대학교",
-            TeamType.OTHER,
-            SkillLevel.AMATEUR,
-            "매치에 신청하는 1번째 팀"
-        );
-        requestTeam1 = teamRepository.save(matchRequestTeam1);
+    Team matchRequestTeam1 = new Team(
+      "매치에 신청하는 1번째 팀",
+      requestTeamCaptain1,
+      "강원대학교",
+      TeamType.OTHER,
+      TeamSkillLevel.AMATEUR,
+      "매치에 신청하는 1번째 팀"
+    );
+    requestTeam1 = teamRepository.save(matchRequestTeam1);
 
-        Team matchRequestTeam2 = new Team(
-            "매치에 신청하는 2번째 팀",
-            requestTeamCaptain2,
-            "강원대학교",
-            TeamType.OTHER,
-            SkillLevel.AMATEUR,
-            "매치에 신청하는 2번째 팀"
-        );
-        requestTeam2 = teamRepository.save(matchRequestTeam2);
+    Team matchRequestTeam2 = new Team(
+      "매치에 신청하는 2번째 팀",
+      requestTeamCaptain2,
+      "강원대학교",
+      TeamType.OTHER,
+      TeamSkillLevel.AMATEUR,
+      "매치에 신청하는 2번째 팀"
+    );
+    requestTeam2 = teamRepository.save(matchRequestTeam2);
 
         TeamMember requestTeamCaptain1Member = new TeamMember(requestTeam1, requestTeamCaptain1, TeamMemberRole.LEADER);
         teamMemberRepository.save(requestTeamCaptain1Member);
@@ -165,16 +187,16 @@ class MatchRequestServiceTest {
         );
         savedVenue = venueRepository.save(venue);
 
-        savedWaiting = matchWaitingRepository.save(new MatchWaiting(
-            targetTeam, LocalDate.now(),
-            LocalTime.of(10, 0), LocalTime.of(12, 0),
-            savedVenue,
-            SkillLevel.AMATEUR, SkillLevel.PRO,
-            false, "연습 경기",
-            MatchWaitingStatus.WAITING,
-            LocalDateTime.now().plusDays(1)
-        ));
-    }
+    savedWaiting = matchWaitingRepository.save(new MatchWaiting(
+      targetTeam, LocalDate.now(),
+      LocalTime.of(10,0), LocalTime.of(12,0),
+      savedVenue,
+      MatchWaitingSkillLevel.AMATEUR, MatchWaitingSkillLevel.PRO,
+      false, "연습 경기",
+      MatchWaitingStatus.WAITING,
+      LocalDateTime.now().plusDays(1)
+    ));
+  }
 
     // ------------------- getWaitingMatches 테스트 -------------------
 
