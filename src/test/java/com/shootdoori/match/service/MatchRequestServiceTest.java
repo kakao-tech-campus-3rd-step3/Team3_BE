@@ -120,7 +120,7 @@ class MatchRequestServiceTest {
       targetTeamCaptain,
       "강원대학교",
       TeamType.OTHER,
-      SkillLevel.AMATEUR,
+      TeamSkillLevel.AMATEUR,
       "매치 생성후 Waiting 중인 팀"
     );
     targetTeam = teamRepository.save(matchCreateTeam);
@@ -130,7 +130,7 @@ class MatchRequestServiceTest {
       requestTeamCaptain1,
       "강원대학교",
       TeamType.OTHER,
-      SkillLevel.AMATEUR,
+      TeamSkillLevel.AMATEUR,
       "매치에 신청하는 1번째 팀"
     );
     requestTeam1 = teamRepository.save(matchRequestTeam1);
@@ -140,7 +140,7 @@ class MatchRequestServiceTest {
       requestTeamCaptain2,
       "강원대학교",
       TeamType.OTHER,
-      SkillLevel.AMATEUR,
+      TeamSkillLevel.AMATEUR,
       "매치에 신청하는 2번째 팀"
     );
     requestTeam2 = teamRepository.save(matchRequestTeam2);
@@ -169,7 +169,7 @@ class MatchRequestServiceTest {
       targetTeam, LocalDate.now(),
       LocalTime.of(10,0), LocalTime.of(12,0),
       savedVenue,
-      SkillLevel.AMATEUR, SkillLevel.PRO,
+      MatchWaitingSkillLevel.AMATEUR, MatchWaitingSkillLevel.PRO,
       false, "연습 경기",
       MatchWaitingStatus.WAITING,
       LocalDateTime.now().plusDays(1)

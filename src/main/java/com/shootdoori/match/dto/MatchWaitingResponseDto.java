@@ -2,7 +2,7 @@ package com.shootdoori.match.dto;
 
 import com.shootdoori.match.entity.MatchWaiting;
 import com.shootdoori.match.entity.MatchWaitingStatus;
-import com.shootdoori.match.entity.SkillLevel;
+import com.shootdoori.match.entity.MatchWaitingSkillLevel;
 import com.shootdoori.match.value.TeamName;
 
 import java.time.LocalDate;
@@ -17,8 +17,8 @@ public record MatchWaitingResponseDto(
   LocalTime preferredTimeStart,
   LocalTime preferredTimeEnd,
   Long preferredVenueId,
-  SkillLevel skillLevelMin,
-  SkillLevel skillLevelMax,
+  MatchWaitingSkillLevel skillLevelMin,
+  MatchWaitingSkillLevel skillLevelMax,
   Boolean universityOnly,
   String message,
   MatchWaitingStatus status,

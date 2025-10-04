@@ -16,8 +16,8 @@ class MatchWaitingTest {
   private LocalDate preferredDate;
   private LocalTime preferredTimeStart;
   private LocalTime preferredTimeEnd;
-  private SkillLevel skillLevelMin;
-  private SkillLevel skillLevelMax;
+  private MatchWaitingSkillLevel skillLevelMin;
+  private MatchWaitingSkillLevel skillLevelMax;
   private Boolean universityOnly;
   private String message;
   private MatchWaitingStatus status;
@@ -30,8 +30,8 @@ class MatchWaitingTest {
     preferredDate = LocalDate.of(2025, 9, 26);
     preferredTimeStart = LocalTime.of(10, 0);
     preferredTimeEnd = LocalTime.of(12, 0);
-    skillLevelMin = SkillLevel.AMATEUR;
-    skillLevelMax = SkillLevel.PRO;
+    skillLevelMin = MatchWaitingSkillLevel.AMATEUR;
+    skillLevelMax = MatchWaitingSkillLevel.PRO;
     universityOnly = true;
     message = "매치 신청합니다.";
     status = MatchWaitingStatus.WAITING;

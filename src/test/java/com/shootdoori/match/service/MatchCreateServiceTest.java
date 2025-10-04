@@ -101,7 +101,7 @@ class MatchCreateServiceTest {
       savedCaptain,
       "강원대학교",
       TeamType.OTHER,
-      SkillLevel.AMATEUR,
+      TeamSkillLevel.AMATEUR,
       "팀 선원준 설명"
     );
     savedTeam = teamRepository.save(team);
@@ -133,8 +133,8 @@ class MatchCreateServiceTest {
       TEN_OCLOCK,
       TWELVE_OCLOCK,
       savedVenue.getVenueId(),
-      SkillLevel.AMATEUR,
-      SkillLevel.PRO,
+      MatchWaitingSkillLevel.AMATEUR,
+      MatchWaitingSkillLevel.PRO,
       false,
       MESSAGE
     );
@@ -156,8 +156,8 @@ class MatchCreateServiceTest {
       TEN_OCLOCK,
       TWELVE_OCLOCK,
       NON_EXIST_VENUE_ID, // 존재하지 않는 venue ID
-      SkillLevel.AMATEUR,
-      SkillLevel.PRO,
+      MatchWaitingSkillLevel.AMATEUR,
+      MatchWaitingSkillLevel.PRO,
       false,
       MESSAGE
     );
@@ -180,8 +180,8 @@ class MatchCreateServiceTest {
       TEN_OCLOCK,
       TWELVE_OCLOCK,
       savedVenue.getVenueId(),
-      SkillLevel.AMATEUR,
-      SkillLevel.PRO,
+      MatchWaitingSkillLevel.AMATEUR,
+      MatchWaitingSkillLevel.PRO,
       false,
       MESSAGE
     );
@@ -199,8 +199,8 @@ class MatchCreateServiceTest {
     MatchWaiting match = found.get();
     assertThat(match.getTeam().getTeamId()).isEqualTo(savedTeam.getTeamId());
     assertThat(match.getPreferredVenue().getVenueId()).isEqualTo(savedVenue.getVenueId());
-    assertThat(match.getSkillLevelMin()).isEqualTo(SkillLevel.AMATEUR);
-    assertThat(match.getSkillLevelMax()).isEqualTo(SkillLevel.PRO);
+    assertThat(match.getSkillLevelMin()).isEqualTo(MatchWaitingSkillLevel.AMATEUR);
+    assertThat(match.getSkillLevelMax()).isEqualTo(MatchWaitingSkillLevel.PRO);
     assertThat(match.getUniversityOnly()).isFalse();
     assertThat(match.getMessage()).isEqualTo(MESSAGE);
     assertThat(match.getMatchWaitingStatus()).isEqualTo(MatchWaitingStatus.WAITING);
@@ -215,8 +215,8 @@ class MatchCreateServiceTest {
       TEN_OCLOCK,
       TWELVE_OCLOCK,
       savedVenue.getVenueId(),
-      SkillLevel.AMATEUR,
-      SkillLevel.PRO,
+      MatchWaitingSkillLevel.AMATEUR,
+      MatchWaitingSkillLevel.PRO,
       false,
       MESSAGE
     );
@@ -244,8 +244,8 @@ class MatchCreateServiceTest {
       TEN_OCLOCK,
       TWELVE_OCLOCK,
       savedVenue.getVenueId(),
-      SkillLevel.AMATEUR,
-      SkillLevel.PRO,
+      MatchWaitingSkillLevel.AMATEUR,
+      MatchWaitingSkillLevel.PRO,
       false,
       MESSAGE
     );
@@ -269,8 +269,8 @@ class MatchCreateServiceTest {
       TEN_OCLOCK,
       TWELVE_OCLOCK,
       savedVenue.getVenueId(),
-      SkillLevel.AMATEUR,
-      SkillLevel.PRO,
+      MatchWaitingSkillLevel.AMATEUR,
+      MatchWaitingSkillLevel.PRO,
       false,
       "먼저 생성된 매치"
     );
@@ -285,8 +285,8 @@ class MatchCreateServiceTest {
       TEN_OCLOCK,
       TWELVE_OCLOCK,
       savedVenue.getVenueId(),
-      SkillLevel.AMATEUR,
-      SkillLevel.PRO,
+      MatchWaitingSkillLevel.AMATEUR,
+      MatchWaitingSkillLevel.PRO,
       false,
       "나중에 생성된 매치"
     );

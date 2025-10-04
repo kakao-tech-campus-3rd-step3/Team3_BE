@@ -43,11 +43,11 @@ public class MatchWaiting extends DateEntity{
 
   @Enumerated(EnumType.STRING)
   @Column(name = "SKILL_LEVEL_MIN", nullable = false)
-  private SkillLevel skillLevelMin;
+  private MatchWaitingSkillLevel skillLevelMin;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "SKILL_LEVEL_MAX", nullable = false)
-  private SkillLevel skillLevelMax;
+  private MatchWaitingSkillLevel skillLevelMax;
 
   @Column(name = "UNIVERSITY_ONLY", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
   private Boolean universityOnly = false;
@@ -71,8 +71,8 @@ public class MatchWaiting extends DateEntity{
                       LocalTime preferredTimeStart,
                       LocalTime preferredTimeEnd,
                       Venue preferredVenue,
-                      SkillLevel skillLevelMin,
-                      SkillLevel skillLevelMax,
+                      MatchWaitingSkillLevel skillLevelMin,
+                      MatchWaitingSkillLevel skillLevelMax,
                       Boolean universityOnly,
                       String message,
                       MatchWaitingStatus status,
@@ -115,11 +115,11 @@ public class MatchWaiting extends DateEntity{
     return preferredVenue;
   }
 
-  public SkillLevel getSkillLevelMin() {
+  public MatchWaitingSkillLevel getSkillLevelMin() {
     return skillLevelMin;
   }
 
-  public SkillLevel getSkillLevelMax() {
+  public MatchWaitingSkillLevel getSkillLevelMax() {
     return skillLevelMax;
   }
 
