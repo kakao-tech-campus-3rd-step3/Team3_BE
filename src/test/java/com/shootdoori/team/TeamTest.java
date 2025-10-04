@@ -3,7 +3,7 @@ package com.shootdoori.team;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.shootdoori.match.entity.SkillLevel;
+import com.shootdoori.match.entity.TeamSkillLevel;
 import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.entity.TeamMemberRole;
 import com.shootdoori.match.entity.TeamType;
@@ -80,7 +80,7 @@ public class TeamTest {
             captain,
             "강원대학교",
             TeamType.fromDisplayName("과동아리"),
-            SkillLevel.fromDisplayName("아마추어"),
+            TeamSkillLevel.fromDisplayName("아마추어"),
             "주 2회 연습합니다."
         );
         team.recruitMember(captain, TeamMemberRole.LEADER);
@@ -100,7 +100,7 @@ public class TeamTest {
                     captain,
                     "강원대학교",
                     TeamType.fromDisplayName("과동아리"),
-                    SkillLevel.fromDisplayName("아마추어"),
+                    TeamSkillLevel.fromDisplayName("아마추어"),
                     "주 2회 연습합니다."
                 ))
                 .isInstanceOf(IllegalArgumentException.class);
@@ -119,7 +119,7 @@ public class TeamTest {
                     captain,
                     "강원대학교",
                     TeamType.fromDisplayName("과동아리"),
-                    SkillLevel.fromDisplayName("아마추어"),
+                    TeamSkillLevel.fromDisplayName("아마추어"),
                     "주 2회 연습합니다."
                 ))
                 .isInstanceOf(IllegalArgumentException.class);
@@ -251,7 +251,7 @@ public class TeamTest {
             // then
             assertThat(team.getTeamName().name()).isEqualTo("감자 FC");
             assertThat(team.getUniversity().name()).isEqualTo("한림대학교");
-            assertThat(team.getSkillLevel()).isEqualTo(SkillLevel.PRO);
+            assertThat(team.getSkillLevel()).isEqualTo(TeamSkillLevel.PRO);
         }
 
         @Test

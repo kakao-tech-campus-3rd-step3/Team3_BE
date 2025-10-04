@@ -3,7 +3,7 @@ package com.shootdoori.teamMember;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.shootdoori.match.entity.SkillLevel;
+import com.shootdoori.match.entity.TeamSkillLevel;
 import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.entity.TeamMember;
 import com.shootdoori.match.entity.TeamMemberRole;
@@ -63,7 +63,7 @@ public class TeamMemberTest {
             captain,
             "강원대학교",
             TeamType.fromDisplayName("과동아리"),
-            SkillLevel.fromDisplayName("아마추어"),
+            TeamSkillLevel.fromDisplayName("아마추어"),
             "주 2회 연습합니다."
         );
 

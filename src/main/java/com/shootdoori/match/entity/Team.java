@@ -60,7 +60,7 @@ public class Team extends DateEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "SKILL_LEVEL", nullable = false, length = 20)
-    private SkillLevel skillLevel = SkillLevel.AMATEUR;
+    private TeamSkillLevel skillLevel = TeamSkillLevel.AMATEUR;
 
     @Embedded
     @AttributeOverride(name = "description", column = @Column(name = "DESCRIPTION", length = 1000))
@@ -77,12 +77,12 @@ public class Team extends DateEntity {
     }
 
     public Team(String teamName, User captain, String university, TeamType teamType,
-        SkillLevel skillLevel, String description) {
+        TeamSkillLevel skillLevel, String description) {
         this.teamName = TeamName.of(teamName);
         this.captain = captain;
         this.university = UniversityName.of(university);
         this.teamType = teamType != null ? teamType : TeamType.OTHER;
-        this.skillLevel = skillLevel != null ? skillLevel : SkillLevel.AMATEUR;
+        this.skillLevel = skillLevel != null ? skillLevel : TeamSkillLevel.AMATEUR;
         this.description = Description.of(description);
     }
 
@@ -111,7 +111,7 @@ public class Team extends DateEntity {
         return memberCount;
     }
 
-    public SkillLevel getSkillLevel() {
+    public TeamSkillLevel getSkillLevel() {
         return skillLevel;
     }
 
@@ -164,7 +164,7 @@ public class Team extends DateEntity {
 
         this.teamName = TeamName.of(teamName);
         this.university = UniversityName.of(university);
-        this.skillLevel = SkillLevel.fromDisplayName(skillLevel);
+        this.skillLevel = TeamSkillLevel.fromDisplayName(skillLevel);
         this.description = Description.of(description);
     }
 

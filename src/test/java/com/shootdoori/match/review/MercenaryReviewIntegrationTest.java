@@ -199,7 +199,7 @@ class MercenaryReviewIntegrationTest {
     }
 
     private Team createTeam(String name, User captain) {
-        return new Team(name, captain, captain.getUniversity().name(), TeamType.OTHER, SkillLevel.AMATEUR, "용병 모집 테스트용 팀입니다.");
+        return new Team(name, captain, captain.getUniversity().name(), TeamType.OTHER, TeamSkillLevel.AMATEUR, "용병 모집 테스트용 팀입니다.");
     }
 
     private Venue createVenue(String name) {

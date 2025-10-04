@@ -197,7 +197,7 @@ class TeamReviewIntegrationTest {
     }
 
     private Team createTeam(String name, User captain) {
-        return new Team(name, captain, captain.getUniversity().name(), TeamType.OTHER, SkillLevel.AMATEUR, "테스트용 팀입니다.");
+        return new Team(name, captain, captain.getUniversity().name(), TeamType.OTHER, TeamSkillLevel.AMATEUR, "테스트용 팀입니다.");
     }
 
     private Venue createVenue(String name) {

@@ -5,7 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.shootdoori.match.entity.JoinWaiting;
 import com.shootdoori.match.entity.JoinWaitingStatus;
-import com.shootdoori.match.entity.SkillLevel;
+import com.shootdoori.match.entity.TeamSkillLevel;
 import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.entity.TeamMember;
 import com.shootdoori.match.entity.TeamMemberRole;
@@ -81,7 +81,7 @@ public class JoinWaitingTest {
             teamLeader,
             "강원대학교",
             TeamType.fromDisplayName("과동아리"),
-            SkillLevel.fromDisplayName("세미프로"),
+            TeamSkillLevel.fromDisplayName("세미프로"),
             "주 3회 연습합니다."
         );
 
