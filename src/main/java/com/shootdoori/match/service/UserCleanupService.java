@@ -1,5 +1,6 @@
 package com.shootdoori.match.service;
 
+import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.entity.User;
 import com.shootdoori.match.repository.*;
 import org.springframework.stereotype.Service;
@@ -9,17 +10,39 @@ import java.util.List;
 
 @Service
 public class UserCleanupService {
+    private final PasswordOtpTokenRepository passwordOtpTokenRepository;
+    private final PasswordResetTokenRepository passwordResetTokenRepository;
+    private final RefreshTokenRepository refreshTokenRepository;
+    private final TeamMemberRepository teamMemberRepository;
+    private final TeamMemberService teamMemberService;
+    private final ProfileRepository profileRepository;
+
+    public UserCleanupService(PasswordOtpTokenRepository passwordOtpTokenRepository, PasswordResetTokenRepository passwordResetTokenRepository, RefreshTokenRepository refreshTokenRepository, TeamMemberRepository teamMemberRepository, TeamMemberService teamMemberService, ProfileRepository profileRepository) {
+        this.passwordOtpTokenRepository = passwordOtpTokenRepository;
+        this.passwordResetTokenRepository = passwordResetTokenRepository;
+        this.refreshTokenRepository = refreshTokenRepository;
+        this.teamMemberRepository = teamMemberRepository;
+        this.teamMemberService = teamMemberService;
+        this.profileRepository = profileRepository;
+    }
 
     @Transactional
-    public void permanentlyDeleteUsers(List<User> user) {
+    public void permanentlyDeleteUsers(List<User> users) {
+        for (User user : users) {
+            Long userId = user.getId();
 
-        // 1. 인증/보안 관련 토큰 삭제
+            passwordOtpTokenRepository.deleteAllByUserId(userId);
+            passwordResetTokenRepository.deleteAllByUserId(userId);
+            refreshTokenRepository.deleteAllByUserId(userId);
 
-        // 2. 매치 관련 데이터 삭제
+            teamMemberRepository.findByUser_Id(userId).ifPresent(teamMember -> {
+                Team team = teamMember.getTeam();
+                teamMemberService.leave(team.getTeamId(), userId);
 
-        // 3. 팀 관련 데이터 삭제
-        // 팀장&부팀장 체크 후 위임 또는 팀 삭제 처리
+                // TODO: 성사된 매치(대기중), 상대팀에게 보낸 매치 신청, 매치 완료된 기록 삭제
+            });
 
-        // 4. 프로필(user) 삭제
+            profileRepository.deleteById(userId);
+        }
     }
 }

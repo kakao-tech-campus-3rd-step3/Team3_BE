@@ -1,4 +1,4 @@
-package com.shootdoori.match.resolver;
+package com.shootdoori.match.config;
 
 import com.shootdoori.match.entity.User;
 import com.shootdoori.match.entity.UserStatus;

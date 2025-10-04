@@ -4,10 +4,11 @@ import com.shootdoori.match.dto.ProfileCreateRequest;
 import com.shootdoori.match.dto.ProfileMapper;
 import com.shootdoori.match.dto.ProfileResponse;
 import com.shootdoori.match.dto.ProfileUpdateRequest;
-import com.shootdoori.match.entity.TeamMember;
+import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.entity.User;
 import com.shootdoori.match.exception.DuplicatedException;
 import com.shootdoori.match.exception.ErrorCode;
+import com.shootdoori.match.exception.LeaderCannotLeaveTeamException;
 import com.shootdoori.match.exception.NotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.RefreshTokenRepository;
@@ -97,6 +98,12 @@ public class ProfileService {
         User user = profileRepository.findById(id)
             .orElseThrow(() -> new NotFoundException(ErrorCode.PROFILE_NOT_FOUND));
 
+        teamMemberRepository.findByUser_Id(id).ifPresent(teamMember -> {
+            Team team = teamMember.getTeam();
+            if (team.getCaptain().equals(user)) {
+                throw new LeaderCannotLeaveTeamException(ErrorCode.LEADER_CANNOT_LEAVE_TEAM);
+            }
+        });
         user.requestDeletion();
 
         refreshTokenRepository.deleteAllByUserId(id);

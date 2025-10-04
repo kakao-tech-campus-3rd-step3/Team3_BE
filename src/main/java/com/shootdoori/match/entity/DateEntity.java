@@ -21,7 +21,7 @@ public abstract class DateEntity {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    @Column
+    @LastModifiedDate
     private LocalDateTime statusChangedAt;
 
     public LocalDateTime getCreatedAt() {
@@ -38,11 +38,9 @@ public abstract class DateEntity {
 
     public void activate() {
         this.status = UserStatus.ACTIVE;
-        this.statusChangedAt = LocalDateTime.now();
     }
 
     public void requestDeletion() {
         this.status = UserStatus.PENDING_DELETION;
-        this.statusChangedAt = LocalDateTime.now();
     }
 }
