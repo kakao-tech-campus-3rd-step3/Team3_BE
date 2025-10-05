@@ -69,20 +69,4 @@ public class LoginController {
 
         return ResponseEntity.ok().build();
     }
-
-//    private void expireRefreshTokenCookie(HttpServletResponse response) {
-//        Cookie cookie = new Cookie("refreshToken", "deleted");
-//        cookie.setMaxAge(0);
-//        cookie.setPath("/");
-//        response.addCookie(cookie);
-//    }
-//
-//    private void setRefreshTokenCookie(HttpServletResponse response, String refreshToken) {
-//        Cookie cookie = new Cookie("refreshToken", refreshToken);
-//        cookie.setHttpOnly(true);
-//        cookie.setSecure(true);
-//        cookie.setPath("/");
-//        cookie.setMaxAge(COOKIE_MAX_AGE);
-//        response.addCookie(cookie);
-//    }
 }
