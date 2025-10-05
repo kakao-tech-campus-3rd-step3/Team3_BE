@@ -1,6 +1,6 @@
 package com.shootdoori.match.repository;
 
-import com.shootdoori.match.entity.PasswordResetToken;
+import com.shootdoori.match.entity.auth.PasswordResetToken;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

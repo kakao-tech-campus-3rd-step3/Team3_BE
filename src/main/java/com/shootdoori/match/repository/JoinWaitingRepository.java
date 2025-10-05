@@ -1,7 +1,7 @@
 package com.shootdoori.match.repository;
 
-import com.shootdoori.match.entity.JoinWaiting;
-import com.shootdoori.match.entity.JoinWaitingStatus;
+import com.shootdoori.match.entity.team.join.JoinWaiting;
+import com.shootdoori.match.entity.team.join.JoinWaitingStatus;
 import jakarta.persistence.LockModeType;
 import java.util.List;
 import java.util.Optional;

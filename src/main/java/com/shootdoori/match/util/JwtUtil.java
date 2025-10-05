@@ -1,6 +1,6 @@
 package com.shootdoori.match.util;
 
-import com.shootdoori.match.entity.User;
+import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.UnauthorizedException;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

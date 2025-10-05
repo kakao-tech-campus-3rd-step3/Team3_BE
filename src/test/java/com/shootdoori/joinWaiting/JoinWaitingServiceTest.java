@@ -11,14 +11,14 @@ import com.shootdoori.match.dto.JoinWaitingMapper;
 import com.shootdoori.match.dto.JoinWaitingRejectRequestDto;
 import com.shootdoori.match.dto.JoinWaitingRequestDto;
 import com.shootdoori.match.dto.JoinWaitingResponseDto;
-import com.shootdoori.match.entity.JoinWaiting;
-import com.shootdoori.match.entity.JoinWaitingStatus;
-import com.shootdoori.match.entity.SkillLevel;
-import com.shootdoori.match.entity.Team;
-import com.shootdoori.match.entity.TeamMember;
-import com.shootdoori.match.entity.TeamMemberRole;
-import com.shootdoori.match.entity.TeamType;
-import com.shootdoori.match.entity.User;
+import com.shootdoori.match.entity.team.join.JoinWaiting;
+import com.shootdoori.match.entity.team.join.JoinWaitingStatus;
+import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.team.TeamMember;
+import com.shootdoori.match.entity.team.TeamMemberRole;
+import com.shootdoori.match.entity.team.TeamType;
+import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.DuplicatedException;
 import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.JoinWaitingRepository;
@@ -139,7 +139,7 @@ public class JoinWaitingServiceTest {
             teamLeader,
             "강원대학교",
             TeamType.fromDisplayName("과동아리"),
-            SkillLevel.fromDisplayName("세미프로"),
+            TeamSkillLevel.fromDisplayName("세미프로"),
             "주 3회 연습합니다."
         );
 
@@ -478,7 +478,7 @@ public class JoinWaitingServiceTest {
                 anotherUser,
                 "강원대학교",
                 TeamType.fromDisplayName("과동아리"),
-                SkillLevel.fromDisplayName("아마추어"),
+                TeamSkillLevel.fromDisplayName("아마추어"),
                 "주 2회 연습합니다."
             );
             ReflectionTestUtils.setField(anotherTeam, "teamId", 2L);

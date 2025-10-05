@@ -2,12 +2,15 @@ package com.shootdoori.match.service;
 
 import com.shootdoori.match.dto.MercenaryReviewRequestDto;
 import com.shootdoori.match.dto.MercenaryReviewResponseDto;
-import com.shootdoori.match.entity.Match;
-import com.shootdoori.match.entity.Team;
-import com.shootdoori.match.entity.User;
-import com.shootdoori.match.entity.MercenaryReview;
+
+import com.shootdoori.match.entity.match.Match;
+import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.user.User;
+import com.shootdoori.match.entity.review.MercenaryReview;
+
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NotFoundException;
+
 import com.shootdoori.match.repository.MatchRepository;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.MercenaryReviewRepository;

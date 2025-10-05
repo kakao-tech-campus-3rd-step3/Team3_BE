@@ -1,8 +1,8 @@
 package com.shootdoori.match.service;
 
-import com.shootdoori.match.entity.PasswordOtpToken;
-import com.shootdoori.match.entity.PasswordResetToken;
-import com.shootdoori.match.entity.User;
+import com.shootdoori.match.entity.auth.PasswordOtpToken;
+import com.shootdoori.match.entity.auth.PasswordResetToken;
+import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.UnauthorizedException;
 import com.shootdoori.match.repository.PasswordOtpTokenRepository;

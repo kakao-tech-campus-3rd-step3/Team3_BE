@@ -36,6 +36,7 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/refresh").permitAll()
                 .requestMatchers("/h2-console/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/images/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/venues/**").permitAll()
                 .requestMatchers("/images/**").denyAll()
                 .anyRequest().authenticated()
             )

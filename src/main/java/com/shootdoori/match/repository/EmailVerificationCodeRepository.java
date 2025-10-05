@@ -1,6 +1,6 @@
 package com.shootdoori.match.repository;
 
-import com.shootdoori.match.entity.EmailVerificationCode;
+import com.shootdoori.match.entity.auth.EmailVerificationCode;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
