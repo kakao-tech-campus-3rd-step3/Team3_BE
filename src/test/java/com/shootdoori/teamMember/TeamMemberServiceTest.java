@@ -227,6 +227,25 @@ public class TeamMemberServiceTest {
             assertThatThrownBy(() -> teamMemberService.create(TEAM_ID, requestDto, captain.getId()))
                 .isInstanceOf(DuplicatedException.class);
         }
+
+        @Test
+        @DisplayName("create - 다른 팀에 이미 소속된 경우 예외")
+        void create_alreadyOtherTeamMember_throws() {
+            // given
+            TeamMemberRequestDto requestDto = new TeamMemberRequestDto(
+                USER_ID,
+                ROLE_MEMBER
+            );
+            ReflectionTestUtils.setField(captain, "id", 1L);
+
+            when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
+            when(profileRepository.findById(USER_ID)).thenReturn(Optional.of(user));
+            when(teamMemberRepository.existsByUser_Id(USER_ID)).thenReturn(true);
+
+            // when & then
+            assertThatThrownBy(() -> teamMemberService.create(TEAM_ID, requestDto, captain.getId()))
+                .isInstanceOf(DuplicatedException.class);
+        }
     }
 
     @Nested
