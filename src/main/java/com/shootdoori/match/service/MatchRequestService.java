@@ -257,4 +257,26 @@ public class MatchRequestService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public Slice<MatchRequestHistoryResponseDto> getSentRequestsByMyTeam(Long loginUserId,
+                                                          Pageable pageable) {
+        TeamMember teamMember = teamMemberRepository.findByUser_Id(loginUserId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
+
+        Long myTeamId = teamMember.getTeam().getTeamId();
+
+        Slice<MatchRequest> requests = matchRequestRepository.findSentRequestsByTeam(myTeamId, pageable);
+
+        return requests.map(mr -> new MatchRequestHistoryResponseDto(
+            mr.getRequestId(),
+            mr.getRequestTeam().getTeamId(),
+            mr.getRequestTeam().getTeamName(),
+            mr.getTargetTeam().getTeamId(),
+            mr.getTargetTeam().getTeamName(),
+            mr.getRequestMessage(),
+            mr.getStatus(),
+            mr.getRequestAt()
+        ));
+    }
+
 }
