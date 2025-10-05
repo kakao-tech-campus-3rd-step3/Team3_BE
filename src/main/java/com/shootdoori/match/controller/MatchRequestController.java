@@ -87,4 +87,14 @@ public class MatchRequestController {
             requestId);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/requests/me")
+    public ResponseEntity<Slice<MatchRequestHistoryResponseDto>> getSentRequestsByMyTeam(
+        @LoginUser Long loginUserId,
+        @PageableDefault(size = 10, sort = "requestAt", direction = org.springframework.data.domain.Sort.Direction.DESC)
+        Pageable pageable) {
+
+        Slice<MatchRequestHistoryResponseDto> response = matchRequestService.getSentRequestsByMyTeam(loginUserId, pageable);
+        return ResponseEntity.ok(response);
+    }
 }
