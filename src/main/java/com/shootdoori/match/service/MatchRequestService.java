@@ -10,6 +10,7 @@ import com.shootdoori.match.entity.match.waiting.MatchWaiting;
 import com.shootdoori.match.entity.match.waiting.MatchWaitingStatus;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMember;
+import com.shootdoori.match.exception.common.DuplicatedException;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NoPermissionException;
 import com.shootdoori.match.exception.common.NotFoundException;
@@ -94,6 +95,15 @@ public class MatchRequestService {
 
         if (targetTeamId.equals(requestTeamId)) {
             throw new OneselfMatchException();
+        }
+
+        boolean alreadyRequested = matchRequestRepository.existsActiveRequest(
+            waitingId,
+            requestTeamId,
+            MatchRequestStatus.CANCELED
+        );
+        if (alreadyRequested) {
+            throw new DuplicatedException(ErrorCode.ALREADY_MATCH_REQUEST);
         }
 
         MatchRequest matchRequest = new MatchRequest(

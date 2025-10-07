@@ -1,6 +1,7 @@
 package com.shootdoori.match.repository;
 
 import com.shootdoori.match.entity.match.request.MatchRequest;
+import com.shootdoori.match.entity.match.request.MatchRequestStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -32,4 +33,15 @@ public interface MatchRequestRepository extends JpaRepository<MatchRequest, Long
         "ORDER BY mr.requestAt DESC")
     Slice<MatchRequest> findSentRequestsByTeam(@Param("requestTeamId") Long requestTeamId,
                                                Pageable pageable);
+
+    @Query("SELECT CASE WHEN COUNT(mr) > 0 THEN true ELSE false END " +
+        "FROM MatchRequest mr " +
+        "WHERE mr.matchWaiting.waitingId = :waitingId " +
+        "AND mr.requestTeam.teamId = :requestTeamId " +
+        "AND mr.status <> :excludedStatus")
+    boolean existsActiveRequest(
+        @Param("waitingId") Long waitingId,
+        @Param("requestTeamId") Long requestTeamId,
+        @Param("excludedStatus") MatchRequestStatus excludedStatus
+    );
 }
