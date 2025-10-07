@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 
 public enum ErrorCode {
     ALREADY_TEAM_MEMBER("이미 해당 팀의 멤버입니다.", HttpStatus.CONFLICT),
+    ALREADY_OTHER_TEAM_MEMBER("이미 다른 팀에 소속되어 있습니다.", HttpStatus.CONFLICT),
     CAPTAIN_NOT_FOUND("팀장 정보가 없습니다.", HttpStatus.NOT_FOUND),
     DIFFERENT_UNIVERSITY("팀 소속 대학과 동일한 대학의 사용자만 가입할 수 있습니다.", HttpStatus.FORBIDDEN),
     DUPLICATED_USER("이미 존재하는 사용자입니다.", HttpStatus.CONFLICT),

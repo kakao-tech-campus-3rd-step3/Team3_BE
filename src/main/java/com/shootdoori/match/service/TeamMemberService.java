@@ -57,6 +57,10 @@ public class TeamMemberService {
         User user = profileRepository.findById(userId).orElseThrow(
             () -> new NotFoundException(ErrorCode.USER_NOT_FOUND, String.valueOf(userId)));
 
+        if (teamMemberRepository.existsByUser_Id(userId)) {
+            throw new DuplicatedException(ErrorCode.ALREADY_OTHER_TEAM_MEMBER);
+        }
+
         if (teamMemberRepository.existsByTeam_TeamIdAndUser_Id(teamId, userId)) {
             throw new DuplicatedException(ErrorCode.ALREADY_TEAM_MEMBER);
         }
