@@ -39,7 +39,7 @@ public class MatchCompleteService {
         Team myTeam = teamMember.getTeam();
 
         Team enemyTeam = match.findEnemyTeam(myTeam);
-        return new EnemyTeamResponseDto(enemyTeam);
+        return EnemyTeamResponseDto.from(enemyTeam);
     }
 
     @Transactional
