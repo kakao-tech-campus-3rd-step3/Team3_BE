@@ -75,13 +75,7 @@ public class MatchCreateService {
         );
 
         MatchWaiting saved = matchWaitingRepository.save(matchWaiting);
-        return new MatchCreateResponseDto(
-            saved.getWaitingId(),
-            saved.getTeam().getTeamId(),
-            saved.getTeam().getTeamName(),
-            saved.getMatchWaitingStatus(),
-            saved.getExpiresAt()
-        );
+        return MatchCreateResponseDto.from(saved);
     }
 
     @Transactional
@@ -108,14 +102,7 @@ public class MatchCreateService {
 
         matchWaiting.cancelMatchWaiting();
 
-        return new MatchWaitingCancelResponseDto(
-            matchWaiting.getWaitingId(),
-            matchWaiting.getTeam().getTeamId(),
-            matchWaiting.getTeam().getTeamName(),
-            matchWaiting.getMatchWaitingStatus(),
-            matchWaiting.getExpiresAt()
-        );
-
+        return MatchWaitingCancelResponseDto.from(matchWaiting);
     }
 
     @Transactional(readOnly = true)
