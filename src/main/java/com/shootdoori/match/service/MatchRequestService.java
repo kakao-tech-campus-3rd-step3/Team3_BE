@@ -60,21 +60,7 @@ public class MatchRequestService {
                     matchWaitingRequestDto.selectDate(),
                     matchWaitingRequestDto.startTime(),
                     pageable)
-            .map(mw -> new MatchWaitingResponseDto(
-                mw.getWaitingId(),
-                mw.getTeam().getTeamId(),
-                mw.getTeam().getTeamName(),
-                mw.getPreferredDate(),
-                mw.getPreferredTimeStart(),
-                mw.getPreferredTimeEnd(),
-                mw.getPreferredVenue().getVenueId(),
-                mw.getSkillLevelMin(),
-                mw.getSkillLevelMax(),
-                mw.getUniversityOnly(),
-                mw.getMessage(),
-                mw.getMatchWaitingStatus(),
-                mw.getExpiresAt()
-            ));
+            .map(MatchWaitingResponseDto::from);
     }
 
     @Transactional
@@ -115,15 +101,7 @@ public class MatchRequestService {
 
         MatchRequest saved = matchRequestRepository.save(matchRequest);
 
-        return new MatchRequestResponseDto(
-            saved.getRequestId(),
-            saved.getRequestTeam().getTeamId(),
-            saved.getRequestTeam().getTeamName(),
-            saved.getTargetTeam().getTeamId(),
-            saved.getTargetTeam().getTeamName(),
-            saved.getRequestMessage(),
-            saved.getStatus()
-        );
+        return MatchRequestResponseDto.from(saved);
     }
 
     @Transactional
@@ -147,15 +125,7 @@ public class MatchRequestService {
 
         matchRequest.cancelRequest();
 
-        return new MatchRequestResponseDto(
-            matchRequest.getRequestId(),
-            matchRequest.getRequestTeam().getTeamId(),
-            matchRequest.getRequestTeam().getTeamName(),
-            matchRequest.getTargetTeam().getTeamId(),
-            matchRequest.getTargetTeam().getTeamName(),
-            matchRequest.getRequestMessage(),
-            matchRequest.getStatus()
-        );
+        return MatchRequestResponseDto.from(matchRequest);
     }
 
 
@@ -170,15 +140,7 @@ public class MatchRequestService {
         Long myTeamId = myTeam.getTeamId();
 
         return matchRequestRepository.findPendingRequestsByTargetTeam(myTeamId, pageable)
-            .map(mr -> new MatchRequestResponseDto(
-                mr.getRequestId(),
-                mr.getRequestTeam().getTeamId(),
-                mr.getRequestTeam().getTeamName(),
-                mr.getTargetTeam().getTeamId(),
-                mr.getTargetTeam().getTeamName(),
-                mr.getRequestMessage(),
-                mr.getStatus()
-            ));
+            .map(MatchRequestResponseDto::from);
     }
 
     @Transactional
@@ -221,17 +183,7 @@ public class MatchRequestService {
         );
         matchRepository.save(match);
 
-        return new MatchConfirmedResponseDto(
-            match.getMatchId(),
-            targetTeam.getTeamId(),
-            targetTeamName,
-            requestTeam.getTeamId(),
-            requestTeamName,
-            match.getMatchDate(),
-            match.getMatchTime(),
-            match.getVenue().getVenueId(),
-            match.getStatus()
-        );
+        return MatchConfirmedResponseDto.from(match);
     }
 
     @Transactional
@@ -256,15 +208,7 @@ public class MatchRequestService {
 
         matchRequest.updateRequestStatus(MatchRequestStatus.REJECTED, LocalDateTime.now());
 
-        return new MatchRequestResponseDto(
-            matchRequest.getRequestId(),
-            matchRequest.getRequestTeam().getTeamId(),
-            matchRequest.getRequestTeam().getTeamName(),
-            matchRequest.getTargetTeam().getTeamId(),
-            matchRequest.getTargetTeam().getTeamName(),
-            matchRequest.getRequestMessage(),
-            matchRequest.getStatus()
-        );
+        return MatchRequestResponseDto.from(matchRequest);
     }
 
     @Transactional(readOnly = true)
@@ -275,18 +219,8 @@ public class MatchRequestService {
 
         Long myTeamId = teamMember.getTeam().getTeamId();
 
-        Slice<MatchRequest> requests = matchRequestRepository.findSentRequestsByTeam(myTeamId, pageable);
-
-        return requests.map(mr -> new MatchRequestHistoryResponseDto(
-            mr.getRequestId(),
-            mr.getRequestTeam().getTeamId(),
-            mr.getRequestTeam().getTeamName(),
-            mr.getTargetTeam().getTeamId(),
-            mr.getTargetTeam().getTeamName(),
-            mr.getRequestMessage(),
-            mr.getStatus(),
-            mr.getRequestAt()
-        ));
+        return matchRequestRepository.findSentRequestsByTeam(myTeamId, pageable)
+            .map(MatchRequestHistoryResponseDto::from);
     }
 
     @Transactional
