@@ -6,6 +6,7 @@ import com.shootdoori.match.dto.LoginRequest;
 import com.shootdoori.match.dto.ProfileCreateRequest;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.entity.user.UserStatus;
+import com.shootdoori.match.dto.TokenRefreshRequest;
 import jakarta.persistence.EntityManager;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.RefreshTokenRepository;
@@ -53,7 +54,6 @@ class AuthTest {
 
         @BeforeEach
         void setup() {
-            // 테스트 간 데이터 격리
             refreshTokenRepository.deleteAll();
             profileRepository.deleteAll();
         }
@@ -68,7 +68,7 @@ class AuthTest {
                     .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").exists())
-                .andExpect(cookie().exists("refreshToken"));
+                    .andExpect(jsonPath("$.refreshToken").exists());
         }
 
         @Test
@@ -94,7 +94,6 @@ class AuthTest {
 
         @BeforeEach
         void setup() {
-            // 이전 비트랜잭션 테스트에서 커밋된 데이터 정리
             refreshTokenRepository.deleteAll();
             profileRepository.deleteAll();
             authService.register(
@@ -113,7 +112,7 @@ class AuthTest {
                     .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").exists())
-                .andExpect(cookie().exists("refreshToken"));
+                    .andExpect(jsonPath("$.refreshToken").exists());
         }
 
         @Test
@@ -174,13 +173,12 @@ class AuthTest {
             String refreshToken = initialTokens.refreshToken();
 
             String tokenId = jwtUtil.getClaims(refreshToken).getId();
-            Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
 
             mockMvc.perform(post("/api/auth/logout")
                     .header("Authorization", "Bearer " + accessToken)
-                    .cookie(refreshTokenCookie))
-                .andExpect(status().isOk())
-                .andExpect(cookie().maxAge("refreshToken", 0));
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(new TokenRefreshRequest(refreshToken))))
+                    .andExpect(status().isOk());
 
             assertThat(refreshTokenRepository.findById(tokenId)).isEmpty();
         }
@@ -197,14 +195,12 @@ class AuthTest {
             Long userId = Long.parseLong(jwtUtil.getUserId(stripBearer(accessToken)));
 
             String refreshToken = otherDeviceLoginTokens.refreshToken();
-            Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
 
             mockMvc.perform(post("/api/auth/logout-all")
                     .header("Authorization", "Bearer " + accessToken)
-                    .cookie(refreshTokenCookie))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(cookie().maxAge("refreshToken", 0));
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(new TokenRefreshRequest(refreshToken))))
+                    .andExpect(status().isOk());
 
             assertThat(refreshTokenRepository.countByUserId(userId)).isZero();
         }
@@ -224,7 +220,6 @@ class AuthTest {
 
         @BeforeEach
         void setup() {
-            // 테스트 간 데이터 격리
             refreshTokenRepository.deleteAll();
             profileRepository.deleteAll();
         }
@@ -237,20 +232,19 @@ class AuthTest {
                 new MockHttpServletRequest()
             );
 
-            Cookie refreshTokenCookie = new Cookie(
-                "refreshToken",
-                initialTokens.refreshToken()
-            );
+            String initialRefresh = initialTokens.refreshToken();
 
             mockMvc.perform(post("/api/auth/refresh")
-                    .cookie(refreshTokenCookie))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken").exists())
-                .andExpect(cookie().exists("refreshToken"));
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(new TokenRefreshRequest(initialRefresh))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.accessToken").exists())
+                    .andExpect(jsonPath("$.refreshToken").exists());
 
             mockMvc.perform(post("/api/auth/refresh")
-                    .cookie(refreshTokenCookie))
-                .andExpect(status().isUnauthorized());
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(new TokenRefreshRequest(initialRefresh))))
+                    .andExpect(status().isUnauthorized());
         }
     }
 

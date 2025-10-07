@@ -26,4 +26,10 @@ public interface MatchRequestRepository extends JpaRepository<MatchRequest, Long
         "AND mr.status = com.shootdoori.match.entity.match.request.MatchRequestStatus.PENDING " +
         "ORDER BY mr.requestAt ASC ")
     Slice<MatchRequest> findPendingRequestsByTargetTeam(@Param("targetTeamId") Long targetTeamId, Pageable pageable);
+
+    @Query("SELECT mr FROM MatchRequest mr " +
+        "WHERE mr.requestTeam.teamId = :requestTeamId " +
+        "ORDER BY mr.requestAt DESC")
+    Slice<MatchRequest> findSentRequestsByTeam(@Param("requestTeamId") Long requestTeamId,
+                                               Pageable pageable);
 }

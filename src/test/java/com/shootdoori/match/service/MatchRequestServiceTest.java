@@ -397,4 +397,32 @@ class MatchRequestServiceTest {
         assertThat(found.get().getStatus()).isEqualTo(MatchRequestStatus.REJECTED);
     }
 
+    // ------------------- getSentRequestsByMyTeam 테스트 -------------------
+
+    @Test
+    @DisplayName("내가 속한 팀이 보낸 매치 요청이 있으면 정상 조회")
+    void getSentRequestsByMyTeam_hasRequests() {
+        // given: 내가 속한 팀(requestTeam1)이 targetTeam에게 요청을 2개 보냄
+        matchRequestService.requestToMatch(requestTeamCaptain1.getId(), savedWaiting.getWaitingId(), new MatchRequestRequestDto(REQUEST_MESSAGE_1));
+        try {
+            Thread.sleep(1000); // 요청 순서 구분 위해 약간의 딜레이
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        matchRequestService.requestToMatch(requestTeamCaptain1.getId(), savedWaiting.getWaitingId(), new MatchRequestRequestDto(REQUEST_MESSAGE_2));
+
+        // when
+        Slice<MatchRequestHistoryResponseDto> result =
+            matchRequestService.getSentRequestsByMyTeam(requestTeamCaptain1.getId(), PageRequest.of(0, 10));
+
+        // then
+        assertThat(result).isNotEmpty();
+        assertThat(result.getContent()).hasSize(2);
+        assertThat(result.getContent())
+            .extracting("requestMessage")
+            .containsExactly(REQUEST_MESSAGE_2, REQUEST_MESSAGE_1); // 최근 요청이 먼저
+        assertThat(result.getContent())
+            .extracting("status")
+            .allMatch(status -> status.equals(MatchRequestStatus.PENDING));
+    }
 }
