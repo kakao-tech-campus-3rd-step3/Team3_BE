@@ -54,6 +54,10 @@ public class JoinWaitingService {
 
         team.validateSameUniversity(applicant);
 
+        if (teamMemberRepository.existsByUser_Id(applicantId)) {
+            throw new DuplicatedException(ErrorCode.ALREADY_OTHER_TEAM_MEMBER);
+        }
+
         if (teamMemberRepository.existsByTeam_TeamIdAndUser_Id(teamId, applicantId)) {
             throw new DuplicatedException(ErrorCode.ALREADY_TEAM_MEMBER);
         }
@@ -87,6 +91,10 @@ public class JoinWaitingService {
 
         Team team = joinWaiting.getTeam();
         User applicant = joinWaiting.getApplicant();
+
+        if (teamMemberRepository.existsByUser_Id(applicant.getId())) {
+            throw new DuplicatedException(ErrorCode.ALREADY_OTHER_TEAM_MEMBER);
+        }
 
         if (teamMemberRepository.existsByTeam_TeamIdAndUser_Id(teamId, applicant.getId())) {
             throw new DuplicatedException(ErrorCode.ALREADY_TEAM_MEMBER);

@@ -131,4 +131,9 @@ public class MatchCreateService {
         return myTeamMatchWaiting.map(MatchWaitingResponseDto::from);
     }
 
+    @Transactional
+    public void deleteAllByTeamId(Long teamId) {
+        matchWaitingRepository.deleteAllByTeamId(teamId);
+    }
+
 }

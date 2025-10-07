@@ -257,6 +257,22 @@ public class JoinWaitingServiceTest {
             assertThatThrownBy(() -> joinWaitingService.create(TEAM_ID, applicant.getId(), requestDto))
                 .isInstanceOf(NotFoundException.class);
         }
+
+        @Test
+        @DisplayName("create - 전역 소속(다른 팀 소속)인 경우 예외")
+        void create_alreadyOtherTeamMember_throws() {
+            // given
+            Long applicantId = applicant.getId();
+            JoinWaitingRequestDto requestDto = new JoinWaitingRequestDto("파트라슈처럼 뛰겠습니다.");
+
+            when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
+            when(profileRepository.findById(applicantId)).thenReturn(Optional.of(applicant));
+            when(teamMemberRepository.existsByUser_Id(applicantId)).thenReturn(true);
+
+            // when & then
+            assertThatThrownBy(() -> joinWaitingService.create(TEAM_ID, applicantId, requestDto))
+                .isInstanceOf(DuplicatedException.class);
+        }
     }
 
     @Nested
@@ -345,6 +361,28 @@ public class JoinWaitingServiceTest {
                 .thenReturn(Optional.of(joinWaiting));
             when(teamMemberRepository.existsByTeam_TeamIdAndUser_Id(TEAM_ID, applicantId))
                 .thenReturn(true);
+
+            // when & then
+            assertThatThrownBy(
+                () -> joinWaitingService.approve(TEAM_ID, JOIN_WAITING_ID, teamLeader.getId(), requestDto))
+                .isInstanceOf(DuplicatedException.class);
+        }
+
+        @Test
+        @DisplayName("approve - 전역 소속(다른 팀 소속)인 경우 예외")
+        void approve_alreadyOtherTeamMember_throws() {
+            // given
+            Long applicantId = applicant.getId();
+            JoinWaitingApproveRequestDto requestDto = new JoinWaitingApproveRequestDto(
+                MEMBER, "승인합니다.");
+
+            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입요청");
+
+            when(teamMemberRepository.findByUser_Id(teamLeader.getId()))
+                .thenReturn(Optional.of(leaderMember));
+            when(joinWaitingRepository.findByIdAndTeam_TeamIdForUpdate(JOIN_WAITING_ID, TEAM_ID))
+                .thenReturn(Optional.of(joinWaiting));
+            when(teamMemberRepository.existsByUser_Id(applicantId)).thenReturn(true);
 
             // when & then
             assertThatThrownBy(

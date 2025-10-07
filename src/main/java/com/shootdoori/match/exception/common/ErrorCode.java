@@ -4,6 +4,7 @@ import org.springframework.http.HttpStatus;
 
 public enum ErrorCode {
     ALREADY_TEAM_MEMBER("이미 해당 팀의 멤버입니다.", HttpStatus.CONFLICT),
+    ALREADY_OTHER_TEAM_MEMBER("이미 다른 팀에 소속되어 있습니다.", HttpStatus.CONFLICT),
     CAPTAIN_NOT_FOUND("팀장 정보가 없습니다.", HttpStatus.NOT_FOUND),
     DIFFERENT_UNIVERSITY("팀 소속 대학과 동일한 대학의 사용자만 가입할 수 있습니다.", HttpStatus.FORBIDDEN),
     DUPLICATED_USER("이미 존재하는 사용자입니다.", HttpStatus.CONFLICT),
@@ -22,6 +23,7 @@ public enum ErrorCode {
     LEADERSHIP_DELEGATION_FORBIDDEN("회장만 회장직을 위임할 수 있습니다.", HttpStatus.FORBIDDEN),
     VICE_LEADERSHIP_DELEGATION_FORBIDDEN("회장 또는 부회장만 부회장직을 위임할 수 있습니다.", HttpStatus.FORBIDDEN),
     DIFFERENT_TEAM_DELEGATION_NOT_ALLOWED("다른 팀 멤버에게는 역할을 위임할 수 없습니다.", HttpStatus.BAD_REQUEST),
+    LEADER_CANNOT_LEAVE_TEAM("회장은 팀 탈퇴를 할 수 없습니다.", HttpStatus.BAD_REQUEST),
 
     JOIN_WAITING_NOT_PENDING("대기중 상태의 신청만 처리할 수 있습니다.", HttpStatus.BAD_REQUEST),
     JOIN_WAITING_INVALID_TRANSITION("현재 상태에서 요청된 상태로 변경할 수 없습니다.", HttpStatus.BAD_REQUEST),

@@ -6,6 +6,7 @@ import com.shootdoori.match.entity.match.MatchStatus;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -53,4 +54,9 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
         @Param("status") MatchStatus status,
         Pageable pageable
     );
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("delete from Match m where m.team1.teamId = :teamId or m.team2.teamId = :teamId")
+    void deleteAllByTeamId(@Param("teamId") Long teamId);
+
 }

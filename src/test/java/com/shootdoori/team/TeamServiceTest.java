@@ -10,13 +10,16 @@ import com.shootdoori.match.dto.CreateTeamResponseDto;
 import com.shootdoori.match.dto.TeamDetailResponseDto;
 import com.shootdoori.match.dto.TeamMapper;
 import com.shootdoori.match.dto.TeamRequestDto;
-import com.shootdoori.match.entity.team.TeamSkillLevel;
 import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.team.TeamSkillLevel;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamRepository;
+import com.shootdoori.match.service.MatchCompleteService;
+import com.shootdoori.match.service.MatchCreateService;
+import com.shootdoori.match.service.MatchRequestService;
 import com.shootdoori.match.service.TeamService;
 import com.shootdoori.match.value.UniversityName;
 import java.util.Arrays;
@@ -56,6 +59,15 @@ public class TeamServiceTest {
     @Mock
     private TeamMapper teamMapper;
 
+    @Mock
+    private MatchRequestService matchRequestService;
+
+    @Mock
+    private MatchCreateService matchCreateService;
+
+    @Mock
+    private MatchCompleteService matchCompleteService;
+
     private TeamService teamService;
     private TeamRequestDto requestDto;
     private User captain;
@@ -63,7 +75,8 @@ public class TeamServiceTest {
 
     @BeforeEach
     void setUp() {
-        teamService = new TeamService(profileRepository, teamRepository, teamMapper);
+        teamService = new TeamService(profileRepository, teamRepository, teamMapper,
+            matchRequestService, matchCreateService, matchCompleteService);
 
         requestDto = new TeamRequestDto(
             "강원대 FC",
@@ -281,7 +294,8 @@ public class TeamServiceTest {
         when(teamMapper.toTeamDetailResponse(existingTeam)).thenReturn(updatedResponseDto);
 
         // when
-        TeamDetailResponseDto resultDto = teamService.update(TEAM_ID, updateRequestDto, captain.getId());
+        TeamDetailResponseDto resultDto = teamService.update(TEAM_ID, updateRequestDto,
+            captain.getId());
 
         // then
         assertThat(resultDto).isNotNull();
