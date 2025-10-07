@@ -55,9 +55,8 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
         Pageable pageable
     );
 
-    Match findByMatchId(Long i);
-
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("delete from Match m where m.team1.teamId = :teamId or m.team2.teamId = :teamId")
     void deleteAllByTeamId(@Param("teamId") Long teamId);
+
 }

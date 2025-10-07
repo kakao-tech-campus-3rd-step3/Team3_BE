@@ -34,6 +34,7 @@ public enum ErrorCode {
 
     VENUE_NOT_FOUND("해당 경기장을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     MATCH_REQUEST_NOT_FOUND("해당 매치 요청은 존재하지 않습니다.", HttpStatus.NOT_FOUND),
+    ALREADY_MATCH_REQUEST("이미 해당 매치에 대해 요청한 상태이거나 수락/거절 되었습니다.",HttpStatus.BAD_REQUEST),
 
     MATCH_WAITING_NOT_FOUND("해당 매치 대기열은 존재하지 않습니다.", HttpStatus.NOT_FOUND),
 

@@ -11,6 +11,8 @@ import com.shootdoori.match.entity.match.waiting.MatchWaitingStatus;
 import com.shootdoori.match.entity.team.*;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.entity.venue.Venue;
+import com.shootdoori.match.exception.common.DuplicatedException;
+import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -263,6 +265,55 @@ class MatchRequestServiceTest {
             .hasMessageContaining(NON_EXIST_WAITING_ID.toString());
     }
 
+    @Test
+    @DisplayName("이미 신청한 매치에 다시 요청 시 DuplicatedException 발생")
+    void requestToMatch_duplicateRequest() {
+        MatchRequestRequestDto firstRequest = new MatchRequestRequestDto(REQUEST_MESSAGE);
+        matchRequestService.requestToMatch(requestTeamCaptain1.getId(), savedWaiting.getWaitingId(), firstRequest);
+
+        MatchRequestRequestDto againRequest = new MatchRequestRequestDto(REQUEST_MESSAGE);
+        Throwable thrown = catchThrowable(() ->
+            matchRequestService.requestToMatch(requestTeamCaptain1.getId(), savedWaiting.getWaitingId(), againRequest)
+        );
+
+        assertThat(thrown).isInstanceOf(DuplicatedException.class)
+            .hasMessageContaining(ErrorCode.ALREADY_MATCH_REQUEST.getMessage());
+    }
+
+    @Test
+    @DisplayName("이미 신청한 매치에 취소 후 다시 요청 시 문제 발생하지 않음")
+    void requestToMatch_cancel_and_re_request_ok() {
+        MatchRequestRequestDto firstRequest = new MatchRequestRequestDto(REQUEST_MESSAGE);
+        MatchRequestResponseDto savedFirstRequest = matchRequestService.requestToMatch(
+            requestTeamCaptain1.getId(),
+            savedWaiting.getWaitingId(),
+            firstRequest
+        );
+
+        MatchRequestResponseDto canceled = matchRequestService.cancelMatchRequest(
+            requestTeamCaptain1.getId(),
+            savedFirstRequest.requestId()
+        );
+        assertThat(canceled.status()).isEqualTo(MatchRequestStatus.CANCELED);
+
+        MatchRequestRequestDto againRequest = new MatchRequestRequestDto(REQUEST_MESSAGE);
+        MatchRequestResponseDto savedAgainRequest = matchRequestService.requestToMatch(
+            requestTeamCaptain1.getId(),
+            savedWaiting.getWaitingId(),
+            againRequest
+        );
+
+        assertThat(savedAgainRequest).isNotNull();
+        assertThat(savedAgainRequest.requestTeamId()).isEqualTo(requestTeam1.getTeamId());
+        assertThat(savedAgainRequest.targetTeamId()).isEqualTo(targetTeam.getTeamId());
+        assertThat(savedAgainRequest.requestMessage()).isEqualTo(REQUEST_MESSAGE);
+        assertThat(savedAgainRequest.status()).isEqualTo(MatchRequestStatus.PENDING);
+
+        Optional<MatchRequest> found = matchRequestRepository.findById(savedAgainRequest.requestId());
+        assertThat(found).isPresent();
+        assertThat(found.get().getStatus()).isEqualTo(MatchRequestStatus.PENDING);
+    }
+
     // ------------------- cancelMatchRequest 테스트 -------------------
 
     @Test
@@ -402,14 +453,7 @@ class MatchRequestServiceTest {
     @Test
     @DisplayName("내가 속한 팀이 보낸 매치 요청이 있으면 정상 조회")
     void getSentRequestsByMyTeam_hasRequests() {
-        // given: 내가 속한 팀(requestTeam1)이 targetTeam에게 요청을 2개 보냄
         matchRequestService.requestToMatch(requestTeamCaptain1.getId(), savedWaiting.getWaitingId(), new MatchRequestRequestDto(REQUEST_MESSAGE_1));
-        try {
-            Thread.sleep(1000); // 요청 순서 구분 위해 약간의 딜레이
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        matchRequestService.requestToMatch(requestTeamCaptain1.getId(), savedWaiting.getWaitingId(), new MatchRequestRequestDto(REQUEST_MESSAGE_2));
 
         // when
         Slice<MatchRequestHistoryResponseDto> result =
@@ -417,10 +461,10 @@ class MatchRequestServiceTest {
 
         // then
         assertThat(result).isNotEmpty();
-        assertThat(result.getContent()).hasSize(2);
+        assertThat(result.getContent()).hasSize(1);
         assertThat(result.getContent())
             .extracting("requestMessage")
-            .containsExactly(REQUEST_MESSAGE_2, REQUEST_MESSAGE_1); // 최근 요청이 먼저
+            .containsExactly(REQUEST_MESSAGE_1);
         assertThat(result.getContent())
             .extracting("status")
             .allMatch(status -> status.equals(MatchRequestStatus.PENDING));

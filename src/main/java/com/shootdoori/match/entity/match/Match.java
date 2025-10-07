@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Objects;
 
 @Entity
 @Table(name = "match_table")
@@ -81,11 +80,10 @@ public class Match extends DateEntity {
         return status;
     }
 
-    public Team findEnemyTeam(Long teamId) {
-        if (Objects.equals(teamId, team1.getTeamId())) {
-            return team2;
+    public Team findEnemyTeam(Team myTeam) {
+        if (myTeam.equals(this.getTeam1())) {
+            return this.getTeam2();
         }
-
-        return team1;
+        return this.getTeam1();
     }
 }
