@@ -4,6 +4,7 @@ import com.shootdoori.match.entity.match.waiting.MatchWaiting;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -35,5 +36,9 @@ public interface MatchWaitingRepository extends JpaRepository<MatchWaiting, Long
         @Param("teamId") Long teamId,
         Pageable pageable
     );
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("delete from MatchWaiting mw where mw.team.teamId = :teamId")
+    void deleteAllByTeamId(@Param("teamId") Long teamId);
 }
 

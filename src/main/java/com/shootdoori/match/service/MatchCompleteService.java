@@ -11,6 +11,7 @@ import com.shootdoori.match.repository.MatchRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.repository.TeamRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class MatchCompleteService {
@@ -44,5 +45,10 @@ public class MatchCompleteService {
 
         Team enemyTeam = match.findEnemyTeam(team.getTeamId());
         return new TeamResponseDto(enemyTeam);
+    }
+
+    @Transactional
+    public void deleteAllByTeamId(Long teamId) {
+        matchRepository.deleteAllByTeamId(teamId);
     }
 }
