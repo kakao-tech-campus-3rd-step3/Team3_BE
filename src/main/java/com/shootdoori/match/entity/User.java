@@ -1,30 +1,14 @@
 package com.shootdoori.match.entity;
 
-import com.shootdoori.match.exception.UnauthorizedException;
+import com.shootdoori.match.value.Password;
 import com.shootdoori.match.value.UniversityName;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import java.time.LocalDateTime;
-import java.util.Objects;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
-public class User {
+public class User extends DateEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,11 +27,12 @@ public class User {
     @Column(name = "university_email", nullable = false, unique = true, length = 255)
     private String universityEmail;
 
-    @Column(nullable = false)
-    private String password;
+    @Embedded
+    @AttributeOverride(name = "password", column = @Column(name = "PASSWORD", nullable = false, length = 255))
+    private Password password;
 
-    @Column(name = "phone_number", nullable = false, unique = true, length = 13)
-    private String phoneNumber;
+    @Column(name = "kakao_user_id", nullable = false, length = 20)
+    private String kakaoTalkId;
 
     @Embedded
     @AttributeOverride(name = "name", column = @Column(name = "UNIVERSITY", nullable = false, length = 100))
@@ -66,27 +51,19 @@ public class User {
     @Column(name = "POSITION", nullable = false, length = 2)
     private Position position;
 
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
-
     protected User() {
 
     }
 
-    private User(String name, SkillLevel skillLevel, String email, String universityEmail, String password, String phoneNumber,
+    private User(String name, SkillLevel skillLevel, String email, String universityEmail, String password, String kakaoTalkId,
         Position position, String university, String department, String studentYear, String bio) {
-        validate(name, skillLevel.getDisplayName(), email, universityEmail, password, phoneNumber, position.getDisplayName(), university, department, studentYear, bio);
+        validate(name, skillLevel.getDisplayName(), email, universityEmail, password, kakaoTalkId, position.getDisplayName(), university, department, studentYear, bio);
         this.name = name;
         this.skillLevel = skillLevel;
         this.email = email;
         this.universityEmail = universityEmail;
-        this.password = password;
-        this.phoneNumber = phoneNumber;
+        this.password = Password.of(password);
+        this.kakaoTalkId = kakaoTalkId;
         this.position = position;
         this.university = UniversityName.of(university);
         this.department = department;
@@ -94,22 +71,22 @@ public class User {
         this.bio = bio;
     }
 
-    public static User create(String name, String skillLevelName, String email, String universityEmail, String encodedPassword, String phoneNumber,
+    public static User create(String name, String skillLevelName, String email, String universityEmail, String encodedPassword, String kakaoTalkId,
                               String positionName, String university, String department, String studentYear, String bio) {
         Position position = Position.fromDisplayName(positionName);
         SkillLevel skillLevel = SkillLevel.fromDisplayName(skillLevelName);
-        return new User(name, skillLevel, email, universityEmail, encodedPassword, phoneNumber, position, university, department,
+        return new User(name, skillLevel, email, universityEmail, encodedPassword, kakaoTalkId, position, university, department,
             studentYear, bio);
     }
 
-    private void validate(String name, String skillLevel, String email, String universityEmail, String password, String phoneNumber,
+    private void validate(String name, String skillLevel, String email, String universityEmail, String password, String kakaoTalkId,
         String position, String university, String department, String studentYear, String bio) {
         validateName(name);
         validateSkillLevel(skillLevel);
         validateEmail(email);
         validateUniversityEmail(universityEmail);
         validatePassword(password);
-        validatePhoneNumber(phoneNumber);
+        validateKakaoTalkId(kakaoTalkId);
         validatePosition(position);
         validateUniversity(university);
         validateDepartment(department);
@@ -162,12 +139,12 @@ public class User {
         }
     }
 
-    private void validatePhoneNumber(String phoneNumber) {
-        if (phoneNumber == null || phoneNumber.isBlank()) {
-            throw new IllegalArgumentException("핸드폰 번호는 필수 입력 값입니다.");
+    private void validateKakaoTalkId(String kakaoTalkId) {
+        if (kakaoTalkId == null || kakaoTalkId.isBlank()) {
+            throw new IllegalArgumentException("카카오톡 채널(친구추가) 아이디는 필수 입력 값입니다.");
         }
-        if (!phoneNumber.matches("^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$")) {
-            throw new IllegalArgumentException("핸드폰 번호 형식이 올바르지 않습니다. (예: 010-1234-5678)");
+        if (!kakaoTalkId.matches("^[a-zA-Z0-9_.-]{4,20}$")) {
+            throw new IllegalArgumentException("아이디의 형식이 올바르지 않습니다. 영문, 숫자, 특수문자(-, _, .)를 포함하여 4~20자이어야 합니다.");
         }
     }
 
@@ -242,8 +219,8 @@ public class User {
         return this.universityEmail;
     }
 
-    public String getPhoneNumber() {
-        return this.phoneNumber;
+    public String getKakaoTalkId() {
+        return this.kakaoTalkId;
     }
 
     public UniversityName getUniversity() {
@@ -266,14 +243,6 @@ public class User {
         return this.position;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return this.createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return this.updatedAt;
-    }
-
     public void update(String skillLevel, String position, String bio) {
         validateSkillLevel(skillLevel);
         validatePosition(position);
@@ -283,10 +252,8 @@ public class User {
         this.bio = bio;
     }
 
-    public void samePassword(String rawPassword, PasswordEncoder passwordEncoder) {
-        if (!passwordEncoder.matches(rawPassword, this.password)) {
-            throw new UnauthorizedException("잘못된 이메일 또는 비밀번호입니다.");
-        }
+    public void validatePassword(String rawPassword, PasswordEncoder passwordEncoder) {
+        this.password.validate(rawPassword, passwordEncoder);
     }
 
     @Override

@@ -1,6 +1,5 @@
 package com.shootdoori.match.dto;
 
-import com.shootdoori.match.entity.Match;
 import com.shootdoori.match.entity.Team;
 import com.shootdoori.match.entity.Venue;
 import com.shootdoori.match.entity.MatchStatus;
@@ -11,26 +10,26 @@ import java.time.LocalTime;
 
 public record RecentMatchesResponseDto(
     Long matchId,
-    Team team1,
-    Team team2,
+    String team1Name,
+    String team2Name,
     LocalDate matchDate,
     LocalTime matchTime,
-    Venue venue,
+    String venueName,
     MatchStatus status,
     LocalDateTime createdAt,
     LocalDateTime updatedAt
 ) {
-  public static RecentMatchesResponseDto from(Match match) {
+  public static RecentMatchesResponseDto from(MatchSummaryProjection matchSummaryProjection) {
     return new RecentMatchesResponseDto(
-        match.getMatchId(),
-        match.getTeam1(),
-        match.getTeam2(),
-        match.getMatchDate(),
-        match.getMatchTime(),
-        match.getVenue(),
-        match.getStatus(),
-        match.getCreatedAt(),
-        match.getUpdatedAt()
+      matchSummaryProjection.matchId(),
+      matchSummaryProjection.team1Name(),
+      matchSummaryProjection.team2Name(),
+      matchSummaryProjection.matchDate(),
+      matchSummaryProjection.matchTime(),
+      matchSummaryProjection.venueName(),
+      matchSummaryProjection.status(),
+      matchSummaryProjection.createdAt(),
+      matchSummaryProjection.updatedAt()
     );
   }
 }

@@ -29,9 +29,9 @@ public record ProfileCreateRequest(
         message = "비밀번호는 8자 이상 20자 이하로 영문, 숫자, 특수문자를 포함해야 합니다."
     ) String password,
     
-    @NotBlank(message = "핸드폰 번호는 필수 입력 값입니다.")
-    @Pattern(regexp = "^01(?:0|1|[6-9])-(?:\\d{3}|\\d{4})-\\d{4}$", message = "핸드폰 번호 형식이 올바르지 않습니다. (예: 010-1234-5678)")
-    String phoneNumber,
+    @NotBlank(message = "카카오톡 채널(친구추가) 아이디는 필수 입력 값입니다.")
+    @Pattern(regexp = "^[a-zA-Z0-9_.-]{4,20}$", message = "ID는 4~20자의 영문, 숫자, 특수문자(-, _, .)만 사용 가능합니다.")
+    String kakaoTalkId,
 
     @NotBlank(message = "포지션은 필수 입력 값입니다.")
     @Size(max = 10)

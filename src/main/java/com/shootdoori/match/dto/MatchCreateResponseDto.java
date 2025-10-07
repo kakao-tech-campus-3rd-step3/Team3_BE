@@ -1,12 +1,12 @@
 package com.shootdoori.match.dto;
 
-import com.shootdoori.match.entity.MatchQueueStatus;
+import com.shootdoori.match.entity.MatchWaitingStatus;
 import java.time.LocalDateTime;
 
 public record MatchCreateResponseDto(
     Long waitingId,
     Long teamId,
-    MatchQueueStatus status,
+    MatchWaitingStatus status,
     LocalDateTime expiresAt
 ) {
 }

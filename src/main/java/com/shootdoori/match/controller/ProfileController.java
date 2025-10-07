@@ -3,6 +3,8 @@ package com.shootdoori.match.controller;
 import com.shootdoori.match.dto.ProfileCreateRequest;
 import com.shootdoori.match.dto.ProfileResponse;
 import com.shootdoori.match.dto.ProfileUpdateRequest;
+import com.shootdoori.match.entity.User;
+import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.ProfileService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -34,9 +36,9 @@ public class ProfileController {
         return new ResponseEntity<>(profileService.findProfileById(id), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteProfile(@PathVariable Long id) {
-        profileService.deleteProfile(id);
+    @DeleteMapping("/me")
+    public ResponseEntity<Void> deleteProfile(@LoginUser User user) {
+        profileService.deleteAccount(user.getId());
         return ResponseEntity.noContent().build();
     }
 }

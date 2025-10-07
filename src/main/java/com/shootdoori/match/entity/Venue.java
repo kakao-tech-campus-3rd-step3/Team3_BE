@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "venues")
-public class Venue {
+public class Venue extends DateEntity {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,13 +39,23 @@ public class Venue {
   @Column(name = "PRICE_PER_HOUR")
   private Long pricePerHour;
 
-  @Column(name = "CREATED_AT", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-  private LocalDateTime createdAt;
-
-  @Column(name = "UPDATED_AT", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
-  private LocalDateTime updatedAt;
-
   protected Venue() {}
+
+  public Venue(String venueName,
+               String address,
+               BigDecimal latitude,
+               BigDecimal longitude,
+               String contactInfo,
+               String facilities,
+               Long pricePerHour) {
+    this.venueName = venueName;
+    this.address = address;
+    this.latitude = latitude;
+    this.longitude = longitude;
+    this.contactInfo = contactInfo;
+    this.facilities = facilities;
+    this.pricePerHour = pricePerHour;
+  }
 
   public Long getVenueId() {
     return venueId;
@@ -77,13 +87,5 @@ public class Venue {
 
   public Long getPricePerHour() {
     return pricePerHour;
-  }
-
-  public LocalDateTime getCreatedAt() {
-    return createdAt;
-  }
-
-  public LocalDateTime getUpdatedAt() {
-    return updatedAt;
   }
 }
