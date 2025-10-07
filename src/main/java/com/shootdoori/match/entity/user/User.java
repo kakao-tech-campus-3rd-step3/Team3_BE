@@ -4,8 +4,10 @@ import com.shootdoori.match.entity.common.DateEntity;
 import com.shootdoori.match.value.Password;
 import com.shootdoori.match.value.UniversityName;
 import jakarta.persistence.*;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -51,6 +53,13 @@ public class User extends DateEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "POSITION", nullable = false, length = 2)
     private UserPosition position;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private UserStatus status = UserStatus.ACTIVE;
+
+    @LastModifiedDate
+    private LocalDateTime statusChangedAt;
 
     protected User() {
 
@@ -242,6 +251,18 @@ public class User extends DateEntity {
 
     public UserPosition getPosition() {
         return this.position;
+    }
+
+    public UserStatus getUserStatus() {
+        return status;
+    }
+
+    public void activate() {
+        this.status = UserStatus.ACTIVE;
+    }
+
+    public void requestDeletion() {
+        this.status = UserStatus.PENDING_DELETION;
     }
 
     public void update(String skillLevel, String position, String bio) {
