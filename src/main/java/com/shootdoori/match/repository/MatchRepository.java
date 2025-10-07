@@ -53,6 +53,4 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
         @Param("status") MatchStatus status,
         Pageable pageable
     );
-
-    Match findByMatchId(Long i);
 }

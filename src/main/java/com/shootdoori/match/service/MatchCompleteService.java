@@ -1,7 +1,6 @@
 package com.shootdoori.match.service;
 
-import com.shootdoori.match.dto.MatchTeamRequestDto;
-import com.shootdoori.match.dto.TeamResponseDto;
+import com.shootdoori.match.dto.EnemyTeamResponseDto;
 import com.shootdoori.match.entity.match.Match;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMember;
@@ -11,6 +10,7 @@ import com.shootdoori.match.repository.MatchRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.repository.TeamRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class MatchCompleteService {
@@ -27,22 +27,18 @@ public class MatchCompleteService {
         this.teamMemberRepository = teamMemberRepository;
     }
 
-    /**
-     * 매치 정보 조회 후 상대 팀 정보 조회하는 서비스
-     *
-     * @param matchTeamRequestDto 매치 id, 내 팀 id
-     * @return TeamResponseDto 적 팀 정보
-     */
-    public TeamResponseDto getEnemyTeam(Long loginUserId, MatchTeamRequestDto matchTeamRequestDto) {
-        Long enemyTeamId;
-        Match match = matchRepository.findByMatchId(matchTeamRequestDto.matchId());
+    @Transactional(readOnly = true)
+    public EnemyTeamResponseDto getEnemyTeam(Long loginUserId, Long matchId) {
+        Match match = matchRepository.findById(matchId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.MATCH_NOT_FOUND,
+                String.valueOf(matchId)));
 
         TeamMember teamMember = teamMemberRepository.findByUser_Id(loginUserId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
-        Team team = teamMember.getTeam();
+        Team myTeam = teamMember.getTeam();
 
-        Team enemyTeam = match.findEnemyTeam(team.getTeamId());
-        return new TeamResponseDto(enemyTeam);
+        Team enemyTeam = match.findEnemyTeam(myTeam);
+        return new EnemyTeamResponseDto(enemyTeam);
     }
 }
