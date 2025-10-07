@@ -54,7 +54,6 @@ public class MatchStartService {
             .map(RecentMatchesResponseDto::from)
             .toList();
     }
-
     private boolean isFirstPageRequest(LocalDate cursorDate, LocalTime cursorTime) {
         return cursorDate == null && cursorTime == null;
     }

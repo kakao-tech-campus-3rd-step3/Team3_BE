@@ -279,4 +279,8 @@ public class MatchRequestService {
         ));
     }
 
+    @Transactional
+    public void deleteAllByTeamId(Long teamId) {
+        matchRequestRepository.deleteAllByTeamId(teamId);
+    }
 }

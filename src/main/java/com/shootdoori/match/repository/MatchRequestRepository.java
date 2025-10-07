@@ -32,4 +32,8 @@ public interface MatchRequestRepository extends JpaRepository<MatchRequest, Long
         "ORDER BY mr.requestAt DESC")
     Slice<MatchRequest> findSentRequestsByTeam(@Param("requestTeamId") Long requestTeamId,
                                                Pageable pageable);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("delete from MatchRequest mr where mr.requestTeam.teamId = :teamId or mr.targetTeam.teamId = :teamId")
+    void deleteAllByTeamId(@Param("teamId") Long teamId);
 }
