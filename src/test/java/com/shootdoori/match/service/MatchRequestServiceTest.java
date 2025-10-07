@@ -19,6 +19,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
@@ -78,6 +80,8 @@ class MatchRequestServiceTest {
     private final String REQUEST_MESSAGE = "요청 메세지";
     private final String REQUEST_MESSAGE_1 = "요청 메세지 1";
     private final String REQUEST_MESSAGE_2 = "요청 메세지 2";
+
+    public static final LocalTime TEN_OCLOCK = LocalTime.of(10, 0);
 
     @BeforeEach
     void setUp() {
@@ -190,43 +194,40 @@ class MatchRequestServiceTest {
     // ------------------- getWaitingMatches 테스트 -------------------
 
     @Nested
+    @DisplayName("오늘 10~12시 진행 예정인 매치 대기가 있다고 했을 때, 신청자 입장에서 이를 검색시 각 날짜/시간/속한 팀에 따른 검색 결과의 개수 확인")
     class GetWaitingMatchesTest {
 
-        @Test
+        @ParameterizedTest(name = "[{index}] 로그인 팀: {0}, 요청 날짜: {1}, 요청 시간: {2} → 예상 결과 개수: {3}")
+        @CsvSource({
+            "requestTeamCaptain1, today, 12:00, 0",  // 오늘, 12시 이후 조회 → 결과 없음
+            "requestTeamCaptain1, today, 10:00, 1",  // 오늘, 10시 이후 조회 → 결과 있음
+            "targetTeamCaptain, today, 10:00, 0",    // 매치 생성 주체가 나 자신인 경우로 조회 → 결과 없음
+            "requestTeamCaptain1, tomorrow, 10:00, 0" // 다른 날짜(내일) 조회 → 결과 없음
+        })
         @Transactional
-        void after13_noResults() {
-            MatchWaitingRequestDto request = new MatchWaitingRequestDto(
-                LocalDate.now(), LocalTime.of(13, 0));
-            Slice<MatchWaitingResponseDto> result = matchRequestService.getWaitingMatches(requestTeamCaptain1.getId(), request, PageRequest.of(0, 10));
-            assertThat(result).isEmpty();
-        }
+        void boundaryDateTimeTest(String loginTeam, String dateStr, String timeStr, int expectedSize) {
+            LocalDate date = switch (dateStr) {
+                case "today" -> LocalDate.now();
+                case "tomorrow" -> LocalDate.now().plusDays(1);
+                default -> throw new IllegalArgumentException("Unknown date: " + dateStr);
+            };
 
-        @Test
-        @Transactional
-        void after9_hasResult() {
-            MatchWaitingRequestDto request = new MatchWaitingRequestDto(
-                LocalDate.now(), LocalTime.of(9, 0));
-            Slice<MatchWaitingResponseDto> result = matchRequestService.getWaitingMatches(requestTeamCaptain1.getId(), request, PageRequest.of(0, 10));
-            assertThat(result).hasSize(1);
-            assertThat(result.getContent().get(0).waitingId()).isEqualTo(savedWaiting.getWaitingId());
-        }
+            LocalTime time = LocalTime.parse(timeStr);
 
-        @Test
-        @Transactional
-        void differentDate_noResults() {
-            MatchWaitingRequestDto request = new MatchWaitingRequestDto(
-                LocalDate.now().plusDays(1), LocalTime.of(9, 0));
-            Slice<MatchWaitingResponseDto> result = matchRequestService.getWaitingMatches(requestTeamCaptain1.getId(), request, PageRequest.of(0, 10));
-            assertThat(result).isEmpty();
-        }
+            Long loginUserId = switch (loginTeam) {
+                case "requestTeamCaptain1" -> requestTeamCaptain1.getId();
+                case "targetTeamCaptain" -> targetTeamCaptain.getId();
+                default -> throw new IllegalArgumentException("Unknown team: " + loginTeam);
+            };
 
-        @Test
-        @Transactional
-        void sameTeamId_noResults() {
-            MatchWaitingRequestDto request = new MatchWaitingRequestDto(
-                LocalDate.now(), LocalTime.of(9, 0));
-            Slice<MatchWaitingResponseDto> result = matchRequestService.getWaitingMatches(targetTeamCaptain.getId(), request, PageRequest.of(0, 10));
-            assertThat(result).isEmpty();
+            MatchWaitingRequestDto request = new MatchWaitingRequestDto(date, time);
+            Slice<MatchWaitingResponseDto> result = matchRequestService.getWaitingMatches(loginUserId, request, PageRequest.of(0, 10));
+
+            assertThat(result).hasSize(expectedSize);
+
+            if (expectedSize > 0) {
+                assertThat(result.getContent().get(0).waitingId()).isEqualTo(savedWaiting.getWaitingId());
+            }
         }
     }
 
