@@ -1,5 +1,6 @@
 package com.shootdoori.match.dto;
 
+import com.shootdoori.match.entity.match.Match;
 import com.shootdoori.match.entity.match.MatchStatus;
 import com.shootdoori.match.value.TeamName;
 
@@ -17,4 +18,17 @@ public record MatchConfirmedResponseDto(
     Long venueId,
     MatchStatus status
 ) {
+    public static MatchConfirmedResponseDto from(Match match) {
+        return new MatchConfirmedResponseDto(
+            match.getMatchId(),
+            match.getTeam1().getTeamId(),
+            match.getTeam1().getTeamName(),
+            match.getTeam2().getTeamId(),
+            match.getTeam2().getTeamName(),
+            match.getMatchDate(),
+            match.getMatchTime(),
+            match.getVenue().getVenueId(),
+            match.getStatus()
+        );
+    }
 }

@@ -15,8 +15,9 @@ public record EnemyTeamResponseDto(Long teamId,
                                    String description
 ) {
 
-    public EnemyTeamResponseDto(Team team) {
-        this(team.getTeamId(),
+    public static EnemyTeamResponseDto from(Team team) {
+        return new EnemyTeamResponseDto(
+            team.getTeamId(),
             team.getTeamName().name(),
             team.getCaptain().getId(),
             team.getCaptain().getName(),
