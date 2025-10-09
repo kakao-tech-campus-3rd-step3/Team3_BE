@@ -41,7 +41,8 @@ public class SecurityConfig {
 
                     .requestMatchers(HttpMethod.GET, "/api/venues/**").permitAll()
 
-                    .requestMatchers("/api/password-reset/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/password-reset/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/auth/signup/email/**").permitAll()
 
                     .anyRequest().authenticated()
             )
