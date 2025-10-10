@@ -3,6 +3,10 @@ package com.shootdoori.match.exception.common;
 import org.springframework.http.HttpStatus;
 
 public enum ErrorCode {
+    // User
+    USER_NOT_FOUND("해당 유저를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+    DUPLICATED_USER("이미 존재하는 사용자입니다.", HttpStatus.CONFLICT),
+
     // Team
     TEAM_NOT_FOUND("해당 팀을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     TEAM_ALREADY_ACTIVE("팀이 이미 활성화 상태입니다.", HttpStatus.CONFLICT),
@@ -14,6 +18,7 @@ public enum ErrorCode {
     LEADER_CANNOT_LEAVE_TEAM("회장은 팀 탈퇴를 할 수 없습니다.", HttpStatus.BAD_REQUEST),
     CAPTAIN_NOT_FOUND("팀장 정보가 없습니다.", HttpStatus.NOT_FOUND),
     DIFFERENT_UNIVERSITY("팀 소속 대학과 동일한 대학의 사용자만 가입할 수 있습니다.", HttpStatus.FORBIDDEN),
+    TEAM_REVIEW_NOT_FOUND("해당 팀 리뷰를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
     // Team Member
     ALREADY_TEAM_MEMBER("이미 해당 팀의 멤버입니다.", HttpStatus.CONFLICT),
@@ -21,6 +26,7 @@ public enum ErrorCode {
     TEAM_MEMBER_NOT_FOUND("해당 팀 멤버를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     TEAM_MEMBER_ALREADY_ACTIVE("팀 멤버가 이미 활성화 상태입니다.", HttpStatus.CONFLICT),
     TEAM_MEMBER_ALREADY_DELETED("팀 멤버가 이미 삭제 상태입니다.", HttpStatus.CONFLICT),
+    MERCENARY_REVIEW_NOT_FOUND("해당 용병 리뷰를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
     // Delegation
     SELF_DELEGATION_NOT_ALLOWED("자신에게 역할을 위임할 수 없습니다.", HttpStatus.BAD_REQUEST),
