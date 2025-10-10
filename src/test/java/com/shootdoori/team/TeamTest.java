@@ -3,9 +3,9 @@ package com.shootdoori.team;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.shootdoori.match.entity.team.TeamSkillLevel;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMemberRole;
+import com.shootdoori.match.entity.team.TeamSkillLevel;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.DifferentException;
@@ -277,6 +277,7 @@ public class TeamTest {
     @Nested
     @DisplayName("팀 삭제 테스트")
     class DeleteTeamTest {
+
         @Test
         @DisplayName("팀 정상 삭제 테스트")
         void deleteTeamTest_success() {
@@ -296,5 +297,29 @@ public class TeamTest {
                 team.delete(newMemberId)).isInstanceOf(NoPermissionException.class);
         }
 
+    }
+
+    @Nested
+    @DisplayName("팀 복구 테스트")
+    class RestoreTeamTest {
+
+        @Test
+        @DisplayName("팀 정상 복구 테스트")
+        void restoreTeamTest_success() {
+            // when
+            team.restore(captainId);
+
+            // then
+            assertThat(team.isActive()).isEqualTo(true);
+        }
+
+        @Test
+        @DisplayName("리더가 아닌 아이디의 유저가 팀 복구 시 예외 테스트")
+        void restoreTeamTest_throwException() {
+
+            // when & then
+            assertThatThrownBy(() ->
+                team.restore(newMemberId)).isInstanceOf(NoPermissionException.class);
+        }
     }
 }
