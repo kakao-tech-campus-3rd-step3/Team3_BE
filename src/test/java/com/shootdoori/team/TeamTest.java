@@ -8,8 +8,10 @@ import com.shootdoori.match.entity.team.TeamMemberRole;
 import com.shootdoori.match.entity.team.TeamSkillLevel;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
+import com.shootdoori.match.exception.common.BusinessException;
 import com.shootdoori.match.exception.common.DifferentException;
 import com.shootdoori.match.exception.common.DuplicatedException;
+import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NoPermissionException;
 import com.shootdoori.match.exception.domain.team.LastTeamMemberRemovalNotAllowedException;
 import com.shootdoori.match.exception.domain.team.TeamCapacityExceededException;
@@ -297,11 +299,26 @@ public class TeamTest {
                 team.delete(newMemberId)).isInstanceOf(NoPermissionException.class);
         }
 
+        @Test
+        @DisplayName("이미 삭제된 팀을 다시 삭제 시 예외 발생")
+        void deleteTeam_whenAlreadyDeleted_throws() {
+            // given
+            team.delete(captainId);
+
+            // when & then
+            assertThatThrownBy(() -> team.delete(captainId))
+                .isInstanceOf(DuplicatedException.class);
+        }
+
     }
 
     @Nested
     @DisplayName("팀 복구 테스트")
     class RestoreTeamTest {
+        @BeforeEach
+        void setUpForRestore() {
+            team.delete(captainId);
+        }
 
         @Test
         @DisplayName("팀 정상 복구 테스트")
@@ -320,6 +337,17 @@ public class TeamTest {
             // when & then
             assertThatThrownBy(() ->
                 team.restore(newMemberId)).isInstanceOf(NoPermissionException.class);
+        }
+
+        @Test
+        @DisplayName("이미 활성화된 팀을 복구 시 예외 발생")
+        void restoreTeam_whenAlreadyActive_throws() {
+            // given
+            team.restore(captainId);
+
+            // when & then
+            assertThatThrownBy(() -> team.restore(captainId))
+                .isInstanceOf(DuplicatedException.class);
         }
     }
 }
