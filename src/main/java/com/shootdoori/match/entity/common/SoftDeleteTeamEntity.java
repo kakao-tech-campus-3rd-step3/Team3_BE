@@ -1,7 +1,6 @@
 package com.shootdoori.match.entity.common;
 
 import com.shootdoori.match.entity.team.TeamStatus;
-import com.shootdoori.match.exception.common.BusinessException;
 import com.shootdoori.match.exception.common.DuplicatedException;
 import com.shootdoori.match.exception.common.ErrorCode;
 import jakarta.persistence.Column;
@@ -20,6 +19,7 @@ public abstract class SoftDeleteTeamEntity extends DateEntity {
     }
 
     public void changeStatusDeleted() {
+      
         if (isDeleted()) {
             throw new DuplicatedException(ErrorCode.TEAM_ALREADY_DELETED);
         }

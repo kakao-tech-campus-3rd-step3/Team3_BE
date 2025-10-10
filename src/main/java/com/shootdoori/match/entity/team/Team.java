@@ -187,7 +187,7 @@ public class Team extends SoftDeleteTeamEntity {
         if (!Objects.equals(getCaptain().getId(), userId)) {
             throw new NoPermissionException();
         }
-
+      
         members.stream().forEach(TeamMember::delete);
 
         changeStatusDeleted();
@@ -202,6 +202,7 @@ public class Team extends SoftDeleteTeamEntity {
 
         changeStatusActive();
     }
+  
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
