@@ -39,6 +39,8 @@ public class SecurityConfig {
 
                     .requestMatchers(HttpMethod.GET, "/images/**").permitAll()
 
+                    .requestMatchers(HttpMethod.GET, "/api/teams/**").permitAll()
+
                     .requestMatchers(HttpMethod.GET, "/api/venues/**").permitAll()
 
                     .requestMatchers(HttpMethod.POST, "/api/password-reset/**").permitAll()
