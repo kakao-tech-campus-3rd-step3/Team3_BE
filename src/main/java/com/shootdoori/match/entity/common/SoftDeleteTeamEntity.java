@@ -19,4 +19,8 @@ public abstract class SoftDeleteTeamEntity extends DateEntity {
     public void changeStatusDeleted() {
         status = TeamStatus.DELETED;
     }
+
+    public boolean isDeleted() {
+        return status == TeamStatus.DELETED;
+    }
 }
