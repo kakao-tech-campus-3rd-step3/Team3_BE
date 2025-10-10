@@ -27,6 +27,7 @@ public class TeamService {
 
     private final ProfileRepository profileRepository;
     private final TeamRepository teamRepository;
+    private final TeamMemberService teamMemberService;
     private final TeamMapper teamMapper;
     private final MatchRequestService matchRequestService;
     private final MatchCreateService matchCreateService;
@@ -34,10 +35,12 @@ public class TeamService {
 
 
     public TeamService(ProfileRepository profileRepository, TeamRepository teamRepository,
-        TeamMapper teamMapper, MatchRequestService matchRequestService,
+        TeamMemberService teamMemberService, TeamMapper teamMapper,
+        MatchRequestService matchRequestService,
         MatchCreateService matchCreateService, MatchCompleteService matchCompleteService) {
         this.profileRepository = profileRepository;
         this.teamRepository = teamRepository;
+        this.teamMemberService = teamMemberService;
         this.teamMapper = teamMapper;
         this.matchRequestService = matchRequestService;
         this.matchCreateService = matchCreateService;
@@ -76,7 +79,6 @@ public class TeamService {
         Team team = teamRepository.findById(id).orElseThrow(() ->
             new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(id)));
 
-        // 기존 팀장과 요청을 보낸 유저가 동일하지 않다면 권한 없음으로 거부
         if (!Objects.equals(team.getCaptain().getId(), userId)) {
             throw new NoPermissionException();
         }
@@ -91,14 +93,7 @@ public class TeamService {
         Team team = teamRepository.findById(id).orElseThrow(() ->
             new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(id)));
 
-        if (!Objects.equals(team.getCaptain().getId(), userId)) {
-            throw new NoPermissionException();
-        }
-
-        matchRequestService.deleteAllByTeamId(id);
-        matchCreateService.deleteAllByTeamId(id);
-        matchCompleteService.deleteAllByTeamId(id);
-
-        teamRepository.delete(team);
+        team.delete(userId);
+        teamRepository.save(team);
     }
 }

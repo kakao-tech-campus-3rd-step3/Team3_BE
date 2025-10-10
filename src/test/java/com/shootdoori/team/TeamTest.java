@@ -10,6 +10,7 @@ import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.DifferentException;
 import com.shootdoori.match.exception.common.DuplicatedException;
+import com.shootdoori.match.exception.common.NoPermissionException;
 import com.shootdoori.match.exception.domain.team.LastTeamMemberRemovalNotAllowedException;
 import com.shootdoori.match.exception.domain.team.TeamCapacityExceededException;
 import com.shootdoori.match.value.MemberCount;
@@ -26,6 +27,9 @@ public class TeamTest {
     private User captain;
     private User newMember;
     private User differentUniversityMember;
+
+    private Long captainId = 1L;
+    private Long newMemberId = 2L;
 
     @BeforeEach
     void setUp() {
@@ -71,8 +75,8 @@ public class TeamTest {
             "서울대 축구부입니다."
         );
 
-        ReflectionTestUtils.setField(captain, "id", 1L);
-        ReflectionTestUtils.setField(newMember, "id", 2L);
+        ReflectionTestUtils.setField(captain, "id", captainId);
+        ReflectionTestUtils.setField(newMember, "id", newMemberId);
         ReflectionTestUtils.setField(differentUniversityMember, "id", 3L);
 
         team = new Team(
@@ -268,5 +272,29 @@ public class TeamTest {
                 ))
                 .isInstanceOf(IllegalArgumentException.class);
         }
+    }
+
+    @Nested
+    @DisplayName("팀 삭제 테스트")
+    class DeleteTeamTest {
+        @Test
+        @DisplayName("팀 정상 삭제 테스트")
+        void deleteTeamTest_success() {
+            // when
+            team.delete(captainId);
+
+            // then
+            assertThat(team.isDeleted()).isEqualTo(true);
+        }
+
+        @Test
+        @DisplayName("리더가 아닌 아이디의 유저가 팀 삭제 시 예외 테스트")
+        void deleteTeamTest_throwException() {
+
+            // when & then
+            assertThatThrownBy(() ->
+                team.delete(newMemberId)).isInstanceOf(NoPermissionException.class);
+        }
+
     }
 }
