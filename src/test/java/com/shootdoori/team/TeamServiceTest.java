@@ -148,7 +148,8 @@ public class TeamServiceTest {
             ReflectionTestUtils.setField(savedTeam, "teamId", TEAM_ID);
 
             // TODO: JWT 토큰 도입 이후 필요 없는 코드 - save(captain)
-            when(profileRepository.findById(captain.getId())).thenReturn(Optional.ofNullable(captain));
+            when(profileRepository.findById(captain.getId())).thenReturn(
+                Optional.ofNullable(captain));
             when(teamRepository.save(any(Team.class))).thenReturn(savedTeam);
             when(teamMapper.toCreateTeamResponse(savedTeam)).thenReturn(createResponseDto);
 
@@ -259,8 +260,10 @@ public class TeamServiceTest {
                 PageRequest.of(PAGE, SIZE, Sort.by("teamName").ascending()), 2);
 
             TeamDetailResponseDto response1 = new TeamDetailResponseDto(1L, "강원대 FC", "주 2회 연습합니다.",
-                "강원대학교", TeamSkillLevel.AMATEUR, TeamType.DEPARTMENT_CLUB, 1, "2025-09-25T00:00:00");
-            TeamDetailResponseDto response2 = new TeamDetailResponseDto(2L, "감자의 신 FC", "감자빵이 맛있어요.",
+                "강원대학교", TeamSkillLevel.AMATEUR, TeamType.DEPARTMENT_CLUB, 1,
+                "2025-09-25T00:00:00");
+            TeamDetailResponseDto response2 = new TeamDetailResponseDto(2L, "감자의 신 FC",
+                "감자빵이 맛있어요.",
                 "강원대학교", TeamSkillLevel.SEMI_PRO, TeamType.CENTRAL_CLUB, 1, "2025-09-25T00:00:00");
 
             when(teamRepository.findAllByUniversity(any(UniversityName.class), any(Pageable.class)))
@@ -384,6 +387,66 @@ public class TeamServiceTest {
             // when & then
             assertThatThrownBy(() -> teamService.delete(NON_EXISTENT_TEAM_ID, captain.getId()))
                 .isInstanceOf(NotFoundException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("팀 복구 테스트")
+    class RestoreTeamTest {
+
+        private Team existingTeam;
+
+        @BeforeEach
+        void setUpForRestore() {
+            existingTeam = createTeam(
+                "삭제될 팀",
+                TeamType.CENTRAL_CLUB,
+                TeamSkillLevel.AMATEUR,
+                "삭제될 팀입니다."
+            );
+
+            when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(existingTeam));
+
+            teamService.delete(TEAM_ID, captain.getId());
+        }
+
+        @Test
+        @DisplayName("팀 복구 성공")
+        void restore_success() {
+            // given
+            TeamDetailResponseDto expectedResponseDto = new TeamDetailResponseDto(
+                TEAM_ID,
+                "강원대 FC",
+                "강원대 1위 팀 먹겠습니다.",
+                "강원대학교",
+                TeamSkillLevel.AMATEUR,
+                TeamType.DEPARTMENT_CLUB,
+                1,
+                "2024-01-01T00:00:00"
+            );
+
+            when(teamRepository.findByTeamIdIncludingDeleted(TEAM_ID)).thenReturn(
+                Optional.of(existingTeam));
+            when(teamMapper.toTeamDetailResponse(existingTeam)).thenReturn(expectedResponseDto);
+
+            // when
+            TeamDetailResponseDto resultDto = teamService.restore(TEAM_ID, captain.getId());
+
+            // then
+            assertThat(resultDto).isEqualTo(expectedResponseDto);
+        }
+
+        @Test
+        @DisplayName("팀 복구 예외")
+        void restore_notFound_throws() {
+            // given
+            when(teamRepository.findByTeamIdIncludingDeleted(NON_EXISTENT_TEAM_ID)).thenReturn(
+                Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() ->
+                teamService.restore(NON_EXISTENT_TEAM_ID, captain.getId())).isInstanceOf(
+                NotFoundException.class);
         }
     }
 
