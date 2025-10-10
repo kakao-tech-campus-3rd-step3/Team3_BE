@@ -194,7 +194,9 @@ public class TeamMemberService {
         return loginUserId.equals(targetUserId) && (actor.isCaptain() || actor.isViceCaptain());
     }
 
-    private boolean isEqualsCaptainId(Team team, Long loginUserId) {
-        return team.getCaptain().getId().equals(loginUserId);
+    public void ensureNotMemberOfAnyTeam(Long userId) {
+        if (teamMemberRepository.existsByUser_Id(userId)) {
+            throw new DuplicatedException(ErrorCode.ALREADY_OTHER_TEAM_MEMBER);
+        }
     }
 }

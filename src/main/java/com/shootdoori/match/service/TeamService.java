@@ -96,4 +96,16 @@ public class TeamService {
         team.delete(userId);
         teamRepository.save(team);
     }
+
+    public TeamDetailResponseDto restore(Long id, Long userId) {
+        Team team = teamRepository.findByTeamIdIncludingDeleted(id).orElseThrow(() ->
+            new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(id)));
+
+        teamMemberService.ensureNotMemberOfAnyTeam(userId);
+
+        team.restore(userId);
+        teamRepository.save(team);
+
+        return teamMapper.toTeamDetailResponse(team);
+    }
 }

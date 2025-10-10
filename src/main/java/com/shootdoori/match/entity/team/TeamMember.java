@@ -1,6 +1,7 @@
 package com.shootdoori.match.entity.team;
 
 import com.shootdoori.match.entity.common.DateEntity;
+import com.shootdoori.match.entity.common.SoftDeleteTeamMemberEntity;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.DifferentException;
 import com.shootdoori.match.exception.common.DuplicatedException;
@@ -20,6 +21,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @Table(
@@ -28,8 +30,9 @@ import java.time.LocalDateTime;
         @UniqueConstraint(columnNames = {"team_id", "user_id"})
     }
 )
+@SQLRestriction("status = 'ACTIVE'")
 @AttributeOverride(name = "createdAt", column = @Column(name = "joined_at", nullable = false, updatable = false))
-public class TeamMember extends DateEntity {
+public class TeamMember extends SoftDeleteTeamMemberEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -149,5 +152,13 @@ public class TeamMember extends DateEntity {
 
     public boolean isViceCaptain() {
         return this.role == TeamMemberRole.VICE_LEADER;
+    }
+
+    public void delete() {
+        changeStatusDeleted();
+    }
+
+    public void restore() {
+        changeStatusActive();
     }
 }
