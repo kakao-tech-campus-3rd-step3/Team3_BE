@@ -2,6 +2,7 @@ package com.shootdoori.match.entity.common;
 
 import com.shootdoori.match.entity.team.TeamMemberStatus;
 import com.shootdoori.match.exception.common.BusinessException;
+import com.shootdoori.match.exception.common.DuplicatedException;
 import com.shootdoori.match.exception.common.ErrorCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
@@ -21,7 +22,7 @@ public abstract class SoftDeleteTeamMemberEntity extends DateEntity {
 
     public void changeStatusDeleted() {
         if (isDeleted()) {
-            throw new BusinessException(ErrorCode.TEAM_MEMBER_ALREADY_DELETED);
+            throw new DuplicatedException(ErrorCode.TEAM_MEMBER_ALREADY_DELETED);
         }
 
         status = TeamMemberStatus.DELETED;
@@ -33,7 +34,7 @@ public abstract class SoftDeleteTeamMemberEntity extends DateEntity {
 
     public void changeStatusActive() {
         if (isActive()) {
-            throw new BusinessException(ErrorCode.TEAM_MEMBER_ALREADY_ACTIVE);
+            throw new DuplicatedException(ErrorCode.TEAM_MEMBER_ALREADY_ACTIVE);
         }
 
         status = TeamMemberStatus.ACTIVE;

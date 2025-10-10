@@ -3,10 +3,10 @@ package com.shootdoori.teamMember;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.shootdoori.match.entity.team.TeamSkillLevel;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.team.TeamMemberRole;
+import com.shootdoori.match.entity.team.TeamSkillLevel;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.DuplicatedException;
@@ -70,6 +70,30 @@ public class TeamMemberTest {
         team.recruitMember(captain, TeamMemberRole.LEADER);
         team.recruitMember(member, TeamMemberRole.MEMBER);
         teamMember = team.getMembers().get(1);
+    }
+
+    @Nested
+    @DisplayName("상태 멱등성 테스트")
+    class StatusIdempotencyTest {
+
+        @Test
+        @DisplayName("ACTIVE 상태에서 restore() 호출 시 예외 발생")
+        void restore_whenAlreadyActive_throws() {
+            // when & then
+            assertThatThrownBy(() -> teamMember.restore())
+                .isInstanceOf(DuplicatedException.class);
+        }
+
+        @Test
+        @DisplayName("DELETED 상태에서 delete() 호출 시 예외 발생")
+        void delete_whenAlreadyDeleted_throws() {
+            // given
+            teamMember.delete();
+
+            // when & then
+            assertThatThrownBy(() -> teamMember.delete())
+                .isInstanceOf(DuplicatedException.class);
+        }
     }
 
     @Nested
