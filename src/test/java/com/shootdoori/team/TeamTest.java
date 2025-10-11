@@ -3,13 +3,15 @@ package com.shootdoori.team;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.shootdoori.match.entity.team.TeamSkillLevel;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMemberRole;
+import com.shootdoori.match.entity.team.TeamSkillLevel;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
+import com.shootdoori.match.exception.common.BusinessException;
 import com.shootdoori.match.exception.common.DifferentException;
 import com.shootdoori.match.exception.common.DuplicatedException;
+import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NoPermissionException;
 import com.shootdoori.match.exception.domain.team.LastTeamMemberRemovalNotAllowedException;
 import com.shootdoori.match.exception.domain.team.TeamCapacityExceededException;
@@ -277,6 +279,7 @@ public class TeamTest {
     @Nested
     @DisplayName("팀 삭제 테스트")
     class DeleteTeamTest {
+      
         @Test
         @DisplayName("팀 정상 삭제 테스트")
         void deleteTeamTest_success() {
@@ -296,5 +299,55 @@ public class TeamTest {
                 team.delete(newMemberId)).isInstanceOf(NoPermissionException.class);
         }
 
+        @Test
+        @DisplayName("이미 삭제된 팀을 다시 삭제 시 예외 발생")
+        void deleteTeam_whenAlreadyDeleted_throws() {
+            // given
+            team.delete(captainId);
+
+            // when & then
+            assertThatThrownBy(() -> team.delete(captainId))
+                .isInstanceOf(DuplicatedException.class);
+        }
+
+    }
+
+    @Nested
+    @DisplayName("팀 복구 테스트")
+    class RestoreTeamTest {
+        @BeforeEach
+        void setUpForRestore() {
+            team.delete(captainId);
+        }
+
+        @Test
+        @DisplayName("팀 정상 복구 테스트")
+        void restoreTeamTest_success() {
+            // when
+            team.restore(captainId);
+
+            // then
+            assertThat(team.isActive()).isEqualTo(true);
+        }
+
+        @Test
+        @DisplayName("리더가 아닌 아이디의 유저가 팀 복구 시 예외 테스트")
+        void restoreTeamTest_throwException() {
+
+            // when & then
+            assertThatThrownBy(() ->
+                team.restore(newMemberId)).isInstanceOf(NoPermissionException.class);
+        }
+
+        @Test
+        @DisplayName("이미 활성화된 팀을 복구 시 예외 발생")
+        void restoreTeam_whenAlreadyActive_throws() {
+            // given
+            team.restore(captainId);
+
+            // when & then
+            assertThatThrownBy(() -> team.restore(captainId))
+                .isInstanceOf(DuplicatedException.class);
+        }
     }
 }
