@@ -16,6 +16,7 @@ import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.repository.TeamRepository;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -195,7 +196,9 @@ public class TeamMemberService {
     }
 
     public void ensureNotMemberOfAnyTeam(Long userId) {
-        if (teamMemberRepository.existsByUser_Id(userId)) {
+        List<TeamMember> memberships = teamMemberRepository.findAllByUserId(userId);
+
+        if (!memberships.isEmpty()) {
             throw new DuplicatedException(ErrorCode.ALREADY_OTHER_TEAM_MEMBER);
         }
     }
