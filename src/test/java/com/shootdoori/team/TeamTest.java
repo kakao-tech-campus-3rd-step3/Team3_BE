@@ -279,7 +279,6 @@ public class TeamTest {
     @Nested
     @DisplayName("팀 삭제 테스트")
     class DeleteTeamTest {
-
         @Test
         @DisplayName("팀 정상 삭제 테스트")
         void deleteTeamTest_success() {

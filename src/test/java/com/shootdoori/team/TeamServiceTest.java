@@ -147,7 +147,6 @@ public class TeamServiceTest {
 
             ReflectionTestUtils.setField(savedTeam, "teamId", TEAM_ID);
 
-            // TODO: JWT 토큰 도입 이후 필요 없는 코드 - save(captain)
             when(profileRepository.findById(captain.getId())).thenReturn(
                 Optional.ofNullable(captain));
             when(teamRepository.save(any(Team.class))).thenReturn(savedTeam);
