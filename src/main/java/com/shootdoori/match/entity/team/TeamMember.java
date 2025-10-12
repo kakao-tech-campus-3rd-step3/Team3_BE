@@ -172,7 +172,7 @@ public class TeamMember extends DateEntity {
 
     @Override
     public boolean equals(Object o) {
-        if (o == null || (o instanceof TeamMember)) {
+        if (o == null || !(o instanceof TeamMember)) {
             return false;
         }
         TeamMember teamMember = (TeamMember) o;

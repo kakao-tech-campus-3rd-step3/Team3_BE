@@ -188,9 +188,7 @@ public class TeamMemberService {
     }
 
     public void ensureNotMemberOfAnyTeam(Long userId) {
-        List<TeamMember> memberships = teamMemberRepository.findAllByUserId(userId);
-
-        if (!memberships.isEmpty()) {
+        if (teamMemberRepository.existsByUser_Id(userId)) {
             throw new DuplicatedException(ErrorCode.ALREADY_OTHER_TEAM_MEMBER);
         }
     }
