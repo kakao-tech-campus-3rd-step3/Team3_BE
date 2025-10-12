@@ -272,7 +272,7 @@ public class TeamServiceTest {
 
             // when
             Page<TeamDetailResponseDto> responseDtos = teamService.findAllByUniversity(PAGE, SIZE,
-                UNIVERSITY);
+                UNIVERSITY, false);
 
             // then
             assertThat(responseDtos).isNotNull();
