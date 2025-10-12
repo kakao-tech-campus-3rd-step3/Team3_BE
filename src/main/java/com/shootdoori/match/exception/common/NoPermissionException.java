@@ -9,4 +9,12 @@ public class NoPermissionException extends BusinessException {
     public NoPermissionException() {
         super(ErrorCode.NO_PERMISSION);
     }
+
+    public NoPermissionException(ErrorCode errorCode) {
+        super(errorCode);
+    }
+
+    public NoPermissionException(ErrorCode errorCode, String detail) {
+        super(errorCode, detail);
+    }
 }

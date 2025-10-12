@@ -51,7 +51,7 @@ public class MatchCreateService {
         TeamMemberRole loginUserRole = teamMember.getRole();
 
         if (loginUserRole != TeamMemberRole.LEADER) {
-            throw new NoPermissionException();
+            throw new NoPermissionException(ErrorCode.CAPTAIN_ONLY_OPERATION);
         }
 
         Team team = teamMember.getTeam();
@@ -90,14 +90,14 @@ public class MatchCreateService {
         TeamMemberRole loginUserRole = teamMember.getRole();
 
         if (TeamMemberRole.isNotLeader(loginUserRole)) {
-            throw new NoPermissionException();
+            throw new NoPermissionException(ErrorCode.CAPTAIN_ONLY_OPERATION);
         }
 
         Team matchWaitingCancelteam = teamMember.getTeam();
         Team existMatchWaitingTeam = matchWaiting.getTeam();
 
         if (!matchWaitingCancelteam.equals(existMatchWaitingTeam)) {
-            throw new NoPermissionException();
+            throw new NoPermissionException(ErrorCode.MATCH_OPERATION_PERMISSION_DENIED);
         }
 
         matchWaiting.cancelMatchWaiting();

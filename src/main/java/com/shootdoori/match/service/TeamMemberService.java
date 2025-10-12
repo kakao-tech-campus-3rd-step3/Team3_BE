@@ -52,7 +52,7 @@ public class TeamMemberService {
             new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
 
         if (!team.getCaptain().getId().equals(captainId)) {
-            throw new NoPermissionException();
+            throw new NoPermissionException(ErrorCode.CAPTAIN_ONLY_OPERATION);
         }
 
         User user = profileRepository.findById(userId).orElseThrow(
@@ -118,7 +118,7 @@ public class TeamMemberService {
         }
 
         if (!actor.getRole().canMakeJoinDecision()) {
-            throw new NoPermissionException();
+            throw new NoPermissionException(ErrorCode.INSUFFICIENT_ROLE_FOR_ROLE_CHANGE);
         }
 
         targetMember.changeRole(team, TeamMemberRole.fromDisplayName(requestDto.role()));
@@ -136,7 +136,7 @@ public class TeamMemberService {
             .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
         if (loginMember.isCaptain()) {
-            throw new NoPermissionException();
+            throw new NoPermissionException(ErrorCode.LEADER_CANNOT_LEAVE);
         }
 
         team.removeMember(loginMember);
@@ -156,7 +156,7 @@ public class TeamMemberService {
             .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
         if (!loginMember.getRole().canKick(targetMember.getRole())) {
-            throw new NoPermissionException();
+            throw new NoPermissionException(ErrorCode.INSUFFICIENT_ROLE_FOR_KICK);
         }
 
         team.removeMember(targetMember);

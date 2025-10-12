@@ -87,8 +87,7 @@ public class TeamMember extends DateEntity {
     public void delegateLeadership(TeamMember newLeader) {
 
         if (!this.isCaptain()) {
-            // TODO: NoPermissionException 경우구별 안되는 문제 해결해야 함.
-            throw new NoPermissionException();
+            throw new NoPermissionException(ErrorCode.LEADERSHIP_DELEGATION_FORBIDDEN);
         }
 
         validateDelegate(newLeader);
@@ -100,8 +99,7 @@ public class TeamMember extends DateEntity {
     public void delegateViceLeadership(TeamMember newViceLeader) {
 
         if (!this.isViceCaptain()) {
-            // TODO: NoPermissionException 경우구별 안되는 문제 해결해야 함.
-            throw new NoPermissionException();
+            throw new NoPermissionException(ErrorCode.VICE_LEADERSHIP_DELEGATION_FORBIDDEN);
         }
 
        validateDelegate(newViceLeader);
@@ -156,7 +154,7 @@ public class TeamMember extends DateEntity {
 
     public boolean canMakeJoinDecisionFor(Team team) {
         if (!this.team.equals(team) || !this.role.canMakeJoinDecision()) {
-            throw new NoPermissionException();
+            throw new NoPermissionException(ErrorCode.INSUFFICIENT_ROLE_FOR_JOIN_DECISION);
         }
 
         return true;
