@@ -19,7 +19,7 @@ public abstract class SoftDeleteTeamEntity extends DateEntity {
     }
 
     public void changeStatusDeleted() {
-      
+
         if (isDeleted()) {
             throw new DuplicatedException(ErrorCode.TEAM_ALREADY_DELETED);
         }

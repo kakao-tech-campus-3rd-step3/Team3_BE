@@ -24,8 +24,6 @@ public enum ErrorCode {
     ALREADY_TEAM_MEMBER("이미 해당 팀의 멤버입니다.", HttpStatus.CONFLICT),
     ALREADY_OTHER_TEAM_MEMBER("이미 다른 팀에 소속되어 있습니다.", HttpStatus.CONFLICT),
     TEAM_MEMBER_NOT_FOUND("해당 팀 멤버를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
-    TEAM_MEMBER_ALREADY_ACTIVE("팀 멤버가 이미 활성화 상태입니다.", HttpStatus.CONFLICT),
-    TEAM_MEMBER_ALREADY_DELETED("팀 멤버가 이미 삭제 상태입니다.", HttpStatus.CONFLICT),
     MERCENARY_REVIEW_NOT_FOUND("해당 용병 리뷰를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
     // Delegation
