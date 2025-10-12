@@ -20,6 +20,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(
@@ -89,17 +90,23 @@ public class TeamMember extends DateEntity {
             throw new NoPermissionException();
         }
 
-        if (this.equals(newLeader)) {
-            throw new DuplicatedException(ErrorCode.SELF_DELEGATION_NOT_ALLOWED);
-        }
+        validateDelegate(newLeader);
 
-        if (!this.team.equals(newLeader.getTeam())) {
-            throw new DifferentException(ErrorCode.DIFFERENT_TEAM_DELEGATION_NOT_ALLOWED);
-        }
-
-        // TODO: 이전 회장을 일반 멤버 or 역할 교환 어떤 것이 나은지 고민해야 함.
         this.role = TeamMemberRole.MEMBER;
         newLeader.role = TeamMemberRole.LEADER;
+    }
+
+    public void delegateViceLeadership(TeamMember newViceLeader) {
+
+        if (!this.isViceCaptain()) {
+            // TODO: NoPermissionException 경우구별 안되는 문제 해결해야 함.
+            throw new NoPermissionException();
+        }
+
+       validateDelegate(newViceLeader);
+
+        this.role = TeamMemberRole.MEMBER;
+        newViceLeader.role = TeamMemberRole.VICE_LEADER;
     }
 
     public void changeRole(Team team, TeamMemberRole newRole) {
@@ -113,6 +120,17 @@ public class TeamMember extends DateEntity {
         }
 
         this.role = newRole;
+    }
+
+    private void validateDelegate(TeamMember targetMember) {
+
+        if (this.equals(targetMember)) {
+            throw new DuplicatedException(ErrorCode.SELF_DELEGATION_NOT_ALLOWED);
+        }
+
+        if (!this.team.equals(targetMember.getTeam())) {
+            throw new DifferentException(ErrorCode.DIFFERENT_TEAM_DELEGATION_NOT_ALLOWED);
+        }
     }
 
     private boolean isPromotionToLeader(TeamMemberRole newRole) {
