@@ -21,6 +21,7 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(
@@ -167,5 +168,19 @@ public class TeamMember extends DateEntity {
 
     public boolean isViceCaptain() {
         return this.role == TeamMemberRole.VICE_LEADER;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || (o instanceof TeamMember)) {
+            return false;
+        }
+        TeamMember teamMember = (TeamMember) o;
+        return Objects.equals(id, teamMember.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }
