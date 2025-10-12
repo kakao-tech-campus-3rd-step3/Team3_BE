@@ -3,7 +3,6 @@ package com.shootdoori.match.controller;
 import com.shootdoori.match.dto.CreateTeamResponseDto;
 import com.shootdoori.match.dto.TeamDetailResponseDto;
 import com.shootdoori.match.dto.TeamRequestDto;
-import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.TeamService;
 import org.springframework.data.domain.Page;
@@ -47,10 +46,11 @@ public class TeamController {
     public ResponseEntity<Page<TeamDetailResponseDto>> findAllByUniversity(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size,
-        @RequestParam String university
+        @RequestParam String university,
+        @RequestParam(defaultValue = "false") boolean includeDeleted
     ) {
 
-        return new ResponseEntity<>(teamService.findAllByUniversity(page, size, university),
+        return new ResponseEntity<>(teamService.findAllByUniversity(page, size, university, includeDeleted),
             HttpStatus.OK);
     }
 
