@@ -230,6 +230,8 @@ public class TeamMemberTest {
             TeamMember leader = new TeamMember(team, captain, TeamMemberRole.LEADER);
             TeamMember targetMember = new TeamMember(team, user, TeamMemberRole.MEMBER);
 
+            setDifferentTeamMemberIds(leader, targetMember);
+
             // when
             leader.delegateLeadership(targetMember);
 
@@ -244,6 +246,8 @@ public class TeamMemberTest {
             // given
             TeamMember viceLeader = new TeamMember(team, user, TeamMemberRole.VICE_LEADER);
             TeamMember targetMember = new TeamMember(team, anotherUser, TeamMemberRole.MEMBER);
+
+            setDifferentTeamMemberIds(viceLeader, targetMember);
 
             // when
             viceLeader.delegateViceLeadership(targetMember);
@@ -314,6 +318,8 @@ public class TeamMemberTest {
             TeamMember anotherTeamMember = new TeamMember(anotherTeam, anotherUser,
                 TeamMemberRole.MEMBER);
 
+            setDifferentTeamMemberIds(leader, anotherTeamMember);
+
             // when & then
             assertThatThrownBy(() ->
                 leader.delegateLeadership(anotherTeamMember))
@@ -330,6 +336,8 @@ public class TeamMemberTest {
             TeamMember viceLeader = new TeamMember(team, user, TeamMemberRole.VICE_LEADER);
             TeamMember anotherTeamMember = new TeamMember(anotherTeam, anotherUser,
                 TeamMemberRole.MEMBER);
+
+            setDifferentTeamMemberIds(viceLeader, anotherTeamMember);
 
             // when & then
             assertThatThrownBy(() ->
@@ -383,9 +391,14 @@ public class TeamMemberTest {
         );
     }
 
-    private void setDifferentTeamIds(Team team1, Team team2) {
-        ReflectionTestUtils.setField(team1, "teamId", 1L);
-        ReflectionTestUtils.setField(team2, "teamId", 2L);
+    private void setDifferentTeamIds(Team firstTeam, Team secondTeam) {
+        ReflectionTestUtils.setField(firstTeam, "teamId", 1L);
+        ReflectionTestUtils.setField(secondTeam, "teamId", 2L);
+    }
+
+    private void setDifferentTeamMemberIds(TeamMember firstMember, TeamMember secondMember) {
+        ReflectionTestUtils.setField(firstMember, "id", 1L);
+        ReflectionTestUtils.setField(secondMember, "id", 2L);
     }
 }
 
