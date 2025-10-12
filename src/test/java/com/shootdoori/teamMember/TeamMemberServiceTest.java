@@ -10,10 +10,10 @@ import com.shootdoori.match.dto.TeamMemberMapper;
 import com.shootdoori.match.dto.TeamMemberRequestDto;
 import com.shootdoori.match.dto.TeamMemberResponseDto;
 import com.shootdoori.match.dto.UpdateTeamMemberRequestDto;
-import com.shootdoori.match.entity.team.TeamSkillLevel;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.team.TeamMemberRole;
+import com.shootdoori.match.entity.team.TeamSkillLevel;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.DifferentException;
@@ -461,7 +461,7 @@ public class TeamMemberServiceTest {
         void setUpKick() {
             ReflectionTestUtils.setField(user, "id", leaderMemberId);
             ReflectionTestUtils.setField(anotherUser, "id", viceLeaderMemberId);
-        
+
             team.recruitMember(user, TeamMemberRole.LEADER);
             team.recruitMember(anotherUser, TeamMemberRole.VICE_LEADER);
 
@@ -534,7 +534,7 @@ public class TeamMemberServiceTest {
                 USER_ID)).thenReturn(Optional.of(actorLeader));
             when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
                 ANOTHER_USER_ID)).thenReturn(Optional.of(targetVice));
-            
+
             // when
             teamMemberService.kick(TEAM_ID, ANOTHER_USER_ID, USER_ID);
 
@@ -727,6 +727,174 @@ public class TeamMemberServiceTest {
                 () -> teamMemberService.delegateLeadership(anotherTeamId, anotherLeaderId,
                     anotherMemberId))
                 .isInstanceOf(DifferentException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("delegateViceLeadership")
+    class DelegateViceLeadershipTest {
+
+        private Long currentLeaderId;
+        private Long currentLeaderMemberId;
+        private Long newViceLeaderMemberId;
+        private Long anotherMemberId;
+
+        private TeamMember currentLeader;
+        private TeamMember newViceLeader;
+        private TeamMember anotherMember;
+
+        @BeforeEach
+        void setUpDelegateVice() {
+            currentLeaderId = 1L;
+
+            currentLeader = new TeamMember(team, captain, TeamMemberRole.VICE_LEADER);
+            newViceLeader = new TeamMember(team, user, TeamMemberRole.MEMBER);
+            anotherMember = new TeamMember(team, anotherUser, TeamMemberRole.MEMBER);
+
+            currentLeaderMemberId = 1L;
+            newViceLeaderMemberId = 2L;
+            anotherMemberId = 3L;
+
+            ReflectionTestUtils.setField(currentLeader, "id", currentLeaderMemberId);
+            ReflectionTestUtils.setField(newViceLeader, "id", newViceLeaderMemberId);
+            ReflectionTestUtils.setField(anotherMember, "id", anotherMemberId);
+        }
+
+        @Test
+        @DisplayName("delegateViceLeadership - 성공")
+        void delegateViceLeadership_success() {
+            // given
+            TeamMemberResponseDto expected = toResponse(newViceLeader);
+
+            when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID, currentLeaderId))
+                .thenReturn(Optional.of(currentLeader));
+            when(teamMemberRepository.findById(newViceLeaderMemberId))
+                .thenReturn(Optional.of(newViceLeader));
+            when(teamMemberMapper.toTeamMemberResponseDto(newViceLeader)).thenReturn(expected);
+
+            // when
+            TeamMemberResponseDto resultDto = teamMemberService.delegateViceLeadership(TEAM_ID,
+                currentLeaderId, newViceLeaderMemberId);
+
+            // then
+            assertThat(resultDto).isEqualTo(expected);
+            assertThat(newViceLeader.getRole()).isEqualTo(TeamMemberRole.VICE_LEADER);
+        }
+
+        @Test
+        @DisplayName("delegateViceLeadership - 팀 없음 예외")
+        void delegateViceLeadership_teamNotFound_throws() {
+            // given
+            when(teamRepository.findById(NON_EXISTENT_TEAM_ID)).thenReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() ->
+                teamMemberService.delegateViceLeadership(NON_EXISTENT_TEAM_ID, currentLeaderId,
+                    newViceLeaderMemberId))
+                .isInstanceOf(NotFoundException.class);
+        }
+
+        @Test
+        @DisplayName("delegateViceLeadership - 현재 사용자 없음 예외")
+        void delegateViceLeadership_currentUserNotFound_throws() {
+            // given
+            when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
+                NON_EXISTENT_USER_ID)).thenReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(
+                () -> teamMemberService.delegateViceLeadership(TEAM_ID, NON_EXISTENT_USER_ID,
+                    newViceLeaderMemberId))
+                .isInstanceOf(NotFoundException.class);
+
+        }
+
+        @Test
+        @DisplayName("delegateViceLeadership - 대상 멤버 없음 예외")
+        void delegateViceLeadership_targetMemberNotFound_throws() {
+            // given
+            when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID, currentLeaderId))
+                .thenReturn(Optional.of(currentLeader));
+            when(teamMemberRepository.findById(newViceLeaderMemberId))
+                .thenReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(() ->
+                teamMemberService.delegateViceLeadership(TEAM_ID, currentLeaderId,
+                    newViceLeaderMemberId))
+                .isInstanceOf(NotFoundException.class);
+        }
+
+        @Test
+        @DisplayName("delegateViceLeadership - 다른 팀 멤버 위임 예외")
+        void delegateViceLeadership_differentTeam_throws() {
+            // given
+            Long anotherTeamId = 2L;
+
+            Team anotherTeam = new Team(
+                "막국수 FC",
+                captain,
+                "강원대학교",
+                TeamType.CENTRAL_CLUB,
+                TeamSkillLevel.AMATEUR,
+                "춘천 유포리 막국수를 사랑하는 모임"
+            );
+
+            ReflectionTestUtils.setField(team, "teamId", 1L);
+            ReflectionTestUtils.setField(anotherTeam, "teamId", 2L);
+
+            TeamMember otherTeamMember = new TeamMember(anotherTeam, anotherUser, TeamMemberRole.MEMBER);
+            ReflectionTestUtils.setField(otherTeamMember, "id", anotherMemberId);
+
+            when(teamRepository.findById(anotherTeamId)).thenReturn(Optional.of(anotherTeam));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(anotherTeamId,
+                currentLeaderId)).thenReturn(Optional.of(currentLeader));
+            when(teamMemberRepository.findById(anotherMemberId)).thenReturn(Optional.of(otherTeamMember));
+
+            // when & then
+            assertThatThrownBy(() ->
+                teamMemberService.delegateViceLeadership(anotherTeamId, currentLeaderId,
+                    anotherMemberId))
+                .isInstanceOf(DifferentException.class);
+        }
+
+        @Test
+        @DisplayName("delegateViceLeadership - 권한 없음 예외")
+        void delegateViceLeadership_noPermission_throws() {
+            // given
+            TeamMember actorMember = new TeamMember(team, user, TeamMemberRole.MEMBER);
+
+            when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID, currentLeaderId))
+                .thenReturn(Optional.of(actorMember));
+            when(teamMemberRepository.findById(newViceLeaderMemberId))
+                .thenReturn(Optional.of(newViceLeader));
+
+            // when & then
+            assertThatThrownBy(() ->
+                teamMemberService.delegateViceLeadership(TEAM_ID, currentLeaderId,
+                    newViceLeaderMemberId))
+                .isInstanceOf(NoPermissionException.class);
+        }
+
+        @Test
+        @DisplayName("delegateViceLeadership - 자기 자신 위임 예외")
+        void delegateViceLeadership_selfDelegation_throws() {
+            // given
+            when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
+            when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID, currentLeaderId))
+                .thenReturn(Optional.of(currentLeader));
+            when(teamMemberRepository.findById(currentLeaderMemberId))
+                .thenReturn(Optional.of(currentLeader));
+
+            // when & then
+            assertThatThrownBy(() ->
+                teamMemberService.delegateViceLeadership(TEAM_ID, currentLeaderId,
+                    currentLeaderMemberId))
+                .isInstanceOf(DuplicatedException.class);
         }
     }
 
