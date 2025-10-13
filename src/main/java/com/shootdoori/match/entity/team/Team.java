@@ -185,7 +185,7 @@ public class Team extends SoftDeleteTeamEntity {
 
     public void delete(Long userId) {
         if (!Objects.equals(getCaptain().getId(), userId)) {
-            throw new NoPermissionException();
+            throw new NoPermissionException(ErrorCode.CAPTAIN_ONLY_OPERATION);
         }
 
         members.clear();
@@ -196,7 +196,7 @@ public class Team extends SoftDeleteTeamEntity {
 
     public void restore(Long userId) {
         if (!Objects.equals(getCaptain().getId(), userId)) {
-            throw new NoPermissionException();
+            throw new NoPermissionException(ErrorCode.CAPTAIN_ONLY_OPERATION);
         }
         
         recruitMember(captain, TeamMemberRole.LEADER);

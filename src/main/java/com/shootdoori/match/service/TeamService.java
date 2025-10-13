@@ -82,7 +82,7 @@ public class TeamService {
             new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(id)));
 
         if (!Objects.equals(team.getCaptain().getId(), userId)) {
-            throw new NoPermissionException();
+            throw new NoPermissionException(ErrorCode.CAPTAIN_ONLY_OPERATION);
         }
 
         team.changeTeamInfo(requestDto.name(), requestDto.university(),

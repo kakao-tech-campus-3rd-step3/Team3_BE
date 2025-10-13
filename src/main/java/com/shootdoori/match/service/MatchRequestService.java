@@ -120,7 +120,7 @@ public class MatchRequestService {
         Long existMatchRequestedTeamId = matchRequest.getRequestTeam().getTeamId();
 
         if (cancelRequestTeamId.longValue() != existMatchRequestedTeamId.longValue()) {
-            throw new NoPermissionException();
+            throw new NoPermissionException(ErrorCode.MATCH_REQUEST_OWNERSHIP_VIOLATION);
         }
 
         matchRequest.cancelRequest();
@@ -159,7 +159,7 @@ public class MatchRequestService {
         Long waitingTeamId = matchWaiting.getTeam().getTeamId();
 
         if (!determineTeamId.equals(waitingTeamId)) {
-            throw new NoPermissionException();
+            throw new NoPermissionException(ErrorCode.MATCH_WAITING_OWNERSHIP_VIOLATION);
         }
 
         Team targetTeam = matchRequest.getTargetTeam();
@@ -179,7 +179,7 @@ public class MatchRequestService {
             matchWaiting.getPreferredDate(),
             matchWaiting.getPreferredTimeStart(),
             matchWaiting.getPreferredVenue(),
-            MatchStatus.FINISHED // 임시 변경
+            MatchStatus.MATCHED
         );
         matchRepository.save(match);
 
@@ -203,7 +203,7 @@ public class MatchRequestService {
         Long waitingTeamId = matchWaiting.getTeam().getTeamId();
 
         if (determineTeamId.longValue() != waitingTeamId.longValue()) {
-            throw new NoPermissionException();
+            throw new NoPermissionException(ErrorCode.MATCH_WAITING_OWNERSHIP_VIOLATION);
         }
 
         matchRequest.updateRequestStatus(MatchRequestStatus.REJECTED, LocalDateTime.now());

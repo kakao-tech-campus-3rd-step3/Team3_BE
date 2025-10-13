@@ -12,6 +12,7 @@ import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.MercenaryRecruitmentRepository;
+import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamRepository;
 import com.shootdoori.match.service.MercenaryRecruitmentService;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,6 +62,7 @@ class MercenaryRecruitmentTest {
     void setUp() {
         testTeam = Fixture.createTeam();
         ReflectionTestUtils.setField(testTeam, "teamId", 1L);
+        ReflectionTestUtils.setField(testTeam.getCaptain(), "id", 1L);
 
         testRecruitment = Fixture.createRecruitment(testTeam);
         createRequest = Fixture.createRecruitmentRequest(testTeam.getTeamId());
@@ -74,7 +76,7 @@ class MercenaryRecruitmentTest {
         given(recruitmentRepository.save(any(MercenaryRecruitment.class))).willReturn(testRecruitment);
 
         // when
-        RecruitmentResponse response = mercenaryRecruitmentService.create(createRequest);
+        RecruitmentResponse response = mercenaryRecruitmentService.create(createRequest, 1L);
 
         // then
         assertThat(response).isNotNull();
@@ -99,7 +101,7 @@ class MercenaryRecruitmentTest {
         given(teamRepository.findById(request.teamId())).willReturn(Optional.of(testTeam));
 
         // when & then
-        assertThatIllegalArgumentException().isThrownBy(() -> mercenaryRecruitmentService.create(request));
+        assertThatIllegalArgumentException().isThrownBy(() -> mercenaryRecruitmentService.create(request, 1L));
     }
 
     @Test
@@ -116,9 +118,10 @@ class MercenaryRecruitmentTest {
         );
 
         given(teamRepository.findById(request.teamId())).willReturn(Optional.of(testTeam));
+        given(teamRepository.findById(1L)).willReturn(Optional.of(testTeam));
 
         // when & then
-        assertThatIllegalArgumentException().isThrownBy(() -> mercenaryRecruitmentService.create(request));
+        assertThatIllegalArgumentException().isThrownBy(() -> mercenaryRecruitmentService.create(request, 1L));
     }
 
     @Test
@@ -131,7 +134,7 @@ class MercenaryRecruitmentTest {
 
         // when & then
         assertThrows(NotFoundException.class, () -> {
-            mercenaryRecruitmentService.create(request);
+            mercenaryRecruitmentService.create(request, 1L);
         });
     }
 
@@ -182,7 +185,7 @@ class MercenaryRecruitmentTest {
         given(recruitmentRepository.findById(1L)).willReturn(Optional.of(testRecruitment));
 
         // when
-        RecruitmentResponse response = mercenaryRecruitmentService.update(1L, updateRequest);
+        RecruitmentResponse response = mercenaryRecruitmentService.update(1L, updateRequest, 1L);
 
         // then
         assertThat(response).isNotNull();
@@ -197,7 +200,7 @@ class MercenaryRecruitmentTest {
         given(recruitmentRepository.findById(1L)).willReturn(Optional.of(testRecruitment));
 
         // when
-        mercenaryRecruitmentService.delete(1L);
+        mercenaryRecruitmentService.delete(1L, 1L);
 
         // then
         verify(recruitmentRepository).deleteById(1L);

@@ -31,7 +31,7 @@ public enum ErrorCode {
     // Delegation
     SELF_DELEGATION_NOT_ALLOWED("자신에게 역할을 위임할 수 없습니다.", HttpStatus.BAD_REQUEST),
     LEADERSHIP_DELEGATION_FORBIDDEN("회장만 회장직을 위임할 수 있습니다.", HttpStatus.FORBIDDEN),
-    VICE_LEADERSHIP_DELEGATION_FORBIDDEN("회장 또는 부회장만 부회장직을 위임할 수 있습니다.", HttpStatus.FORBIDDEN),
+    VICE_LEADERSHIP_DELEGATION_FORBIDDEN("부회장만 부회장직을 위임할 수 있습니다.", HttpStatus.FORBIDDEN),
     DIFFERENT_TEAM_DELEGATION_NOT_ALLOWED("다른 팀 멤버에게는 역할을 위임할 수 없습니다.", HttpStatus.BAD_REQUEST),
 
     // Join Waiting
@@ -56,10 +56,22 @@ public enum ErrorCode {
 
     // Auth / Permission
     NO_PERMISSION("허락되지 않은 요청입니다.", HttpStatus.FORBIDDEN),
+    CAPTAIN_ONLY_OPERATION("팀장만 수행할 수 있는 작업입니다.", HttpStatus.FORBIDDEN),
+    LEADER_CANNOT_LEAVE("팀장은 팀을 떠날 수 없습니다.", HttpStatus.FORBIDDEN),
+    INSUFFICIENT_ROLE_FOR_KICK("해당 멤버를 추방할 권한이 없습니다.", HttpStatus.FORBIDDEN),
+    INSUFFICIENT_ROLE_FOR_JOIN_DECISION("가입 승인/거부 권한이 없습니다.", HttpStatus.FORBIDDEN),
+    INSUFFICIENT_ROLE_FOR_ROLE_CHANGE("역할 변경 권한이 없습니다.", HttpStatus.FORBIDDEN),
+    MATCH_REQUEST_OWNERSHIP_VIOLATION("자신의 팀 매치 요청만 취소할 수 있습니다.", HttpStatus.FORBIDDEN),
+    MATCH_WAITING_OWNERSHIP_VIOLATION("자신의 팀 매치 대기만 처리할 수 있습니다.", HttpStatus.FORBIDDEN),
+    MATCH_OPERATION_PERMISSION_DENIED("매치 관련 작업 권한이 없습니다.", HttpStatus.FORBIDDEN),
+    JOIN_REQUEST_OWNERSHIP_VIOLATION("자신의 가입 신청만 취소할 수 있습니다.", HttpStatus.FORBIDDEN),
     INVALID_TOKEN("유효하지 않은 토큰입니다.", HttpStatus.UNAUTHORIZED),
     EXPIRED_TOKEN("토큰이 만료되었습니다.", HttpStatus.UNAUTHORIZED),
     OTP_NOT_FOUND("유효한 인증번호가 존재하지 않습니다.", HttpStatus.NOT_FOUND),
-    INVALID_OTP("인증번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED);
+    INVALID_OTP("인증번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED),
+
+    // Review
+    MATCH_NOT_FINISHED_YET("아직 경기가 종료되지 않아 리뷰를 작성할 수 없습니다.", HttpStatus.BAD_REQUEST);
 
 
   private final String message;
