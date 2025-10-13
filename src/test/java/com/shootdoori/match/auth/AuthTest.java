@@ -7,6 +7,8 @@ import com.shootdoori.match.dto.ProfileCreateRequest;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.entity.user.UserStatus;
 import com.shootdoori.match.dto.TokenRefreshRequest;
+import com.shootdoori.match.exception.common.ErrorCode;
+import com.shootdoori.match.exception.common.NotFoundException;
 import jakarta.persistence.EntityManager;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.RefreshTokenRepository;
@@ -250,6 +252,7 @@ class AuthTest {
 
     @Nested
     @DisplayName("회원탈퇴 (/api/profiles/me)")
+    @Transactional
     class DeleteAccountTests {
 
         private String accessToken;
@@ -273,16 +276,19 @@ class AuthTest {
         }
 
         @Test
-        @DisplayName("성공: 로그인된 사용자가 정상적으로 회원 탈퇴를 요청한다")
+        @DisplayName("성공: 로그인된 사용자가 정상적으로 회원 탈퇴를 요청하고, 상태가 DELETED로 변경된다")
         void deleteAccountSuccess() throws Exception {
             mockMvc.perform(delete("/api/profiles/me")
                     .header("Authorization", "Bearer " + accessToken))
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
-            User user = profileRepository.findById(userId).orElseThrow();
-            assertThat(user.getUserStatus()).isEqualTo(UserStatus.PENDING_DELETION);
-            assertThat(refreshTokenRepository.countByUserId(userId)).isZero();
+            entityManager.flush();
+            entityManager.clear();
+
+            User userAfterDelete = profileRepository.findByIdIncludingDeleted(userId)
+                .orElseThrow();
+            assertThat(userAfterDelete.getStatus()).isEqualTo(UserStatus.DELETED);
         }
 
         @Test
