@@ -116,11 +116,9 @@ public class JoinWaitingService {
         team.validateCanAcceptNewMember();
 
         joinWaiting.approve(approver, role, approveReason);
-        
-        teamRepository.save(team);
 
-        sendJoinApprovalNotification(team, applicant, approver);
-        
+        sendJoinApprovalNotification(team, applicant, approver, joinWaiting.getDecidedAt());
+
         return joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting);
     }
 
@@ -141,7 +139,8 @@ public class JoinWaitingService {
 
         joinWaiting.reject(approver, rejectReason);
 
-        sendJoinRejectionNotification(team, applicant, approver, rejectReason);
+        sendJoinRejectionNotification(team, applicant, approver, joinWaiting.getDecidedAt(),
+            rejectReason);
 
         return joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting);
     }
@@ -166,7 +165,7 @@ public class JoinWaitingService {
 
         joinWaiting.cancel(requester, cancelReason);
 
-        sendJoinCancelNotification(team, applicant, cancelReason);
+        sendJoinCancelNotification(team, applicant, joinWaiting.getDecidedAt(), cancelReason);
 
         return joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting);
     }
@@ -237,7 +236,8 @@ public class JoinWaitingService {
         mailService.sendEmail(applicant.getEmail(), subject, applicantText);
     }
 
-    private void sendJoinApprovalNotification(Team team, User applicant, TeamMember approver) {
+    private void sendJoinApprovalNotification(Team team, User applicant, TeamMember approver,
+        LocalDateTime decidedAt) {
         String subject = "[슛두리] 팀 가입 승인 알림";
 
         String text = String.format(
@@ -248,14 +248,14 @@ public class JoinWaitingService {
                 "이제 팀 활동에 참여할 수 있습니다.",
             team.getTeamName().name(),
             approver.getUser().getName(),
-            LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+            decidedAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
         );
 
         mailService.sendEmail(applicant.getEmail(), subject, text);
     }
 
     private void sendJoinRejectionNotification(Team team, User applicant, TeamMember approver,
-        String rejectReason) {
+        LocalDateTime decidedAt, String rejectReason) {
         String subject = "[슛두리] 팀 가입 거절 안내";
 
         String text = String.format(
@@ -268,13 +268,14 @@ public class JoinWaitingService {
             team.getTeamName().name(),
             rejectReason,
             approver.getUser().getName(),
-            LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+            decidedAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
         );
 
         mailService.sendEmail(applicant.getEmail(), subject, text);
     }
 
-    private void sendJoinCancelNotification(Team team, User applicant, String cancelReason) {
+    private void sendJoinCancelNotification(Team team, User applicant, LocalDateTime decidedAt,
+        String cancelReason) {
         String subject = "[슛두리] 팀 가입 신청 취소 안내";
 
         String captainText = String.format(
@@ -286,7 +287,7 @@ public class JoinWaitingService {
             applicant.getName(),
             team.getTeamName().name(),
             cancelReason,
-            LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+            decidedAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
         );
 
         String applicantText = String.format(
@@ -296,7 +297,7 @@ public class JoinWaitingService {
                 "취소 시간: %s\n\n",
             team.getTeamName().name(),
             cancelReason,
-            LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+            decidedAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
         );
 
         mailService.sendEmail(team.getCaptain().getEmail(), subject, captainText);
