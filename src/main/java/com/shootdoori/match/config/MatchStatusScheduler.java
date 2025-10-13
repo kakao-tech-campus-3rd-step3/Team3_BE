@@ -20,12 +20,14 @@ public class MatchStatusScheduler {
 
     private final MatchRepository matchRepository;
 
+    private static final long SCHEDULE_INTERVAL_MS = 5 * 60 * 1000L;
+
     public MatchStatusScheduler(MatchRepository matchRepository) {
         this.matchRepository = matchRepository;
     }
 
     @Transactional
-    @Scheduled(fixedRate = 5 * 60 * 1000)
+    @Scheduled(fixedRate = SCHEDULE_INTERVAL_MS)
     public void updateFinishedMatches() {
         LocalDate today = LocalDate.now();
         LocalTime now = LocalTime.now();
