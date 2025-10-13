@@ -21,6 +21,9 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
 
+import java.util.List;
+import java.util.Objects;
+
 @Entity
 @Table(
     name = "team_member",
@@ -85,21 +88,25 @@ public class TeamMember extends DateEntity {
     public void delegateLeadership(TeamMember newLeader) {
 
         if (!this.isCaptain()) {
-            // TODO: NoPermissionException 경우구별 안되는 문제 해결해야 함.
-            throw new NoPermissionException();
+            throw new NoPermissionException(ErrorCode.LEADERSHIP_DELEGATION_FORBIDDEN);
         }
 
-        if (this.equals(newLeader)) {
-            throw new DuplicatedException(ErrorCode.SELF_DELEGATION_NOT_ALLOWED);
-        }
+        validateDelegate(newLeader);
 
-        if (!this.team.equals(newLeader.getTeam())) {
-            throw new DifferentException(ErrorCode.DIFFERENT_TEAM_DELEGATION_NOT_ALLOWED);
-        }
-
-        // TODO: 이전 회장을 일반 멤버 or 역할 교환 어떤 것이 나은지 고민해야 함.
         this.role = TeamMemberRole.MEMBER;
         newLeader.role = TeamMemberRole.LEADER;
+    }
+
+    public void delegateViceLeadership(TeamMember newViceLeader) {
+
+        if (!this.isViceCaptain()) {
+            throw new NoPermissionException(ErrorCode.VICE_LEADERSHIP_DELEGATION_FORBIDDEN);
+        }
+
+       validateDelegate(newViceLeader);
+
+        this.role = TeamMemberRole.MEMBER;
+        newViceLeader.role = TeamMemberRole.VICE_LEADER;
     }
 
     public void changeRole(Team team, TeamMemberRole newRole) {
@@ -113,6 +120,17 @@ public class TeamMember extends DateEntity {
         }
 
         this.role = newRole;
+    }
+
+    private void validateDelegate(TeamMember targetMember) {
+
+        if (this.equals(targetMember)) {
+            throw new DuplicatedException(ErrorCode.SELF_DELEGATION_NOT_ALLOWED);
+        }
+
+        if (!this.team.equals(targetMember.getTeam())) {
+            throw new DifferentException(ErrorCode.DIFFERENT_TEAM_DELEGATION_NOT_ALLOWED);
+        }
     }
 
     private boolean isPromotionToLeader(TeamMemberRole newRole) {
@@ -137,7 +155,7 @@ public class TeamMember extends DateEntity {
 
     public boolean canMakeJoinDecisionFor(Team team) {
         if (!this.team.equals(team) || !this.role.canMakeJoinDecision()) {
-            throw new NoPermissionException();
+            throw new NoPermissionException(ErrorCode.INSUFFICIENT_ROLE_FOR_JOIN_DECISION);
         }
 
         return true;
@@ -149,5 +167,19 @@ public class TeamMember extends DateEntity {
 
     public boolean isViceCaptain() {
         return this.role == TeamMemberRole.VICE_LEADER;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || !(o instanceof TeamMember)) {
+            return false;
+        }
+        TeamMember teamMember = (TeamMember) o;
+        return Objects.equals(id, teamMember.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id);
     }
 }

@@ -6,6 +6,7 @@ import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.team.TeamMemberRole;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.domain.joinwaiting.JoinWaitingNotPendingException;
+import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NoPermissionException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -138,7 +139,7 @@ public class JoinWaiting extends DateEntity {
         verifyPending();
 
         if (!requester.equals(this.applicant)) {
-            throw new NoPermissionException();
+            throw new NoPermissionException(ErrorCode.JOIN_REQUEST_OWNERSHIP_VIOLATION);
         }
 
         this.status = JoinWaitingStatus.CANCELED;
