@@ -283,8 +283,11 @@ class AuthTest {
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
-            User userAfterDelete = entityManager.find(User.class, userId);
-            assertThat(userAfterDelete).isNotNull();
+            entityManager.flush();
+            entityManager.clear();
+
+            User userAfterDelete = profileRepository.findByIdIncludingDeleted(userId)
+                .orElseThrow();
             assertThat(userAfterDelete.getStatus()).isEqualTo(UserStatus.DELETED);
         }
 
