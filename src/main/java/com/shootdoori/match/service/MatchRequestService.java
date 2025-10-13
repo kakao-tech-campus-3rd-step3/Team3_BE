@@ -179,7 +179,7 @@ public class MatchRequestService {
             matchWaiting.getPreferredDate(),
             matchWaiting.getPreferredTimeStart(),
             matchWaiting.getPreferredVenue(),
-            MatchStatus.MATCHED // 리뷰 도입하면서 기존 FINISHED에서 다시 원래대로 MATCHED로 변경
+            MatchStatus.MATCHED
         );
         matchRepository.save(match);
 
