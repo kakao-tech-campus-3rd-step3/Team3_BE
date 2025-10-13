@@ -86,4 +86,8 @@ public class Match extends DateEntity {
         }
         return this.getTeam1();
     }
+
+    public void updateStatus(MatchStatus matchStatus) {
+        this.status = matchStatus;
+    }
 }
