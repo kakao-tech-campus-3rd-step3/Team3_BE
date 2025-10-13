@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -62,6 +63,20 @@ public class ProfileService {
 
         User saveProfile = profileRepository.save(user);
         return profileMapper.toProfileResponse(saveProfile);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ProfileResponse> getProfilesWithDeleted() {
+        List<User> users = profileRepository.findAllIncludingDeleted();
+
+        return users.stream()
+            .map(user -> {
+                Long teamId = teamMemberRepository.findByUser_Id(user.getId())
+                    .map(teamMember -> teamMember.getTeam().getTeamId())
+                    .orElse(null);
+                return profileMapper.toProfileResponse(user, teamId);
+            })
+            .toList();
     }
 
     @Transactional(readOnly = true)
