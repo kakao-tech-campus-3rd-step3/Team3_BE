@@ -56,9 +56,7 @@ public class MercenaryReviewService {
         Match match = matchRepository.findById(mercenaryReviewRequestDto.matchId())
                 .orElseThrow(() -> new NotFoundException(ErrorCode.MATCH_NOT_FOUND));
 
-        if (match.getStatus() != MatchStatus.FINISHED) {
-            throw new MatchNotFinishedException();
-        }
+        match.validateMatchFinished();
 
         Team reviewerTeam = teamRepository.findById(mercenaryReviewRequestDto.reviewerTeamId())
                 .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND));
@@ -79,10 +77,6 @@ public class MercenaryReviewService {
 
         Match match = matchRepository.findById(mercenaryReviewRequestDto.matchId())
                 .orElseThrow(() -> new NotFoundException(ErrorCode.MATCH_NOT_FOUND));
-
-        if (match.getStatus() != MatchStatus.FINISHED) { // 물론 post가 안되어 여기에 도달 할 수 없지만... 넣었습니다
-            throw new MatchNotFinishedException();
-        }
 
         Team reviewerTeam = teamRepository.findById(mercenaryReviewRequestDto.reviewerTeamId())
                 .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND));
