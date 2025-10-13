@@ -426,7 +426,7 @@ class MatchRequestServiceTest {
         // 4) Match 생성 확인
         assertThat(match.getTeam1().getTeamId()).isEqualTo(targetTeam.getTeamId());
         assertThat(match.getTeam2().getTeamId()).isEqualTo(requestTeam1.getTeamId());
-        assertThat(match.getStatus()).isEqualTo(MatchStatus.FINISHED); // FE 연동 위한 잠정 변경 MATCHED->FINISHED
+        assertThat(match.getStatus()).isEqualTo(MatchStatus.MATCHED); // FE 연동 위한 잠정 변경 MATCHED->FINISHED 였지만, 리뷰 도입하면서 기존 FINISHED에서 다시 원래대로 MATCHED로 변경
         assertThat(match.getMatchDate()).isEqualTo(savedWaiting.getPreferredDate());
         assertThat(match.getMatchTime()).isEqualTo(savedWaiting.getPreferredTimeStart());
         assertThat(match.getVenue().getVenueId()).isEqualTo(savedWaiting.getPreferredVenue().getVenueId());
