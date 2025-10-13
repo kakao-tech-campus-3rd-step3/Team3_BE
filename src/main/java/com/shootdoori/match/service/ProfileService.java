@@ -104,8 +104,7 @@ public class ProfileService {
                 throw new LeaderCannotLeaveTeamException(ErrorCode.LEADER_CANNOT_LEAVE_TEAM);
             }
         });
-        user.requestDeletion();
 
-        refreshTokenRepository.deleteAllByUserId(id);
+        user.changeStatusDeleted();
     }
 }
