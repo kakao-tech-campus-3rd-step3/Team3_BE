@@ -296,7 +296,6 @@ class UserCleanupServiceTest {
             User userWithNullId = User.create(
                     "테스트",
                     "아마추어",
-                    "test@example.com",
                     "test@univ.ac.kr",
                     "password",
                     "kakao",
@@ -424,7 +423,6 @@ class UserCleanupServiceTest {
         User user = User.create(
                 "김두리",
                 "아마추어",
-                "user" + id + "@test.com",
                 "user" + id + "@univ.ac.kr",
                 "password" + id,
                 "kakao" + id,

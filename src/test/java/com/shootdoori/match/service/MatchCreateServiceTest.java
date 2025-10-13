@@ -71,7 +71,6 @@ class MatchCreateServiceTest {
         User captain = User.create(
             "선원준",
             "프로",
-            "swj@naver.com",
             "swj@kangwon.ac.kr",
             "12345678",
             "010-1234-5678",
@@ -86,7 +85,6 @@ class MatchCreateServiceTest {
         User member = User.create(
             "선원준 팀 멤버 1",
             "프로",
-            "swj1@naver.com",
             "swj1@kangwon.ac.kr",
             "12345678",
             "010-1234-9999",

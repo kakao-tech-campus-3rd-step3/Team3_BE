@@ -294,13 +294,12 @@ class AuthTest {
     }
 
     private static class AuthFixtures {
-        public static final String USER_EMAIL = "test@test.com";
-        public static final String UNIVERSITY_EMAIL = "university@test.ac.kr";
+        public static final String USER_EMAIL = "university@test.ac.kr";
         public static final String USER_PASSWORD = "password25~!";
 
         public static ProfileCreateRequest createProfileRequest() {
             return new ProfileCreateRequest(
-                "tester", "아마추어", USER_EMAIL, UNIVERSITY_EMAIL, USER_PASSWORD,
+                "tester", "아마추어", USER_EMAIL, USER_PASSWORD,
                 "imkim250", "공격수", "강원대학교", "컴퓨터공학과", "25", "안녕하세요"
             );
         }

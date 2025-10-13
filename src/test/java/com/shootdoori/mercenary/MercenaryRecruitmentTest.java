@@ -217,7 +217,7 @@ class MercenaryRecruitmentTest {
             return new Team(
                 "두리FC",
                 User.create(
-                    "김학생", "아마추어", "student@example.com", "student@kangwon.ac.kr",
+                    "김학생", "아마추어", "student@kangwon.ac.kr",
                     "asdf02~!", "imkim25", "공격수", "강원대학교", "컴퓨터공학과", "20", "안녕하세요!"),
                 "강원대학교", TeamType.CENTRAL_CLUB, TeamSkillLevel.AMATEUR, "즐겜해요~"
             );

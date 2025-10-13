@@ -60,7 +60,6 @@ class MatchCompleteServiceTest {
         team1Captain = profileRepository.save(User.create(
             "팀1 리더",
             "프로",
-            "team1@naver.com",
             "team1@kangwon.ac.kr",
             "12345678",
             "010-9999-9999",
@@ -74,7 +73,6 @@ class MatchCompleteServiceTest {
         team2Captain = profileRepository.save(User.create(
             "팀2 리더",
             "프로",
-            "team2@naver.com",
             "team2@kangwon.ac.kr",
             "12345678",
             "010-9999-9990",

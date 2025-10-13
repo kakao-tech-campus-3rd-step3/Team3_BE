@@ -33,7 +33,6 @@ public class TeamMemberTest {
         captain = User.create(
             "김학생",
             "아마추어",
-            "student@example.com",
             "student@kangwon.ac.kr",
             "Abcd1234!",
             "010-1234-5678",
@@ -47,7 +46,6 @@ public class TeamMemberTest {
         user = User.create(
             "손응민",
             "세미프로",
-            "member@example.com",
             "member@kangwon.ac.kr",
             "Abcd1234!",
             "010-0000-0000",
@@ -61,7 +59,6 @@ public class TeamMemberTest {
         anotherUser = User.create(
             "박데사르",
             "프로",
-            "bakinthekorea@example.com",
             "bakinthekorea@kangwon.ac.kr",
             "Abcd1234!",
             "010-0000-0000",

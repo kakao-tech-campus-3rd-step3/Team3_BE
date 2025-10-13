@@ -242,7 +242,6 @@ class UserCleanupSchedulerTest {
         return User.create(
                 "홍길동",
                 "아마추어",
-                "user1@test.com",
                 "user1@univ.ac.kr",
                 "password1",
                 "kakao1",
@@ -258,7 +257,6 @@ class UserCleanupSchedulerTest {
         return User.create(
                 "김철수",
                 "세미프로",
-                "user2@test.com",
                 "user2@univ.ac.kr",
                 "password2",
                 "kakao2",
