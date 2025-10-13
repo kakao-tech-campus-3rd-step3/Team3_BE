@@ -4,6 +4,7 @@ import com.shootdoori.match.dto.TeamReviewRequestDto;
 import com.shootdoori.match.dto.TeamReviewResponseDto;
 import com.shootdoori.match.entity.*;
 import com.shootdoori.match.entity.match.Match;
+import com.shootdoori.match.entity.match.MatchStatus;
 import com.shootdoori.match.entity.review.ReviewBinaryEvaluation;
 import com.shootdoori.match.entity.review.ReviewSkillLevel;
 import com.shootdoori.match.entity.review.TeamReview;
@@ -100,6 +101,8 @@ class TeamReviewServiceTest {
         given(teamRepository.findById(requestDto.reviewerTeamId())).willReturn(Optional.of(reviewerTeamMock));
         given(teamRepository.findById(requestDto.reviewedTeamId())).willReturn(Optional.of(reviewedTeamMock));
 
+        given(matchMock.getStatus()).willReturn(MatchStatus.FINISHED);
+
         // when
         teamReviewService.post(requestDto);
 
@@ -142,6 +145,8 @@ class TeamReviewServiceTest {
         given(matchRepository.findById(anyLong())).willReturn(Optional.of(matchMock));
         given(teamRepository.findById(2L)).willReturn(Optional.of(reviewerTeamMock));
         given(teamRepository.findById(3L)).willReturn(Optional.of(reviewedTeamMock));
+
+        given(matchMock.getStatus()).willReturn(MatchStatus.FINISHED);
 
         // when
         teamReviewService.update(reviewId, requestDto);

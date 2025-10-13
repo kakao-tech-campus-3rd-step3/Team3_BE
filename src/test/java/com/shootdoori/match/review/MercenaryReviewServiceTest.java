@@ -3,6 +3,7 @@ package com.shootdoori.match.review;
 import com.shootdoori.match.dto.MercenaryReviewRequestDto;
 import com.shootdoori.match.dto.MercenaryReviewResponseDto;
 import com.shootdoori.match.entity.match.Match;
+import com.shootdoori.match.entity.match.MatchStatus;
 import com.shootdoori.match.entity.review.MercenaryReview;
 import com.shootdoori.match.entity.review.ReviewBinaryEvaluation;
 import com.shootdoori.match.entity.review.ReviewSkillLevel;
@@ -103,6 +104,8 @@ class MercenaryReviewServiceTest {
         given(teamRepository.findById(requestDto.reviewerTeamId())).willReturn(Optional.of(reviewerTeamMock));
         given(profileRepository.findById(requestDto.userId())).willReturn(Optional.of(mercenaryUserMock));
 
+        given(matchMock.getStatus()).willReturn(MatchStatus.FINISHED);
+
         // when
         mercenaryReviewService.post(requestDto);
 
@@ -145,6 +148,8 @@ class MercenaryReviewServiceTest {
         given(matchRepository.findById(requestDto.matchId())).willReturn(Optional.of(matchMock));
         given(teamRepository.findById(requestDto.reviewerTeamId())).willReturn(Optional.of(reviewerTeamMock));
         given(profileRepository.findById(requestDto.userId())).willReturn(Optional.of(mercenaryUserMock));
+
+        given(matchMock.getStatus()).willReturn(MatchStatus.FINISHED);
 
         // when
         mercenaryReviewService.update(reviewId, requestDto);
