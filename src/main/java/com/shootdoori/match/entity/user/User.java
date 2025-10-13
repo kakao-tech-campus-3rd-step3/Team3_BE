@@ -1,15 +1,12 @@
 package com.shootdoori.match.entity.user;
 
-import com.shootdoori.match.entity.common.DateEntity;
 import com.shootdoori.match.entity.common.SoftDeleteUserEntity;
 import com.shootdoori.match.value.Password;
 import com.shootdoori.match.value.UniversityName;
 import jakarta.persistence.*;
 import org.hibernate.annotations.SQLRestriction;
-import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity

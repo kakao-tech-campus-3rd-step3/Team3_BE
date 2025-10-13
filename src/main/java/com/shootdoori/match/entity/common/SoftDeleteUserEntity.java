@@ -6,7 +6,9 @@ import com.shootdoori.match.exception.common.ErrorCode;
 import jakarta.persistence.Column;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.MappedSuperclass;
 
+@MappedSuperclass
 public class SoftDeleteUserEntity extends DateEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
