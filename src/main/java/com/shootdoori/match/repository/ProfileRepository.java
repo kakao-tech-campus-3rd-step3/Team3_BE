@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ProfileRepository extends JpaRepository<User, Long> {
-    boolean existsByEmailOrUniversityEmail(String email, String universityEmail);
+    boolean existsByEmail(String email);
 
     Optional<User> findByEmail(String email);
 
