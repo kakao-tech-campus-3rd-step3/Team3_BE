@@ -3,6 +3,7 @@ package com.shootdoori.match.controller;
 import com.shootdoori.match.dto.RecruitmentCreateRequest;
 import com.shootdoori.match.dto.RecruitmentResponse;
 import com.shootdoori.match.dto.RecruitmentUpdateRequest;
+import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.MercenaryRecruitmentService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,8 +23,9 @@ public class MercenaryRecruitmentController {
     }
     // TODO: 생성, 수정, 삭제 로직에 사용자 정보(id) 필요
     @PostMapping
-    public ResponseEntity<RecruitmentResponse> create(@RequestBody RecruitmentCreateRequest createRequest) {
-        return new ResponseEntity<>(recruitmentService.create(createRequest), HttpStatus.CREATED);
+    public ResponseEntity<RecruitmentResponse> create(@RequestBody RecruitmentCreateRequest createRequest,
+                                                      @LoginUser Long loginUserId) {
+        return new ResponseEntity<>(recruitmentService.create(createRequest, loginUserId), HttpStatus.CREATED);
     }
 
     @GetMapping
@@ -46,14 +48,16 @@ public class MercenaryRecruitmentController {
     @PutMapping("/{id}")
     public ResponseEntity<RecruitmentResponse> update(
         @PathVariable Long id,
-        @RequestBody RecruitmentUpdateRequest updateRequest
+        @RequestBody RecruitmentUpdateRequest updateRequest,
+        @LoginUser Long loginUserId
     ) {
-        return new ResponseEntity<>(recruitmentService.update(id, updateRequest), HttpStatus.OK);
+        return new ResponseEntity<>(recruitmentService.update(id, updateRequest, loginUserId), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        recruitmentService.delete(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id,
+                                       @LoginUser Long loginUserId) {
+        recruitmentService.delete(id, loginUserId);
         return ResponseEntity.noContent().build();
     }
 }
