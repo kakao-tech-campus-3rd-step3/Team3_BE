@@ -12,6 +12,4 @@ public interface ProfileRepository extends JpaRepository<User, Long> {
     boolean existsByEmailOrUniversityEmail(String email, String universityEmail);
 
     Optional<User> findByEmail(String email);
-
-    List<User> findByStatusAndStatusChangedAtBefore(UserStatus status, LocalDateTime before);
 }
