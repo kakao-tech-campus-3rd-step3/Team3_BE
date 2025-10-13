@@ -101,8 +101,6 @@ class TeamReviewServiceTest {
         given(teamRepository.findById(requestDto.reviewerTeamId())).willReturn(Optional.of(reviewerTeamMock));
         given(teamRepository.findById(requestDto.reviewedTeamId())).willReturn(Optional.of(reviewedTeamMock));
 
-        given(matchMock.getStatus()).willReturn(MatchStatus.FINISHED);
-
         // when
         teamReviewService.post(requestDto);
 
@@ -145,8 +143,6 @@ class TeamReviewServiceTest {
         given(matchRepository.findById(anyLong())).willReturn(Optional.of(matchMock));
         given(teamRepository.findById(2L)).willReturn(Optional.of(reviewerTeamMock));
         given(teamRepository.findById(3L)).willReturn(Optional.of(reviewedTeamMock));
-
-        given(matchMock.getStatus()).willReturn(MatchStatus.FINISHED);
 
         // when
         teamReviewService.update(reviewId, requestDto);
