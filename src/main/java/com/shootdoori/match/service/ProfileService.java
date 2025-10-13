@@ -106,5 +106,6 @@ public class ProfileService {
         });
 
         user.changeStatusDeleted();
+        refreshTokenRepository.deleteAllByUserId(id);
     }
 }
