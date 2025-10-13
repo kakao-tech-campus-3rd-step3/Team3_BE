@@ -4,6 +4,7 @@ import com.shootdoori.match.dto.TeamReviewRequestDto;
 import com.shootdoori.match.dto.TeamReviewResponseDto;
 import com.shootdoori.match.entity.*;
 import com.shootdoori.match.entity.match.Match;
+import com.shootdoori.match.entity.match.MatchStatus;
 import com.shootdoori.match.entity.review.ReviewBinaryEvaluation;
 import com.shootdoori.match.entity.review.ReviewSkillLevel;
 import com.shootdoori.match.entity.review.TeamReview;

@@ -3,12 +3,14 @@ package com.shootdoori.match.service;
 import com.shootdoori.match.dto.TeamReviewRequestDto;
 import com.shootdoori.match.dto.TeamReviewResponseDto;
 import com.shootdoori.match.entity.match.Match;
+import com.shootdoori.match.entity.match.MatchStatus;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.review.TeamReview;
 
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NotFoundException;
 
+import com.shootdoori.match.exception.domain.review.MatchNotFinishedException;
 import com.shootdoori.match.repository.MatchRepository;
 import com.shootdoori.match.repository.TeamRepository;
 import com.shootdoori.match.repository.TeamReviewRepository;
@@ -47,6 +49,8 @@ public class TeamReviewService {
     public void post(TeamReviewRequestDto teamReviewRequestDto) {
         Match match = matchRepository.findById(teamReviewRequestDto.matchId())
                 .orElseThrow(() -> new NotFoundException(ErrorCode.MATCH_NOT_FOUND));
+
+        match.validateMatchFinished();
 
         Team reviewerTeam = teamRepository.findById(teamReviewRequestDto.reviewerTeamId())
                 .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND));

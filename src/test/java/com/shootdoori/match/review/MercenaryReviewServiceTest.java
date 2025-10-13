@@ -3,6 +3,7 @@ package com.shootdoori.match.review;
 import com.shootdoori.match.dto.MercenaryReviewRequestDto;
 import com.shootdoori.match.dto.MercenaryReviewResponseDto;
 import com.shootdoori.match.entity.match.Match;
+import com.shootdoori.match.entity.match.MatchStatus;
 import com.shootdoori.match.entity.review.MercenaryReview;
 import com.shootdoori.match.entity.review.ReviewBinaryEvaluation;
 import com.shootdoori.match.entity.review.ReviewSkillLevel;
