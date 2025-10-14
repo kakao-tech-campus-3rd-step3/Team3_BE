@@ -99,6 +99,11 @@ public class TeamMemberService {
         return teamMemberPage.map(teamMemberMapper::toTeamMemberResponseDto);
     }
 
+    @Transactional(readOnly = true)
+    public TeamMember findByIdForEntity(Long id) {
+        return teamMemberRepository.findById(id).orElseThrow(()->new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
+    }
+
     public TeamMemberResponseDto update(Long teamId, Long targetUserId,
         UpdateTeamMemberRequestDto requestDto, Long loginUserId) {
 

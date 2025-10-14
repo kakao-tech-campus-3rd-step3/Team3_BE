@@ -45,6 +45,11 @@ public class TeamReviewService {
         return TeamReviewResponseDto.from(teamReviewRepository.findByReviewedTeamTeamIdAndId(teamId, reviewId));
     }
 
+    @Transactional(readOnly = true)
+    public TeamReview findByIdForEntity(Long reviewId) {
+        return teamReviewRepository.findById(reviewId).orElseThrow(()->new NotFoundException(ErrorCode.TEAM_REVIEW_NOT_FOUND));
+    }
+
     @Transactional
     public void post(TeamReviewRequestDto teamReviewRequestDto) {
         Match match = matchRepository.findById(teamReviewRequestDto.matchId())

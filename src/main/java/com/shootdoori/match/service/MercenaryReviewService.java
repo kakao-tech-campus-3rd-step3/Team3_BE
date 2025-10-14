@@ -51,6 +51,11 @@ public class MercenaryReviewService {
         return MercenaryReviewResponseDto.from(mercenaryReviewRepository.findByMercenaryUserIdAndId(userId, reviewId));
     }
 
+    @Transactional(readOnly = true)
+    public MercenaryReview findByIdForEntity(Long reviewId) {
+        return mercenaryReviewRepository.findById(reviewId).orElseThrow(()->new NotFoundException(ErrorCode.MERCENARY_REVIEW_NOT_FOUND));
+    }
+
     @Transactional
     public void post(MercenaryReviewRequestDto mercenaryReviewRequestDto) {
         Match match = matchRepository.findById(mercenaryReviewRequestDto.matchId())
