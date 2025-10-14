@@ -36,6 +36,9 @@ public class MatchRequestService {
     private final TeamMemberRepository teamMemberRepository;
     private final MailService mailService;
 
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm");
+
     public MatchRequestService(MatchRequestRepository matchRequestRepository,
                                MatchWaitingRepository matchWaitingRepository,
                                MatchRepository matchRepository,
@@ -181,8 +184,10 @@ public class MatchRequestService {
             targetTeam.getTeamId(), requestId, matchWaiting.getWaitingId()
         );
 
-        requestsToReject.forEach(this::sendMatchRejectedEmail);
-        requestsToReject.forEach(r -> r.updateRequestStatus(MatchRequestStatus.REJECTED, LocalDateTime.now()));
+        requestsToReject.forEach(r -> {
+            sendMatchRejectedEmail(r);
+            r.updateRequestStatus(MatchRequestStatus.REJECTED, LocalDateTime.now());
+        });
         matchRequestRepository.saveAll(requestsToReject);
 
         Match match = new Match(
@@ -247,12 +252,9 @@ public class MatchRequestService {
     private void sendMatchRequestEmail(Team requestTeam, MatchWaiting targetWaiting) {
         String receiverEmail = targetWaiting.getTeam().getCaptain().getEmail();
 
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-
-        String formattedDate = targetWaiting.getPreferredDate().format(dateFormatter);
-        String formattedStart = targetWaiting.getPreferredTimeStart().format(timeFormatter);
-        String formattedEnd = targetWaiting.getPreferredTimeEnd().format(timeFormatter);
+        String formattedDate = targetWaiting.getPreferredDate().format(DATE_FORMATTER);
+        String formattedStart = targetWaiting.getPreferredTimeStart().format(TIME_FORMATTER);
+        String formattedEnd = targetWaiting.getPreferredTimeEnd().format(TIME_FORMATTER);
 
         String subject = String.format("[슛두리 매치 신청] %s 팀이 매치를 신청했습니다!", requestTeam.getTeamName());
         String content = String.format(
@@ -271,11 +273,8 @@ public class MatchRequestService {
     private void sendMatchAcceptEmail(Match match) {
         String receiverEmail = match.getTeam2().getCaptain().getEmail();
 
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-
-        String formattedDate = match.getMatchDate().format(dateFormatter);
-        String formattedStart = match.getMatchTime().format(timeFormatter);
+        String formattedDate = match.getMatchDate().format(DATE_FORMATTER);
+        String formattedStart = match.getMatchTime().format(TIME_FORMATTER);
 
         String subject = String.format("[슛두리 매치 수락] %s 팀이 매치를 수락했습니다!", match.getTeam1().getTeamName());
         String content = String.format(
@@ -295,13 +294,10 @@ public class MatchRequestService {
     private void sendMatchRejectedEmail(MatchRequest rejectedRequest) {
         String receiverEmail = rejectedRequest.getRequestTeam().getCaptain().getEmail();
 
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-
         MatchWaiting waiting = rejectedRequest.getMatchWaiting();
-        String formattedDate = waiting.getPreferredDate().format(dateFormatter);
-        String formattedStart = waiting.getPreferredTimeStart().format(timeFormatter);
-        String formattedEnd = waiting.getPreferredTimeEnd().format(timeFormatter);
+        String formattedDate = waiting.getPreferredDate().format(DATE_FORMATTER);
+        String formattedStart = waiting.getPreferredTimeStart().format(TIME_FORMATTER);
+        String formattedEnd = waiting.getPreferredTimeEnd().format(TIME_FORMATTER);
 
         String subject = String.format("[슛두리 매치 거절] %s 팀에 대한 매치 요청이 거절되었습니다.",
             rejectedRequest.getMatchWaiting().getTeam().getTeamName());
