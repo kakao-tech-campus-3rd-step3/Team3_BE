@@ -44,7 +44,7 @@ class UserCleanupSchedulerTest {
             // given
             List<User> usersToDelete = Arrays.asList(createUser1(), createUser2());
             given(userRepository.findByStatusAndStatusChangedAtBefore(
-                    eq(UserStatus.PENDING_DELETION),
+                    eq(UserStatus.DELETED),
                     any(LocalDateTime.class)
             )).willReturn(usersToDelete);
 
@@ -54,7 +54,7 @@ class UserCleanupSchedulerTest {
             // then
             verify(userRepository, times(1))
                     .findByStatusAndStatusChangedAtBefore(
-                            eq(UserStatus.PENDING_DELETION),
+                            eq(UserStatus.DELETED),
                             any(LocalDateTime.class)
                     );
             verify(userCleanupService, times(1)).permanentlyDeleteUsers(usersToDelete);
@@ -66,7 +66,7 @@ class UserCleanupSchedulerTest {
             // given
             ArgumentCaptor<LocalDateTime> dateCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
             given(userRepository.findByStatusAndStatusChangedAtBefore(
-                    eq(UserStatus.PENDING_DELETION),
+                    eq(UserStatus.DELETED),
                     dateCaptor.capture()
             )).willReturn(Collections.emptyList());
 
@@ -88,7 +88,7 @@ class UserCleanupSchedulerTest {
             User user2 = createUser2();
             List<User> usersToDelete = Arrays.asList(user1, user2);
             given(userRepository.findByStatusAndStatusChangedAtBefore(
-                    eq(UserStatus.PENDING_DELETION),
+                    eq(UserStatus.DELETED),
                     any(LocalDateTime.class)
             )).willReturn(usersToDelete);
 
@@ -114,7 +114,7 @@ class UserCleanupSchedulerTest {
         void cleanupDeletedUsers_NoUsersToDelete() {
             // given
             given(userRepository.findByStatusAndStatusChangedAtBefore(
-                    eq(UserStatus.PENDING_DELETION),
+                    eq(UserStatus.DELETED),
                     any(LocalDateTime.class)
             )).willReturn(Collections.emptyList());
 
@@ -124,7 +124,7 @@ class UserCleanupSchedulerTest {
             // then
             verify(userRepository, times(1))
                     .findByStatusAndStatusChangedAtBefore(
-                            eq(UserStatus.PENDING_DELETION),
+                            eq(UserStatus.DELETED),
                             any(LocalDateTime.class)
                     );
             verify(userCleanupService, never()).permanentlyDeleteUsers(any());
@@ -136,7 +136,7 @@ class UserCleanupSchedulerTest {
             // given
             List<User> usersToDelete = Collections.singletonList(createUser1());
             given(userRepository.findByStatusAndStatusChangedAtBefore(
-                    eq(UserStatus.PENDING_DELETION),
+                    eq(UserStatus.DELETED),
                     any(LocalDateTime.class)
             )).willReturn(usersToDelete);
 
@@ -153,11 +153,11 @@ class UserCleanupSchedulerTest {
     class SchedulingBehavior {
 
         @Test
-        @DisplayName("조회 조건: PENDING_DELETION 상태")
+        @DisplayName("조회 조건: DELETED 상태")
         void cleanupDeletedUsers_UsesPendingDeletionStatus() {
             // given
             given(userRepository.findByStatusAndStatusChangedAtBefore(
-                    eq(UserStatus.PENDING_DELETION),
+                    eq(UserStatus.DELETED),
                     any(LocalDateTime.class)
             )).willReturn(Collections.emptyList());
 
@@ -166,7 +166,7 @@ class UserCleanupSchedulerTest {
 
             // then
             verify(userRepository).findByStatusAndStatusChangedAtBefore(
-                    eq(UserStatus.PENDING_DELETION),
+                    eq(UserStatus.DELETED),
                     any(LocalDateTime.class)
             );
         }
@@ -176,7 +176,7 @@ class UserCleanupSchedulerTest {
         void cleanupDeletedUsers_MultipleInvocations() {
             // given
             given(userRepository.findByStatusAndStatusChangedAtBefore(
-                    eq(UserStatus.PENDING_DELETION),
+                    eq(UserStatus.DELETED),
                     any(LocalDateTime.class)
             )).willReturn(Collections.singletonList(createUser1()));
 
@@ -187,7 +187,7 @@ class UserCleanupSchedulerTest {
             // then
             verify(userRepository, times(2))
                     .findByStatusAndStatusChangedAtBefore(
-                            eq(UserStatus.PENDING_DELETION),
+                            eq(UserStatus.DELETED),
                             any(LocalDateTime.class)
                     );
             verify(userCleanupService, times(2))
@@ -204,7 +204,7 @@ class UserCleanupSchedulerTest {
         void cleanupDeletedUsers_RepositoryException() {
             // given
             given(userRepository.findByStatusAndStatusChangedAtBefore(
-                    eq(UserStatus.PENDING_DELETION),
+                    eq(UserStatus.DELETED),
                     any(LocalDateTime.class)
             )).willThrow(new RuntimeException("Database error"));
 
@@ -223,7 +223,7 @@ class UserCleanupSchedulerTest {
             // given
             List<User> usersToDelete = Collections.singletonList(createUser1());
             given(userRepository.findByStatusAndStatusChangedAtBefore(
-                    eq(UserStatus.PENDING_DELETION),
+                    eq(UserStatus.DELETED),
                     any(LocalDateTime.class)
             )).willReturn(usersToDelete);
 

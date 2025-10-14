@@ -18,6 +18,5 @@ public interface ProfileRepository extends JpaRepository<User, Long> {
     @Query(value = "SELECT * FROM `user` WHERE id = :id", nativeQuery = true)
     Optional<User> findByIdIncludingDeleted(@Param("id") Long id);
 
-    @Query(value = "SELECT * FROM user", nativeQuery = true)
-    List<User> findAllIncludingDeleted();
+    Object findByStatusAndStatusChangedAtBefore(Object eq, LocalDateTime any);
 }

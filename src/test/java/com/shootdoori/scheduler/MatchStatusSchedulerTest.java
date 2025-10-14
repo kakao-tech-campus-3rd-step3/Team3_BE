@@ -51,13 +51,13 @@ class MatchStatusSchedulerTest {
     void setUp() {
         // 팀 캡틴 생성
         team1Captain = profileRepository.save(User.create(
-            "팀1 리더", "프로", "team1@naver.com", "team1@kangwon.ac.kr",
+            "팀1 리더", "프로", "team1@naver.com", 
             "12345678", "010-9999-9999", "공격수", "강원대학교", "컴퓨터공학과", "20",
             "확정된 매치에서 팀 1에 해당하는 리더입니다."
         ));
 
         team2Captain = profileRepository.save(User.create(
-            "팀2 리더", "프로", "team2@naver.com", "team2@kangwon.ac.kr",
+            "팀2 리더", "프로", "team2@naver.com",
             "12345678", "010-9999-9990", "공격수", "강원대학교", "컴퓨터공학과", "20",
             "확정된 매치에서 팀 2에 해당하는 리더입니다."
         ));
