@@ -50,7 +50,7 @@ public class MercenaryReviewService {
 
     @Transactional(readOnly = true)
     public MercenaryReview findByIdForEntity(Long reviewId) {
-        return mercenaryReviewRepository.findById(reviewId).orElseThrow(()->new NotFoundException(ErrorCode.MERCENARY_REVIEW_NOT_FOUND));
+        return mercenaryReviewRepository.findById(reviewId).orElseThrow(() -> new NotFoundException(ErrorCode.MERCENARY_REVIEW_NOT_FOUND));
     }
 
     @Transactional

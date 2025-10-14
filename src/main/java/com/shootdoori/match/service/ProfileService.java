@@ -90,8 +90,7 @@ public class ProfileService {
 
     @Transactional(readOnly = true)
     public User findByIdForEntity(Long id) {
-        return profileRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(ErrorCode.PROFILE_NOT_FOUND));
+        return profileRepository.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.PROFILE_NOT_FOUND));
     }
 
     @Transactional

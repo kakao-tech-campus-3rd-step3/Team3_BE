@@ -63,7 +63,7 @@ public class MercenaryRecruitmentService {
 
     @Transactional(readOnly = true)
     public MercenaryRecruitment findByIdForEntity(Long id) {
-        return recruitmentRepository.findById(id).orElseThrow(()->new NotFoundException(ErrorCode.RECRUITMENT_NOT_FOUND));
+        return recruitmentRepository.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.RECRUITMENT_NOT_FOUND));
     }
 
     public RecruitmentResponse update(Long id, RecruitmentUpdateRequest updateRequest, Long loginUserId) {

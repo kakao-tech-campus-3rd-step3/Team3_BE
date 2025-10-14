@@ -45,7 +45,7 @@ public class TeamReviewService {
 
     @Transactional(readOnly = true)
     public TeamReview findByIdForEntity(Long reviewId) {
-        return teamReviewRepository.findById(reviewId).orElseThrow(()->new NotFoundException(ErrorCode.TEAM_REVIEW_NOT_FOUND));
+        return teamReviewRepository.findById(reviewId).orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_REVIEW_NOT_FOUND));
     }
 
     @Transactional

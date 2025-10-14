@@ -67,8 +67,7 @@ public class TeamService {
 
     @Transactional(readOnly = true)
     public Team findByIdForEntity(Long id) {
-        return teamRepository.findById(id).orElseThrow(() ->
-                new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(id)));
+        return teamRepository.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(id)));
     }
 
     @Transactional(readOnly = true)
