@@ -21,8 +21,10 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
+import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -36,6 +38,9 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.doNothing;
 
 @SpringBootTest
 @Transactional
@@ -64,6 +69,9 @@ class MatchRequestServiceTest {
 
     @Autowired
     private TeamMemberRepository teamMemberRepository;
+
+    @MockBean
+    private MailService mailService;
 
     private User requestTeamCaptain1;
     private User requestTeamCaptain2;
@@ -234,7 +242,7 @@ class MatchRequestServiceTest {
     // ------------------- requestToMatch 테스트 -------------------
 
     @Test
-    @DisplayName("매치 요청 생성 성공(PENDING 상태)")
+    @DisplayName("매치 요청 생성 성공(PENDING 상태) 및 메일 발송 확인")
     void requestToMatch_success() {
 
         MatchRequestRequestDto dto = new MatchRequestRequestDto(
@@ -252,6 +260,12 @@ class MatchRequestServiceTest {
         Optional<MatchRequest> found = matchRequestRepository.findById(response.requestId());
         assertThat(found).isPresent();
         assertThat(found.get().getStatus()).isEqualTo(MatchRequestStatus.PENDING);
+
+        then(mailService).should().sendEmail(
+            eq(targetTeamCaptain.getEmail()),
+            contains("신청"),
+            anyString()
+        );
     }
 
     @Test
@@ -396,7 +410,7 @@ class MatchRequestServiceTest {
     // ------------------- acceptRequest 테스트 -------------------
 
     @Test
-    @DisplayName("acceptRequest 정상 동작 테스트 - team1 수락 시 ACCEPTED, team2 자동 REJECTED, Match 생성 및 상태 MATCHED, MatchWaiting의 경우도 MATCHED")
+    @DisplayName("acceptRequest 정상 동작 테스트 - team1 수락 시 ACCEPTED, team2 자동 REJECTED, Match 생성 및 상태 MATCHED, MatchWaiting의 경우도 MATCHED, 및 메일 발송")
     void acceptRequest_success() {
         // given: 두 팀이 waiting에 요청
         MatchRequestResponseDto savedRequest1 = matchRequestService.requestToMatch(requestTeamCaptain1.getId(), savedWaiting.getWaitingId(),
@@ -407,6 +421,17 @@ class MatchRequestServiceTest {
 
         // when: team1 요청 수락
         MatchConfirmedResponseDto confirmed = matchRequestService.acceptRequest(targetTeamCaptain.getId(), savedRequest1.requestId());
+
+        then(mailService).should().sendEmail(
+            eq(requestTeamCaptain1.getEmail()),
+            contains("수락"),
+            anyString()
+        );
+        then(mailService).should().sendEmail(
+            eq(requestTeamCaptain2.getEmail()),
+            contains("거절"),
+            anyString()
+        );
 
         // then: DB에서 상태 확인
         MatchRequest updatedRequest1 = matchRequestRepository.findById(savedRequest1.requestId()).orElseThrow();
@@ -433,7 +458,7 @@ class MatchRequestServiceTest {
     }
 
     @Test
-    @DisplayName("MatchRequest 거절 시 상태가 REJECTED로 변경")
+    @DisplayName("MatchRequest 거절 시 상태가 REJECTED로 변경 및 메일 발송")
     void rejectRequest_success() {
         MatchRequestRequestDto dto = new MatchRequestRequestDto(REQUEST_MESSAGE);
         MatchRequestResponseDto savedRequest = matchRequestService.requestToMatch(requestTeamCaptain1.getId(), savedWaiting.getWaitingId(), dto);
@@ -447,6 +472,12 @@ class MatchRequestServiceTest {
         Optional<MatchRequest> found = matchRequestRepository.findById(savedRequest.requestId());
         assertThat(found).isPresent();
         assertThat(found.get().getStatus()).isEqualTo(MatchRequestStatus.REJECTED);
+
+        then(mailService).should().sendEmail(
+            eq(requestTeamCaptain1.getEmail()),
+            contains("거절"),
+            anyString()
+        );
     }
 
     // ------------------- getSentRequestsByMyTeam 테스트 -------------------
