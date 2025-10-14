@@ -31,6 +31,7 @@ import com.shootdoori.match.repository.RefreshTokenRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.service.ProfileService;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -172,6 +173,39 @@ class ProfileTest {
             assertThat(response).isNotNull();
             assertThat(response.teamId()).isNull();
             verify(teamMemberRepository).findByUser_Id(userId);
+        }
+    }
+
+    @Nested
+    @DisplayName("모든 프로필 조회 (삭제된 유저 포함)")
+    class GetProfilesWithDeleted {
+
+        @Test
+        @DisplayName("모든 프로필 조회 성공 - 삭제된 유저 포함")
+        void getProfilesWithDeleted_Success() {
+            // given
+            User activeUser = createUser(createProfileRequest());
+            User deletedUser = createUser(createProfileRequest());
+            deletedUser.changeStatusDeleted();
+
+            given(profileRepository.findAllIncludingDeleted())
+                .willReturn(List.of(activeUser, deletedUser));
+
+            given(teamMemberRepository.findByUser_Id(any()))
+                .willReturn(Optional.empty());
+
+            given(profileMapper.toProfileResponse(any(User.class), any()))
+                .willReturn(mock(ProfileResponse.class));
+
+            // when
+            var responses = profileService.getProfilesWithDeleted();
+
+            // then
+            verify(profileRepository, times(1)).findAllIncludingDeleted();
+            verify(teamMemberRepository, times(2)).findByUser_Id(any());
+            verify(profileMapper, times(2)).toProfileResponse(any(User.class), any());
+
+            assertThat(responses).hasSize(2);
         }
     }
 
