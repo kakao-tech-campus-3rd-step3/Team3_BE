@@ -54,7 +54,6 @@ class MatchRequestTest {
         captain = User.create(
             "김학생",
             "아마추어",
-            "student@example.com",
             "student@kangwon.ac.kr",
             "Abcd1234!",
             "imkim251",
@@ -68,7 +67,6 @@ class MatchRequestTest {
         anotherCaptain = User.create(
             "손응민",
             "세미프로",
-            "student999@gmail.com",
             "student35@kangwon.ac.kr",
             "Abcd1234!",
             "imkim252",

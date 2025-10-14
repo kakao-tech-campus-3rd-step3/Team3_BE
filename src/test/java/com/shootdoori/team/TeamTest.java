@@ -38,7 +38,6 @@ public class TeamTest {
         captain = User.create(
             "김학생",
             "아마추어",
-            "student@example.com",
             "student@kangwon.ac.kr",
             "Abcd1234!",
             "imkim251",
@@ -52,7 +51,6 @@ public class TeamTest {
         newMember = User.create(
             "손응민",
             "세미프로",
-            "student999@gmail.com",
             "student35@kangwon.ac.kr",
             "Abcd1234!",
             "imkim252",
@@ -66,7 +64,6 @@ public class TeamTest {
         differentUniversityMember = User.create(
             "박서울",
             "프로",
-            "seoul@example.com",
             "seoul@seoul.ac.kr",
             "Abcd1234!",
             "imkim253",

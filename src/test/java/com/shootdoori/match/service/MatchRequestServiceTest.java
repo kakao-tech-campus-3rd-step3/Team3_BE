@@ -88,7 +88,6 @@ class MatchRequestServiceTest {
         User matchCreateTeamCaptain = User.create(
             "매치 생성 역할을 맡는 팀의 리더",
             "프로",
-            "swj@naver.com",
             "swj@kangwon.ac.kr",
             "12345678",
             "010-1234-5678",
@@ -103,7 +102,6 @@ class MatchRequestServiceTest {
         User matchRequestTeamCaptain1 = User.create(
             "매치 신청 역할을 맡는 팀의 리더 1",
             "프로",
-            "swj2@naver.com",
             "swj2@kangwon.ac.kr",
             "12345678",
             "010-1234-5679",
@@ -118,7 +116,6 @@ class MatchRequestServiceTest {
         User matchRequestTeamCaptain2 = User.create(
             "매치 신청 역할을 맡는 팀의 리더 2",
             "프로",
-            "swj3@naver.com",
             "swj3@kangwon.ac.kr",
             "12345678",
             "010-1234-5680",

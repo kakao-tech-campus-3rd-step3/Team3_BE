@@ -29,7 +29,7 @@ class MatchTest {
     @BeforeEach
     void setUp() {
         User captain = User.create(
-            "캡틴", "아마추어", "c@example.com", "c@kangwon.ac.kr",
+            "캡틴", "아마추어", "c@kangwon.ac.kr",
             "Abcd1234!", "imkakao", "골키퍼", "강원대학교", "컴퓨터공학과", "25", "캡틴"
         );
 

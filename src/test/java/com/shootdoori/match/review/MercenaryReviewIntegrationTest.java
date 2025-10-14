@@ -72,8 +72,8 @@ class MercenaryReviewIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        user1 = createUser("이용병","test1@naver.com" ,"mercenary_captain@hallym.ac.kr", "010-1111-1111");
-        user2 = createUser("김용병","test2@naver.com" ,"mercenary_captain@kangwon.ac.kr", "010-2222-2222");
+        user1 = createUser("이용병","mercenary_captain@hallym.ac.kr", "010-1111-1111");
+        user2 = createUser("김용병","mercenary_captain@kangwon.ac.kr", "010-2222-2222");
         userRepository.save(user1);
         userRepository.save(user2);
 
@@ -202,8 +202,8 @@ class MercenaryReviewIntegrationTest {
 
     // 테스트 데이터 생성용 메서드
 
-    private User createUser(String name, String email, String universityEmail, String phoneNumber) {
-        return User.create(name, "아마추어", email, universityEmail, "encodedPassword", phoneNumber,
+    private User createUser(String name, String email, String phoneNumber) {
+        return User.create(name, "아마추어", email, "encodedPassword", phoneNumber,
                 "미드필더", email.contains("hallym") ? "한림대학교" : "강원대학교", "컴퓨터공학과", "23", "테스트용 유저입니다.");
     }
 

@@ -70,13 +70,11 @@ class ProfileTest {
             ProfileCreateRequest request = createProfileRequest();
             User user = createUser(request);
 
-            given(profileRepository.existsByEmailOrUniversityEmail(request.email(),
-                request.universityEmail()))
-                .willReturn(false);
+            given(profileRepository.existsByEmail(request.email())).willReturn(false);
             given(passwordEncoder.encode(request.password())).willReturn("encodedPassword");
             given(profileRepository.save(any(User.class))).willReturn(user);
             given(profileMapper.toProfileResponse(user)).willReturn(
-                new ProfileResponse("jam", "AMATEUR", "test@email.com", "imkim25",
+                new ProfileResponse("jam", "AMATEUR", "test@any.ac.kr", "imkim25",
                     "FW", "knu", "cs", "20", "hello, world", LocalDateTime.now(), null)
             );
 
@@ -97,9 +95,7 @@ class ProfileTest {
             // given
             ProfileCreateRequest request = createProfileRequest();
 
-            given(profileRepository.existsByEmailOrUniversityEmail(request.email(),
-                request.universityEmail()))
-                .willReturn(true);
+            given(profileRepository.existsByEmail(request.email())).willReturn(true);
 
             // when & then
             assertThatThrownBy(() -> profileService.createProfile(request))
@@ -112,7 +108,7 @@ class ProfileTest {
         void createProfile_Fail_InvalidPosition() {
             // given
             ProfileCreateRequest request = new ProfileCreateRequest(
-                "jam", "아마추어", "new@email.com", "new@ac.kr",
+                "jam", "아마추어", "new@any.ac.kr",
                 "asdf02~!", "imkim2512", "마법사", "knu", "cs",
                 "20", "hello, world"
             );
@@ -139,7 +135,7 @@ class ProfileTest {
             TeamMember teamMember = new TeamMember(team, user, TeamMemberRole.MEMBER);
 
             ProfileResponse expectedResponse = new ProfileResponse(
-                "jam", "AMATEUR", "test@email.com", "imkim25", "FW",
+                "jam", "AMATEUR", "test@email.ac.kr", "imkim25", "FW",
                 "knu", "cs", "20", "hello, world", LocalDateTime.now(), teamId);
 
             given(profileRepository.findById(userId)).willReturn(Optional.of(user));
@@ -162,7 +158,7 @@ class ProfileTest {
             Long userId = 1L;
             User user = createUser(createProfileRequest());
             ProfileResponse expectedResponse = new ProfileResponse(
-                "jam", "AMATEUR", "test@email.com", "imkim25", "FW",
+                "jam", "AMATEUR", "test@email.ac.kr", "imkim25", "FW",
                 "knu", "cs", "20", "hello, world", LocalDateTime.now(), null);
 
             given(profileRepository.findById(userId)).willReturn(Optional.of(user));
@@ -195,7 +191,7 @@ class ProfileTest {
             given(profileRepository.findById(userId)).willReturn(Optional.of(user));
             given(teamMemberRepository.findByUser_Id(userId)).willReturn(Optional.empty());
             given(profileMapper.toProfileResponse(user, null)).willReturn(
-                new ProfileResponse("jam", "PRO", "test@email.com", "imkim2511",
+                new ProfileResponse("jam", "PRO", "test@any.ac.kr", "imkim2511",
                     "GK", "knu", "cs", "20", "변경된 자기소개", user.getCreatedAt(), null)
             );
 
@@ -302,7 +298,7 @@ class ProfileTest {
     // Test Fixtures
     private ProfileCreateRequest createProfileRequest() {
         return new ProfileCreateRequest(
-            "jam", "아마추어", "test@email.com", "test@ac.kr",
+            "jam", "아마추어", "test@any.ac.kr",
             "asdf02~!", "imkim2511", "공격수", "knu", "cs",
             "20", "hello, world"
         );
@@ -310,7 +306,7 @@ class ProfileTest {
 
     private User createUser(ProfileCreateRequest request) {
         return User.create(
-            request.name(), request.skillLevel(), request.email(), request.universityEmail(),
+            request.name(), request.skillLevel(), request.email(),
             request.password(), request.kakaoTalkId(), request.position(), request.university(),
             request.department(), request.studentYear(), request.bio()
         );

@@ -72,8 +72,8 @@ class TeamReviewIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        user1 = createUser("김한림", "test1@naver.com","test1@hallym.ac.kr", "010-1111-1111");
-        user2 = createUser("박강원", "test2@naver.com","test2@kangwon.ac.kr", "010-2222-2222");
+        user1 = createUser("김한림", "test1@hallym.ac.kr", "010-1111-1111");
+        user2 = createUser("박강원", "test2@kangwon.ac.kr", "010-2222-2222");
         userRepository.save(user1);
         userRepository.save(user2);
 
@@ -200,8 +200,8 @@ class TeamReviewIntegrationTest {
 
 
     // 테스트 데이터 생성용 메서드들
-    private User createUser(String name, String email, String universityEmail, String phoneNumber) {
-        return User.create(name, "아마추어", email, universityEmail, "encodedPassword", phoneNumber,
+    private User createUser(String name, String email, String phoneNumber) {
+        return User.create(name, "아마추어", email, "encodedPassword", phoneNumber,
                 "미드필더", email.contains("hallym") ? "한림대학교" : "강원대학교", "컴퓨터공학과", "23", "테스트용 유저입니다.");
     }
 

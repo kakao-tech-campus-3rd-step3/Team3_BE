@@ -91,7 +91,6 @@ public class JoinWaitingServiceTest {
         teamLeader = User.create(
             "팀리더",
             "세미프로",
-            "leader@example.com",
             "leader@kangwon.ac.kr",
             "Abcd1234!",
             "010-1111-1111",
@@ -105,7 +104,6 @@ public class JoinWaitingServiceTest {
         applicant = User.create(
             "신청자",
             "아마추어",
-            "applicant@example.com",
             "applicant@kangwon.ac.kr",
             "Abcd1234!",
             "010-2222-2222",
@@ -119,7 +117,6 @@ public class JoinWaitingServiceTest {
         anotherUser = User.create(
             "다른사용자",
             "프로",
-            "other@example.com",
             "other@kangwon.ac.kr",
             "Abcd1234!",
             "010-3333-3333",

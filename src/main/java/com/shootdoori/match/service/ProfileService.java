@@ -38,9 +38,7 @@ public class ProfileService {
     }
 
     public ProfileResponse createProfile(ProfileCreateRequest createRequest) {
-        if (profileRepository.existsByEmailOrUniversityEmail(
-            createRequest.email(), createRequest.universityEmail())
-        ) {
+        if (profileRepository.existsByEmail(createRequest.email())) {
             throw new DuplicatedException(ErrorCode.DUPLICATED_USER);
         }
 
@@ -50,7 +48,6 @@ public class ProfileService {
             createRequest.name(),
             createRequest.skillLevel(),
             createRequest.email(),
-            createRequest.universityEmail(),
             encodePassword,
             createRequest.kakaoTalkId(),
             createRequest.position(),
