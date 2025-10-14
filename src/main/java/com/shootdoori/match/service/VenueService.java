@@ -33,6 +33,7 @@ public class VenueService {
         ));
     }
 
+    @Transactional(readOnly = true)
     public Venue findByIdForEntity(Long id) {
         return venueRepository.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.VENUE_NOT_FOUND));
     }
