@@ -4,6 +4,7 @@ import com.shootdoori.match.dto.MercenaryReviewRequestDto;
 import com.shootdoori.match.dto.MercenaryReviewResponseDto;
 
 import com.shootdoori.match.entity.match.Match;
+import com.shootdoori.match.entity.match.MatchStatus;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.entity.review.MercenaryReview;
@@ -11,6 +12,7 @@ import com.shootdoori.match.entity.review.MercenaryReview;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NotFoundException;
 
+import com.shootdoori.match.exception.domain.review.MatchNotFinishedException;
 import com.shootdoori.match.repository.MatchRepository;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.MercenaryReviewRepository;
@@ -53,6 +55,8 @@ public class MercenaryReviewService {
     public void post(MercenaryReviewRequestDto mercenaryReviewRequestDto) {
         Match match = matchRepository.findById(mercenaryReviewRequestDto.matchId())
                 .orElseThrow(() -> new NotFoundException(ErrorCode.MATCH_NOT_FOUND));
+
+        match.validateMatchFinished();
 
         Team reviewerTeam = teamRepository.findById(mercenaryReviewRequestDto.reviewerTeamId())
                 .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND));

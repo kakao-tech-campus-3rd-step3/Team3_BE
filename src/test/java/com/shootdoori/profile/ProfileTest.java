@@ -226,9 +226,9 @@ class ProfileTest {
             profileService.deleteAccount(userId);
 
             // then
-            assertThat(user.getUserStatus()).isEqualTo(UserStatus.PENDING_DELETION);
-            verify(refreshTokenRepository, times(1)).deleteAllByUserId(userId);
+            assertThat(user.getStatus()).isEqualTo(UserStatus.DELETED);
             verify(teamMemberRepository, times(1)).findByUser_Id(userId);
+            verify(refreshTokenRepository, times(1)).deleteAllByUserId(userId);
         }
 
         @Test
@@ -250,7 +250,8 @@ class ProfileTest {
             profileService.deleteAccount(userId);
 
             // then
-            assertThat(user.getUserStatus()).isEqualTo(UserStatus.PENDING_DELETION);
+            assertThat(user.getStatus()).isEqualTo(UserStatus.DELETED);
+
             verify(refreshTokenRepository, times(1)).deleteAllByUserId(userId);
         }
 
@@ -288,7 +289,8 @@ class ProfileTest {
                 .isInstanceOf(LeaderCannotLeaveTeamException.class)
                 .hasMessageContaining(ErrorCode.LEADER_CANNOT_LEAVE_TEAM.getMessage());
 
-            assertThat(user.getUserStatus()).isEqualTo(UserStatus.ACTIVE);
+            assertThat(user.getStatus()).isEqualTo(UserStatus.ACTIVE);
+
             verify(refreshTokenRepository, never()).deleteAllByUserId(any());
         }
     }

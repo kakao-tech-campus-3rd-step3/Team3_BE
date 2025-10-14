@@ -6,6 +6,8 @@ public enum ErrorCode {
     // User
     USER_NOT_FOUND("해당 유저를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     DUPLICATED_USER("이미 존재하는 사용자입니다.", HttpStatus.CONFLICT),
+    USER_ALREADY_ACTIVE("유저가 이미 활성화 상태입니다.", HttpStatus.CONFLICT),
+    USER_ALREADY_DELETED("유저가 이미 삭제되었습니다", HttpStatus.CONFLICT),
 
     // Team
     TEAM_NOT_FOUND("해당 팀을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
@@ -66,7 +68,10 @@ public enum ErrorCode {
     INVALID_TOKEN("유효하지 않은 토큰입니다.", HttpStatus.UNAUTHORIZED),
     EXPIRED_TOKEN("토큰이 만료되었습니다.", HttpStatus.UNAUTHORIZED),
     OTP_NOT_FOUND("유효한 인증번호가 존재하지 않습니다.", HttpStatus.NOT_FOUND),
-    INVALID_OTP("인증번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED);
+    INVALID_OTP("인증번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED),
+
+    // Review
+    MATCH_NOT_FINISHED_YET("아직 경기가 종료되지 않아 리뷰를 작성할 수 없습니다.", HttpStatus.BAD_REQUEST);
 
 
   private final String message;

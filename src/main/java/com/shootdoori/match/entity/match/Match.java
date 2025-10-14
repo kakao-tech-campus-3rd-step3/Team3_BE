@@ -3,6 +3,7 @@ package com.shootdoori.match.entity.match;
 import com.shootdoori.match.entity.common.DateEntity;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.venue.Venue;
+import com.shootdoori.match.exception.domain.review.MatchNotFinishedException;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -85,5 +86,15 @@ public class Match extends DateEntity {
             return this.getTeam2();
         }
         return this.getTeam1();
+    }
+
+    public void updateStatus(MatchStatus matchStatus) {
+        this.status = matchStatus;
+    }
+
+    public void validateMatchFinished() {
+        if (this.status != MatchStatus.FINISHED) {
+            throw new MatchNotFinishedException();
+        }
     }
 }

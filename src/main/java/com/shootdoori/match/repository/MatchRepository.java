@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 @Repository
 public interface MatchRepository extends JpaRepository<Match, Long> {
@@ -59,4 +60,10 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
     @Query("delete from Match m where m.team1.teamId = :teamId or m.team2.teamId = :teamId")
     void deleteAllByTeamId(@Param("teamId") Long teamId);
 
+    @Query("SELECT m FROM Match m " +
+        "WHERE m.status = 'MATCHED' " +
+        "AND (m.matchDate < :cutoffDate " +
+        "     OR (m.matchDate = :cutoffDate AND m.matchTime <= :cutoffTime))")
+    List<Match> findMatchesToFinish(@Param("cutoffDate") LocalDate cutoffDate,
+                                    @Param("cutoffTime") LocalTime cutoffTime);
 }
