@@ -1,12 +1,14 @@
 package com.shootdoori.match.controller;
 
 import com.shootdoori.match.dto.*;
+import com.shootdoori.match.entity.common.DeviceType;
 import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.AuthService;
 import com.shootdoori.match.service.TokenRefreshService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -28,7 +30,8 @@ public class LoginController {
         @Valid @RequestBody LoginRequest loginRequest,
         HttpServletRequest request
     ) {
-        AuthToken token = authService.login(loginRequest, request);
+        ClientInfo clientInfo = getClientInfo(request);
+        AuthToken token = authService.login(loginRequest, clientInfo);
 
         return ResponseEntity.ok(new AuthTokenResponse(
                 token.accessToken(), token.refreshToken(), ACCESS_TOKEN_EXPIRES_IN_SECONDS, REFRESH_TOKEN_EXPIRES_IN_SECONDS));
@@ -39,7 +42,8 @@ public class LoginController {
         @Valid @RequestBody ProfileCreateRequest profileCreateRequest,
         HttpServletRequest request
     ) {
-        AuthToken token = authService.register(profileCreateRequest, request);
+        ClientInfo clientInfo = getClientInfo(request);
+        AuthToken token = authService.register(profileCreateRequest, clientInfo);
 
         return ResponseEntity.ok(new AuthTokenResponse(
                 token.accessToken(), token.refreshToken(), ACCESS_TOKEN_EXPIRES_IN_SECONDS, REFRESH_TOKEN_EXPIRES_IN_SECONDS));
@@ -69,5 +73,28 @@ public class LoginController {
         authService.logoutAll(userId);
 
         return ResponseEntity.ok().build();
+    }
+
+    private ClientInfo getClientInfo(HttpServletRequest request) {
+        String userAgent = request.getHeader("User-Agent");
+        DeviceType deviceType = parseDeviceTypeFromUserAgent(userAgent);
+        return new ClientInfo(userAgent, deviceType);
+    }
+
+    private DeviceType parseDeviceTypeFromUserAgent(String userAgent) {
+        if (!StringUtils.hasText(userAgent)) {
+            return DeviceType.UNKNOWN;
+        }
+
+        String lowerCaseUserAgent = userAgent.toLowerCase();
+        if (lowerCaseUserAgent.contains("android")) {
+            return DeviceType.ANDROID;
+        }
+
+        if (lowerCaseUserAgent.contains("iphone") || lowerCaseUserAgent.contains("ipad")) {
+            return DeviceType.IOS;
+        }
+
+        return DeviceType.WEB;
     }
 }
