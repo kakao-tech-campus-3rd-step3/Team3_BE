@@ -45,7 +45,6 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.util.ReflectionTestUtils;
-import org.mockito.ArgumentCaptor;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("JoinWaitingService 테스트")
@@ -164,14 +163,14 @@ public class JoinWaitingServiceTest {
             Long applicantId = applicant.getId();
 
             JoinWaitingRequestDto requestDto = new JoinWaitingRequestDto(
-                "파트라슈처럼 뛰겠습니다.");
+                "파트라슈처럼 뛰겠습니다.", false);
 
-            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "파트라슈처럼 뛰겠습니다.");
+            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "파트라슈처럼 뛰겠습니다.", false);
 
             JoinWaitingResponseDto expected = new JoinWaitingResponseDto(
                 JOIN_WAITING_ID, applicant.getName(), TEAM_ID, team.getTeamName().name(), applicantId,
                 JoinWaitingStatus.PENDING.getDisplayName(),
-                null, null, null
+                null, null, null, false
             );
 
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
@@ -201,7 +200,7 @@ public class JoinWaitingServiceTest {
         void create_alreadyMember_throws() {
             // given
             JoinWaitingRequestDto requestDto = new JoinWaitingRequestDto(
-                "파트라슈처럼 뛰겠습니다.");
+                "파트라슈처럼 뛰겠습니다.", false);
 
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
             when(profileRepository.findById(applicant.getId())).thenReturn(Optional.of(applicant));
@@ -220,7 +219,7 @@ public class JoinWaitingServiceTest {
             Long applicantId = applicant.getId();
 
             JoinWaitingRequestDto requestDto = new JoinWaitingRequestDto(
-                "파트라슈처럼 뛰겠습니다.");
+                "파트라슈처럼 뛰겠습니다.", false);
 
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
             when(profileRepository.findById(applicantId)).thenReturn(Optional.of(applicant));
@@ -241,7 +240,7 @@ public class JoinWaitingServiceTest {
         void create_teamNotFound_throws() {
             // given
             JoinWaitingRequestDto requestDto = new JoinWaitingRequestDto(
-                "파트라슈처럼 뛰겠습니다.");
+                "파트라슈처럼 뛰겠습니다.", false);
 
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.empty());
 
@@ -255,7 +254,7 @@ public class JoinWaitingServiceTest {
         void create_userNotFound_throws() {
             // given
             JoinWaitingRequestDto requestDto = new JoinWaitingRequestDto(
-                "파트라슈처럼 뛰겠습니다.");
+                "파트라슈처럼 뛰겠습니다.", false);
 
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
             when(profileRepository.findById(applicant.getId())).thenReturn(Optional.empty());
@@ -270,7 +269,7 @@ public class JoinWaitingServiceTest {
         void create_alreadyOtherTeamMember_throws() {
             // given
             Long applicantId = applicant.getId();
-            JoinWaitingRequestDto requestDto = new JoinWaitingRequestDto("파트라슈처럼 뛰겠습니다.");
+            JoinWaitingRequestDto requestDto = new JoinWaitingRequestDto("파트라슈처럼 뛰겠습니다.", false);
 
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
             when(profileRepository.findById(applicantId)).thenReturn(Optional.of(applicant));
@@ -294,7 +293,7 @@ public class JoinWaitingServiceTest {
             JoinWaitingApproveRequestDto requestDto = new JoinWaitingApproveRequestDto(
                 MEMBER, "승인합니다.");
 
-            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입요청");
+            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입요청", false);
 
             when(teamMemberRepository.findByUser_Id(teamLeader.getId()))
                 .thenReturn(Optional.of(leaderMember));
@@ -306,7 +305,7 @@ public class JoinWaitingServiceTest {
             JoinWaitingResponseDto expected = new JoinWaitingResponseDto(
                 JOIN_WAITING_ID, applicant.getName(), TEAM_ID, team.getTeamName().name(), applicantId,
                 JoinWaitingStatus.APPROVED.getDisplayName(),
-                "승인합니다", teamLeader.getName(), FIXED_TIME
+                "승인합니다", teamLeader.getName(), FIXED_TIME, false
             );
 
             when(joinWaitingMapper.toJoinWaitingResponseDto(any(JoinWaiting.class))).thenReturn(
@@ -362,7 +361,7 @@ public class JoinWaitingServiceTest {
             JoinWaitingApproveRequestDto requestDto = new JoinWaitingApproveRequestDto(
                 MEMBER, "승인합니다.");
 
-            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입요청");
+            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입요청", false);
 
             when(teamMemberRepository.findByUser_Id(teamLeader.getId()))
                 .thenReturn(Optional.of(leaderMember));
@@ -385,7 +384,7 @@ public class JoinWaitingServiceTest {
             JoinWaitingApproveRequestDto requestDto = new JoinWaitingApproveRequestDto(
                 MEMBER, "승인합니다.");
 
-            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입요청");
+            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입요청", false);
 
             when(teamMemberRepository.findByUser_Id(teamLeader.getId()))
                 .thenReturn(Optional.of(leaderMember));
@@ -413,7 +412,7 @@ public class JoinWaitingServiceTest {
             JoinWaitingRejectRequestDto requestDto = new JoinWaitingRejectRequestDto(
                 "죄송합니다.");
 
-            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입요청");
+            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입요청", false);
 
             when(teamMemberRepository.findByUser_Id(teamLeader.getId()))
                 .thenReturn(Optional.of(leaderMember));
@@ -423,7 +422,7 @@ public class JoinWaitingServiceTest {
             JoinWaitingResponseDto expected = new JoinWaitingResponseDto(
                 JOIN_WAITING_ID, applicant.getName(), TEAM_ID, team.getTeamName().name(), applicantId,
                 JoinWaitingStatus.REJECTED.getDisplayName(),
-                "죄송합니다", teamLeader.getName(), FIXED_TIME
+                "죄송합니다", teamLeader.getName(), FIXED_TIME, false
             );
             when(joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting)).thenReturn(expected);
 
@@ -450,7 +449,7 @@ public class JoinWaitingServiceTest {
             Long requesterId = applicant.getId();
             Long applicantId = applicant.getId();
 
-            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입요청");
+            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입요청", false);
 
             JoinWaitingCancelRequestDto requestDto = new JoinWaitingCancelRequestDto(
                 "개인 사정으로 취소합니다.");
@@ -462,7 +461,7 @@ public class JoinWaitingServiceTest {
             JoinWaitingResponseDto expected = new JoinWaitingResponseDto(
                 JOIN_WAITING_ID, applicant.getName(), TEAM_ID, team.getTeamName().name(), applicantId,
                 JoinWaitingStatus.CANCELED.getDisplayName(),
-                "개인 사정으로 취소합니다.", applicant.getName(), FIXED_TIME
+                "개인 사정으로 취소합니다.", applicant.getName(), FIXED_TIME, false
             );
             when(joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting)).thenReturn(expected);
 
@@ -486,19 +485,15 @@ public class JoinWaitingServiceTest {
         @DisplayName("findPending - 대기중 목록 페이징/매핑")
         void findPending_success() {
             // given
-            JoinWaiting joinWaiting1 = JoinWaiting.create(team, applicant, "가입요청");
-            JoinWaiting joinWaiting2 = JoinWaiting.create(team, anotherUser, "가입요청2");
 
-            List<JoinWaiting> joinWaitingList = List.of(joinWaiting1, joinWaiting2);
-            PageRequest pageRequest = PageRequest.of(PAGE, SIZE, Sort.by("teamName").ascending());
 
             JoinWaitingResponseDto responseDto1 = new JoinWaitingResponseDto(
                 1L, applicant.getName(), TEAM_ID, team.getTeamName().name(), applicant.getId(), JoinWaitingStatus.PENDING.getDisplayName(), null,
-                null, null
+                null, null, false
             );
             JoinWaitingResponseDto responseDto2 = new JoinWaitingResponseDto(
                 2L, anotherUser.getName(), TEAM_ID, team.getTeamName().name(), anotherUser.getId(), JoinWaitingStatus.PENDING.getDisplayName(), null,
-                null, null
+                null, null, false
             );
 
             Page<JoinWaitingResponseDto> resultDtoPage = new PageImpl<>(
@@ -539,8 +534,8 @@ public class JoinWaitingServiceTest {
             // given
             Long applicantId = applicant.getId();
 
-            JoinWaiting joinWaiting1 = JoinWaiting.create(team, applicant, "가입요청");
-            JoinWaiting joinWaiting2 = JoinWaiting.create(anotherTeam, applicant, "가입요청2");
+            JoinWaiting joinWaiting1 = JoinWaiting.create(team, applicant, "가입요청", false);
+            JoinWaiting joinWaiting2 = JoinWaiting.create(anotherTeam, applicant, "가입요청2", false);
 
             List<JoinWaiting> joinWaitingList = List.of(joinWaiting1, joinWaiting2);
             PageRequest pageRequest = PageRequest.of(PAGE, SIZE);
@@ -548,12 +543,12 @@ public class JoinWaitingServiceTest {
 
             JoinWaitingResponseDto responseDto1 = new JoinWaitingResponseDto(
                 1L, applicant.getName(), 1L, team.getTeamName().name(), applicantId, JoinWaitingStatus.PENDING.getDisplayName(),
-                "저 잘 뜁니다 1", null, null
+                "저 잘 뜁니다 1", null, null, false
             );
 
             JoinWaitingResponseDto responseDto2 = new JoinWaitingResponseDto(
                 2L, applicant.getName(), 2L, anotherTeam.getTeamName().name(), applicantId, JoinWaitingStatus.PENDING.getDisplayName(),
-                "저 잘 뜁니다 2", null, null
+                "저 잘 뜁니다 2", null, null, false
             );
 
             when(profileRepository.findById(applicantId)).thenReturn(Optional.of(applicant));
