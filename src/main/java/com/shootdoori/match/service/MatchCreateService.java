@@ -71,7 +71,7 @@ public class MatchCreateService {
             dto.universityOnly() != null ? dto.universityOnly() : false,
             dto.message(),
             MatchWaitingStatus.WAITING,
-            LocalDateTime.now().plusHours(24)
+            LocalDateTime.of(dto.preferredDate(), dto.preferredTimeEnd())
         );
 
         MatchWaiting saved = matchWaitingRepository.save(matchWaiting);
