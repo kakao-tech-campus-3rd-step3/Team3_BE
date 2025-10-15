@@ -66,6 +66,11 @@ public class TeamService {
     }
 
     @Transactional(readOnly = true)
+    public Team findByIdForEntity(Long id) {
+        return teamRepository.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(id)));
+    }
+
+    @Transactional(readOnly = true)
     public Page<TeamDetailResponseDto> findAllByUniversity(int page, int size, String university, boolean includeDeleted) {
         Pageable jpaPageable = PageRequest.of(page, size, Sort.by("teamName").ascending());
         Pageable nativePageable = PageRequest.of(page, size, Sort.by("team_name").ascending());

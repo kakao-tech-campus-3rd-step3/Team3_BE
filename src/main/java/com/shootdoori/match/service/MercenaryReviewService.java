@@ -4,15 +4,12 @@ import com.shootdoori.match.dto.MercenaryReviewRequestDto;
 import com.shootdoori.match.dto.MercenaryReviewResponseDto;
 
 import com.shootdoori.match.entity.match.Match;
-import com.shootdoori.match.entity.match.MatchStatus;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.entity.review.MercenaryReview;
 
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NotFoundException;
-
-import com.shootdoori.match.exception.domain.review.MatchNotFinishedException;
 import com.shootdoori.match.repository.MatchRepository;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.MercenaryReviewRepository;
@@ -49,6 +46,11 @@ public class MercenaryReviewService {
     @Transactional(readOnly = true)
     public MercenaryReviewResponseDto get(Long userId, Long reviewId) {
         return MercenaryReviewResponseDto.from(mercenaryReviewRepository.findByMercenaryUserIdAndId(userId, reviewId));
+    }
+
+    @Transactional(readOnly = true)
+    public MercenaryReview findByIdForEntity(Long reviewId) {
+        return mercenaryReviewRepository.findById(reviewId).orElseThrow(() -> new NotFoundException(ErrorCode.MERCENARY_REVIEW_NOT_FOUND));
     }
 
     @Transactional

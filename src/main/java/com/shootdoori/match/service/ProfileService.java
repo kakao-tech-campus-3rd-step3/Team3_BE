@@ -88,6 +88,11 @@ public class ProfileService {
         return profileMapper.toProfileResponse(profile, teamId);
     }
 
+    @Transactional(readOnly = true)
+    public User findByIdForEntity(Long id) {
+        return profileRepository.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.PROFILE_NOT_FOUND));
+    }
+
     @Transactional
     public Optional<User> findByEmail(String email) {
         return profileRepository.findByEmail(email);

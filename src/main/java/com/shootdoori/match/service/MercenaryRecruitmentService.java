@@ -17,8 +17,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Objects;
-
 @Service
 @Transactional
 public class MercenaryRecruitmentService {
@@ -61,6 +59,11 @@ public class MercenaryRecruitmentService {
             .orElseThrow(() -> new NotFoundException(ErrorCode.RECRUITMENT_NOT_FOUND));
 
         return new RecruitmentResponse(recruitment);
+    }
+
+    @Transactional(readOnly = true)
+    public MercenaryRecruitment findByIdForEntity(Long id) {
+        return recruitmentRepository.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.RECRUITMENT_NOT_FOUND));
     }
 
     public RecruitmentResponse update(Long id, RecruitmentUpdateRequest updateRequest, Long loginUserId) {

@@ -3,14 +3,12 @@ package com.shootdoori.match.service;
 import com.shootdoori.match.dto.TeamReviewRequestDto;
 import com.shootdoori.match.dto.TeamReviewResponseDto;
 import com.shootdoori.match.entity.match.Match;
-import com.shootdoori.match.entity.match.MatchStatus;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.review.TeamReview;
 
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NotFoundException;
 
-import com.shootdoori.match.exception.domain.review.MatchNotFinishedException;
 import com.shootdoori.match.repository.MatchRepository;
 import com.shootdoori.match.repository.TeamRepository;
 import com.shootdoori.match.repository.TeamReviewRepository;
@@ -43,6 +41,11 @@ public class TeamReviewService {
     @Transactional(readOnly = true)
     public TeamReviewResponseDto get(Long teamId, Long reviewId) {
         return TeamReviewResponseDto.from(teamReviewRepository.findByReviewedTeamTeamIdAndId(teamId, reviewId));
+    }
+
+    @Transactional(readOnly = true)
+    public TeamReview findByIdForEntity(Long reviewId) {
+        return teamReviewRepository.findById(reviewId).orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_REVIEW_NOT_FOUND));
     }
 
     @Transactional
