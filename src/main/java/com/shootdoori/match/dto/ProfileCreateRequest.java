@@ -19,9 +19,10 @@ public record ProfileCreateRequest(
     @Size(max = 255, message = "이메일 주소는 255자를 초과할 수 없습니다.")
     String email,
 
-    @NotBlank @Size(min = 8, max = 20) @Pattern(
-        regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,20}$",
-        message = "비밀번호는 8자 이상 20자 이하로 영문, 숫자, 특수문자를 포함해야 합니다."
+    @NotBlank @Size(min = 8, max = 20)
+    @Pattern(
+        regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&~])[A-Za-z\\d@$!%*#?&~]{8,20}$",
+        message = "비밀번호는 8자 이상 20자 이하로 영문, 숫자, 특수문자(@,$,!,%,*,#,?,&,~)를 포함해야 합니다."
     ) String password,
     
     @NotBlank(message = "카카오톡 채널(친구추가) 아이디는 필수 입력 값입니다.")

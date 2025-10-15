@@ -121,7 +121,7 @@ class AuthTest {
         @DisplayName("실패: 존재하지 않는 이메일로 로그인 시 401 Unauthorized 에러가 발생한다")
         void loginFailByNonExistentEmail() throws Exception {
             LoginRequest request = new LoginRequest(
-                "nonexistent@test.com",
+                "nonexistent@test.ac.kr",
                 AuthFixtures.USER_PASSWORD
             );
 
@@ -143,6 +143,22 @@ class AuthTest {
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnauthorized());
+        }
+
+        @Test
+        @DisplayName("실패: 이메일 형식이 잘못된 경우 400 Bad Request 에러가 발생한다")
+        void loginFailByInvalidEmailFormat() throws Exception {
+            // 이메일 형식이 잘못된 경우 (학교 이메일 아님)
+            LoginRequest request = new LoginRequest(
+                "invalid_email@gmail.com",
+                AuthFixtures.USER_PASSWORD
+            );
+
+            mockMvc.perform(post("/api/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
         }
     }
 

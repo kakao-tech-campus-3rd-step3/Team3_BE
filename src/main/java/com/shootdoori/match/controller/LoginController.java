@@ -5,6 +5,7 @@ import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.AuthService;
 import com.shootdoori.match.service.TokenRefreshService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +25,7 @@ public class LoginController {
 
     @PostMapping("/login")
     public ResponseEntity<AuthTokenResponse> login(
-        @RequestBody LoginRequest loginRequest,
+        @Valid @RequestBody LoginRequest loginRequest,
         HttpServletRequest request
     ) {
         AuthToken token = authService.login(loginRequest, request);
@@ -35,7 +36,7 @@ public class LoginController {
 
     @PostMapping("/register")
     public ResponseEntity<AuthTokenResponse> register(
-        @RequestBody ProfileCreateRequest profileCreateRequest,
+        @Valid @RequestBody ProfileCreateRequest profileCreateRequest,
         HttpServletRequest request
     ) {
         AuthToken token = authService.register(profileCreateRequest, request);
