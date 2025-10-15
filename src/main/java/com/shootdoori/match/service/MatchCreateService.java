@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Service
 @Transactional
@@ -60,6 +61,10 @@ public class MatchCreateService {
             .orElseThrow(() -> new NotFoundException(ErrorCode.VENUE_NOT_FOUND,
                 String.valueOf(dto.preferredVenueId())));
 
+        LocalDateTime expiresAtKST = LocalDateTime.of(dto.preferredDate(), dto.preferredTimeEnd())
+            .atZone(ZoneId.of("Asia/Seoul"))
+            .toLocalDateTime();
+        
         MatchWaiting matchWaiting = new MatchWaiting(
             team,
             dto.preferredDate(),
@@ -71,7 +76,7 @@ public class MatchCreateService {
             dto.universityOnly() != null ? dto.universityOnly() : false,
             dto.message(),
             MatchWaitingStatus.WAITING,
-            LocalDateTime.of(dto.preferredDate(), dto.preferredTimeEnd())
+            expiresAtKST
         );
 
         MatchWaiting saved = matchWaitingRepository.save(matchWaiting);
