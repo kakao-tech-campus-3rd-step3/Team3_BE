@@ -7,7 +7,6 @@ import jakarta.validation.constraints.Size;
 
 public record LoginRequest(
     @NotBlank(message = "이메일을 반드시 입력해야 합니다.")
-    @Size(max = 50, message = "이메일은 최대 50자까지 입력 가능합니다.")
     @Email(message = "이메일 형식이 아닙니다.")
     @Pattern(
         regexp = "^[a-zA-Z0-9._%+-]+@([a-zA-Z0-9-]+\\.)*ac\\.kr$",
