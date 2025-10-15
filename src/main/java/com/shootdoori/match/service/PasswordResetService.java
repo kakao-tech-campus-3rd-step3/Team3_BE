@@ -4,6 +4,7 @@ import com.shootdoori.match.entity.auth.PasswordOtpToken;
 import com.shootdoori.match.entity.auth.PasswordResetToken;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.ErrorCode;
+import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.exception.common.UnauthorizedException;
 import com.shootdoori.match.repository.PasswordOtpTokenRepository;
 import com.shootdoori.match.repository.PasswordResetTokenRepository;
@@ -38,15 +39,8 @@ public class PasswordResetService {
     }
 
     public void sendVerificationCode(String email) {
-        User user = profileRepository.findByEmail(email).orElse(null);
-        if (user == null) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            return;
-        }
+        User user = profileRepository.findByEmail(email)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.INVALID_EMAIL));
 
         String rawCode = generateOtpCode();
         String encodedCode = passwordEncoder.encode(rawCode);

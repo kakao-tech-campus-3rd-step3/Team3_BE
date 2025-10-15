@@ -8,6 +8,7 @@ public enum ErrorCode {
     DUPLICATED_USER("이미 존재하는 사용자입니다.", HttpStatus.CONFLICT),
     USER_ALREADY_ACTIVE("유저가 이미 활성화 상태입니다.", HttpStatus.CONFLICT),
     USER_ALREADY_DELETED("유저가 이미 삭제되었습니다", HttpStatus.CONFLICT),
+    INVALID_EMAIL("유효하지 않은 이메일입니다.", HttpStatus.CONFLICT),
 
     // Team
     TEAM_NOT_FOUND("해당 팀을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),

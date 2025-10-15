@@ -3,6 +3,7 @@ package com.shootdoori.match.service;
 import com.shootdoori.match.entity.auth.PasswordOtpToken;
 import com.shootdoori.match.entity.auth.PasswordResetToken;
 import com.shootdoori.match.entity.user.User;
+import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.exception.common.UnauthorizedException;
 import com.shootdoori.match.repository.PasswordOtpTokenRepository;
 import com.shootdoori.match.repository.PasswordResetTokenRepository;
@@ -22,6 +23,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatExceptionOfType;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
@@ -129,8 +131,8 @@ class PasswordResetServiceTest {
         when(profileRepository.findByEmail(testEmail)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatCode(() -> passwordResetService.sendVerificationCode(testEmail))
-            .doesNotThrowAnyException();
+        assertThatExceptionOfType(NotFoundException.class)
+            .isThrownBy(() -> passwordResetService.sendVerificationCode(testEmail));
 
         verify(otpTokenRepository, never()).save(any());
         verify(mailService, never()).sendEmail(anyString(), anyString(), anyString());
