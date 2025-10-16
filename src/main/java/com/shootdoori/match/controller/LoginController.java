@@ -31,7 +31,7 @@ public class LoginController {
         this.authService = authService;
         this.tokenRefreshService = tokenRefreshService;
 
-        this.isSecure = "prod".equals(activeProfile);
+        this.isSecure = !"test".equals(activeProfile);
         logger.info("Cookie secure mode: {} (profile: {})", this.isSecure, activeProfile);
     }
 
