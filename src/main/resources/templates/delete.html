@@ -196,20 +196,15 @@
       select.addEventListener('change', syncReason);
       otherInput.addEventListener('input', syncReason);
       syncReason();
-      
       restoreFormData();
 
-      
       document.getElementById('deleteBtn').addEventListener('click', async () => {
         const confirmCheckbox = document.getElementById('confirm');
-        
         
         if (!confirmCheckbox.checked) {
           alert('삭제 동의를 체크해주세요.');
           return;
         }
-        
-        
         const finalConfirm = confirm(
           '정말로 계정을 삭제하시겠습니까?\n\n' +
           '• 모든 데이터가 즉시 삭제됩니다\n' +
@@ -220,7 +215,6 @@
         if (!finalConfirm) return;
         
         try {
-          
           const deleteBtn = document.getElementById('deleteBtn');
           const originalText = deleteBtn.textContent;
           deleteBtn.textContent = '삭제 중...';
@@ -231,17 +225,25 @@
             headers: {
               'Content-Type': 'application/json'
             },
-            
             credentials: 'include'
           });
           
           if (response.ok) {
             alert('계정이 성공적으로 삭제되었습니다.');
             
+            try {
+              await fetch('/api/auth/logout-cookie', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                credentials: 'include'
+              });
+            } catch (error) {
+              console.error('Logout error:', error);
+            }
             
             sessionStorage.removeItem('deleteFormData');
-            
-            
             window.location.href = '/';
           } else if (response.status === 403) {
             const errorData = await response.json();
@@ -251,8 +253,7 @@
             window.location.href = '/';
           } else if (response.status === 401) {
             alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
-          
-          saveFormData();
+            saveFormData();
             window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
           } else {
             alert('계정 삭제 중 오류가 발생했습니다.');
@@ -262,7 +263,6 @@
           console.error('Error:', error);
           alert('네트워크 오류가 발생했습니다.');
         } finally {
-          
           deleteBtn.textContent = originalText;
           deleteBtn.disabled = false;
         }
@@ -271,7 +271,6 @@
 
 
 
-    // 폼 데이터 저장 함수
     function saveFormData() {
       const formData = {
         confirm: document.getElementById('confirm').checked,
@@ -281,7 +280,6 @@
       sessionStorage.setItem('deleteFormData', JSON.stringify(formData));
     }
 
-    // 폼 데이터 복원 함수
     function restoreFormData() {
       const savedData = sessionStorage.getItem('deleteFormData');
       if (savedData) {
@@ -291,10 +289,8 @@
           document.getElementById('reasonSelect').value = formData.reasonSelect;
           document.getElementById('reasonOther').value = formData.reasonOther;
           
-          // reasonSelect 변경 이벤트 트리거하여 UI 업데이트
           document.getElementById('reasonSelect').dispatchEvent(new Event('change'));
           
-          // 복원 후 저장된 데이터 삭제
           sessionStorage.removeItem('deleteFormData');
         } catch (error) {
           console.error('Failed to restore form data:', error);

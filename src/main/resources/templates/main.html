@@ -8,7 +8,7 @@
   <meta property="og:title" content="슛두리 – 대학생 축구 매칭 & 용병 플랫폼" />
   <meta property="og:description" content="팀 매치·용병·리뷰·토너먼트까지! 대학 이메일 인증으로 안전하게 연결되는 축구 커뮤니티." />
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="/images/logo_without_background.png" />
+  <meta property="og:image" content="/images/logo_without_background.png" th:content="@{/images/logo_without_background.png}" />
   <meta name="theme-color" content="#2b7a4b" />
   <link rel="icon" href="/favicon.ico" sizes="any">
   <style>
@@ -138,7 +138,7 @@
 <header>
   <div class="container nav">
     <div class="brand">
-      <img src="/images/logo_without_background.png" alt="슛두리 로고" width="36" height="36"/>
+      <img src="/images/logo_without_background.png" th:src="@{/images/logo_without_background.png}" alt="슛두리 로고" width="36" height="36"/>
       <b>슛두리</b>
     </div>
     <nav class="actions">
@@ -164,13 +164,13 @@
           <div class="bullet"><span class="icon-check">✓</span> 리뷰: 시간 준수·매너·실력 지표로 다음 매칭 품질 향상</div>
         </div>
         <div class="cta">
-          <span class="btn primary" role="status" aria-live="polite">곧 오픈</span>
+          <span class="btn primary" role="status" aria-live="polite" aria-label="서비스 오픈 예정">곧 오픈</span>
         </div>
         <p class="lead" style="margin-top:10px; font-size:14px">개인정보 보호를 위해 언제든 계정 및 관련 데이터 삭제를 요청할 수 있습니다. <a href="/delete" style="text-decoration:underline">자세히 보기</a></p>
       </div>
       <div class="hero-visual">
         <div class="logo-wrap">
-          <img id="heroLogo" class="logo" src="/images/logo_without_background.png" alt="슛두리 앱 로고" decoding="async"/>
+          <img id="heroLogo" class="logo" src="/images/logo_without_background.png" th:src="@{/images/logo_without_background.png}" alt="슛두리 앱 로고" decoding="async"/>
         </div>
       </div>
     </div>
@@ -216,7 +216,7 @@
           <p class="section-sub" style="margin:6px 0 0">가입은 무료이며, 언제든 탈퇴할 수 있어요.</p>
         </div>
         <div class="cta">
-          <span class="btn primary" role="status">곧 오픈</span>
+          <span class="btn primary" role="status" aria-label="서비스 오픈 예정">곧 오픈</span>
         </div>
       </div>
     </div>
@@ -245,7 +245,7 @@
 <footer>
   <div class="container" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap">
     <div style="display:flex; align-items:center; gap:10px">
-      <img src="/images/logo_without_background.png" alt="슛두리" width="28" height="28"/>
+      <img src="/images/logo_without_background.png" th:src="@{/images/logo_without_background.png}" alt="슛두리" width="28" height="28"/>
       <span>© <span id="yy"></span> 슛두리</span>
     </div>
     <nav style="display:flex; gap:14px">
@@ -257,7 +257,6 @@
 </footer>
 
 <script>
-  
   (function(){
     try{
       const io = new IntersectionObserver((es, obs)=>{
@@ -275,7 +274,6 @@
     }catch(_){}
   })();
 
-  // 연도 표기
   window.addEventListener('load', () => {
     var yy = document.getElementById('yy');
     if (yy) yy.textContent = new Date().getFullYear();

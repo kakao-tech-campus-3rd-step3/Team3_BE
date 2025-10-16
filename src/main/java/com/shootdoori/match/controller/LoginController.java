@@ -5,6 +5,7 @@ import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.AuthService;
 import com.shootdoori.match.service.TokenRefreshService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -69,5 +70,46 @@ public class LoginController {
         authService.logoutAll(userId);
 
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/login-cookie")
+    public ResponseEntity<AuthTokenResponse> loginWithCookie(
+        @Valid @RequestBody LoginRequest loginRequest,
+        HttpServletRequest request,
+        HttpServletResponse response
+    ) {
+        final String BEARER_PREFIX = "Bearer ";
+
+        AuthToken token = authService.login(loginRequest, request);
+
+        setHttpOnlyCookie(response, "accessToken", BEARER_PREFIX + token.accessToken(), ACCESS_TOKEN_EXPIRES_IN_SECONDS);
+        setHttpOnlyCookie(response, "refreshToken", BEARER_PREFIX + token.refreshToken(), REFRESH_TOKEN_EXPIRES_IN_SECONDS);
+
+        return ResponseEntity.ok(new AuthTokenResponse(
+                token.accessToken(), token.refreshToken(), ACCESS_TOKEN_EXPIRES_IN_SECONDS, REFRESH_TOKEN_EXPIRES_IN_SECONDS));
+    }
+
+    @PostMapping("/logout-cookie")
+    public ResponseEntity<Void> logoutWithCookie(HttpServletResponse response) {
+        clearHttpOnlyCookie(response, "accessToken");
+        clearHttpOnlyCookie(response, "refreshToken");
+
+        return ResponseEntity.ok().build();
+    }
+
+    private void setHttpOnlyCookie(HttpServletResponse response, String name, String value, long maxAgeSeconds) {
+        try {
+            String encodedValue = java.net.URLEncoder.encode(value, java.nio.charset.StandardCharsets.UTF_8);
+            String cookieValue = String.format("%s; HttpOnly; SameSite=Lax; Max-Age=%d; Path=/", 
+                encodedValue, maxAgeSeconds);
+            response.addHeader("Set-Cookie", name + "=" + cookieValue);
+        } catch (Exception e) {
+            System.out.println("Error setting cookie: " + e.getMessage());
+        }
+    }
+
+    private void clearHttpOnlyCookie(HttpServletResponse response, String name) {
+        String cookieValue = String.format("%s=; HttpOnly; SameSite=Lax; Max-Age=0; Path=/", name);
+        response.addHeader("Set-Cookie", cookieValue);
     }
 }
