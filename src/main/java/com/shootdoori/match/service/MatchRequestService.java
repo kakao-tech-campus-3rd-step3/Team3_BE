@@ -314,4 +314,8 @@ public class MatchRequestService {
 
         mailService.sendEmail(receiverEmail, subject, content);
     }
+
+    public void cancelAllMatchesByTeamId(Long teamId) {
+        matchRequestRepository.cancelAllByTeamId(teamId);
+    }
 }

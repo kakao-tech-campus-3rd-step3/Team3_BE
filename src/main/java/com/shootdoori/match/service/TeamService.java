@@ -31,20 +31,18 @@ public class TeamService {
     private final TeamMapper teamMapper;
     private final MatchRequestService matchRequestService;
     private final MatchCreateService matchCreateService;
-    private final MatchCompleteService matchCompleteService;
 
 
     public TeamService(ProfileRepository profileRepository, TeamRepository teamRepository,
         TeamMemberService teamMemberService, TeamMapper teamMapper,
         MatchRequestService matchRequestService,
-        MatchCreateService matchCreateService, MatchCompleteService matchCompleteService) {
+        MatchCreateService matchCreateService) {
         this.profileRepository = profileRepository;
         this.teamRepository = teamRepository;
         this.teamMemberService = teamMemberService;
         this.teamMapper = teamMapper;
         this.matchRequestService = matchRequestService;
         this.matchCreateService = matchCreateService;
-        this.matchCompleteService = matchCompleteService;
     }
 
     public CreateTeamResponseDto create(TeamRequestDto requestDto, Long userId) {
@@ -100,6 +98,8 @@ public class TeamService {
         Team team = teamRepository.findById(id).orElseThrow(() ->
             new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(id)));
 
+        cancelAllMatchesByTeamId(id);
+
         team.delete(userId);
         teamRepository.save(team);
     }
@@ -114,5 +114,10 @@ public class TeamService {
         teamRepository.save(team);
 
         return teamMapper.toTeamDetailResponse(team);
+    }
+
+    private void cancelAllMatchesByTeamId(Long teamId) {
+        matchRequestService.cancelAllMatchesByTeamId(teamId);
+        matchCreateService.cancelAllMatchesByTeamId(teamId);
     }
 }

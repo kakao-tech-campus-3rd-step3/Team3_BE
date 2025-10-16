@@ -16,9 +16,11 @@ import java.time.LocalTime;
 public interface MatchWaitingRepository extends JpaRepository<MatchWaiting, Long> {
 
     @Query("SELECT mw FROM MatchWaiting mw " +
+        "JOIN FETCH mw.team t " +
         "WHERE mw.preferredDate = :date " +
         "AND mw.status = com.shootdoori.match.entity.match.waiting.MatchWaitingStatus.WAITING " +
-        "AND mw.team.id <> :teamId " +
+        "AND t.status = 'ACTIVE' " +
+        "AND t.teamId <> :teamId " +
         "AND mw.expiresAt > CURRENT_TIMESTAMP " +
         "AND (:lastTime IS NULL OR mw.preferredTimeStart >= :lastTime) " +
         "ORDER BY mw.preferredTimeStart ASC")
@@ -40,5 +42,9 @@ public interface MatchWaitingRepository extends JpaRepository<MatchWaiting, Long
     @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("delete from MatchWaiting mw where mw.team.teamId = :teamId")
     void deleteAllByTeamId(@Param("teamId") Long teamId);
+
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
+    @Query("UPDATE MatchWaiting mw SET mw.status = 'CANCELED' WHERE mw.team.teamId = :teamId")
+    void cancelAllByTeamId(@Param("teamId") Long teamId);
 }
 

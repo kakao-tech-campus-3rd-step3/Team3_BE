@@ -123,4 +123,8 @@ public class MatchCreateService {
         matchWaitingRepository.deleteAllByTeamId(teamId);
     }
 
+    public void cancelAllMatchesByTeamId(Long teamId) {
+        matchWaitingRepository.cancelAllByTeamId(teamId);
+    }
+
 }
