@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,13 +21,18 @@ public class LoginController {
     
     private final AuthService authService;
     private final TokenRefreshService tokenRefreshService;
+    private final boolean isSecure;
 
     private static final long ACCESS_TOKEN_EXPIRES_IN_SECONDS = 30 * 60L;
     private static final long REFRESH_TOKEN_EXPIRES_IN_SECONDS = 30 * 24 * 60 * 60L;
 
-    public LoginController(AuthService authService, TokenRefreshService tokenRefreshService) {
+    public LoginController(AuthService authService, TokenRefreshService tokenRefreshService,
+                          @Value("${spring.profiles.active:test}") String activeProfile) {
         this.authService = authService;
         this.tokenRefreshService = tokenRefreshService;
+
+        this.isSecure = "prod".equals(activeProfile);
+        logger.info("Cookie secure mode: {} (profile: {})", this.isSecure, activeProfile);
     }
 
     @PostMapping("/login")
@@ -118,12 +124,13 @@ public class LoginController {
         try {
             ResponseCookie cookie = ResponseCookie.from(name, value)
                 .httpOnly(true)
-                .secure(true)
+                .secure(isSecure)
                 .sameSite("Lax")
                 .maxAge(maxAgeSeconds)
                 .path("/")
                 .build();
             response.addHeader("Set-Cookie", cookie.toString());
+            logger.debug("Set cookie: {} (secure: {})", name, isSecure);
         } catch (Exception e) {
             logger.error("Error setting cookie: {}", e.getMessage(), e);
         }
@@ -132,12 +139,13 @@ public class LoginController {
     private void clearHttpOnlyCookie(HttpServletResponse response, String name) {
         ResponseCookie cookie = ResponseCookie.from(name, "")
             .httpOnly(true)
-            .secure(true)
+            .secure(isSecure)
             .sameSite("Lax")
             .maxAge(0)
             .path("/")
             .build();
         response.addHeader("Set-Cookie", cookie.toString());
+        logger.debug("Cleared cookie: {} (secure: {})", name, isSecure);
     }
 
     private String extractTokenFromCookie(HttpServletRequest request, String cookieName) {
