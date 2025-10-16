@@ -8,168 +8,169 @@
   <meta property="og:title" content="슛두리 – 대학생 축구 매칭 & 용병 플랫폼" />
   <meta property="og:description" content="팀 매치·용병·리뷰·토너먼트까지! 대학 이메일 인증으로 안전하게 연결되는 축구 커뮤니티." />
   <meta property="og:type" content="website" />
-
-  <meta property="og:image" content="/images/logo_without_background.png" th:content="@{/images/logo_without_background.png}" />
+  <meta property="og:image" content="/images/logo_without_background.png" />
   <meta name="theme-color" content="#2b7a4b" />
+  <link rel="icon" href="/favicon.ico" sizes="any">
   <style>
     :root{
-      --bg: #0f1312;
-      --card: #111815;
-      --muted: #8aa396;
-      --text: #e9f4ee;
-      --brand: #2b7a4b; /* 메인 그린 */
-      --brand-2: #1f5a37; /* 버튼 호버 */
-      --brand-soft: rgba(43,122,75,.15);
-      --ring: rgba(43,122,75,.5);
-      --shadow: rgba(0,0,0,.45);
-      --radius-lg: 18px;
-      --radius-md: 14px;
-      --radius-sm: 10px;
+      --bg:#0f1312; --bg-2:#0b0f0e; --card:#0f1713; --muted:#a3b6ac; --text:#e9f4ee;
+      --brand:#2b7a4b; --brand-2:#1f5a37; --brand-soft:rgba(43,122,75,.18);
+      --ring:rgba(43,122,75,.55); --shadow:rgba(0,0,0,.45);
+      --radius-lg:18px; --radius-md:14px; --radius-sm:10px;
     }
     *{box-sizing:border-box}
-    html,body{height:100%;}
+    html,body{height:100%}
+    html{scroll-behavior:smooth;}
     body{
-      margin:0;
+      margin:0; color:var(--text);
       font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Pretendard, "Noto Sans KR", Arial, Apple SD Gothic Neo, sans-serif;
-      color: var(--text);
-      background: radial-gradient(1200px 600px at 20% -10%, rgba(43,122,75,.25), transparent 60%),
-                  radial-gradient(900px 500px at 90% 10%, rgba(0,200,150,.15), transparent 60%),
-                  linear-gradient(180deg, #0b0f0e, #0f1312 25%, #0f1312 100%);
-      line-height:1.8;
-      word-break: keep-all;
-      text-rendering: optimizeLegibility;
-      font-feature-settings: "kern" 1, "liga" 1;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
+      line-height:1.75; word-break:keep-all; text-rendering:optimizeLegibility;
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      background:
+        radial-gradient(1200px 700px at 10% -10%, rgba(43,122,75,.22), transparent 60%),
+        radial-gradient(900px 600px at 95% 0%, rgba(0,200,150,.15), transparent 60%),
+        linear-gradient(180deg, var(--bg-2) 0%, var(--bg) 100%);
+      overflow-x:hidden;
     }
-    a{color:inherit; text-decoration:none}
-    a:visited{color:inherit}
-    a:hover{text-decoration:none; opacity:.9}
-    img{display:block; max-width:100%}
-    .container{width:100%; max-width:1100px; margin:0 auto; padding:0 20px}
-    .measure{max-width:64ch}
+    /* animated gradient blobs */
+    body::before, body::after{
+      content:""; position:fixed; inset:auto -20% -40% -20%; height:60vmin; z-index:-1;
+      filter:blur(60px); opacity:.25;
+      background:radial-gradient(closest-side, rgba(43,122,75,.55), transparent 65%);
+      animation:floatY 16s ease-in-out infinite;
+    }
+    body::after{
+      inset:-30% -10% auto -10%; height:55vmin; opacity:.18;
+      background:radial-gradient(closest-side, rgba(0,200,150,.45), transparent 65%);
+      animation-duration:22s;
+    }
+    @keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-6%)}}
 
-    /* 헤더 */
-    header{
-      position:sticky; top:0; z-index:50;
-      backdrop-filter:saturate(1.4) blur(10px);
-      background: rgba(15,19,18,.65);
-      border-bottom: 1px solid rgba(255,255,255,.06);
-    }
+    a{color:inherit; text-decoration:none}
+    a:hover{opacity:.95}
+    img{display:block; max-width:100%}
+    .container{width:100%; max-width:1180px; margin:0 auto; padding:0 20px}
+    section{padding:70px 0; scroll-margin-top:84px} /* sticky header 보정 */
+
+    /* header */
+    header{position:sticky; top:0; z-index:50; backdrop-filter:saturate(1.4) blur(10px);
+      background:rgba(15,19,18,.6); border-bottom:1px solid rgba(255,255,255,.06)}
     .nav{display:flex; align-items:center; justify-content:space-between; height:64px}
-    .nav .brand{display:flex; align-items:center; gap:12px}
-    .nav .brand img{width:36px; height:36px; object-fit:contain}
-    .nav .brand b{font-weight:800; letter-spacing:.2px}
-    .nav a{color:var(--text); font-weight:600; font-size:15px; padding:6px 10px; border-radius:8px; transition:.2s ease}
-    .nav a:hover{background:rgba(255,255,255,.06)}
-    .nav .actions{display:flex; gap:10px; align-items:center}
+    .brand{display:flex; align-items:center; gap:10px}
+    .brand img{width:36px; height:36px; object-fit:contain}
+    .brand b{font-weight:800; letter-spacing:.2px}
+    .actions{display:flex; gap:10px; align-items:center}
     .btn{display:inline-flex; align-items:center; gap:8px; border:none; cursor:pointer; font-weight:700}
     .btn.primary{background:var(--brand); color:#fff; padding:11px 16px; border-radius:999px; box-shadow:0 10px 24px var(--shadow)}
     .btn.primary:hover{background:var(--brand-2)}
-    .btn.ghost{padding:8px 12px; border-radius:999px; background:transparent; color:var(--text)}
+    .btn.ghost{padding:8px 12px; border-radius:999px; background:transparent}
     .btn.ghost:hover{background:rgba(255,255,255,.06)}
-    .btn[disabled]{opacity:.6; cursor:default; box-shadow:none; pointer-events:none}
+    :focus-visible{outline:2px solid var(--ring); outline-offset:2px}
 
-    /* 히어로 */
-    .hero{position:relative; padding:72px 0 48px}
-    .hero-grid{display:grid; grid-template-columns: 1.1fr .9fr; gap:28px; align-items:center}
-    .tag{display:inline-flex; align-items:center; padding:6px 10px; border-radius:999px; background:var(--brand-soft); color:#cde6d7; font-size:12px; font-weight:700; letter-spacing:.4px; border:1px solid rgba(43,122,75,.25)}
-    .headline{font-size: clamp(28px, 4vw, 44px); line-height:1.2; font-weight:900; margin:14px 0 12px; letter-spacing:-0.01em; max-width:22ch}
-    .sub{color:#dbe8e1; opacity:.95; font-size: clamp(15px, 1.8vw, 18px); line-height:1.9; max-width:64ch; word-break: keep-all; text-wrap: pretty}
-    .cta{display:flex; gap:12px; margin-top:12px; flex-wrap:wrap}
-    .card .cta{margin-top:0}
-    .hero-card{background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.06); border-radius: var(--radius-lg); padding:18px; display:flex; gap:12px; align-items:center}
-    .stat{display:flex; flex-direction:column}
-    .stat b{font-size:20px}
-    .hero-visual{position:relative; isolation:isolate}
-    .logo-wrap{display:flex; align-items:center; justify-content:center; aspect-ratio:1/1; max-width:360px; margin:0 auto; border-radius: 28px; background:
-      radial-gradient(260px 260px at 30% 20%, rgba(43,122,75,.3), transparent 60%),
-      linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.02));
-      border:1px solid rgba(255,255,255,.08);
-      box-shadow: 0 20px 60px var(--shadow);
-      transform: translateZ(0);
+    /* hero */
+    .hero{position:relative; padding:86px 0 48px}
+    .hero-grid{display:grid; grid-template-columns:1.1fr .9fr; gap:28px; align-items:center}
+    .tag{display:inline-flex; align-items:center; padding:6px 10px; border-radius:999px; background:var(--brand-soft); color:#cde6d7; font-size:12px; font-weight:800; letter-spacing:.4px; border:1px solid rgba(43,122,75,.25)}
+    .headline{font-size:clamp(28px,4vw,44px); line-height:1.18; font-weight:900; margin:14px 0 14px; letter-spacing:-0.01em}
+    .lead{color:#dce8e1; opacity:.95; font-size:clamp(15px,1.85vw,18px)}
+    .lead strong{color:#fff}
+    .bullets{display:grid; gap:10px; margin:16px 0}
+    .bullet{display:flex; gap:10px; align-items:flex-start}
+    .icon-check{flex:0 0 22px; height:22px; border-radius:6px; background:var(--brand); display:inline-flex; align-items:center; justify-content:center; font-size:14px}
+    .cta{display:flex; gap:12px; margin-top:10px; flex-wrap:wrap}
+    .logo-wrap{
+      display:flex; align-items:center; justify-content:center;
+      aspect-ratio:1/1; max-width:360px; margin:0 auto; border-radius:28px;
+      background:
+        radial-gradient(260px 260px at 30% 20%, rgba(43,122,75,.28), transparent 60%),
+        linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.08); box-shadow:0 20px 60px var(--shadow);
+      transform:translateZ(0); position:relative; overflow:hidden;
     }
-    .logo{width:66%; opacity:0; transform:scale(.8); transition:.6s ease}
-    .logo.show{opacity:1; transform:scale(1)}
+    .logo-wrap::after{
+      content:""; position:absolute; inset:0; pointer-events:none;
+      background:linear-gradient(120deg, transparent 40%, rgba(255,255,255,.08) 50%, transparent 60%);
+      transform:translateX(-100%); animation:sheen 4s ease-in-out 1.2s infinite
+    }
+    @keyframes sheen{0%{transform:translateX(-120%)}60%{transform:translateX(120%)}100%{transform:translateX(120%)}}
 
-    /* 섹션 공통 */
-    section{padding:64px 0}
+    /* 로고: JS 없이도 보이게 */
+    .logo{width:66%; opacity:1; transform:none; animation:fadeUp .6s ease .2s both;}
+    @keyframes fadeUp{from{opacity:0; transform:translateY(10px) scale(.98)} to{opacity:1; transform:translateY(0) scale(1)}}
+
+    /* sections/cards */
     .section-title{font-size:24px; font-weight:900; margin:0 0 6px}
-    .section-sub{color:#cfe3d8; margin-bottom:20px; line-height:1.85; max-width:68ch; word-break: keep-all; text-wrap: pretty}
-
-    /* 기능 카드 */
+    .section-sub{color:#cfe3d8; margin-bottom:18px}
     .grid{display:grid; gap:16px}
     .grid.cols-3{grid-template-columns:repeat(3,1fr)}
-    .card{background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.06); border-radius: var(--radius-md); padding:18px}
-    .card h3{margin:6px 0 6px; font-size:18px}
-    .pill{display:inline-block; font-size:11px; font-weight:800; letter-spacing:.4px; padding:4px 8px; border-radius:999px; background:rgba(255,255,255,.06); color:#cfe3d8}
-    .check{width:18px; height:18px; border-radius:5px; background: var(--brand); display:inline-flex; align-items:center; justify-content:center}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.06); border-radius:var(--radius-md); padding:18px; position:relative; overflow:hidden}
+    .card h3{margin:6px 0 8px; font-size:18px}
+    .card .one{color:#dbe7e0; font-size:15px}
+    .pill{display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:900; letter-spacing:.35px; padding:4px 8px; border-radius:999px; background:rgba(255,255,255,.06); color:#cfe3d8}
+    .ficon{width:22px; height:22px; border-radius:6px; background:var(--brand); display:inline-flex; align-items:center; justify-content:center; font-weight:900}
 
-    /* 흐름도 */
+    /* steps */
     .steps{display:grid; grid-template-columns:repeat(5,1fr); gap:12px}
-    .step{background:#0c110f; border:1px dashed rgba(255,255,255,.08); border-radius: var(--radius-sm); padding:14px}
-    .step b{display:block; font-size:13px; margin-bottom:6px}
+    .step{background:#0c110f; border:1px dashed rgba(255,255,255,.08); border-radius:var(--radius-sm); padding:14px; display:grid; gap:6px}
+    .step b{font-size:13px}
 
-    /* FAQ */
+    /* faq/footer */
     .faq{max-width:860px}
     .faq details{background:#0c110f; border:1px solid rgba(255,255,255,.06); border-radius:12px; padding:14px 16px}
     .faq details+details{margin-top:12px}
     .faq summary{cursor:pointer; font-weight:700}
-
-    /* 푸터 */
     footer{padding:40px 0 56px; color:#b8c8bf; border-top:1px solid rgba(255,255,255,.06)}
 
-    /* 반응형 */
-    @media (max-width: 960px){
-      .hero{padding:56px 0 28px}
+    /* motion reduce */
+    @media (prefers-reduced-motion: reduce){*{animation:none !important; transition:none !important; scroll-behavior:auto !important}}
+
+    /* responsive */
+    @media (max-width:960px){
+      .hero{padding:64px 0 28px}
       .hero-grid{grid-template-columns:1fr; gap:24px}
       .steps{grid-template-columns:repeat(2,1fr)}
       .grid.cols-3{grid-template-columns:1fr 1fr}
     }
-    @media (max-width: 560px){
-      .grid.cols-3{grid-template-columns:1fr}
-    }
+    @media (max-width:560px){ .grid.cols-3{grid-template-columns:1fr} }
   </style>
 </head>
 <body>
 <header>
   <div class="container nav">
     <div class="brand">
-      <img src="/images/logo_without_background.png" th:src="@{/images/logo_without_background.png}" alt="슛두리 로고" width="36" height="36"/>
+      <img src="/images/logo_without_background.png" alt="슛두리 로고" width="36" height="36"/>
       <b>슛두리</b>
     </div>
     <nav class="actions">
-      <a class="btn ghost" href="#features" aria-label="기능 보기">기능</a>
-      <a class="btn ghost" href="#how" aria-label="이용 흐름">이용방법</a>
-      <a class="btn ghost" href="#faq" aria-label="자주 묻는 질문">FAQ</a>
-      <a class="btn ghost" href="/privacy/delete" th:href="@{/privacy/delete}" aria-label="계정 삭제 요청 페이지">계정 삭제</a>
+      <a class="btn ghost" href="#features">기능</a>
+      <a class="btn ghost" href="#how">이용방법</a>
+      <a class="btn ghost" href="#faq">FAQ</a>
+      <a class="btn ghost" href="/delete">계정 삭제</a>
     </nav>
   </div>
 </header>
 
-<main>
+<main id="main">
   <!-- Hero -->
   <section class="hero">
     <div class="container hero-grid">
       <div>
         <span class="tag">강원도 대학생 축구 커뮤니티</span>
-        <h1 class="headline">팀 매치·용병·리뷰·토너먼트까지<br/>한 곳에서 끝내요.</h1>
-        <p class="sub">대학 이메일 인증으로 신뢰를 더하고, 팀 매치 생성/참여, 용병 모집/수락, 경기 후 리뷰까지 모두 연결합니다. 500ms 이내 반응 속도로 빠르게.</p>
+        <h1 class="headline">팀 매치·용병·리뷰를 <br/>한 곳에서, 빠르게.</h1>
+        <p class="lead">대학 이메일 인증으로 <strong>신뢰</strong>를 더하고, 필요한 사람과 팀을 <strong>간편하게 연결</strong>합니다.</p>
+        <div class="bullets" role="list">
+          <div class="bullet"><span class="icon-check">✓</span> 매치 생성·참여: 날짜·구장·실력대 조건으로 빠른 매칭</div>
+          <div class="bullet"><span class="icon-check">✓</span> 용병 모집·수락: 포지션별 공고, 리뷰/실력 기반 정렬</div>
+          <div class="bullet"><span class="icon-check">✓</span> 리뷰: 시간 준수·매너·실력 지표로 다음 매칭 품질 향상</div>
+        </div>
         <div class="cta">
-          <button class="btn primary" type="button" disabled aria-disabled="true">곧 오픈</button>
+          <span class="btn primary" role="status" aria-live="polite">곧 오픈</span>
         </div>
-        <p class="sub" style="margin-top:8px; font-size:14px; color:#cfe3d8">
-          개인 정보 보호를 위해 언제든 계정 및 관련 데이터 삭제를 요청할 수 있습니다.
-          <a href="/privacy/delete" th:href="@{/privacy/delete}" style="text-decoration:underline">자세히 보기</a>
-        </p>
-        <div class="hero-card" style="margin-top:16px">
-          <div class="check" aria-hidden="true">✓</div>
-          <div class="stat"><b>대학교 이메일 인증</b><span class="sub" style="font-size:13px">ac.kr 기반 본인 확인으로 안전한 매칭</span></div>
-        </div>
+        <p class="lead" style="margin-top:10px; font-size:14px">개인정보 보호를 위해 언제든 계정 및 관련 데이터 삭제를 요청할 수 있습니다. <a href="/delete" style="text-decoration:underline">자세히 보기</a></p>
       </div>
       <div class="hero-visual">
         <div class="logo-wrap">
-          <img id="heroLogo" class="logo" src="/images/logo_without_background.png" th:src="@{/images/logo_without_background.png}" alt="슛두리 앱 로고"/>
+          <img id="heroLogo" class="logo" src="/images/logo_without_background.png" alt="슛두리 앱 로고" decoding="async"/>
         </div>
       </div>
     </div>
@@ -179,38 +180,14 @@
   <section id="features">
     <div class="container">
       <h2 class="section-title">핵심 기능</h2>
-      <p class="section-sub">테크 스펙 우선순위: 인증 → 매치 관리 → 용병 매칭 (그 다음: 팀 관리, 토너먼트)</p>
+      <p class="section-sub">누구나 바로 이해할 수 있게 한눈에 정리</p>
       <div class="grid cols-3">
-        <article class="card">
-          <span class="pill">인증</span>
-          <h3>대학교 이메일 기반 가입</h3>
-          <p>학교 이메일(ac.kr) 인증으로 동아리·팀 구성원만 모여 안전합니다. JWT 기반 로그인/토큰 갱신 지원.</p>
-        </article>
-        <article class="card">
-          <span class="pill">매치</span>
-          <h3>매치 생성·참여</h3>
-          <p>날짜·시간·구장·실력대를 설정해 매치를 열고, 조건 필터로 참여 가능한 매치를 빠르게 찾습니다.</p>
-        </article>
-        <article class="card">
-          <span class="pill">용병</span>
-          <h3>용병 모집·수락</h3>
-          <p>부족 인원을 포지션별로 모집하고, 지원자를 평판/실력으로 정렬해 수락·거절을 간편하게.</p>
-        </article>
-        <article class="card">
-          <span class="pill">리뷰</span>
-          <h3>경기 후 팀/용병 리뷰</h3>
-          <p>시간 준수·매너·실력 등을 별점/코멘트로 남겨 다음 매칭의 참고 지표로 활용합니다.</p>
-        </article>
-        <article class="card">
-          <span class="pill">팀 관리</span>
-          <h3>팀 구성원/통계</h3>
-          <p>팀원 목록, 포지션, 승률·전적 요약을 제공. 팀 운영에 필요한 핵심 정보가 한 화면에.</p>
-        </article>
-        <article class="card">
-          <span class="pill">토너먼트</span>
-          <h3>대회 참가/브라켓</h3>
-          <p>16팀 모이면 자동 대진표 생성. 진행 상태와 결과 관리를 지원합니다.</p>
-        </article>
+        <article class="card"><span class="pill"><span class="ficon">🔐</span> 인증</span><h3>대학교 이메일 기반 가입</h3><p class="one">ac.kr 인증으로 안전한 시작</p></article>
+        <article class="card"><span class="pill"><span class="ficon">📅</span> 매치</span><h3>매치 생성·참여</h3><p class="one">날짜·구장·실력대 필터로 빠른 매칭</p></article>
+        <article class="card"><span class="pill"><span class="ficon">🧩</span> 용병</span><h3>용병 모집·수락 - 예정</h3><p class="one">포지션별 공고, 리뷰 기반 정렬</p></article>
+        <article class="card"><span class="pill"><span class="ficon">⭐</span> 리뷰</span><h3>경기 후 리뷰 - 예정</h3><p class="one">매너·실력 별점으로 신뢰도 축적</p></article>
+        <article class="card"><span class="pill"><span class="ficon">📊</span> 팀 관리</span><h3>팀 구성원/통계</h3><p class="one">전적·승률 요약으로 한눈에</p></article>
+        <article class="card"><span class="pill"><span class="ficon">🏆</span> 토너먼트</span><h3>대회 참가/브라켓 - 예정</h3><p class="one">16팀 모이면 자동 대진표 생성</p></article>
       </div>
     </div>
   </section>
@@ -218,27 +195,14 @@
   <!-- How it works -->
   <section id="how">
     <div class="container">
-      <h2 class="section-title">이용 흐름</h2>
-      <p class="section-sub">가입부터 리뷰까지, 5단계로 끝!</p>
+      <h2 class="section-title">이용방법</h2>
+      <p class="section-sub">5단계면 충분해요</p>
       <div class="steps">
-        <div class="step"><b>1. 가입</b>대학 이메일 인증으로 안전하게 시작</div>
-        <div class="step"><b>2. 팀 등록</b>팀 생성 및 멤버 초대</div>
-        <div class="step"><b>3. 매치</b>매치 생성 또는 조건 맞는 매치 참여</div>
-        <div class="step"><b>4. 용병</b>부족 인원은 포지션별로 빠르게 모집</div>
-        <div class="step"><b>5. 리뷰</b>경기 후 팀/용병 리뷰로 신뢰도 축적</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Tech / API (간단 배지) -->
-  <section>
-    <div class="container">
-      <h2 class="section-title">안정적인 기술 스택</h2>
-      <p class="section-sub">Spring Boot · MySQL(RDS) · AWS(EC2·S3) · Redis · React Native + Expo · TypeScript · Kakao Map API</p>
-      <div class="grid cols-3">
-        <div class="card"><h3>빠른 응답</h3><p>목록 조회·필터·매치 생성/수락 500ms 목표로 쾌적한 경험.</p></div>
-        <div class="card"><h3>보안/프라이버시</h3><p>JWT 인증, 비밀번호 SHA-256 저장, 대학 이메일 검증으로 안전.</p></div>
-        <div class="card"><h3>지도/구장</h3><p>주변 구장 검색, 가격/시설 정보, 길찾기 안내(계획)까지.</p></div>
+        <div class="step"><b>1. 가입</b>대학 이메일 인증</div>
+        <div class="step"><b>2. 팀 등록</b>팀 생성/초대</div>
+        <div class="step"><b>3. 매치</b>생성 또는 조건 참여</div>
+        <div class="step"><b>4. 용병</b>포지션별 빠른 모집</div>
+        <div class="step"><b>5. 리뷰</b>매너/실력 평가</div>
       </div>
     </div>
   </section>
@@ -252,7 +216,7 @@
           <p class="section-sub" style="margin:6px 0 0">가입은 무료이며, 언제든 탈퇴할 수 있어요.</p>
         </div>
         <div class="cta">
-          <button class="btn primary" type="button" disabled aria-disabled="true">곧 오픈</button>
+          <span class="btn primary" role="status">곧 오픈</span>
         </div>
       </div>
     </div>
@@ -268,11 +232,11 @@
       </details>
       <details>
         <summary>용병은 어떻게 모집하나요?</summary>
-        <div>팀 생성 페이지에서 부족 포지션·인원·시간을 지정해 공고를 올리면, 지원자를 리뷰/실력 기준으로 정렬해 수락할 수 있습니다.</div>
+        <div>부족 포지션·인원·시간을 지정해 공고를 올리면, 지원자를 리뷰/실력 기준으로 정렬해 수락할 수 있습니다.</div>
       </details>
       <details>
         <summary>리뷰는 필수인가요?</summary>
-        <div>리뷰는 선택 사항이나, 추후 매칭의 신뢰도를 높이기 위해 경기가 끝난 후 팀/용병 리뷰를 권장합니다.</div>
+        <div>선택 사항이나, 추후 매칭의 신뢰도를 높이기 위해 경기가 끝난 후 팀/용병 리뷰를 권장합니다.</div>
       </details>
     </div>
   </section>
@@ -281,7 +245,7 @@
 <footer>
   <div class="container" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap">
     <div style="display:flex; align-items:center; gap:10px">
-      <img src="/images/logo_without_background.png" th:src="@{/images/logo_without_background.png}" alt="슛두리" width="28" height="28"/>
+      <img src="/images/logo_without_background.png" alt="슛두리" width="28" height="28"/>
       <span>© <span id="yy"></span> 슛두리</span>
     </div>
     <nav style="display:flex; gap:14px">
@@ -292,39 +256,30 @@
   </div>
 </footer>
 
-  <script>
-  // 로고 입장 애니메이션
-    window.addEventListener('DOMContentLoaded', () => {
-    const logo = document.getElementById('heroLogo');
-    setTimeout(()=>logo?.classList.add('show'), 200);
-    document.getElementById('yy').textContent = new Date().getFullYear();
-  });
+<script>
+  // Intersection reveal animations (카드/스텝/불릿)
+  (function(){
+    try{
+      const io = new IntersectionObserver((es, obs)=>{
+        es.forEach(e=>{
+          if(e.isIntersecting){
+            e.target.animate(
+              [{opacity:0, transform:'translateY(10px)'}, {opacity:1, transform:'translateY(0)'}],
+              {duration:500, easing:'ease-out', fill:'both'}
+            );
+            obs.unobserve(e.target);
+          }
+        });
+      }, {threshold:.08, rootMargin:'0px 0px -10% 0px'});
+      document.querySelectorAll('.card,.step,.bullet').forEach(el=>io.observe(el));
+    }catch(_){}
+  })();
 
-  // 섹션 스무스 스크롤 (내비 링크)
-  document.querySelectorAll('a[href^="#"]').forEach(a=>{
-    a.addEventListener('click', e => {
-      const id = a.getAttribute('href');
-      if(!id || id === '#') return;
-      const el = document.querySelector(id);
-      if(!el) return;
-      e.preventDefault();
-      el.scrollIntoView({behavior:'smooth', block:'start'});
-    })
+  // 연도 표기
+  window.addEventListener('load', () => {
+    var yy = document.getElementById('yy');
+    if (yy) yy.textContent = new Date().getFullYear();
   });
-
-  // 인터섹션으로 카드 부드럽게 등장
-  const io = new IntersectionObserver((entries)=>{
-    entries.forEach(entry=>{
-      if(entry.isIntersecting){
-        entry.target.animate([
-          {opacity:0, transform:'translateY(10px)'},
-          {opacity:1, transform:'translateY(0)'}
-        ], {duration:450, easing:'ease-out', fill:'both'});
-        io.unobserve(entry.target);
-      }
-    });
-  },{threshold:.08});
-  document.querySelectorAll('.card,.step').forEach(el=>io.observe(el));
-  </script>
+</script>
 </body>
 </html>
