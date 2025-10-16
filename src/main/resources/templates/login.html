@@ -174,9 +174,12 @@
       const errorMessage = document.getElementById('errorMessage');
       const successMessage = document.getElementById('successMessage');
 
-      // URL 파라미터에서 리다이렉트 URL 확인
       const urlParams = new URLSearchParams(window.location.search);
-      const redirectUrl = urlParams.get('redirect') || '/';
+      const rawRedirect = urlParams.get('redirect') || '/';
+      const redirectUrl =
+        (!rawRedirect || rawRedirect.startsWith('http') || rawRedirect.startsWith('//') || !rawRedirect.startsWith('/'))
+          ? '/'
+          : rawRedirect;
 
       function showError(message) {
         errorMessage.textContent = message;
@@ -195,7 +198,6 @@
         successMessage.style.display = 'none';
       }
 
-      // 로그인 폼 제출
       loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         hideMessages();
@@ -212,24 +214,18 @@
           loginBtn.textContent = '로그인 중...';
           loginBtn.disabled = true;
 
-          const response = await fetch('/api/auth/login', {
+          const response = await fetch('/api/auth/login-cookie', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
+            credentials: 'include',
             body: JSON.stringify({ email, password })
           });
 
           if (response.ok) {
-            const data = await response.json();
-            
-            // 토큰 저장
-            localStorage.setItem('accessToken', data.accessToken);
-            localStorage.setItem('refreshToken', data.refreshToken);
-            
             showSuccess('로그인 성공! 잠시 후 이동합니다...');
             
-            // 1초 후 리다이렉트
             setTimeout(() => {
               window.location.href = redirectUrl;
             }, 1000);
@@ -237,7 +233,6 @@
           } else {
             const errorData = await response.json();
             
-            // 401 에러인 경우 특별한 메시지 표시
             if (response.status === 401) {
               showError('이메일 또는 비밀번호가 올바르지 않습니다.\n대학교 이메일(@ac.kr)과 비밀번호를 다시 확인해주세요.');
             } else {

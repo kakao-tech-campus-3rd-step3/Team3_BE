@@ -6,6 +6,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -17,6 +19,7 @@ import java.util.Collections;
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
+    private static final Logger logger = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
     private static final String AUTH_HEADER = "Authorization";
     private static final String BEARER_PREFIX = "Bearer ";
 
@@ -30,11 +33,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
         throws ServletException, IOException {
 
+        String jwt = null;
+
         final String authorizationHeader = request.getHeader(AUTH_HEADER);
-
         if (authorizationHeader != null && authorizationHeader.startsWith(BEARER_PREFIX)) {
-            String jwt = authorizationHeader.substring(BEARER_PREFIX.length());
+            jwt = authorizationHeader.substring(BEARER_PREFIX.length());
+        } else {
+            jwt = jwtUtil.extractToken(request);
+        }
 
+        if (jwt != null) {
             try {
                 if (jwtUtil.validateToken(jwt) && SecurityContextHolder.getContext().getAuthentication() == null) {
                     String userId = jwtUtil.getUserId(jwt);

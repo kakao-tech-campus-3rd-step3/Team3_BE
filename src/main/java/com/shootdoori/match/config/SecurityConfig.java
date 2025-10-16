@@ -34,7 +34,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorize -> authorize
 
                     .requestMatchers("/", "/health", "/delete", "/login").permitAll()
-                    .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/refresh").permitAll()
+                    .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/login-cookie", "/api/auth/refresh", "/api/auth/logout-cookie").permitAll()
                     .requestMatchers("/h2-console/**").permitAll()
 
                     .requestMatchers(HttpMethod.GET, "/images/**").permitAll()

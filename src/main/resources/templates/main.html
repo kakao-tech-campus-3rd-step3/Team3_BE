@@ -8,7 +8,7 @@
   <meta property="og:title" content="슛두리 – 대학생 축구 매칭 & 용병 플랫폼" />
   <meta property="og:description" content="팀 매치·용병·리뷰·토너먼트까지! 대학 이메일 인증으로 안전하게 연결되는 축구 커뮤니티." />
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="/images/logo_without_background.png" />
+  <meta property="og:image" content="/images/logo_without_background.png" th:content="@{/images/logo_without_background.png}" />
   <meta name="theme-color" content="#2b7a4b" />
   <link rel="icon" href="/favicon.ico" sizes="any">
   <style>
@@ -32,7 +32,7 @@
         linear-gradient(180deg, var(--bg-2) 0%, var(--bg) 100%);
       overflow-x:hidden;
     }
-    /* animated gradient blobs */
+    
     body::before, body::after{
       content:""; position:fixed; inset:auto -20% -40% -20%; height:60vmin; z-index:-1;
       filter:blur(60px); opacity:.25;
@@ -50,9 +50,9 @@
     a:hover{opacity:.95}
     img{display:block; max-width:100%}
     .container{width:100%; max-width:1180px; margin:0 auto; padding:0 20px}
-    section{padding:70px 0; scroll-margin-top:84px} /* sticky header 보정 */
+    section{padding:70px 0; scroll-margin-top:84px}
 
-    /* header */
+    
     header{position:sticky; top:0; z-index:50; backdrop-filter:saturate(1.4) blur(10px);
       background:rgba(15,19,18,.6); border-bottom:1px solid rgba(255,255,255,.06)}
     .nav{display:flex; align-items:center; justify-content:space-between; height:64px}
@@ -67,7 +67,7 @@
     .btn.ghost:hover{background:rgba(255,255,255,.06)}
     :focus-visible{outline:2px solid var(--ring); outline-offset:2px}
 
-    /* hero */
+    
     .hero{position:relative; padding:86px 0 48px}
     .hero-grid{display:grid; grid-template-columns:1.1fr .9fr; gap:28px; align-items:center}
     .tag{display:inline-flex; align-items:center; padding:6px 10px; border-radius:999px; background:var(--brand-soft); color:#cde6d7; font-size:12px; font-weight:800; letter-spacing:.4px; border:1px solid rgba(43,122,75,.25)}
@@ -94,11 +94,11 @@
     }
     @keyframes sheen{0%{transform:translateX(-120%)}60%{transform:translateX(120%)}100%{transform:translateX(120%)}}
 
-    /* 로고: JS 없이도 보이게 */
+    
     .logo{width:66%; opacity:1; transform:none; animation:fadeUp .6s ease .2s both;}
     @keyframes fadeUp{from{opacity:0; transform:translateY(10px) scale(.98)} to{opacity:1; transform:translateY(0) scale(1)}}
 
-    /* sections/cards */
+    
     .section-title{font-size:24px; font-weight:900; margin:0 0 6px}
     .section-sub{color:#cfe3d8; margin-bottom:18px}
     .grid{display:grid; gap:16px}
@@ -109,22 +109,22 @@
     .pill{display:inline-flex; align-items:center; gap:6px; font-size:11px; font-weight:900; letter-spacing:.35px; padding:4px 8px; border-radius:999px; background:rgba(255,255,255,.06); color:#cfe3d8}
     .ficon{width:22px; height:22px; border-radius:6px; background:var(--brand); display:inline-flex; align-items:center; justify-content:center; font-weight:900}
 
-    /* steps */
+    
     .steps{display:grid; grid-template-columns:repeat(5,1fr); gap:12px}
     .step{background:#0c110f; border:1px dashed rgba(255,255,255,.08); border-radius:var(--radius-sm); padding:14px; display:grid; gap:6px}
     .step b{font-size:13px}
 
-    /* faq/footer */
+    
     .faq{max-width:860px}
     .faq details{background:#0c110f; border:1px solid rgba(255,255,255,.06); border-radius:12px; padding:14px 16px}
     .faq details+details{margin-top:12px}
     .faq summary{cursor:pointer; font-weight:700}
     footer{padding:40px 0 56px; color:#b8c8bf; border-top:1px solid rgba(255,255,255,.06)}
 
-    /* motion reduce */
+    
     @media (prefers-reduced-motion: reduce){*{animation:none !important; transition:none !important; scroll-behavior:auto !important}}
 
-    /* responsive */
+    
     @media (max-width:960px){
       .hero{padding:64px 0 28px}
       .hero-grid{grid-template-columns:1fr; gap:24px}
@@ -138,7 +138,7 @@
 <header>
   <div class="container nav">
     <div class="brand">
-      <img src="/images/logo_without_background.png" alt="슛두리 로고" width="36" height="36"/>
+      <img src="/images/logo_without_background.png" th:src="@{/images/logo_without_background.png}" alt="슛두리 로고" width="36" height="36"/>
       <b>슛두리</b>
     </div>
     <nav class="actions">
@@ -151,7 +151,7 @@
 </header>
 
 <main id="main">
-  <!-- Hero -->
+  
   <section class="hero">
     <div class="container hero-grid">
       <div>
@@ -164,19 +164,19 @@
           <div class="bullet"><span class="icon-check">✓</span> 리뷰: 시간 준수·매너·실력 지표로 다음 매칭 품질 향상</div>
         </div>
         <div class="cta">
-          <span class="btn primary" role="status" aria-live="polite">곧 오픈</span>
+          <span class="btn primary" role="status" aria-live="polite" aria-label="서비스 오픈 예정">곧 오픈</span>
         </div>
         <p class="lead" style="margin-top:10px; font-size:14px">개인정보 보호를 위해 언제든 계정 및 관련 데이터 삭제를 요청할 수 있습니다. <a href="/delete" style="text-decoration:underline">자세히 보기</a></p>
       </div>
       <div class="hero-visual">
         <div class="logo-wrap">
-          <img id="heroLogo" class="logo" src="/images/logo_without_background.png" alt="슛두리 앱 로고" decoding="async"/>
+          <img id="heroLogo" class="logo" src="/images/logo_without_background.png" th:src="@{/images/logo_without_background.png}" alt="슛두리 앱 로고" decoding="async"/>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Features -->
+  
   <section id="features">
     <div class="container">
       <h2 class="section-title">핵심 기능</h2>
@@ -192,7 +192,7 @@
     </div>
   </section>
 
-  <!-- How it works -->
+  
   <section id="how">
     <div class="container">
       <h2 class="section-title">이용방법</h2>
@@ -207,7 +207,7 @@
     </div>
   </section>
 
-  <!-- CTA -->
+  
   <section>
     <div class="container">
       <div class="card" style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px">
@@ -216,13 +216,13 @@
           <p class="section-sub" style="margin:6px 0 0">가입은 무료이며, 언제든 탈퇴할 수 있어요.</p>
         </div>
         <div class="cta">
-          <span class="btn primary" role="status">곧 오픈</span>
+          <span class="btn primary" role="status" aria-label="서비스 오픈 예정">곧 오픈</span>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- FAQ -->
+  
   <section id="faq">
     <div class="container faq">
       <h2 class="section-title">자주 묻는 질문</h2>
@@ -245,7 +245,7 @@
 <footer>
   <div class="container" style="display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap">
     <div style="display:flex; align-items:center; gap:10px">
-      <img src="/images/logo_without_background.png" alt="슛두리" width="28" height="28"/>
+      <img src="/images/logo_without_background.png" th:src="@{/images/logo_without_background.png}" alt="슛두리" width="28" height="28"/>
       <span>© <span id="yy"></span> 슛두리</span>
     </div>
     <nav style="display:flex; gap:14px">
@@ -257,7 +257,6 @@
 </footer>
 
 <script>
-  // Intersection reveal animations (카드/스텝/불릿)
   (function(){
     try{
       const io = new IntersectionObserver((es, obs)=>{
@@ -275,7 +274,6 @@
     }catch(_){}
   })();
 
-  // 연도 표기
   window.addEventListener('load', () => {
     var yy = document.getElementById('yy');
     if (yy) yy.textContent = new Date().getFullYear();
