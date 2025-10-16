@@ -50,7 +50,7 @@ public interface MatchRequestRepository extends JpaRepository<MatchRequest, Long
     void deleteAllByTeamId(@Param("teamId") Long teamId);
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("UPDATE MatchRequest mr SET mr.status = 'CANCELED' WHERE mr.requestTeam.teamId = :teamId OR mr.targetTeam.teamId = :teamId")
+    @Query("UPDATE MatchRequest mr SET mr.status = com.shootdoori.match.entity.match.request.MatchRequestStatus.CANCELED WHERE mr.requestTeam.teamId = :teamId OR mr.targetTeam.teamId = :teamId")
     void cancelAllByTeamId(@Param("teamId") Long teamId);
 
 }
