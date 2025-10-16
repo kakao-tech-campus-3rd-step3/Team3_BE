@@ -197,30 +197,20 @@
       otherInput.addEventListener('input', syncReason);
       syncReason();
 
-      // 페이지 로드 시 저장된 폼 데이터 복원
+      
       restoreFormData();
 
-      // 계정 삭제 버튼 이벤트 리스너
+      
       document.getElementById('deleteBtn').addEventListener('click', async () => {
         const confirmCheckbox = document.getElementById('confirm');
         
-        // 체크박스 확인
+        
         if (!confirmCheckbox.checked) {
           alert('삭제 동의를 체크해주세요.');
           return;
         }
         
-        // JWT 토큰 확인
-        const token = getAuthToken();
-        if (!token) {
-          // 폼 데이터를 세션 스토리지에 저장
-          saveFormData();
-          alert('로그인이 필요합니다. 로그인 페이지로 이동합니다.');
-          window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
-          return;
-        }
         
-        // 최종 확인
         const finalConfirm = confirm(
           '정말로 계정을 삭제하시겠습니까?\n\n' +
           '• 모든 데이터가 즉시 삭제됩니다\n' +
@@ -231,7 +221,7 @@
         if (!finalConfirm) return;
         
         try {
-          // 로딩 상태 표시
+          
           const deleteBtn = document.getElementById('deleteBtn');
           const originalText = deleteBtn.textContent;
           deleteBtn.textContent = '삭제 중...';
@@ -240,19 +230,19 @@
           const response = await fetch('/api/profiles/me', {
             method: 'DELETE',
             headers: {
-              'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json'
-            }
+            },
+            
+            credentials: 'include'
           });
           
           if (response.ok) {
             alert('계정이 성공적으로 삭제되었습니다.');
             
-            // 토큰 및 저장된 폼 데이터 제거
-            clearAuthToken();
+            
             sessionStorage.removeItem('deleteFormData');
             
-            // 메인 페이지로 이동
+            
             window.location.href = '/';
           } else if (response.status === 403) {
             const errorData = await response.json();
@@ -262,7 +252,8 @@
             window.location.href = '/';
           } else if (response.status === 401) {
             alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
-            clearAuthToken();
+          
+          saveFormData();
             window.location.href = '/login?redirect=' + encodeURIComponent(window.location.pathname);
           } else {
             alert('계정 삭제 중 오류가 발생했습니다.');
@@ -272,36 +263,14 @@
           console.error('Error:', error);
           alert('네트워크 오류가 발생했습니다.');
         } finally {
-          // 버튼 상태 복원
+          
           deleteBtn.textContent = originalText;
           deleteBtn.disabled = false;
         }
       });
     });
 
-    // 토큰 관리 함수들
-    function getAuthToken() {
-      // localStorage, sessionStorage, 또는 쿠키에서 토큰 가져오기
-      return localStorage.getItem('accessToken') || 
-             sessionStorage.getItem('accessToken') ||
-             getCookie('accessToken');
-    }
 
-    function clearAuthToken() {
-      localStorage.removeItem('accessToken');
-      sessionStorage.removeItem('accessToken');
-      deleteCookie('accessToken');
-    }
-
-    function getCookie(name) {
-      const value = `; ${document.cookie}`;
-      const parts = value.split(`; ${name}=`);
-      if (parts.length === 2) return parts.pop().split(';').shift();
-    }
-
-    function deleteCookie(name) {
-      document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
-    }
 
     // 폼 데이터 저장 함수
     function saveFormData() {

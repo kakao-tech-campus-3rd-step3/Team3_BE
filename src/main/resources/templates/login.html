@@ -174,7 +174,7 @@
       const errorMessage = document.getElementById('errorMessage');
       const successMessage = document.getElementById('successMessage');
 
-      // URL 파라미터에서 리다이렉트 URL 확인
+    
       const urlParams = new URLSearchParams(window.location.search);
       const redirectUrl = urlParams.get('redirect') || '/';
 
@@ -195,7 +195,7 @@
         successMessage.style.display = 'none';
       }
 
-      // 로그인 폼 제출
+      
       loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         hideMessages();
@@ -223,13 +223,13 @@
           if (response.ok) {
             const data = await response.json();
             
-            // 토큰 저장
+            
             localStorage.setItem('accessToken', data.accessToken);
             localStorage.setItem('refreshToken', data.refreshToken);
             
             showSuccess('로그인 성공! 잠시 후 이동합니다...');
             
-            // 1초 후 리다이렉트
+            
             setTimeout(() => {
               window.location.href = redirectUrl;
             }, 1000);
