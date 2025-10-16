@@ -90,7 +90,20 @@ public class LoginController {
     }
 
     @PostMapping("/logout-cookie")
-    public ResponseEntity<Void> logoutWithCookie(HttpServletResponse response) {
+    public ResponseEntity<Void> logoutWithCookie(
+        HttpServletRequest request,
+        HttpServletResponse response
+    ) {
+        String refreshToken = extractTokenFromCookie(request, "refreshToken");
+        
+        if (refreshToken != null) {
+            try {
+                authService.logout(refreshToken);
+            } catch (Exception e) {
+                System.out.println("Token already invalid or not found: " + e.getMessage());
+            }
+        }
+        
         clearHttpOnlyCookie(response, "accessToken");
         clearHttpOnlyCookie(response, "refreshToken");
 
@@ -111,5 +124,28 @@ public class LoginController {
     private void clearHttpOnlyCookie(HttpServletResponse response, String name) {
         String cookieValue = String.format("%s=; HttpOnly; SameSite=Lax; Max-Age=0; Path=/", name);
         response.addHeader("Set-Cookie", cookieValue);
+    }
+
+    private String extractTokenFromCookie(HttpServletRequest request, String cookieName) {
+        if (request.getCookies() == null) {
+            return null;
+        }
+        
+        return java.util.Arrays.stream(request.getCookies())
+            .filter(cookie -> cookieName.equals(cookie.getName()))
+            .findFirst()
+            .map(cookie -> {
+                try {
+                    String value = java.net.URLDecoder.decode(cookie.getValue(), java.nio.charset.StandardCharsets.UTF_8);
+                    // "Bearer " 접두사 제거
+                    if (value.startsWith("Bearer ")) {
+                        return value.substring(7);
+                    }
+                    return value;
+                } catch (Exception e) {
+                    return null;
+                }
+            })
+            .orElse(null);
     }
 }
