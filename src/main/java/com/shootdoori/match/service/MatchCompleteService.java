@@ -28,7 +28,7 @@ public class MatchCompleteService {
     }
 
     @Transactional(readOnly = true)
-    public EnemyTeamResponseDto getEnemyTeam(Long loginUserId, Long matchId) {
+    public EnemyTeamResponseDto findEnemyTeam(Long loginUserId, Long matchId) {
         Match match = matchRepository.findById(matchId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.MATCH_NOT_FOUND,
                 String.valueOf(matchId)));
