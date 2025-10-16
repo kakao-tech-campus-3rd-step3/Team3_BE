@@ -7,12 +7,17 @@ import com.shootdoori.match.service.TokenRefreshService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
 public class LoginController {
+    private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
+    
     private final AuthService authService;
     private final TokenRefreshService tokenRefreshService;
 
@@ -85,8 +90,7 @@ public class LoginController {
         setHttpOnlyCookie(response, "accessToken", BEARER_PREFIX + token.accessToken(), ACCESS_TOKEN_EXPIRES_IN_SECONDS);
         setHttpOnlyCookie(response, "refreshToken", BEARER_PREFIX + token.refreshToken(), REFRESH_TOKEN_EXPIRES_IN_SECONDS);
 
-        return ResponseEntity.ok(new AuthTokenResponse(
-                token.accessToken(), token.refreshToken(), ACCESS_TOKEN_EXPIRES_IN_SECONDS, REFRESH_TOKEN_EXPIRES_IN_SECONDS));
+        return ResponseEntity.ok().build();
     }
 
     @PostMapping("/logout-cookie")
@@ -100,7 +104,7 @@ public class LoginController {
             try {
                 authService.logout(refreshToken);
             } catch (Exception e) {
-                System.out.println("Token already invalid or not found: " + e.getMessage());
+                logger.warn("Token already invalid or not found: {}", e.getMessage());
             }
         }
         
@@ -112,18 +116,28 @@ public class LoginController {
 
     private void setHttpOnlyCookie(HttpServletResponse response, String name, String value, long maxAgeSeconds) {
         try {
-            String encodedValue = java.net.URLEncoder.encode(value, java.nio.charset.StandardCharsets.UTF_8);
-            String cookieValue = String.format("%s; HttpOnly; SameSite=Lax; Max-Age=%d; Path=/", 
-                encodedValue, maxAgeSeconds);
-            response.addHeader("Set-Cookie", name + "=" + cookieValue);
+            ResponseCookie cookie = ResponseCookie.from(name, value)
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("Lax")
+                .maxAge(maxAgeSeconds)
+                .path("/")
+                .build();
+            response.addHeader("Set-Cookie", cookie.toString());
         } catch (Exception e) {
-            System.out.println("Error setting cookie: " + e.getMessage());
+            logger.error("Error setting cookie: {}", e.getMessage(), e);
         }
     }
 
     private void clearHttpOnlyCookie(HttpServletResponse response, String name) {
-        String cookieValue = String.format("%s=; HttpOnly; SameSite=Lax; Max-Age=0; Path=/", name);
-        response.addHeader("Set-Cookie", cookieValue);
+        ResponseCookie cookie = ResponseCookie.from(name, "")
+            .httpOnly(true)
+            .secure(true)
+            .sameSite("Lax")
+            .maxAge(0)
+            .path("/")
+            .build();
+        response.addHeader("Set-Cookie", cookie.toString());
     }
 
     private String extractTokenFromCookie(HttpServletRequest request, String cookieName) {
@@ -143,6 +157,7 @@ public class LoginController {
                     }
                     return value;
                 } catch (Exception e) {
+                    logger.warn("Failed to decode cookie value: {}", e.getMessage());
                     return null;
                 }
             })
