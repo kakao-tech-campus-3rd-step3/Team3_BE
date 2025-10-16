@@ -18,7 +18,7 @@ public interface MatchWaitingRepository extends JpaRepository<MatchWaiting, Long
         "JOIN FETCH mw.team t " +
         "WHERE mw.preferredDate = :date " +
         "AND mw.status = com.shootdoori.match.entity.match.waiting.MatchWaitingStatus.WAITING " +
-        "AND t.status = com.shootdoori.match.entity.common.SoftDeleteTeamEntity.Status.ACTIVE " +
+        "AND t.status = 'ACTIVE' " +
         "AND t.teamId <> :teamId " +
         "AND mw.expiresAt > CURRENT_TIMESTAMP " +
         "AND (:lastTime IS NULL OR mw.preferredTimeStart >= :lastTime) " +
