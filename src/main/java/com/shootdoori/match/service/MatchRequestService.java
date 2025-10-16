@@ -271,18 +271,18 @@ public class MatchRequestService {
     }
 
     private void sendMatchAcceptEmail(Match match) {
-        String receiverEmail = match.getTeam2().getCaptain().getEmail();
+        String receiverEmail = match.getMatchRequestTeam().getCaptain().getEmail();
 
         String formattedDate = match.getMatchDate().format(DATE_FORMATTER);
         String formattedStart = match.getMatchTime().format(TIME_FORMATTER);
 
-        String subject = String.format("[슛두리 매치 수락] %s 팀이 매치를 수락했습니다!", match.getTeam1().getTeamName());
+        String subject = String.format("[슛두리 매치 수락] %s 팀이 매치를 수락했습니다!", match.getMatchCreateTeam().getTeamName());
         String content = String.format(
             "%s 팀이 매치를 수락했습니다!\n\n" +
                 "경기 일정: %s %s\n" +
                 "경기 장소: %s\n\n" +
                 "매치가 확정되었습니다. 즐거운 경기 되세요!",
-            match.getTeam1().getTeamName(),
+            match.getMatchCreateTeam().getTeamName(),
             formattedDate,
             formattedStart,
             match.getVenue()

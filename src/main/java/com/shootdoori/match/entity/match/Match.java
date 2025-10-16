@@ -20,11 +20,11 @@ public class Match extends DateEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TEAM1_ID", nullable = false)
-    private Team team1;
+    private Team matchCreateTeam;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "TEAM2_ID", nullable = false)
-    private Team team2;
+    private Team matchRequestTeam;
 
     @Column(name = "MATCH_DATE", nullable = false)
     private LocalDate matchDate;
@@ -40,10 +40,10 @@ public class Match extends DateEntity {
     @Column(name = "STATUS", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '예정'")
     private MatchStatus status = MatchStatus.RECRUITING;
 
-    public Match(Team team1, Team team2, LocalDate matchDate, LocalTime matchTime, Venue venue,
+    public Match(Team matchCreateTeam, Team matchRequestTeam, LocalDate matchDate, LocalTime matchTime, Venue venue,
                  MatchStatus status) {
-        this.team1 = team1;
-        this.team2 = team2;
+        this.matchCreateTeam = matchCreateTeam;
+        this.matchRequestTeam = matchRequestTeam;
         this.matchDate = matchDate;
         this.matchTime = matchTime;
         this.venue = venue;
@@ -57,12 +57,12 @@ public class Match extends DateEntity {
         return matchId;
     }
 
-    public Team getTeam1() {
-        return team1;
+    public Team getMatchCreateTeam() {
+        return matchCreateTeam;
     }
 
-    public Team getTeam2() {
-        return team2;
+    public Team getMatchRequestTeam() {
+        return matchRequestTeam;
     }
 
     public LocalDate getMatchDate() {
@@ -82,10 +82,10 @@ public class Match extends DateEntity {
     }
 
     public Team findEnemyTeam(Team myTeam) {
-        if (myTeam.equals(this.getTeam1())) {
-            return this.getTeam2();
+        if (myTeam.equals(this.getMatchCreateTeam())) {
+            return this.getMatchRequestTeam();
         }
-        return this.getTeam1();
+        return this.getMatchCreateTeam();
     }
 
     public void updateStatus(MatchStatus matchStatus) {

@@ -44,17 +44,16 @@ public class MatchStartService {
 
         Team team = teamMember.getTeam();
 
-        Slice<MatchSummaryProjection> slice = isFirstPageRequest(cursorDate, cursorTime)
-            ? matchRepository.findFirstPageMatchSummariesByTeamIdAndStatus(team.getTeamId(), status,
-            pageable)
-            : matchRepository.findMatchSummariesByTeamIdAndStatus(team.getTeamId(), status,
-            cursorDate, cursorTime, pageable);
+        Slice<MatchSummaryProjection> slice = matchRepository.findMatchSummariesByTeamIdAndStatus(
+            team.getTeamId(),
+            status,
+            cursorDate,
+            cursorTime,
+            pageable
+        );
 
         return slice.getContent().stream()
             .map(RecentMatchesResponseDto::from)
             .toList();
-    }
-    private boolean isFirstPageRequest(LocalDate cursorDate, LocalTime cursorTime) {
-        return cursorDate == null && cursorTime == null;
     }
 }
