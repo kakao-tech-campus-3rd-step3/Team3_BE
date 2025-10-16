@@ -89,12 +89,10 @@ public class LoginController {
         HttpServletRequest request,
         HttpServletResponse response
     ) {
-        final String BEARER_PREFIX = "Bearer ";
 
         AuthToken token = authService.login(loginRequest, request);
-
-        setHttpOnlyCookie(response, "accessToken", BEARER_PREFIX + token.accessToken(), ACCESS_TOKEN_EXPIRES_IN_SECONDS);
-        setHttpOnlyCookie(response, "refreshToken", BEARER_PREFIX + token.refreshToken(), REFRESH_TOKEN_EXPIRES_IN_SECONDS);
+        setHttpOnlyCookie(response, "accessToken", token.accessToken(), ACCESS_TOKEN_EXPIRES_IN_SECONDS);
+        setHttpOnlyCookie(response, "refreshToken", token.refreshToken(), REFRESH_TOKEN_EXPIRES_IN_SECONDS);
 
         return ResponseEntity.ok().build();
     }
@@ -159,10 +157,6 @@ public class LoginController {
             .map(cookie -> {
                 try {
                     String value = java.net.URLDecoder.decode(cookie.getValue(), java.nio.charset.StandardCharsets.UTF_8);
-                    // "Bearer " 접두사 제거
-                    if (value.startsWith("Bearer ")) {
-                        return value.substring(7);
-                    }
                     return value;
                 } catch (Exception e) {
                     logger.warn("Failed to decode cookie value: {}", e.getMessage());
