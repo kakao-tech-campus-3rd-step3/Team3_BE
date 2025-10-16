@@ -123,4 +123,9 @@ public class MatchCreateService {
         matchWaitingRepository.deleteAllByTeamId(teamId);
     }
 
+    @Transactional
+    public void cancelAllMatchesByTeamId(Long teamId) {
+        matchWaitingRepository.cancelAllByTeamId(teamId);
+    }
+
 }
