@@ -54,4 +54,53 @@ public class Lineup {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    public Lineup(Match match,
+                  MatchWaiting waiting,
+                  MatchRequest request,
+                  TeamMember teamMember,
+                  UserPosition position,
+                  Boolean isStarter,
+                  LineupStatus lineupStatus) {
+        this.match = match;
+        this.waiting = waiting;
+        this.request = request;
+        this.teamMember = teamMember;
+        this.position = position;
+        this.isStarter = isStarter;
+        this.lineupStatus = lineupStatus;
+    }
+
+    protected Lineup() {}
+
+    public Long getId() {
+        return id;
+    }
+    public Match getMatch() {
+        return match;
+    }
+    public MatchWaiting getWaiting() {
+        return waiting;
+    }
+    public MatchRequest getRequest() {
+        return request;
+    }
+    public TeamMember getTeamMember() {
+        return teamMember;
+    }
+    public UserPosition getPosition() {
+        return position;
+    }
+    public Boolean getIsStarter() {
+        return isStarter;
+    }
+    public LineupStatus getLineupStatus() {
+        return lineupStatus;
+    }
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
 }
