@@ -3,29 +3,42 @@ package com.shootdoori.match.entity.auth;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.UnauthorizedException;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
+import com.shootdoori.match.value.Expiration;
+import jakarta.persistence.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
-public class PasswordOtpToken extends BasePasswordToken {
+public class PasswordOtpToken {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(nullable = false)
     private String code;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private User user;
+
+    @Embedded
+    private Expiration expiration;
+
     protected PasswordOtpToken() {}
 
     public PasswordOtpToken(User user, String code, int expiryMinutes) {
-        super(user, expiryMinutes);
+        this.user = user;
+        this.expiration = new Expiration(expiryMinutes);
         this.code = code;
     }
+
+    public User getUser() { return user; }
 
     public boolean matches(String rawCode, PasswordEncoder passwordEncoder) {
         return passwordEncoder.matches(rawCode, this.code);
     }
 
     public void validateCode(String rawCode, PasswordEncoder passwordEncoder) {
-        validateExpiryDate();
+        expiration.validateExpiryDate();
         if (!matches(rawCode, passwordEncoder)) {
             throw new UnauthorizedException(ErrorCode.INVALID_OTP);
         }
@@ -33,6 +46,6 @@ public class PasswordOtpToken extends BasePasswordToken {
 
     public void updateCode(String newCode, int expiryMinutes) {
         this.code = newCode;
-        updateExpiryDate(expiryMinutes);
+        expiration.updateExpiryDate(expiryMinutes);
     }
 }
