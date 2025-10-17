@@ -1,20 +1,15 @@
 package com.shootdoori.match.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shootdoori.match.dto.AuthToken;
-import com.shootdoori.match.dto.LoginRequest;
-import com.shootdoori.match.dto.ProfileCreateRequest;
+import com.shootdoori.match.dto.*;
+import com.shootdoori.match.entity.common.DeviceType;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.entity.user.UserStatus;
-import com.shootdoori.match.dto.TokenRefreshRequest;
-import com.shootdoori.match.exception.common.ErrorCode;
-import com.shootdoori.match.exception.common.NotFoundException;
-import jakarta.persistence.EntityManager;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.RefreshTokenRepository;
 import com.shootdoori.match.service.AuthService;
 import com.shootdoori.match.util.JwtUtil;
-import jakarta.servlet.http.Cookie;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -23,15 +18,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -44,6 +39,8 @@ class AuthTest {
     @Autowired private RefreshTokenRepository refreshTokenRepository;
     @Autowired private ProfileRepository profileRepository;
     @Autowired private JwtUtil jwtUtil;
+
+    private final ClientInfo DEFAULT_CLIENT_INFO = new ClientInfo("JUnit-Test-Agent", DeviceType.ANDROID);
 
     private String stripBearer(String token) {
         return token != null && token.startsWith("Bearer ") ? token.substring(7) : token;
@@ -78,7 +75,7 @@ class AuthTest {
         void registerFailByDuplicateEmail() throws Exception {
             authService.register(
                 AuthFixtures.createProfileRequest(),
-                new MockHttpServletRequest()
+                DEFAULT_CLIENT_INFO
             );
             ProfileCreateRequest duplicateRequest = AuthFixtures.createProfileRequest();
 
@@ -100,7 +97,7 @@ class AuthTest {
             profileRepository.deleteAll();
             authService.register(
                 AuthFixtures.createProfileRequest(),
-                new MockHttpServletRequest()
+                DEFAULT_CLIENT_INFO
             );
         }
 
@@ -173,14 +170,14 @@ class AuthTest {
             // 깨끗한 상태로 시작
             refreshTokenRepository.deleteAll();
             profileRepository.deleteAll();
-            // 계정 생성 후 실제 로그인 플로우로 토큰 발급
+
             authService.register(
                 AuthFixtures.createProfileRequest(),
-                new MockHttpServletRequest()
+                DEFAULT_CLIENT_INFO
             );
             initialTokens = authService.login(
                 AuthFixtures.createLoginRequest(),
-                new MockHttpServletRequest()
+                DEFAULT_CLIENT_INFO
             );
         }
 
@@ -206,7 +203,7 @@ class AuthTest {
         void logoutAllSuccess() throws Exception {
             AuthToken otherDeviceLoginTokens = authService.login(
                 AuthFixtures.createLoginRequest(),
-                new MockHttpServletRequest()
+                DEFAULT_CLIENT_INFO
             );
 
             String accessToken = otherDeviceLoginTokens.accessToken();
@@ -247,7 +244,7 @@ class AuthTest {
         void tokenRefreshAndRotationSuccess() throws Exception {
             AuthToken initialTokens = authService.register(
                 AuthFixtures.createProfileRequest(),
-                new MockHttpServletRequest()
+                DEFAULT_CLIENT_INFO
             );
 
             String initialRefresh = initialTokens.refreshToken();
@@ -281,11 +278,11 @@ class AuthTest {
 
             authService.register(
                 AuthFixtures.createProfileRequest(),
-                new MockHttpServletRequest()
+                DEFAULT_CLIENT_INFO
             );
             AuthToken tokens = authService.login(
                 AuthFixtures.createLoginRequest(),
-                new MockHttpServletRequest()
+                DEFAULT_CLIENT_INFO
             );
             accessToken = tokens.accessToken();
             userId = Long.parseLong(jwtUtil.getUserId(stripBearer(accessToken)));

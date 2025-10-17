@@ -2,10 +2,13 @@ package com.shootdoori.match.entity.auth;
 
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.ErrorCode;
+import com.shootdoori.match.exception.common.TooManyRequestsException;
 import com.shootdoori.match.exception.common.UnauthorizedException;
 import com.shootdoori.match.value.Expiration;
 import jakarta.persistence.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.time.LocalDate;
 
 @Entity
 public class PasswordOtpToken {
@@ -47,5 +50,25 @@ public class PasswordOtpToken {
     public void updateCode(String newCode, int expiryMinutes) {
         this.code = newCode;
         expiration.updateExpiryDate(expiryMinutes);
+    }
+
+    private boolean canRequestToday() {
+        resetTodayRequestLimit();
+        return requestCount < 5;
+    }
+
+    private void resetTodayRequestLimit() {
+        if (lastRequestedDate.isBefore(LocalDate.now())) {
+            lastRequestedDate = LocalDate.now();
+            requestCount = 0;
+        }
+    }
+
+    public void incrementRequestCount() {
+        if (!canRequestToday()) {
+            throw new TooManyRequestsException(ErrorCode.LIMITED_OTP_REQUESTS);
+        }
+
+        requestCount++;
     }
 }

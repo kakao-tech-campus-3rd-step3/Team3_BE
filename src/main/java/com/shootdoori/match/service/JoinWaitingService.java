@@ -61,6 +61,7 @@ public class JoinWaitingService {
                 () -> new NotFoundException(ErrorCode.USER_NOT_FOUND, String.valueOf(applicantId)));
 
         String message = requestDto.message();
+        boolean isMercenary = requestDto.isMercenary();
 
         team.validateSameUniversity(applicant);
 
@@ -77,11 +78,11 @@ public class JoinWaitingService {
             throw new DuplicatedException(ErrorCode.JOIN_WAITING_ALREADY_PENDING);
         }
 
-        JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, message);
+        JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, message, isMercenary);
 
         JoinWaiting savedJoinWaiting = joinWaitingRepository.save(joinWaiting);
 
-        sendJoinCreateNotification(team, applicant, message);
+        sendJoinCreateNotification(team, applicant, message, isMercenary);
 
         return joinWaitingMapper.toJoinWaitingResponseDto(savedJoinWaiting);
     }
@@ -95,11 +96,13 @@ public class JoinWaitingService {
         TeamMember approver = teamMemberRepository.findByUser_Id(loginUserId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
-        TeamMemberRole role = TeamMemberRole.fromDisplayName(requestDto.role());
-
         JoinWaiting joinWaiting = joinWaitingRepository
             .findByIdAndTeam_TeamIdForUpdate(joinWaitingId, teamId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.JOIN_WAITING_NOT_FOUND));
+
+        TeamMemberRole role = joinWaiting.isMercenary()
+            ? TeamMemberRole.MERCENARY
+            : TeamMemberRole.fromDisplayName(requestDto.role());
 
         Team team = joinWaiting.getTeam();
         User applicant = joinWaiting.getApplicant();
@@ -117,7 +120,8 @@ public class JoinWaitingService {
 
         joinWaiting.approve(approver, role, approveReason);
 
-        sendJoinApprovalNotification(team, applicant, approver, joinWaiting.getDecidedAt());
+        sendJoinApprovalNotification(team, applicant, approver, joinWaiting.getDecidedAt(),
+            joinWaiting.isMercenary());
 
         return joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting);
     }
@@ -196,24 +200,26 @@ public class JoinWaitingService {
             .map(joinWaitingMapper::toJoinWaitingResponseDto);
     }
 
-    private void sendJoinCreateNotification(Team team, User applicant, String message) {
+    private void sendJoinCreateNotification(Team team, User applicant, String message,
+        boolean isMercenary) {
 
-        String subject = "[슛두리] 팀 가입 신청 알림";
+        String type = isMercenary ? "용병 신청" : "팀원 가입";
+        String subject = "[슛두리] " + type + " 알림";
 
         String captainText = String.format(
             "안녕하세요!\n\n" +
-                "%s님이 '%s' 팀에 가입을 신청했습니다.\n\n" +
+                "[%s] %s님이 '%s' 팀에 신청했습니다.\n\n" +
                 "신청 메시지: %s\n\n" +
                 "슛두리 앱에서 가입 승인/거절을 처리해주세요.",
-            applicant.getName(), team.getTeamName().name(), message
+            type, applicant.getName(), team.getTeamName().name(), message
         );
 
         String applicantText = String.format(
             "안녕하세요!\n\n" +
-                "'%s' 팀에 가입 신청이 완료되었습니다.\n\n" +
+                "'%s' 팀에 %s이(가) 완료되었습니다.\n\n" +
                 "신청 메시지: %s\n\n" +
                 "승인/거절 결과는 이메일로 안내드리겠습니다.",
-            team.getTeamName().name(), message
+            team.getTeamName().name(), isMercenary ? "용병 신청" : "가입 신청", message
         );
 
         mailService.sendEmail(team.getCaptain().getEmail(), subject, captainText);
@@ -224,10 +230,10 @@ public class JoinWaitingService {
             .ifPresent(viceCaptain -> {
                 String viceCaptainText = String.format(
                     "안녕하세요!\n\n" +
-                        "%s님이 '%s' 팀에 가입을 신청했습니다.\n\n" +
+                        "[%s] %s님이 '%s' 팀에 신청했습니다.\n\n" +
                         "신청 메시지: %s\n\n" +
                         "슛두리 앱에서 가입 승인/거절을 처리해주세요.",
-                    applicant.getName(), team.getTeamName().name(), message
+                    type, applicant.getName(), team.getTeamName().name(), message
                 );
 
                 mailService.sendEmail(viceCaptain.getUser().getEmail(), subject, viceCaptainText);
@@ -237,16 +243,18 @@ public class JoinWaitingService {
     }
 
     private void sendJoinApprovalNotification(Team team, User applicant, TeamMember approver,
-        LocalDateTime decidedAt) {
-        String subject = "[슛두리] 팀 가입 승인 알림";
+        LocalDateTime decidedAt, boolean isMercenary) {
+        String type = isMercenary ? "용병" : "팀원";
+        String subject = "[슛두리] " + type + " 신청 승인 알림";
 
         String text = String.format(
             "축하합니다!\n\n" +
-                "'%s' 팀의 가입 신청이 승인되었습니다.\n\n" +
+                "'%s' 팀의 %s 신청이 승인되었습니다.\n\n" +
                 "승인자: %s\n" +
                 "승인 시간: %s\n\n" +
                 "이제 팀 활동에 참여할 수 있습니다.",
             team.getTeamName().name(),
+            type,
             approver.getUser().getName(),
             decidedAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
         );
