@@ -47,6 +47,7 @@ public class PasswordResetService {
 
         PasswordOtpToken otpToken = otpTokenRepository.findByUser_Id(user.getId())
                     .map(existing -> {
+                        existing.incrementRequestCount();
                         existing.updateCode(encodedCode, OTP_EXPIRATION_MINUTES);
                 return existing;
             })

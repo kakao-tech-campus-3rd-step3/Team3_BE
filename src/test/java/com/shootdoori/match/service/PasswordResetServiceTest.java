@@ -3,7 +3,9 @@ package com.shootdoori.match.service;
 import com.shootdoori.match.entity.auth.PasswordOtpToken;
 import com.shootdoori.match.entity.auth.PasswordResetToken;
 import com.shootdoori.match.entity.user.User;
+import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NotFoundException;
+import com.shootdoori.match.exception.common.TooManyRequestsException;
 import com.shootdoori.match.exception.common.UnauthorizedException;
 import com.shootdoori.match.repository.PasswordOtpTokenRepository;
 import com.shootdoori.match.repository.PasswordResetTokenRepository;
@@ -91,6 +93,7 @@ class PasswordResetServiceTest {
 
         // then
         verify(otpTokenRepository).findByUser_Id(testUser.getId());
+        verify(existingToken).incrementRequestCount();
         verify(existingToken).updateCode("newEncodedCode", 3);
         verify(otpTokenRepository).save(existingToken);
         verify(mailService).sendEmail(eq(testEmail), anyString(), anyString());
@@ -120,8 +123,48 @@ class PasswordResetServiceTest {
         // then
         verify(otpTokenRepository, times(2)).findByUser_Id(testUser.getId());
         verify(otpTokenRepository, times(2)).save(any(PasswordOtpToken.class));
+        verify(existingToken).incrementRequestCount();
         verify(existingToken).updateCode("encodedCode2", 3);
         verify(mailService, times(2)).sendEmail(eq(testEmail), anyString(), anyString());
+    }
+
+    @Test
+    @DisplayName("인증번호 발송 - 하루 5회 초과 시 TooManyRequestsException 발생")
+    void sendVerificationCode_TooManyRequests() {
+        // given
+        PasswordOtpToken existingToken = mock(PasswordOtpToken.class);
+
+        when(profileRepository.findByEmail(testEmail)).thenReturn(Optional.of(testUser));
+        when(passwordEncoder.encode(anyString())).thenReturn("encodedCode");
+        when(otpTokenRepository.findByUser_Id(testUser.getId())).thenReturn(Optional.of(existingToken));
+
+        doThrow(new TooManyRequestsException(ErrorCode.LIMITED_OTP_REQUESTS))
+            .when(existingToken).incrementRequestCount();
+
+        // when & then
+        assertThatExceptionOfType(TooManyRequestsException.class)
+            .isThrownBy(() -> passwordResetService.sendVerificationCode(testEmail));
+
+        verify(existingToken).incrementRequestCount();
+        verify(existingToken, never()).updateCode(anyString(), anyInt());
+        verify(mailService, never()).sendEmail(anyString(), anyString(), anyString());
+    }
+
+    @Test
+    @DisplayName("인증번호 발송 - 하루 5회까지 발송 가능, 초과 시 TooManyRequestsException 발생")
+    void incrementRequestCount_TooManyRequests() {
+        // given
+        User mockUser = createUser();
+        PasswordOtpToken otpToken = new PasswordOtpToken(mockUser, "encodedCode", 3);
+
+        // when & then
+        for (int i = 1; i <= 5; i++) {
+            assertThatCode(otpToken::incrementRequestCount)
+                .doesNotThrowAnyException();
+        }
+
+        assertThatThrownBy(otpToken::incrementRequestCount)
+            .isInstanceOf(TooManyRequestsException.class);
     }
 
     @Test
@@ -324,5 +367,20 @@ class PasswordResetServiceTest {
 
         verify(profileRepository, never()).save(any());
         verify(resetTokenRepository, never()).delete(any());
+    }
+
+    private User createUser() {
+        return User.create(
+            "kim",
+            "아마추어",
+            "test@email.ac.kr",
+            "asdf02~!",
+            "mykakao12",
+            "공격수",
+            "강원대학교",
+            "컴퓨터공학과",
+            "25",
+            "즐겜해요~"
+        );
     }
 }
