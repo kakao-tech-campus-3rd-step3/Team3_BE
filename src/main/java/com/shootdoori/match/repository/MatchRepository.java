@@ -56,10 +56,6 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
         Pageable pageable
     );
 
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("delete from Match m where m.team1.teamId = :teamId or m.team2.teamId = :teamId")
-    void deleteAllByTeamId(@Param("teamId") Long teamId);
-
     @Query("SELECT m FROM Match m " +
         "WHERE m.status = 'MATCHED' " +
         "AND (m.matchDate < :cutoffDate " +

@@ -41,9 +41,4 @@ public class MatchCompleteService {
         Team enemyTeam = match.findEnemyTeam(myTeam);
         return EnemyTeamResponseDto.from(enemyTeam);
     }
-
-    @Transactional
-    public void deleteAllByTeamId(Long teamId) {
-        matchRepository.deleteAllByTeamId(teamId);
-    }
 }
