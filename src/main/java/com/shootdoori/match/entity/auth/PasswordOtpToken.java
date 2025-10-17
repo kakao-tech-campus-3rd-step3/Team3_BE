@@ -29,6 +29,14 @@ public class PasswordOtpToken extends BasePasswordToken {
         this.code = code;
     }
 
+    public int getRequestCount() {
+        return this.requestCount;
+    }
+
+    public LocalDate getLastRequestedDate() {
+        return this.lastRequestedDate;
+    }
+
     public boolean matches(String rawCode, PasswordEncoder passwordEncoder) {
         return passwordEncoder.matches(rawCode, this.code);
     }
