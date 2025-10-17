@@ -6,7 +6,6 @@ import com.shootdoori.match.dto.MatchWaitingCancelResponseDto;
 import com.shootdoori.match.dto.MatchWaitingResponseDto;
 import com.shootdoori.match.entity.match.waiting.MatchWaiting;
 import com.shootdoori.match.entity.match.waiting.MatchWaitingStatus;
-import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.venue.Venue;
 import com.shootdoori.match.exception.common.ErrorCode;
@@ -38,7 +37,7 @@ public class MatchCreateService {
 
     @Transactional
     public MatchCreateResponseDto createMatch(Long loginUserId, MatchCreateRequestDto dto) {
-        TeamMember teamMember = teamMemberService.findByIdForEntity(loginUserId);
+        TeamMember teamMember = teamMemberService.findByUserIdForEntity(loginUserId);
 
         if (!teamMember.isCaptain()) {
             throw new NoPermissionException(ErrorCode.CAPTAIN_ONLY_OPERATION);
@@ -68,7 +67,7 @@ public class MatchCreateService {
     public MatchWaitingCancelResponseDto cancelMatchWaiting(Long loginUserId, Long matchWaitingId) {
         MatchWaiting matchWaiting = findByIdForEntity(matchWaitingId);
 
-        TeamMember teamMember = teamMemberService.findByIdForEntity(loginUserId);
+        TeamMember teamMember = teamMemberService.findByUserIdForEntity(loginUserId);
 
         if (!teamMember.isCaptain()) {
             throw new NoPermissionException(ErrorCode.CAPTAIN_ONLY_OPERATION);
@@ -85,7 +84,7 @@ public class MatchCreateService {
 
     @Transactional(readOnly = true)
     public Slice<MatchWaitingResponseDto> getMyWaitingMatches(Long loginUserId, Pageable pageable) {
-        TeamMember teamMember = teamMemberService.findByIdForEntity(loginUserId);
+        TeamMember teamMember = teamMemberService.findByUserIdForEntity(loginUserId);
 
         Slice<MatchWaiting> myTeamMatchWaiting = matchWaitingRepository.findMyTeamMatchWaitingHistory(
             teamMember.getTeamId(), pageable);

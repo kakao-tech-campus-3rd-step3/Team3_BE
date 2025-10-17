@@ -26,7 +26,7 @@ public class MatchCompleteService {
     public EnemyTeamResponseDto findEnemyTeam(Long loginUserId, Long matchId) {
         Match match = findByIdForEntity(matchId);
 
-        TeamMember teamMember = teamMemberService.findByIdForEntity(loginUserId);
+        TeamMember teamMember = teamMemberService.findByUserIdForEntity(loginUserId);
 
         Team enemyTeam = match.findEnemyTeam(teamMember);
         return EnemyTeamResponseDto.from(enemyTeam);

@@ -34,7 +34,7 @@ public class MatchStartService {
         LocalTime cursorTime,
         Pageable pageable
     ) {
-        TeamMember teamMember = teamMemberService.findByIdForEntity(loginUserId);
+        TeamMember teamMember = teamMemberService.findByUserIdForEntity(loginUserId);
 
         Slice<MatchSummaryProjection> slice = matchRepository.findMatchSummariesByTeamIdAndStatus(
             teamMember.getTeamId(),

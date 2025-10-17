@@ -16,7 +16,6 @@ import com.shootdoori.match.exception.common.NoPermissionException;
 import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.exception.domain.match.OneselfMatchException;
 import com.shootdoori.match.repository.*;
-import com.shootdoori.match.value.TeamName;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -56,7 +55,7 @@ public class MatchRequestService {
     @Transactional(readOnly = true)
     public Slice<MatchWaitingResponseDto> getWaitingMatches(Long loginUserId,
                                                             MatchWaitingRequestDto matchWaitingRequestDto, Pageable pageable) {
-        TeamMember teamMember = teamMemberService.findByIdForEntity(loginUserId);
+        TeamMember teamMember = teamMemberService.findByUserIdForEntity(loginUserId);
 
         return matchWaitingRepository.findAvailableMatchesByDateCursor
                 (teamMember.getTeamId(),
@@ -69,7 +68,7 @@ public class MatchRequestService {
     @Transactional
     public MatchRequestResponseDto requestToMatch(Long loginUserId, Long waitingId,
                                                   MatchRequestRequestDto requestDto) {
-        TeamMember teamMember = teamMemberService.findByIdForEntity(loginUserId);
+        TeamMember teamMember = teamMemberService.findByUserIdForEntity(loginUserId);
 
         Team requestTeam = teamMember.getTeam();
 
@@ -104,7 +103,7 @@ public class MatchRequestService {
 
     @Transactional
     public MatchRequestResponseDto cancelMatchRequest(Long loginUserId, Long requestId) {
-        TeamMember teamMember = teamMemberService.findByIdForEntity(loginUserId);
+        TeamMember teamMember = teamMemberService.findByUserIdForEntity(loginUserId);
 
         MatchRequest matchRequest = findByIdForEntity(requestId);
 
@@ -121,7 +120,7 @@ public class MatchRequestService {
     @Transactional(readOnly = true)
     public Slice<MatchRequestResponseDto> getReceivedPendingRequests(Long loginUserId,
                                                                      Pageable pageable) {
-        TeamMember teamMember = teamMemberService.findByIdForEntity(loginUserId);
+        TeamMember teamMember = teamMemberService.findByUserIdForEntity(loginUserId);
 
         return matchRequestRepository.findPendingRequestsByTargetTeam(teamMember.getTeamId(), pageable)
             .map(MatchRequestResponseDto::from);
@@ -131,7 +130,7 @@ public class MatchRequestService {
     public MatchConfirmedResponseDto acceptRequest(Long loginUserId, Long requestId) {
         MatchRequest matchRequest = findByIdForEntity(requestId);
 
-        TeamMember teamMember = teamMemberService.findByIdForEntity(loginUserId);
+        TeamMember teamMember = teamMemberService.findByUserIdForEntity(loginUserId);
 
         MatchWaiting matchWaiting = matchRequest.getMatchWaiting();
 
@@ -171,7 +170,7 @@ public class MatchRequestService {
     public MatchRequestResponseDto rejectRequest(Long loginUserId, Long requestId) {
         MatchRequest matchRequest = findByIdForEntity(requestId);
 
-        TeamMember teamMember = teamMemberService.findByIdForEntity(loginUserId);
+        TeamMember teamMember = teamMemberService.findByUserIdForEntity(loginUserId);
 
         MatchWaiting matchWaiting = matchRequest.getMatchWaiting();
 
@@ -189,7 +188,7 @@ public class MatchRequestService {
     @Transactional(readOnly = true)
     public Slice<MatchRequestHistoryResponseDto> getSentRequestsByMyTeam(Long loginUserId,
                                                           Pageable pageable) {
-        TeamMember teamMember = teamMemberService.findByIdForEntity(loginUserId);
+        TeamMember teamMember = teamMemberService.findByUserIdForEntity(loginUserId);
 
         return matchRequestRepository.findSentRequestsByTeam(teamMember.getTeamId(), pageable)
             .map(MatchRequestHistoryResponseDto::from);
