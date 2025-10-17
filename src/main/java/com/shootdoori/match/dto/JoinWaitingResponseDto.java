@@ -10,6 +10,7 @@ public record JoinWaitingResponseDto(Long id,
                                      String status,
                                      String decisionReason,
                                      String decidedBy,
-                                     LocalDateTime decidedAt) {
+                                     LocalDateTime decidedAt,
+                                     boolean isMercenary) {
 
 }

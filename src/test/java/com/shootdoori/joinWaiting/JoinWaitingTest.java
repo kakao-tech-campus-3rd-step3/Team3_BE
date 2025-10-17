@@ -3,16 +3,16 @@ package com.shootdoori.joinWaiting;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.shootdoori.match.entity.team.join.JoinWaiting;
-import com.shootdoori.match.entity.team.join.JoinWaitingStatus;
-import com.shootdoori.match.entity.team.TeamSkillLevel;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.team.TeamMemberRole;
+import com.shootdoori.match.entity.team.TeamSkillLevel;
 import com.shootdoori.match.entity.team.TeamType;
+import com.shootdoori.match.entity.team.join.JoinWaiting;
+import com.shootdoori.match.entity.team.join.JoinWaitingStatus;
 import com.shootdoori.match.entity.user.User;
-import com.shootdoori.match.exception.domain.joinwaiting.JoinWaitingNotPendingException;
 import com.shootdoori.match.exception.common.NoPermissionException;
+import com.shootdoori.match.exception.domain.joinwaiting.JoinWaitingNotPendingException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -94,7 +94,7 @@ public class JoinWaitingTest {
         @DisplayName("정상적으로 가입 신청을 생성한다")
         void createJoinWaiting_success() {
             // when
-            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "파트라슈처럼 뛰겠습니다!");
+            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "파트라슈처럼 뛰겠습니다!", false);
 
             // then
             assertThat(joinWaiting.getTeam()).isEqualTo(team);
@@ -110,7 +110,7 @@ public class JoinWaitingTest {
         @DisplayName("빈 메시지로도 가입 신청을 생성할 수 있다")
         void createJoinWaiting_withEmptyMessage_success() {
             // when
-            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "");
+            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "", false);
 
             // then
             assertThat(joinWaiting.getTeam()).isEqualTo(team);
@@ -123,7 +123,7 @@ public class JoinWaitingTest {
         @DisplayName("null 메시지로도 가입 신청을 생성할 수 있다")
         void createJoinWaiting_withNullMessage_success() {
             // when
-            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, null);
+            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, null, false);
 
             // then
             assertThat(joinWaiting.getTeam()).isEqualTo(team);
@@ -141,7 +141,7 @@ public class JoinWaitingTest {
         @DisplayName("팀 리더가 가입을 승인한다")
         void approve_byLeader_success() {
             // given
-            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, null);
+            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, null, false);
 
             // when
             joinWaiting.approve(leaderMember, TeamMemberRole.MEMBER, "환영합니다!!");
@@ -161,7 +161,7 @@ public class JoinWaitingTest {
         @DisplayName("이미 처리된 신청을 승인할 때 예외 발생")
         void approve_alreadyProcessed_throwsException() {
             // given
-            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입 요청입니다.");
+            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입 요청입니다.", false);
             joinWaiting.approve(leaderMember, TeamMemberRole.MEMBER, "승인 완료");
 
             // when & then
@@ -176,7 +176,7 @@ public class JoinWaitingTest {
         @DisplayName("일반 멤버가 승인을 시도하면 권한 예외 발생")
         void approve_byRegularMember_throwsNoPermission() {
             // given
-            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입 요청입니다.");
+            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입 요청입니다.", false);
             team.recruitMember(anotherUser, TeamMemberRole.MEMBER);
             TeamMember regularMember = team.getMembers().get(1);
 
@@ -195,7 +195,7 @@ public class JoinWaitingTest {
         @DisplayName("팀 리더가 가입을 거절한다")
         void reject_byLeader_success() {
             // given
-            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입 요청입니다.");
+            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입 요청입니다.", false);
 
             // when
             joinWaiting.reject(leaderMember, "죄송합니다.");
@@ -213,7 +213,7 @@ public class JoinWaitingTest {
         @DisplayName("이미 처리된 신청을 거절할 때 예외 발생")
         void reject_alreadyProcessed_throwsException() {
             // given
-            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입 요청입니다.");
+            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입 요청입니다.", false);
             joinWaiting.reject(leaderMember, "거절 완료");
 
             // when & then
@@ -228,7 +228,7 @@ public class JoinWaitingTest {
         @DisplayName("일반 멤버가 거절을 시도하면 권한 예외 발생")
         void reject_byRegularMember_throwsNoPermission() {
             // given
-            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입 요청입니다.");
+            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입 요청입니다.", false);
             team.recruitMember(anotherUser, TeamMemberRole.MEMBER);
             TeamMember regularMember = team.getMembers().get(1);
 
@@ -247,7 +247,7 @@ public class JoinWaitingTest {
         @DisplayName("신청자가 가입 신청을 취소한다")
         void cancel_byApplicant_success() {
             // given
-            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입 요청입니다.");
+            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입 요청입니다.", false);
 
             // when
             joinWaiting.cancel(applicant, "개인 사정으로 취소합니다.");
@@ -265,7 +265,7 @@ public class JoinWaitingTest {
         @DisplayName("신청자가 아닌 사용자가 취소할 때 예외 발생")
         void cancel_byNonApplicant_throwsException() {
             // given
-            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입 요청입니다.");
+            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입 요청입니다.", false);
 
             // when & then
             assertThatThrownBy(() ->
@@ -277,7 +277,7 @@ public class JoinWaitingTest {
         @DisplayName("이미 처리된 신청을 취소할 때 예외 발생")
         void cancel_alreadyProcessed_throwsException() {
             // given
-            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입 요청입니다.");
+            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입 요청입니다.", false);
             joinWaiting.cancel(applicant, "개인 사정으로 취소합니다.");
 
             // when & then

@@ -1,6 +1,7 @@
 package com.shootdoori.match.controller;
 
 import com.shootdoori.match.dto.*;
+import com.shootdoori.match.entity.common.DeviceType;
 import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.AuthService;
 import com.shootdoori.match.service.TokenRefreshService;
@@ -12,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -40,7 +42,8 @@ public class LoginController {
         @Valid @RequestBody LoginRequest loginRequest,
         HttpServletRequest request
     ) {
-        AuthToken token = authService.login(loginRequest, request);
+        ClientInfo clientInfo = getClientInfo(request);
+        AuthToken token = authService.login(loginRequest, clientInfo);
 
         return ResponseEntity.ok(new AuthTokenResponse(
                 token.accessToken(), token.refreshToken(), ACCESS_TOKEN_EXPIRES_IN_SECONDS, REFRESH_TOKEN_EXPIRES_IN_SECONDS));
@@ -51,7 +54,8 @@ public class LoginController {
         @Valid @RequestBody ProfileCreateRequest profileCreateRequest,
         HttpServletRequest request
     ) {
-        AuthToken token = authService.register(profileCreateRequest, request);
+        ClientInfo clientInfo = getClientInfo(request);
+        AuthToken token = authService.register(profileCreateRequest, clientInfo);
 
         return ResponseEntity.ok(new AuthTokenResponse(
                 token.accessToken(), token.refreshToken(), ACCESS_TOKEN_EXPIRES_IN_SECONDS, REFRESH_TOKEN_EXPIRES_IN_SECONDS));
@@ -82,42 +86,30 @@ public class LoginController {
 
         return ResponseEntity.ok().build();
     }
-
-    @PostMapping("/login-cookie")
-    public ResponseEntity<AuthTokenResponse> loginWithCookie(
-        @Valid @RequestBody LoginRequest loginRequest,
-        HttpServletRequest request,
-        HttpServletResponse response
-    ) {
-
-        AuthToken token = authService.login(loginRequest, request);
-        setHttpOnlyCookie(response, "accessToken", token.accessToken(), ACCESS_TOKEN_EXPIRES_IN_SECONDS);
-        setHttpOnlyCookie(response, "refreshToken", token.refreshToken(), REFRESH_TOKEN_EXPIRES_IN_SECONDS);
-
-        return ResponseEntity.ok().build();
+    
+    private ClientInfo getClientInfo(HttpServletRequest request) {
+        String userAgent = request.getHeader("User-Agent");
+        DeviceType deviceType = parseDeviceTypeFromUserAgent(userAgent);
+        return new ClientInfo(userAgent, deviceType);
     }
 
-    @PostMapping("/logout-cookie")
-    public ResponseEntity<Void> logoutWithCookie(
-        HttpServletRequest request,
-        HttpServletResponse response
-    ) {
-        String refreshToken = extractTokenFromCookie(request, "refreshToken");
-        
-        if (refreshToken != null) {
-            try {
-                authService.logout(refreshToken);
-            } catch (Exception e) {
-                logger.warn("Token already invalid or not found: {}", e.getMessage());
-            }
+    private DeviceType parseDeviceTypeFromUserAgent(String userAgent) {
+        if (!StringUtils.hasText(userAgent)) {
+            return DeviceType.UNKNOWN;
         }
-        
-        clearHttpOnlyCookie(response, "accessToken");
-        clearHttpOnlyCookie(response, "refreshToken");
 
-        return ResponseEntity.ok().build();
+        String lowerCaseUserAgent = userAgent.toLowerCase();
+        if (lowerCaseUserAgent.contains("android")) {
+            return DeviceType.ANDROID;
+        }
+
+        if (lowerCaseUserAgent.contains("iphone") || lowerCaseUserAgent.contains("ipad")) {
+            return DeviceType.IOS;
+        }
+
+        return DeviceType.WEB;
     }
-
+    
     private void setHttpOnlyCookie(HttpServletResponse response, String name, String value, long maxAgeSeconds) {
         try {
             ResponseCookie cookie = ResponseCookie.from(name, value)

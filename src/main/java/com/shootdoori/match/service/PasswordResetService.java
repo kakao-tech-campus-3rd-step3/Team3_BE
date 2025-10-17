@@ -4,6 +4,7 @@ import com.shootdoori.match.entity.auth.PasswordOtpToken;
 import com.shootdoori.match.entity.auth.PasswordResetToken;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.ErrorCode;
+import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.exception.common.UnauthorizedException;
 import com.shootdoori.match.repository.PasswordOtpTokenRepository;
 import com.shootdoori.match.repository.PasswordResetTokenRepository;
@@ -37,22 +38,16 @@ public class PasswordResetService {
         this.resetTokenRepository = resetTokenRepository;
     }
 
-    public void sendVerificationCode(String email) {
-        User user = profileRepository.findByEmail(email).orElse(null);
-        if (user == null) {
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-            return;
-        }
+    public int sendVerificationCode(String email) {
+        User user = profileRepository.findByEmail(email)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.INVALID_EMAIL));
 
         String rawCode = generateOtpCode();
         String encodedCode = passwordEncoder.encode(rawCode);
 
         PasswordOtpToken otpToken = otpTokenRepository.findByUser_Id(user.getId())
                     .map(existing -> {
+                        existing.incrementRequestCount();
                         existing.updateCode(encodedCode, OTP_EXPIRATION_MINUTES);
                 return existing;
             })
@@ -64,6 +59,8 @@ public class PasswordResetService {
         String text = "인증번호: " + rawCode + "\n3분 안에 입력해주세요.";
 
         mailService.sendEmail(email, subject, text);
+
+        return OTP_EXPIRATION_MINUTES;
     }
 
     public String verifyCodeAndIssueToken(String email, String code) {
@@ -87,7 +84,7 @@ public class PasswordResetService {
         return tempResetTokenValue;
     }
 
-    public void resetPasswordWithToken(String token, String newPassword) {
+    public int resetPasswordWithToken(String token, String newPassword) {
         PasswordResetToken resetToken = resetTokenRepository.findByToken(token)
             .orElseThrow(() -> new UnauthorizedException(ErrorCode.INVALID_TOKEN));
         resetToken.validateExpiryDate();
@@ -97,6 +94,8 @@ public class PasswordResetService {
         profileRepository.save(user);
 
         resetTokenRepository.delete(resetToken);
+
+        return RESET_TOKEN_EXPIRATION_MINUTES;
     }
 
     private String generateOtpCode() {

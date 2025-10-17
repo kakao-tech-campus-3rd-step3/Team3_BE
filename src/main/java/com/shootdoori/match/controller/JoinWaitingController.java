@@ -101,7 +101,7 @@ public class JoinWaitingController {
             // PathVariable을 @LoginUser로 대체 / API endpoint 수정 {userId} -> me 로
          */
     ) {
-        return new ResponseEntity<>(joinWaitingService.findAllByApplicant_IdAndStatusIn(loginUserId, pageable),
+        return new ResponseEntity<>(joinWaitingService.findAllByApplicantIdAndStatusIn(loginUserId, pageable),
             HttpStatus.OK);
     }
 }
