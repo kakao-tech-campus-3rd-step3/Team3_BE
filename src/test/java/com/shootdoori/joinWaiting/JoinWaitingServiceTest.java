@@ -658,7 +658,7 @@ public class JoinWaitingServiceTest {
             when(joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting2)).thenReturn(responseDto2);
 
             // when
-            Page<JoinWaitingResponseDto> resultDtoPage = joinWaitingService.findAllByApplicant_IdAndStatusIn(
+            Page<JoinWaitingResponseDto> resultDtoPage = joinWaitingService.findAllByApplicantIdAndStatusIn(
                 applicantId, pageRequest);
 
             // then
@@ -680,7 +680,7 @@ public class JoinWaitingServiceTest {
 
             // when & then
             assertThatThrownBy(
-                () -> joinWaitingService.findAllByApplicant_IdAndStatusIn(
+                () -> joinWaitingService.findAllByApplicantIdAndStatusIn(
                     nonExistApplicantId, pageRequest))
                 .isInstanceOf(NotFoundException.class);
         }
@@ -699,7 +699,7 @@ public class JoinWaitingServiceTest {
                 emptyPage);
 
             // when
-            Page<JoinWaitingResponseDto> resultDtoPage = joinWaitingService.findAllByApplicant_IdAndStatusIn(
+            Page<JoinWaitingResponseDto> resultDtoPage = joinWaitingService.findAllByApplicantIdAndStatusIn(
                 applicantId, pageRequest);
 
             // then
