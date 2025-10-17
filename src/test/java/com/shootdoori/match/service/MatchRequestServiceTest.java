@@ -1,6 +1,18 @@
 package com.shootdoori.match.service;
 
-import com.shootdoori.match.dto.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.then;
+
+import com.shootdoori.match.dto.MatchConfirmedResponseDto;
+import com.shootdoori.match.dto.MatchRequestHistoryResponseDto;
+import com.shootdoori.match.dto.MatchRequestRequestDto;
+import com.shootdoori.match.dto.MatchRequestResponseDto;
+import com.shootdoori.match.dto.MatchWaitingRequestDto;
+import com.shootdoori.match.dto.MatchWaitingResponseDto;
 import com.shootdoori.match.entity.match.Match;
 import com.shootdoori.match.entity.match.MatchStatus;
 import com.shootdoori.match.entity.match.request.MatchRequest;
@@ -8,39 +20,41 @@ import com.shootdoori.match.entity.match.request.MatchRequestStatus;
 import com.shootdoori.match.entity.match.waiting.MatchWaiting;
 import com.shootdoori.match.entity.match.waiting.MatchWaitingSkillLevel;
 import com.shootdoori.match.entity.match.waiting.MatchWaitingStatus;
-import com.shootdoori.match.entity.team.*;
+import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.team.TeamMember;
+import com.shootdoori.match.entity.team.TeamMemberRole;
+import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.entity.venue.Venue;
 import com.shootdoori.match.exception.common.DuplicatedException;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NotFoundException;
-import com.shootdoori.match.repository.*;
+import com.shootdoori.match.repository.MatchRepository;
+import com.shootdoori.match.repository.MatchRequestRepository;
+import com.shootdoori.match.repository.MatchWaitingRepository;
+import com.shootdoori.match.repository.ProfileRepository;
+import com.shootdoori.match.repository.TeamMemberRepository;
+import com.shootdoori.match.repository.TeamRepository;
+import com.shootdoori.match.repository.VenueRepository;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.BDDMockito.then;
-import static org.mockito.Mockito.doNothing;
 
 @SpringBootTest
 @Transactional
@@ -70,7 +84,7 @@ class MatchRequestServiceTest {
     @Autowired
     private TeamMemberRepository teamMemberRepository;
 
-    @MockBean
+    @MockitoBean
     private MailService mailService;
 
     private User requestTeamCaptain1;

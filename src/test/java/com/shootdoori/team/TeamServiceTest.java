@@ -70,9 +70,6 @@ public class TeamServiceTest {
     @Mock
     private MatchCreateService matchCreateService;
 
-    @Mock
-    private MatchCompleteService matchCompleteService;
-
     private TeamService teamService;
     private TeamRequestDto requestDto;
     private User captain;
@@ -81,7 +78,7 @@ public class TeamServiceTest {
     @BeforeEach
     void setUp() {
         teamService = new TeamService(profileRepository, teamRepository, teamMemberService,
-            teamMapper, matchRequestService, matchCreateService, matchCompleteService);
+            teamMapper, matchRequestService, matchCreateService);
 
         requestDto = new TeamRequestDto(
             "강원대 FC",

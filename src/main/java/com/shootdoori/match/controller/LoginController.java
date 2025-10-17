@@ -6,7 +6,12 @@ import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.AuthService;
 import com.shootdoori.match.service.TokenRefreshService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
@@ -14,15 +19,22 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/auth")
 public class LoginController {
+    private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
+    
     private final AuthService authService;
     private final TokenRefreshService tokenRefreshService;
+    private final boolean isSecure;
 
     private static final long ACCESS_TOKEN_EXPIRES_IN_SECONDS = 30 * 60L;
     private static final long REFRESH_TOKEN_EXPIRES_IN_SECONDS = 30 * 24 * 60 * 60L;
 
-    public LoginController(AuthService authService, TokenRefreshService tokenRefreshService) {
+    public LoginController(AuthService authService, TokenRefreshService tokenRefreshService,
+                          @Value("${spring.profiles.active:test}") String activeProfile) {
         this.authService = authService;
         this.tokenRefreshService = tokenRefreshService;
+
+        this.isSecure = !"test".equals(activeProfile);
+        logger.info("Cookie secure mode: {} (profile: {})", this.isSecure, activeProfile);
     }
 
     @PostMapping("/login")
@@ -74,7 +86,7 @@ public class LoginController {
 
         return ResponseEntity.ok().build();
     }
-
+    
     private ClientInfo getClientInfo(HttpServletRequest request) {
         String userAgent = request.getHeader("User-Agent");
         DeviceType deviceType = parseDeviceTypeFromUserAgent(userAgent);
@@ -96,5 +108,53 @@ public class LoginController {
         }
 
         return DeviceType.WEB;
+    }
+    
+    private void setHttpOnlyCookie(HttpServletResponse response, String name, String value, long maxAgeSeconds) {
+        try {
+            ResponseCookie cookie = ResponseCookie.from(name, value)
+                .httpOnly(true)
+                .secure(isSecure)
+                .sameSite("Lax")
+                .maxAge(maxAgeSeconds)
+                .path("/")
+                .build();
+            response.addHeader("Set-Cookie", cookie.toString());
+            logger.debug("Set cookie: {} (secure: {})", name, isSecure);
+        } catch (Exception e) {
+            logger.error("Error setting cookie: {}", e.getMessage(), e);
+        }
+    }
+
+    private void clearHttpOnlyCookie(HttpServletResponse response, String name) {
+        ResponseCookie cookie = ResponseCookie.from(name, "")
+            .httpOnly(true)
+            .secure(isSecure)
+            .sameSite("Lax")
+            .maxAge(0)
+            .path("/")
+            .build();
+        response.addHeader("Set-Cookie", cookie.toString());
+        logger.debug("Cleared cookie: {} (secure: {})", name, isSecure);
+    }
+
+    private String extractTokenFromCookie(HttpServletRequest request, String cookieName) {
+        if (request.getCookies() == null) {
+            return null;
+        }
+        
+        return java.util.Arrays.stream(request.getCookies())
+            .filter(cookie -> cookieName.equals(cookie.getName()))
+            .findFirst()
+            .map(cookie -> {
+                try {
+                    String value = java.net.URLDecoder.decode(cookie.getValue(), java.nio.charset.StandardCharsets.UTF_8);
+                    return value;
+                } catch (Exception e) {
+                    logger.warn("Failed to decode cookie value: {}", e.getMessage());
+                    return null;
+                }
+            })
+            .orElse(null);
     }
 }
