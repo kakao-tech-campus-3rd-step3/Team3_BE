@@ -16,8 +16,8 @@ public record MatchWaitingCancelResponseDto(
     public static MatchWaitingCancelResponseDto from(MatchWaiting matchWaiting) {
         return new MatchWaitingCancelResponseDto(
             matchWaiting.getWaitingId(),
-            matchWaiting.getTeam().getTeamId(),
-            matchWaiting.getTeam().getTeamName(),
+            matchWaiting.getTeamId(),
+            matchWaiting.getTeamName(),
             matchWaiting.getMatchWaitingStatus(),
             matchWaiting.getExpiresAt()
         );

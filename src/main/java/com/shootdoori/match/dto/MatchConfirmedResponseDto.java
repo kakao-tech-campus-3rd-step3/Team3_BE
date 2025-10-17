@@ -21,10 +21,10 @@ public record MatchConfirmedResponseDto(
     public static MatchConfirmedResponseDto from(Match match) {
         return new MatchConfirmedResponseDto(
             match.getMatchId(),
-            match.getMatchCreateTeam().getTeamId(),
-            match.getMatchCreateTeam().getTeamName(),
-            match.getMatchRequestTeam().getTeamId(),
-            match.getMatchRequestTeam().getTeamName(),
+            match.getCreateTeamId(),
+            match.getCreateTeamName(),
+            match.getRequestTeamId(),
+            match.getRequestTeamName(),
             match.getMatchDate(),
             match.getMatchTime(),
             match.getVenue().getVenueId(),

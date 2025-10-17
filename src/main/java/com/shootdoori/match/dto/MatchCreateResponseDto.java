@@ -16,8 +16,8 @@ public record MatchCreateResponseDto(
     public static MatchCreateResponseDto from(MatchWaiting matchWaiting) {
         return new MatchCreateResponseDto(
             matchWaiting.getWaitingId(),
-            matchWaiting.getTeam().getTeamId(),
-            matchWaiting.getTeam().getTeamName(),
+            matchWaiting.getTeamId(),
+            matchWaiting.getTeamName(),
             matchWaiting.getMatchWaitingStatus(),
             matchWaiting.getExpiresAt()
         );

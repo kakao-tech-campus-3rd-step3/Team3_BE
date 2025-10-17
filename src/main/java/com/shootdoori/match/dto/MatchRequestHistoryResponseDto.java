@@ -19,10 +19,10 @@ public record MatchRequestHistoryResponseDto(
     public static MatchRequestHistoryResponseDto from(MatchRequest matchRequest) {
         return new MatchRequestHistoryResponseDto(
             matchRequest.getRequestId(),
-            matchRequest.getRequestTeam().getTeamId(),
-            matchRequest.getRequestTeam().getTeamName(),
-            matchRequest.getTargetTeam().getTeamId(),
-            matchRequest.getTargetTeam().getTeamName(),
+            matchRequest.getRequestTeamId(),
+            matchRequest.getRequestTeamName(),
+            matchRequest.getTargetTeamId(),
+            matchRequest.getTargetTeamName(),
             matchRequest.getRequestMessage(),
             matchRequest.getStatus(),
             matchRequest.getRequestAt()
