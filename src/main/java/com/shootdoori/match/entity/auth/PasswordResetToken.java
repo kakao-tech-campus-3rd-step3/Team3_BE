@@ -1,18 +1,30 @@
 package com.shootdoori.match.entity.auth;
 
 import com.shootdoori.match.entity.user.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
+import com.shootdoori.match.value.Expiration;
+import jakarta.persistence.*;
 
 @Entity
-public class PasswordResetToken extends BasePasswordToken {
+public class PasswordResetToken {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     @Column(nullable = false, unique = true)
     private String token;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, unique = true)
+    private User user;
+
+    @Embedded
+    private Expiration expiration;
 
     protected PasswordResetToken() {}
 
     public PasswordResetToken(User user, String token, int expiryMinutes) {
-        super(user, expiryMinutes);
+        this.user = user;
+        this.expiration = new Expiration(expiryMinutes);
         this.token = token;
     }
 
@@ -20,8 +32,14 @@ public class PasswordResetToken extends BasePasswordToken {
         return token;
     }
 
+    public User getUser() { return user; }
+
+    public void validateExpiryDate() {
+        expiration.validateExpiryDate();
+    }
+
     public void updateToken(String newToken, int expiryMinutes) {
         this.token = newToken;
-        updateExpiryDate(expiryMinutes);
+        expiration.updateExpiryDate(expiryMinutes);
     }
 }
