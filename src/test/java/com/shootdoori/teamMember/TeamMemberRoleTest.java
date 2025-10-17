@@ -3,6 +3,7 @@ package com.shootdoori.teamMember;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMemberRole;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -61,7 +62,30 @@ class TeamMemberRoleTest {
     @Nested
     @DisplayName("canMakeJoinDecision 테스트")
     class CanMakeJoinDecisionTest {
+        private TeamMemberRole LEADER = TeamMemberRole.LEADER;
+        private TeamMemberRole VICE_LEADER = TeamMemberRole.VICE_LEADER;
+        private TeamMemberRole MEMBER = TeamMemberRole.MEMBER;
 
+        @Test
+        @DisplayName("일반 멤버이면 false를 반환")
+        void canMakeJoinDecision_valid_returnsFalse_for_member() {
+            assertThat(MEMBER.canMakeJoinDecision())
+                .isEqualTo(false);
+        }
+
+        @Test
+        @DisplayName("회장이면 true를 반환")
+        void canMakeJoinDecision_valid_returnsTrue_for_leader() {
+            assertThat(LEADER.canMakeJoinDecision())
+                .isEqualTo(true);
+        }
+
+        @Test
+        @DisplayName("부회장이면 true를 반환")
+        void canMakeJoinDecision_valid_returnsTrue_for_vice_leader() {
+            assertThat(VICE_LEADER.canMakeJoinDecision())
+                .isEqualTo(true);
+        }
     }
 
     @Nested
