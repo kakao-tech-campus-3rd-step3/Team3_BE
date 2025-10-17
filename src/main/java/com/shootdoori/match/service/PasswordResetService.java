@@ -38,7 +38,7 @@ public class PasswordResetService {
         this.resetTokenRepository = resetTokenRepository;
     }
 
-    public void sendVerificationCode(String email) {
+    public int sendVerificationCode(String email) {
         User user = profileRepository.findByEmail(email)
             .orElseThrow(() -> new NotFoundException(ErrorCode.INVALID_EMAIL));
 
@@ -58,6 +58,8 @@ public class PasswordResetService {
         String text = "인증번호: " + rawCode + "\n3분 안에 입력해주세요.";
 
         mailService.sendEmail(email, subject, text);
+
+        return OTP_EXPIRATION_MINUTES;
     }
 
     public String verifyCodeAndIssueToken(String email, String code) {
@@ -81,7 +83,7 @@ public class PasswordResetService {
         return tempResetTokenValue;
     }
 
-    public void resetPasswordWithToken(String token, String newPassword) {
+    public int resetPasswordWithToken(String token, String newPassword) {
         PasswordResetToken resetToken = resetTokenRepository.findByToken(token)
             .orElseThrow(() -> new UnauthorizedException(ErrorCode.INVALID_TOKEN));
         resetToken.validateExpiryDate();
@@ -91,6 +93,8 @@ public class PasswordResetService {
         profileRepository.save(user);
 
         resetTokenRepository.delete(resetToken);
+
+        return RESET_TOKEN_EXPIRATION_MINUTES;
     }
 
     private String generateOtpCode() {
