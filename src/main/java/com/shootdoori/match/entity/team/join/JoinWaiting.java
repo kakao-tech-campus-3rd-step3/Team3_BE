@@ -5,9 +5,9 @@ import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.team.TeamMemberRole;
 import com.shootdoori.match.entity.user.User;
-import com.shootdoori.match.exception.domain.joinwaiting.JoinWaitingNotPendingException;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NoPermissionException;
+import com.shootdoori.match.exception.domain.joinwaiting.JoinWaitingNotPendingException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -61,6 +61,9 @@ public class JoinWaiting extends DateEntity {
     @Column(name = "decided_at")
     private LocalDateTime decidedAt;
 
+    @Column(name = "is_mercenary", nullable = false)
+    private boolean mercenary = false;
+
     @Version
     private Long version;
 
@@ -100,18 +103,24 @@ public class JoinWaiting extends DateEntity {
         return version;
     }
 
+    public boolean isMercenary() {
+        return mercenary;
+    }
+
     protected JoinWaiting() {
 
     }
 
-    public JoinWaiting(Team team, User applicant, String message) {
+    public JoinWaiting(Team team, User applicant, String message, boolean isMercenary) {
         this.team = team;
         this.applicant = applicant;
         this.message = message;
+        this.mercenary = isMercenary;
     }
 
-    public static JoinWaiting create(Team team, User applicant, String message) {
-        return new JoinWaiting(team, applicant, message);
+    public static JoinWaiting create(Team team, User applicant, String message,
+        boolean isMercenary) {
+        return new JoinWaiting(team, applicant, message, isMercenary);
     }
 
     public void approve(TeamMember approver, TeamMemberRole role, String decisionReason) {

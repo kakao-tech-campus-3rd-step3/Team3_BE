@@ -3,7 +3,8 @@ package com.shootdoori.match.entity.team;
 public enum TeamMemberRole {
     LEADER("회장"),
     VICE_LEADER("부회장"),
-    MEMBER("일반멤버");
+    MEMBER("일반멤버"),
+    MERCENARY("용병");
 
     private final String displayName;
 
