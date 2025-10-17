@@ -81,7 +81,7 @@ public class AuthService {
                     return new UsernamePasswordAuthenticationToken(
                         principalUserId, null, Collections.emptyList());
                 }
-            } catch (JwtException e) {
+            } catch (JwtException | NumberFormatException e) {
                 log.warn("Invalid JWT Token: {}", e.getMessage());
             }
         }
