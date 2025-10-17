@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 public class TeamTypeTest {
 
     @Test
-    @DisplayName("존재하지 않는 표시이름이면 IllegalArgumentException 발생")
+    @DisplayName("존재하지 않는 표시 이름이면 IllegalArgumentException 발생")
     void fromDisplayName_unknown_throws() {
         assertThatThrownBy(() -> TeamType.fromDisplayName("없는 이름"))
             .isInstanceOf(IllegalArgumentException.class);
