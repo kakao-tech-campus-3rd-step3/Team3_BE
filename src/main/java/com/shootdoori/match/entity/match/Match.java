@@ -2,8 +2,10 @@ package com.shootdoori.match.entity.match;
 
 import com.shootdoori.match.entity.common.DateEntity;
 import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.venue.Venue;
 import com.shootdoori.match.exception.domain.review.MatchNotFinishedException;
+import com.shootdoori.match.value.TeamName;
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
@@ -81,8 +83,8 @@ public class Match extends DateEntity {
         return status;
     }
 
-    public Team findEnemyTeam(Team myTeam) {
-        if (myTeam.equals(this.getMatchCreateTeam())) {
+    public Team findEnemyTeam(TeamMember teamMember) {
+        if (teamMember.getTeam().equals(this.getMatchCreateTeam())) {
             return this.getMatchRequestTeam();
         }
         return this.getMatchCreateTeam();
@@ -96,5 +98,21 @@ public class Match extends DateEntity {
         if (this.status != MatchStatus.FINISHED) {
             throw new MatchNotFinishedException();
         }
+    }
+
+    public Long getCreateTeamId(){
+        return this.matchCreateTeam.getTeamId();
+    }
+
+    public TeamName getCreateTeamName(){
+        return this.matchCreateTeam.getTeamName();
+    }
+
+    public Long getRequestTeamId(){
+        return this.matchRequestTeam.getTeamId();
+    }
+
+    public TeamName getRequestTeamName(){
+        return this.matchRequestTeam.getTeamName();
     }
 }
