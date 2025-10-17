@@ -3,7 +3,6 @@ package com.shootdoori.teamMember;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMemberRole;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -11,6 +10,10 @@ import org.junit.jupiter.api.Test;
 
 @DisplayName("TeamMemberRole 테스트")
 class TeamMemberRoleTest {
+
+    private TeamMemberRole LEADER = TeamMemberRole.LEADER;
+    private TeamMemberRole VICE_LEADER = TeamMemberRole.VICE_LEADER;
+    private TeamMemberRole MEMBER = TeamMemberRole.MEMBER;
 
     @Nested
     @DisplayName("fromDisplayName 테스트")
@@ -62,9 +65,6 @@ class TeamMemberRoleTest {
     @Nested
     @DisplayName("canMakeJoinDecision 테스트")
     class CanMakeJoinDecisionTest {
-        private TeamMemberRole LEADER = TeamMemberRole.LEADER;
-        private TeamMemberRole VICE_LEADER = TeamMemberRole.VICE_LEADER;
-        private TeamMemberRole MEMBER = TeamMemberRole.MEMBER;
 
         @Test
         @DisplayName("일반 멤버이면 false를 반환")
@@ -89,8 +89,56 @@ class TeamMemberRoleTest {
     }
 
     @Nested
-    @DisplayName("canKick 테스트")
+    @DisplayName("canKick(targetRole) 테스트")
     class CanKickTest {
 
+        @Test
+        @DisplayName("회장은 부회장을 강퇴할 수 있다")
+        void leader_canKick_vice_leader() {
+            assertThat(LEADER.canKick(VICE_LEADER))
+                .isEqualTo(true);
+        }
+
+        @Test
+        @DisplayName("회장은 일반 멤버를 강퇴할 수 있다")
+        void leader_canKick_member() {
+            assertThat(LEADER.canKick(MEMBER))
+                .isEqualTo(true);
+        }
+
+        @Test
+        @DisplayName("부회장은 일반 멤버를 강퇴할 수 있다")
+        void vice_leader_canKick_member() {
+            assertThat(VICE_LEADER.canKick(MEMBER))
+                .isEqualTo(true);
+        }
+
+        @Test
+        @DisplayName("부회장은 회장을 강퇴할 수 없다")
+        void vice_leader_canNotKick_leader() {
+            assertThat(VICE_LEADER.canKick(LEADER))
+                .isEqualTo(false);
+        }
+
+        @Test
+        @DisplayName("일반 멤버는 회장을 강퇴할 수 없다")
+        void member_canNotKick_leader() {
+            assertThat(MEMBER.canKick(LEADER))
+                .isEqualTo(false);
+        }
+
+        @Test
+        @DisplayName("일반 멤버는 부회장을 강퇴할 수 없다")
+        void member_canNotKick_vice_leader() {
+            assertThat(MEMBER.canKick(VICE_LEADER))
+                .isEqualTo(false);
+        }
+
+        @Test
+        @DisplayName("일반 멤버는 일반 멤버를 강퇴할 수 없다")
+        void member_canNotKick_member() {
+            assertThat(MEMBER.canKick(MEMBER))
+                .isEqualTo(false);
+        }
     }
 }
