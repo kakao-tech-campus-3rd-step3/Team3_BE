@@ -32,21 +32,21 @@ class TeamSkillLevelTest {
     }
 
     @Test
-    @DisplayName("유효한 표시이름이면 해당 Enum 반환 - 프로")
+    @DisplayName("유효한 표시 이름이면 해당 Enum 반환 - 프로")
     void fromDisplayName_valid_returnsEnum_pro() {
         assertThat(TeamSkillLevel.fromDisplayName("프로"))
             .isEqualTo(TeamSkillLevel.PRO);
     }
 
     @Test
-    @DisplayName("유효한 표시이름이면 해당 Enum 반환 - 세미프로")
+    @DisplayName("유효한 표시 이름이면 해당 Enum 반환 - 세미프로")
     void fromDisplayName_valid_returnsEnum_semi_pro() {
         assertThat(TeamSkillLevel.fromDisplayName("세미프로"))
             .isEqualTo(TeamSkillLevel.SEMI_PRO);
     }
 
     @Test
-    @DisplayName("유효한 표시이름이면 해당 Enum 반환 - 아마추어")
+    @DisplayName("유효한 표시 이름이면 해당 Enum 반환 - 아마추어")
     void fromDisplayName_valid_returnsEnum_amateur() {
         assertThat(TeamSkillLevel.fromDisplayName("아마추어"))
             .isEqualTo(TeamSkillLevel.AMATEUR);

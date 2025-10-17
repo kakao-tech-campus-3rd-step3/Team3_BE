@@ -39,19 +39,19 @@ public class TeamTypeTest {
     }
 
     @Test
-    @DisplayName("유효한 표시이름이면 해당 Enum 반환 - 중앙 아리")
+    @DisplayName("유효한 표시 이름이면 해당 Enum 반환 - 중앙 아리")
     void fromDisplayName_valid_returnsEnum_central_club() {
         assertThat(TeamType.fromDisplayName("중앙동아리")).isEqualTo(TeamType.CENTRAL_CLUB);
     }
 
     @Test
-    @DisplayName("유효한 표시이름이면 해당 Enum 반환 - 과동아리")
+    @DisplayName("유효한 표시 이름이면 해당 Enum 반환 - 과동아리")
     void fromDisplayName_valid_returnsEnum_department_club() {
         assertThat(TeamType.fromDisplayName("과동아리")).isEqualTo(TeamType.DEPARTMENT_CLUB);
     }
 
     @Test
-    @DisplayName("유효한 표시이름이면 해당 Enum 반환 - 기타")
+    @DisplayName("유효한 표시 이름이면 해당 Enum 반환 - 기타")
     void fromDisplayName_valid_returnsEnum_other() {
         assertThat(TeamType.fromDisplayName("기타")).isEqualTo(TeamType.OTHER);
     }
