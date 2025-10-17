@@ -71,7 +71,12 @@ public enum ErrorCode {
     INVALID_OTP("인증번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED),
 
     // Review
-    MATCH_NOT_FINISHED_YET("아직 경기가 종료되지 않아 리뷰를 작성할 수 없습니다.", HttpStatus.BAD_REQUEST);
+    MATCH_NOT_FINISHED_YET("아직 경기가 종료되지 않아 리뷰를 작성할 수 없습니다.", HttpStatus.BAD_REQUEST),
+
+    // Lineup
+    LINEUP_NOT_FOUND("해당 라인업을 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
+    LINEUP_CREATION_FAILED("라인업 생성에 실패했습니다 (매치나 팀멤버 정보가 없습니다)", HttpStatus.BAD_REQUEST);
+
 
 
   private final String message;

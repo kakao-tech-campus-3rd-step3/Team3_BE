@@ -60,47 +60,79 @@ public class Lineup {
                   MatchRequest request,
                   TeamMember teamMember,
                   UserPosition position,
-                  Boolean isStarter,
-                  LineupStatus lineupStatus) {
+                  Boolean isStarter) {
         this.match = match;
         this.waiting = waiting;
         this.request = request;
         this.teamMember = teamMember;
         this.position = position;
         this.isStarter = isStarter;
-        this.lineupStatus = lineupStatus;
     }
 
-    protected Lineup() {}
+    protected Lineup() {
+    }
 
     public Long getId() {
         return id;
     }
+
     public Match getMatch() {
         return match;
     }
+
     public MatchWaiting getWaiting() {
         return waiting;
     }
+
     public MatchRequest getRequest() {
         return request;
     }
+
     public TeamMember getTeamMember() {
         return teamMember;
     }
+
     public UserPosition getPosition() {
         return position;
     }
+
     public Boolean getIsStarter() {
         return isStarter;
     }
+
     public LineupStatus getLineupStatus() {
         return lineupStatus;
     }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
     }
+
     public LocalDateTime getUpdatedAt() {
         return updatedAt;
+    }
+
+    public void toCreated() {
+        this.lineupStatus = LineupStatus.CREATED;
+    }
+
+    public void toRequested() {
+        this.lineupStatus = LineupStatus.REQUESTED;
+    }
+
+    public void toMatched() {
+        this.lineupStatus = LineupStatus.MATCHED;
+    }
+
+    public void update(Match match,
+                       MatchWaiting waiting,
+                       MatchRequest request,
+                       UserPosition position,
+                       Boolean isStarter) {
+        this.match = match;
+        this.waiting = waiting;
+        this.request = request;
+        this.position = position;
+        this.isStarter = isStarter;
     }
 }
