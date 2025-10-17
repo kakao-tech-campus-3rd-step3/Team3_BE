@@ -3,12 +3,8 @@ package com.shootdoori.match.service;
 import com.shootdoori.match.dto.MatchSummaryProjection;
 import com.shootdoori.match.dto.RecentMatchesResponseDto;
 import com.shootdoori.match.entity.match.MatchStatus;
-import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMember;
-import com.shootdoori.match.exception.common.ErrorCode;
-import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.MatchRepository;
-import com.shootdoori.match.repository.TeamMemberRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -22,13 +18,12 @@ import java.util.List;
 public class MatchStartService {
 
     private final MatchRepository matchRepository;
-
-    private final TeamMemberRepository teamMemberRepository;
+    private final TeamMemberService teamMemberService;
 
     public MatchStartService(MatchRepository matchRepository,
-                             TeamMemberRepository teamMemberRepository) {
+                             TeamMemberService teamMemberService) {
         this.matchRepository = matchRepository;
-        this.teamMemberRepository = teamMemberRepository;
+        this.teamMemberService = teamMemberService;
     }
 
     @Transactional(readOnly = true)
@@ -39,13 +34,10 @@ public class MatchStartService {
         LocalTime cursorTime,
         Pageable pageable
     ) {
-        TeamMember teamMember = teamMemberRepository.findByUser_Id(loginUserId)
-            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
-
-        Team team = teamMember.getTeam();
+        TeamMember teamMember = teamMemberService.findByIdForEntity(loginUserId);
 
         Slice<MatchSummaryProjection> slice = matchRepository.findMatchSummariesByTeamIdAndStatus(
-            team.getTeamId(),
+            teamMember.getTeamId(),
             status,
             cursorDate,
             cursorTime,
