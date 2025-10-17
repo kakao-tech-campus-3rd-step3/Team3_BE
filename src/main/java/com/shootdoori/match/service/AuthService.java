@@ -68,22 +68,18 @@ public class AuthService {
         refreshTokenRepository.deleteAllByUserId(userId);
     }
 
-    public UsernamePasswordAuthenticationToken authenticationToken(String authorizationHeader) {
+    public UsernamePasswordAuthenticationToken authenticationToken(String jwt) {
 
-        if (authorizationHeader != null && authorizationHeader.startsWith(BEARER_PREFIX)) {
-            String jwt = authorizationHeader.substring(BEARER_PREFIX.length());
+        try {
+            if (jwtUtil.validateToken(jwt) && SecurityContextHolder.getContext().getAuthentication() == null) {
+                String userId = jwtUtil.getUserId(jwt);
+                Long principalUserId = Long.parseLong(userId);
 
-            try {
-                if (jwtUtil.validateToken(jwt) && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    String userId = jwtUtil.getUserId(jwt);
-                    Long principalUserId = Long.parseLong(userId);
-
-                    return new UsernamePasswordAuthenticationToken(
-                        principalUserId, null, Collections.emptyList());
-                }
-            } catch (JwtException | NumberFormatException e) {
-                log.warn("Invalid JWT Token: {}", e.getMessage());
+                return new UsernamePasswordAuthenticationToken(
+                    principalUserId, null, Collections.emptyList());
             }
+        } catch (JwtException | NumberFormatException e) {
+            log.warn("Invalid JWT Token: {}", e.getMessage());
         }
         return null;
     }

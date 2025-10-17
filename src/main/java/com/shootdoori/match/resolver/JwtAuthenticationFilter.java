@@ -1,6 +1,7 @@
 package com.shootdoori.match.resolver;
 
 import com.shootdoori.match.service.AuthService;
+import com.shootdoori.match.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -13,23 +14,24 @@ import java.io.IOException;
 
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final String AUTH_HEADER = "Authorization";
-
     private final AuthService authService;
+    private final JwtUtil jwtUtil;
 
-    public JwtAuthenticationFilter(AuthService authService) {
+    public JwtAuthenticationFilter(AuthService authService, JwtUtil jwtUtil) {
         this.authService = authService;
+        this.jwtUtil = jwtUtil;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
         throws ServletException, IOException {
 
-        String authorizationHeader = request.getHeader(AUTH_HEADER);
-        UsernamePasswordAuthenticationToken authenticationToken
-            = authService.authenticationToken(authorizationHeader);
+        String token = jwtUtil.extractToken(request);
 
-        if (authenticationToken != null) {
+        if (token != null) {
+            UsernamePasswordAuthenticationToken authenticationToken
+                = authService.authenticationToken(token);
+
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }
 

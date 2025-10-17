@@ -2,6 +2,7 @@ package com.shootdoori.match.config;
 
 import com.shootdoori.match.resolver.JwtAuthenticationFilter;
 import com.shootdoori.match.service.AuthService;
+import com.shootdoori.match.util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -62,8 +63,8 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(@Lazy AuthService authService) {
-        return new JwtAuthenticationFilter(authService);
+    public JwtAuthenticationFilter jwtAuthenticationFilter(@Lazy AuthService authService, JwtUtil jwtUtil) {
+        return new JwtAuthenticationFilter(authService, jwtUtil);
     }
 
     @Bean
