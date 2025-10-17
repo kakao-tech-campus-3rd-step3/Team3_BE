@@ -68,7 +68,6 @@ public class AuthService {
         refreshTokenRepository.deleteAllByUserId(userId);
     }
 
-    @Transactional(readOnly = true)
     public UsernamePasswordAuthenticationToken authenticationToken(String authorizationHeader) {
 
         if (authorizationHeader != null && authorizationHeader.startsWith(BEARER_PREFIX)) {
