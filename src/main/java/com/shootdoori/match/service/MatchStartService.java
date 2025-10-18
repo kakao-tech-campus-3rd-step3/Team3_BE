@@ -40,12 +40,16 @@ public class MatchStartService {
             teamMember.getTeamId(),
             status,
             cursorDate,
-            cursorTime,
+            resolveCursorTime(cursorDate, cursorTime),
             pageable
         );
 
         return slice.getContent().stream()
             .map(RecentMatchesResponseDto::from)
             .toList();
+    }
+
+    private static LocalTime resolveCursorTime(LocalDate cursorDate, LocalTime cursorTime) {
+        return (cursorDate != null && cursorTime == null) ? LocalTime.MAX : cursorTime;
     }
 }

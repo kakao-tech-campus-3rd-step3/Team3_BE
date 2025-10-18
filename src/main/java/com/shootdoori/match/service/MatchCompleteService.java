@@ -39,9 +39,4 @@ public class MatchCompleteService {
                 String.valueOf(matchId)));
     }
 
-    @Transactional
-    public void deleteAllByTeamId(Long teamId) {
-        matchRepository.deleteAllByTeamId(teamId);
-    }
-
 }
