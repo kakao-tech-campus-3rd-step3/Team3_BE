@@ -19,6 +19,12 @@ public class PasswordOtpToken {
     @Column(nullable = false)
     private String code;
 
+    @Column(nullable = false)
+    private int requestCount = 0;
+
+    @Column(nullable = false)
+    private LocalDate lastRequestedDate = LocalDate.now();
+
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
@@ -32,6 +38,18 @@ public class PasswordOtpToken {
         this.user = user;
         this.expiration = new Expiration(expiryMinutes);
         this.code = code;
+    }
+
+    public Expiration getExpiration() {
+        return expiration;
+    }
+
+    public int getRequestCount() {
+        return this.requestCount;
+    }
+
+    public LocalDate getLastRequestedDate() {
+        return this.lastRequestedDate;
     }
 
     public User getUser() { return user; }
