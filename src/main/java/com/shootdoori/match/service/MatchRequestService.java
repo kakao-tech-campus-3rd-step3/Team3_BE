@@ -201,11 +201,6 @@ public class MatchRequestService {
                 String.valueOf(matchRequestId)));
     }
 
-    @Transactional
-    public void deleteAllByTeamId(Long teamId) {
-        matchRequestRepository.deleteAllByTeamId(teamId);
-    }
-
     private void sendMatchRequestEmail(Team requestTeam, MatchWaiting targetWaiting) {
         String receiverEmail = targetWaiting.getTeam().getCaptain().getEmail();
 

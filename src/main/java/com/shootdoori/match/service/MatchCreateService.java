@@ -100,11 +100,6 @@ public class MatchCreateService {
     }
 
     @Transactional
-    public void deleteAllByTeamId(Long teamId) {
-        matchWaitingRepository.deleteAllByTeamId(teamId);
-    }
-
-    @Transactional
     public void cancelAllMatchesByTeamId(Long teamId) {
         matchWaitingRepository.cancelAllByTeamId(teamId);
     }

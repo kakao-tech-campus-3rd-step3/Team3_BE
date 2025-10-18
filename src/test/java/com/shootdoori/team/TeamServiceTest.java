@@ -362,13 +362,12 @@ public class TeamServiceTest {
                 "삭제될 팀입니다."
             );
 
-            when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(existingTeam));
+            when(teamRepository.findByIdWithMembers(TEAM_ID)).thenReturn(Optional.of(existingTeam));
 
             // when
             teamService.delete(TEAM_ID, captain.getId());
 
             // then
-            verify(teamRepository).findById(TEAM_ID);
             verify(teamRepository).save(existingTeam);
         }
 
@@ -376,7 +375,7 @@ public class TeamServiceTest {
         @DisplayName("팀 없음 예외")
         void delete_notFound_throws() {
             // given
-            when(teamRepository.findById(NON_EXISTENT_TEAM_ID)).thenReturn(Optional.empty());
+            when(teamRepository.findByIdWithMembers(NON_EXISTENT_TEAM_ID)).thenReturn(Optional.empty());
 
             // when & then
             assertThatThrownBy(() -> teamService.delete(NON_EXISTENT_TEAM_ID, captain.getId()))
@@ -399,7 +398,7 @@ public class TeamServiceTest {
                 "삭제될 팀입니다."
             );
 
-            when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(existingTeam));
+            when(teamRepository.findByIdWithMembers(TEAM_ID)).thenReturn(Optional.of(existingTeam));
 
             teamService.delete(TEAM_ID, captain.getId());
         }
