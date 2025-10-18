@@ -38,7 +38,7 @@ public class Lineup extends DateEntity {
     private UserPosition position;
 
     @Column(name = "is_starter")
-    private Boolean isStarter;
+    private Boolean isStarter = true;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "lineup_status", nullable = false)
