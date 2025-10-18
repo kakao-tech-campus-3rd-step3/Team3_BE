@@ -169,7 +169,7 @@ public class TeamMember extends DateEntity {
 
     public void checkCaptainPermission(Long userId) {
         if(!Objects.equals(this.team.getCaptain().getId(), userId)) {
-            throw new NoPermissionException();
+            throw new NoPermissionException(ErrorCode.CAPTAIN_ONLY_OPERATION);
         }
     }
 
