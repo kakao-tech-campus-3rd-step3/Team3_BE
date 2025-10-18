@@ -1,5 +1,6 @@
 package com.shootdoori.match.entity.lineup;
 
+import com.shootdoori.match.entity.common.DateEntity;
 import com.shootdoori.match.entity.match.Match;
 import com.shootdoori.match.entity.match.request.MatchRequest;
 import com.shootdoori.match.entity.match.waiting.MatchWaiting;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "lineup")
-public class Lineup {
+public class Lineup extends DateEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -46,14 +47,6 @@ public class Lineup {
     @Enumerated(EnumType.STRING)
     @Column(name = "lineup_status", nullable = false)
     private LineupStatus lineupStatus = LineupStatus.CREATED;
-
-    @CreationTimestamp
-    @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
-
-    @UpdateTimestamp
-    @Column(name = "updated_at")
-    private LocalDateTime updatedAt;
 
     public Lineup(Match match,
                   MatchWaiting waiting,
@@ -102,14 +95,6 @@ public class Lineup {
 
     public LineupStatus getLineupStatus() {
         return lineupStatus;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public LocalDateTime getUpdatedAt() {
-        return updatedAt;
     }
 
     public void toCreated() {
