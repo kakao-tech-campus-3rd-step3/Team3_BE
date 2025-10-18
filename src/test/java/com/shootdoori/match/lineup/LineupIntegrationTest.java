@@ -26,7 +26,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
@@ -36,6 +39,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -124,10 +128,17 @@ class LineupControllerIntegrationTest {
                 true
         );
 
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                savedUser1.getId(),
+                null,
+                Collections.emptyList()
+        );
+
         // when (실행)
         ResultActions actions = mockMvc.perform(post("/api/lineups")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(requestDto)));
+                .content(objectMapper.writeValueAsString(requestDto))
+                .with(SecurityMockMvcRequestPostProcessors.authentication(authentication)));
 
         // then (검증)
         MvcResult result = actions.andExpect(status().isCreated())
@@ -187,8 +198,15 @@ class LineupControllerIntegrationTest {
         Long savedLineupId = savedLineup.getId();
         assertThat(lineupRepository.existsById(savedLineupId)).isTrue();
 
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                savedUser1.getId(),
+                null,
+                Collections.emptyList()
+        );
+
         // when (실행)
-        ResultActions actions = mockMvc.perform(delete("/api/lineups/{id}", savedLineupId));
+        ResultActions actions = mockMvc.perform(delete("/api/lineups/{id}", savedLineupId)
+                .with(SecurityMockMvcRequestPostProcessors.authentication(authentication)));
 
         // then (검증)
         actions.andExpect(status().isNoContent());
@@ -213,10 +231,17 @@ class LineupControllerIntegrationTest {
                 UserPosition.MF, false
         );
 
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                savedUser1.getId(),
+                null,
+                Collections.emptyList()
+        );
+
         // when (실행)
         ResultActions actions = mockMvc.perform(patch("/api/lineups/{id}", savedLineupId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateDto)));
+                .content(objectMapper.writeValueAsString(updateDto))
+                .with(SecurityMockMvcRequestPostProcessors.authentication(authentication)));
 
         // then (검증)
         actions.andExpect(status().isOk())

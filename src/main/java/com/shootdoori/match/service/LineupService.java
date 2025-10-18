@@ -3,6 +3,7 @@ package com.shootdoori.match.service;
 import com.shootdoori.match.dto.LineupRequestDto;
 import com.shootdoori.match.dto.LineupResponseDto;
 import com.shootdoori.match.entity.lineup.Lineup;
+import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.exception.common.CreationFailException;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NotFoundException;
@@ -37,11 +38,14 @@ public class LineupService {
     }
 
     @Transactional
-    public LineupResponseDto createLineup(LineupRequestDto requestDto) {
+    public LineupResponseDto createLineup(LineupRequestDto requestDto, Long userId) {
+        TeamMember teamMember = teamMemberRepository.findById(requestDto.teamMemberId()).orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
+        teamMember.checkCaptainPermission(userId);
+
         Lineup lineup = new Lineup(matchRepository.getReferenceById(requestDto.matchId()),
                 matchWaitingRepository.getReferenceById(requestDto.waitingId()),
                 matchRequestRepository.getReferenceById(requestDto.requestId()),
-                teamMemberRepository.getReferenceById(requestDto.teamMemberId()),
+                teamMember,
                 requestDto.position(),
                 requestDto.isStarter()
         );
@@ -71,9 +75,11 @@ public class LineupService {
     }
 
     @Transactional
-    public LineupResponseDto updateLineup(Long id, LineupRequestDto requestDto) {
+    public LineupResponseDto updateLineup(Long id, LineupRequestDto requestDto, Long userId) {
         Lineup lineup = lineupRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.LINEUP_NOT_FOUND));
+
+        lineup.getTeamMember().checkCaptainPermission(userId);
 
         lineup.update(matchRepository.getReferenceById(requestDto.matchId()),
                 matchWaitingRepository.getReferenceById(requestDto.waitingId()),
@@ -85,10 +91,9 @@ public class LineupService {
     }
 
     @Transactional
-    public void deleteLineup(Long id) {
-        if (!lineupRepository.existsById(id)) {
-            throw new NotFoundException(ErrorCode.LINEUP_NOT_FOUND);
-        }
+    public void deleteLineup(Long id, Long userId) {
+        Lineup lineup = lineupRepository.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.LINEUP_NOT_FOUND));
+        lineup.getTeamMember().checkCaptainPermission(userId);
         lineupRepository.deleteById(id);
     }
 }

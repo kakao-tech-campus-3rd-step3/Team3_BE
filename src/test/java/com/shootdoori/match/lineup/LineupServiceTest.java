@@ -93,12 +93,12 @@ class LineupServiceTest {
         given(matchRepository.getReferenceById(1L)).willReturn(mockMatch);
         given(matchWaitingRepository.getReferenceById(1L)).willReturn(mockMatchWaiting);
         given(matchRequestRepository.getReferenceById(1L)).willReturn(mockMatchRequest);
-        given(teamMemberRepository.getReferenceById(1L)).willReturn(mockTeamMember);
+        given(teamMemberRepository.findById(1L)).willReturn(Optional.ofNullable(mockTeamMember));
 
         given(lineupRepository.saveAndFlush(any(Lineup.class))).willReturn(savedLineup);
 
         // when
-        LineupResponseDto responseDto = lineupService.createLineup(requestDto);
+        LineupResponseDto responseDto = lineupService.createLineup(requestDto, 1L);
 
         // then
         assertThat(responseDto).isNotNull();
@@ -114,13 +114,13 @@ class LineupServiceTest {
         given(matchRepository.getReferenceById(1L)).willReturn(mockMatch);
         given(matchWaitingRepository.getReferenceById(1L)).willReturn(mockMatchWaiting);
         given(matchRequestRepository.getReferenceById(1L)).willReturn(mockMatchRequest);
-        given(teamMemberRepository.getReferenceById(1L)).willReturn(mockTeamMember);
+        given(teamMemberRepository.findById(1L)).willReturn(Optional.ofNullable(mockTeamMember));
         given(lineupRepository.saveAndFlush(any(Lineup.class)))
                 .willThrow(new DataIntegrityViolationException("Test DB Error"));
 
         // when & then
         CreationFailException exception = assertThrows(CreationFailException.class, () -> {
-            lineupService.createLineup(requestDto);
+            lineupService.createLineup(requestDto, 1L);
         });
 
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.LINEUP_CREATION_FAILED);
@@ -257,7 +257,7 @@ class LineupServiceTest {
         given(mockMatchRequest2.getRequestId()).willReturn(2L);
 
         // when
-        LineupResponseDto responseDto = lineupService.updateLineup(1L, updateDto);
+        LineupResponseDto responseDto = lineupService.updateLineup(1L, updateDto, 1L);
 
         // then
         assertThat(responseDto).isNotNull();
@@ -284,7 +284,7 @@ class LineupServiceTest {
 
         // when & then
         NotFoundException exception = assertThrows(NotFoundException.class, () -> {
-            lineupService.updateLineup(1L, updateDto);
+            lineupService.updateLineup(1L, updateDto, 1L);
         });
 
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.LINEUP_NOT_FOUND);
@@ -300,34 +300,31 @@ class LineupServiceTest {
     @DisplayName("라인업 삭제 - 성공")
     void deleteLineup_Success() {
         // given
-        given(lineupRepository.existsById(1L)).willReturn(true);
+        given(lineupRepository.findById(1L)).willReturn(Optional.ofNullable(savedLineup));
         doNothing().when(lineupRepository).deleteById(1L);
 
         // when
-        lineupService.deleteLineup(1L);
+        lineupService.deleteLineup(1L, 1L);
 
         // then
 
         // verify
-        verify(lineupRepository, times(1)).existsById(1L);
+        verify(lineupRepository, times(1)).findById(1L);
         verify(lineupRepository, times(1)).deleteById(1L);
     }
 
     @Test
     @DisplayName("라인업 삭제 - 실패 (라인업 없음)")
     void deleteLineup_NotFound() {
-        // given
-        given(lineupRepository.existsById(1L)).willReturn(false);
-
         // when & then
         NotFoundException exception = assertThrows(NotFoundException.class, () -> {
-            lineupService.deleteLineup(1L);
+            lineupService.deleteLineup(2L, 1L);
         });
 
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.LINEUP_NOT_FOUND);
 
         // verify
-        verify(lineupRepository, times(1)).existsById(1L);
+        verify(lineupRepository, times(1)).findById(2L);
         verify(lineupRepository, never()).deleteById(1L);
     }
 }

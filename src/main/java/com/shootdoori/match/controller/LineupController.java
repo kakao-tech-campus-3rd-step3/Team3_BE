@@ -2,6 +2,7 @@ package com.shootdoori.match.controller;
 
 import com.shootdoori.match.dto.LineupRequestDto;
 import com.shootdoori.match.dto.LineupResponseDto;
+import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.LineupService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,12 +22,13 @@ public class LineupController {
     }
 
     @PostMapping
-    public ResponseEntity<LineupResponseDto> createLineup(@RequestBody LineupRequestDto requestDto) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(lineupService.createLineup(requestDto));
+    public ResponseEntity<LineupResponseDto> createLineup(@RequestBody LineupRequestDto requestDto,
+                                                          @LoginUser Long userId) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(lineupService.createLineup(requestDto, userId));
     }
 
     @GetMapping
-    public ResponseEntity<List<LineupResponseDto>> getAllLineups(@RequestParam(required = true) Long teamId) {
+    public ResponseEntity<List<LineupResponseDto>> getLineupsByTeamId(@RequestParam(required = true) Long teamId) {
         return ResponseEntity.ok(lineupService.getAllLineupsByTeamId(teamId));
     }
 
@@ -36,13 +38,16 @@ public class LineupController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<LineupResponseDto> updateLineup(@PathVariable Long id, @RequestBody LineupRequestDto requestDto) {
-        return ResponseEntity.ok(lineupService.updateLineup(id, requestDto));
+    public ResponseEntity<LineupResponseDto> updateLineup(@PathVariable Long id,
+                                                          @RequestBody LineupRequestDto requestDto,
+                                                          @LoginUser Long userId) {
+        return ResponseEntity.ok(lineupService.updateLineup(id, requestDto, userId));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteLineup(@PathVariable Long id) {
-        lineupService.deleteLineup(id);
+    public ResponseEntity<Void> deleteLineup(@PathVariable Long id,
+                                             @LoginUser Long userId) {
+        lineupService.deleteLineup(id, userId);
         return ResponseEntity.noContent().build();
     }
 }

@@ -167,6 +167,12 @@ public class TeamMember extends DateEntity {
         return this.role == TeamMemberRole.VICE_LEADER;
     }
 
+    public void checkCaptainPermission(Long userId) {
+        if(!Objects.equals(this.team.getCaptain().getId(), userId)) {
+            throw new NoPermissionException();
+        }
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || !(o instanceof TeamMember)) {
