@@ -27,12 +27,12 @@ public record MatchWaitingResponseDto(
     public static MatchWaitingResponseDto from(MatchWaiting mw) {
         return new MatchWaitingResponseDto(
             mw.getWaitingId(),
-            mw.getTeam().getTeamId(),
-            mw.getTeam().getTeamName(),
+            mw.getTeamId(),
+            mw.getTeamName(),
             mw.getPreferredDate(),
             mw.getPreferredTimeStart(),
             mw.getPreferredTimeEnd(),
-            mw.getPreferredVenue().getVenueId(),
+            mw.getVenueId(),
             mw.getSkillLevelMin(),
             mw.getSkillLevelMax(),
             mw.getUniversityOnly(),

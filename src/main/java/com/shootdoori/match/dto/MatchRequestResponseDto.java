@@ -16,10 +16,10 @@ public record MatchRequestResponseDto(
     public static MatchRequestResponseDto from(MatchRequest matchRequest) {
         return new MatchRequestResponseDto(
             matchRequest.getRequestId(),
-            matchRequest.getRequestTeam().getTeamId(),
-            matchRequest.getRequestTeam().getTeamName(),
-            matchRequest.getTargetTeam().getTeamId(),
-            matchRequest.getTargetTeam().getTeamName(),
+            matchRequest.getRequestTeamId(),
+            matchRequest.getRequestTeamName(),
+            matchRequest.getTargetTeamId(),
+            matchRequest.getTargetTeamName(),
             matchRequest.getRequestMessage(),
             matchRequest.getStatus()
         );

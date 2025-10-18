@@ -32,8 +32,7 @@ public class MatchRequestController {
         @PageableDefault(size = 10, sort = "preferredTimeStart", direction = Sort.Direction.ASC) Pageable pageable
     ) {
         MatchWaitingRequestDto requestDto = new MatchWaitingRequestDto(selectDate, startTime);
-        Slice<MatchWaitingResponseDto> slice = matchRequestService.getWaitingMatches(loginUserId,
-            requestDto, pageable);
+        Slice<MatchWaitingResponseDto> slice = matchRequestService.getWaitingMatches(loginUserId, requestDto, pageable);
         return ResponseEntity.ok(slice);
     }
 
@@ -43,8 +42,7 @@ public class MatchRequestController {
         @PathVariable Long waitingId,
         @RequestBody MatchRequestRequestDto requestDto
     ) {
-        MatchRequestResponseDto response = matchRequestService.requestToMatch(loginUserId,
-            waitingId, requestDto);
+        MatchRequestResponseDto response = matchRequestService.requestToMatch(loginUserId, waitingId, requestDto);
         return ResponseEntity.ok(response);
     }
 
@@ -53,8 +51,7 @@ public class MatchRequestController {
         @LoginUser Long loginUserId,
         @PathVariable Long requestId
     ) {
-        MatchRequestResponseDto response = matchRequestService.cancelMatchRequest(loginUserId,
-            requestId);
+        MatchRequestResponseDto response = matchRequestService.cancelMatchRequest(loginUserId, requestId);
         return ResponseEntity.ok(response);
     }
 
@@ -63,8 +60,7 @@ public class MatchRequestController {
         @LoginUser Long loginUserId,
         @PageableDefault(size = 10, sort = "requestAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        Slice<MatchRequestResponseDto> slice =
-            matchRequestService.getReceivedPendingRequests(loginUserId, pageable);
+        Slice<MatchRequestResponseDto> slice = matchRequestService.getReceivedPendingRequests(loginUserId, pageable);
         return ResponseEntity.ok(slice);
     }
 
@@ -73,8 +69,7 @@ public class MatchRequestController {
         @LoginUser Long loginUserId,
         @PathVariable Long requestId
     ) {
-        MatchConfirmedResponseDto response = matchRequestService.acceptRequest(loginUserId,
-            requestId);
+        MatchConfirmedResponseDto response = matchRequestService.acceptRequest(loginUserId, requestId);
         return ResponseEntity.ok(response);
     }
 
@@ -83,8 +78,7 @@ public class MatchRequestController {
         @LoginUser Long loginUserId,
         @PathVariable Long requestId
     ) {
-        MatchRequestResponseDto response = matchRequestService.rejectRequest(loginUserId,
-            requestId);
+        MatchRequestResponseDto response = matchRequestService.rejectRequest(loginUserId, requestId);
         return ResponseEntity.ok(response);
     }
 
@@ -93,7 +87,6 @@ public class MatchRequestController {
         @LoginUser Long loginUserId,
         @PageableDefault(size = 10, sort = "requestAt", direction = org.springframework.data.domain.Sort.Direction.DESC)
         Pageable pageable) {
-
         Slice<MatchRequestHistoryResponseDto> response = matchRequestService.getSentRequestsByMyTeam(loginUserId, pageable);
         return ResponseEntity.ok(response);
     }

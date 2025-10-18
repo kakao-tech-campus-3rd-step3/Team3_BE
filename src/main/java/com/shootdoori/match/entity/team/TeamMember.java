@@ -180,4 +180,8 @@ public class TeamMember extends DateEntity {
     public int hashCode() {
         return Objects.hashCode(id);
     }
+
+    public Long getTeamId() {
+        return this.team.getTeamId();
+    }
 }

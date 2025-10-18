@@ -2,6 +2,8 @@ package com.shootdoori.match.entity.match.request;
 
 import com.shootdoori.match.entity.match.waiting.MatchWaiting;
 import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.team.TeamMember;
+import com.shootdoori.match.value.TeamName;
 import jakarta.persistence.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -107,4 +109,25 @@ public class MatchRequest {
     public void cancelRequest() {
         this.status = MatchRequestStatus.CANCELED;
     }
+
+    public boolean requestBelongTo(TeamMember teamMember){
+        return this.requestTeam.equals(teamMember.getTeam());
+    }
+
+    public Long getRequestTeamId(){
+        return this.requestTeam.getTeamId();
+    }
+
+    public TeamName getRequestTeamName(){
+        return this.requestTeam.getTeamName();
+    }
+
+    public Long getTargetTeamId(){
+        return this.targetTeam.getTeamId();
+    }
+
+    public TeamName getTargetTeamName(){
+        return this.targetTeam.getTeamName();
+    }
+
 }

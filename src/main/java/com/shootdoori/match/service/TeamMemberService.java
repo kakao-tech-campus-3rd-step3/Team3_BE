@@ -100,8 +100,8 @@ public class TeamMemberService {
     }
 
     @Transactional(readOnly = true)
-    public TeamMember findByIdForEntity(Long id) {
-        return teamMemberRepository.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
+    public TeamMember findByUserIdForEntity(Long userId) {
+        return teamMemberRepository.findByUser_Id(userId).orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
     }
 
     public TeamMemberResponseDto update(Long teamId, Long targetUserId,

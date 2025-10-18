@@ -460,8 +460,8 @@ class MatchRequestServiceTest {
         assertThat(updatedWaiting.getMatchWaitingStatus()).isEqualTo(MatchWaitingStatus.MATCHED);
 
         // 4) Match 생성 확인
-        assertThat(match.getTeam1().getTeamId()).isEqualTo(targetTeam.getTeamId());
-        assertThat(match.getTeam2().getTeamId()).isEqualTo(requestTeam1.getTeamId());
+        assertThat(match.getMatchCreateTeam().getTeamId()).isEqualTo(targetTeam.getTeamId());
+        assertThat(match.getMatchRequestTeam().getTeamId()).isEqualTo(requestTeam1.getTeamId());
         assertThat(match.getStatus()).isEqualTo(MatchStatus.MATCHED); 
         assertThat(match.getMatchDate()).isEqualTo(savedWaiting.getPreferredDate());
         assertThat(match.getMatchTime()).isEqualTo(savedWaiting.getPreferredTimeStart());
