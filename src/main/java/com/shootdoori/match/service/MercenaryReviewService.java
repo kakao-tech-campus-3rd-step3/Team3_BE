@@ -2,10 +2,15 @@ package com.shootdoori.match.service;
 
 import com.shootdoori.match.dto.MercenaryReviewRequestDto;
 import com.shootdoori.match.dto.MercenaryReviewResponseDto;
-import com.shootdoori.match.entity.Match;
-import com.shootdoori.match.entity.Team;
-import com.shootdoori.match.entity.User;
-import com.shootdoori.match.entity.MercenaryReview;
+
+import com.shootdoori.match.entity.match.Match;
+import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.user.User;
+import com.shootdoori.match.entity.review.MercenaryReview;
+
+import com.shootdoori.match.exception.common.ErrorCode;
+import com.shootdoori.match.exception.common.NotFoundException;
+
 import com.shootdoori.match.repository.MatchRepository;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.MercenaryReviewRepository;
@@ -23,9 +28,9 @@ public class MercenaryReviewService {
     private final TeamRepository teamRepository;
 
     public MercenaryReviewService(MercenaryReviewRepository mercenaryReviewRepository,
-                             ProfileRepository profileRepository,
-                             MatchRepository matchRepository,
-                             TeamRepository teamRepository) {
+                                  ProfileRepository profileRepository,
+                                  MatchRepository matchRepository,
+                                  TeamRepository teamRepository) {
         this.mercenaryReviewRepository = mercenaryReviewRepository;
         this.profileRepository = profileRepository;
         this.matchRepository = matchRepository;
@@ -47,13 +52,13 @@ public class MercenaryReviewService {
     @Transactional
     public void post(MercenaryReviewRequestDto mercenaryReviewRequestDto) {
         Match match = matchRepository.findById(mercenaryReviewRequestDto.matchId())
-                .orElseThrow(() -> new IllegalArgumentException("match doesn't exist"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.MATCH_NOT_FOUND));
 
         Team reviewerTeam = teamRepository.findById(mercenaryReviewRequestDto.reviewerTeamId())
-                .orElseThrow(() -> new IllegalArgumentException("team doesn't exist"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND));
 
         User mercenary = profileRepository.findById(mercenaryReviewRequestDto.userId())
-                .orElseThrow(() -> new IllegalArgumentException("profile doesn't exist"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.PROFILE_NOT_FOUND));
 
         MercenaryReview mercenaryReview = new MercenaryReview(match, reviewerTeam, mercenary,
                 mercenaryReviewRequestDto.rating(), mercenaryReviewRequestDto.punctualityReview(),
@@ -64,16 +69,16 @@ public class MercenaryReviewService {
     @Transactional
     public void update(Long reviewId, MercenaryReviewRequestDto mercenaryReviewRequestDto) {
         MercenaryReview mercenaryReview = mercenaryReviewRepository.findById(reviewId)
-                .orElseThrow(() -> new IllegalArgumentException("mercenaryReview doesn't exist"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.MERCENARY_REVIEW_NOT_FOUND));
 
         Match match = matchRepository.findById(mercenaryReviewRequestDto.matchId())
-                .orElseThrow(() -> new IllegalArgumentException("match doesn't exist"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.MATCH_NOT_FOUND));
 
         Team reviewerTeam = teamRepository.findById(mercenaryReviewRequestDto.reviewerTeamId())
-                .orElseThrow(() -> new IllegalArgumentException("team doesn't exist"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND));
 
         User mercenary = profileRepository.findById(mercenaryReviewRequestDto.userId())
-                .orElseThrow(() -> new IllegalArgumentException("profile doesn't exist"));
+                .orElseThrow(() -> new NotFoundException(ErrorCode.PROFILE_NOT_FOUND));
 
         MercenaryReview newMercenaryReview = new MercenaryReview(match, reviewerTeam, mercenary,
                 mercenaryReviewRequestDto.rating(), mercenaryReviewRequestDto.punctualityReview(),

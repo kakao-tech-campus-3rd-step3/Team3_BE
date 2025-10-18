@@ -11,20 +11,16 @@ import com.shootdoori.match.dto.JoinWaitingMapper;
 import com.shootdoori.match.dto.JoinWaitingRejectRequestDto;
 import com.shootdoori.match.dto.JoinWaitingRequestDto;
 import com.shootdoori.match.dto.JoinWaitingResponseDto;
-import com.shootdoori.match.entity.JoinWaiting;
-import com.shootdoori.match.entity.JoinWaitingStatus;
-import com.shootdoori.match.entity.SkillLevel;
-import com.shootdoori.match.entity.Team;
-import com.shootdoori.match.entity.TeamMember;
-import com.shootdoori.match.entity.TeamMemberRole;
-import com.shootdoori.match.entity.TeamType;
-import com.shootdoori.match.entity.User;
-import com.shootdoori.match.exception.AlreadyTeamMemberException;
-import com.shootdoori.match.exception.DuplicatePendingJoinWaitingException;
-import com.shootdoori.match.exception.JoinWaitingNotFoundException;
-import com.shootdoori.match.exception.TeamMemberNotFoundException;
-import com.shootdoori.match.exception.TeamNotFoundException;
-import com.shootdoori.match.exception.UserNotFoundException;
+import com.shootdoori.match.entity.team.join.JoinWaiting;
+import com.shootdoori.match.entity.team.join.JoinWaitingStatus;
+import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.team.TeamMember;
+import com.shootdoori.match.entity.team.TeamMemberRole;
+import com.shootdoori.match.entity.team.TeamType;
+import com.shootdoori.match.entity.user.User;
+import com.shootdoori.match.exception.common.DuplicatedException;
+import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.JoinWaitingRepository;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
@@ -143,7 +139,7 @@ public class JoinWaitingServiceTest {
             teamLeader,
             "강원대학교",
             TeamType.fromDisplayName("과동아리"),
-            SkillLevel.fromDisplayName("세미프로"),
+            TeamSkillLevel.fromDisplayName("세미프로"),
             "주 3회 연습합니다."
         );
 
@@ -162,13 +158,13 @@ public class JoinWaitingServiceTest {
             // given
             Long applicantId = applicant.getId();
 
-            JoinWaitingRequestDto requestDto = new JoinWaitingRequestDto(applicantId,
+            JoinWaitingRequestDto requestDto = new JoinWaitingRequestDto(
                 "파트라슈처럼 뛰겠습니다.");
 
             JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "파트라슈처럼 뛰겠습니다.");
 
             JoinWaitingResponseDto expected = new JoinWaitingResponseDto(
-                JOIN_WAITING_ID, TEAM_ID, applicantId,
+                JOIN_WAITING_ID, applicant.getName(), TEAM_ID, team.getTeamName().name(), applicantId,
                 JoinWaitingStatus.PENDING.getDisplayName(),
                 null, null, null
             );
@@ -185,7 +181,7 @@ public class JoinWaitingServiceTest {
                 expected);
 
             // when
-            JoinWaitingResponseDto resultDto = joinWaitingService.create(TEAM_ID, requestDto);
+            JoinWaitingResponseDto resultDto = joinWaitingService.create(TEAM_ID, applicantId, requestDto);
 
             // then
             assertThat(resultDto).isEqualTo(expected);
@@ -197,7 +193,7 @@ public class JoinWaitingServiceTest {
         @DisplayName("create - 이미 팀원인 경우 예외")
         void create_alreadyMember_throws() {
             // given
-            JoinWaitingRequestDto requestDto = new JoinWaitingRequestDto(applicant.getId(),
+            JoinWaitingRequestDto requestDto = new JoinWaitingRequestDto(
                 "파트라슈처럼 뛰겠습니다.");
 
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
@@ -206,8 +202,8 @@ public class JoinWaitingServiceTest {
                 applicant.getId())).thenReturn(true);
 
             // when & then
-            assertThatThrownBy(() -> joinWaitingService.create(TEAM_ID, requestDto))
-                .isInstanceOf(AlreadyTeamMemberException.class);
+            assertThatThrownBy(() -> joinWaitingService.create(TEAM_ID, applicant.getId(), requestDto))
+                .isInstanceOf(DuplicatedException.class);
         }
 
         @Test
@@ -216,7 +212,7 @@ public class JoinWaitingServiceTest {
             // given
             Long applicantId = applicant.getId();
 
-            JoinWaitingRequestDto requestDto = new JoinWaitingRequestDto(applicantId,
+            JoinWaitingRequestDto requestDto = new JoinWaitingRequestDto(
                 "파트라슈처럼 뛰겠습니다.");
 
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
@@ -229,37 +225,53 @@ public class JoinWaitingServiceTest {
                 JoinWaitingStatus.PENDING)).thenReturn(true);
 
             // when & then
-            assertThatThrownBy(() -> joinWaitingService.create(TEAM_ID, requestDto))
-                .isInstanceOf(DuplicatePendingJoinWaitingException.class);
+            assertThatThrownBy(() -> joinWaitingService.create(TEAM_ID, applicantId, requestDto))
+                .isInstanceOf(DuplicatedException.class);
         }
 
         @Test
         @DisplayName("create - 팀 없음 예외")
         void create_teamNotFound_throws() {
             // given
-            JoinWaitingRequestDto requestDto = new JoinWaitingRequestDto(applicant.getId(),
+            JoinWaitingRequestDto requestDto = new JoinWaitingRequestDto(
                 "파트라슈처럼 뛰겠습니다.");
 
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> joinWaitingService.create(TEAM_ID, requestDto))
-                .isInstanceOf(TeamNotFoundException.class);
+            assertThatThrownBy(() -> joinWaitingService.create(TEAM_ID, applicant.getId(), requestDto))
+                .isInstanceOf(NotFoundException.class);
         }
 
         @Test
         @DisplayName("create - 사용자 없음 예외")
         void create_userNotFound_throws() {
             // given
-            JoinWaitingRequestDto requestDto = new JoinWaitingRequestDto(applicant.getId(),
+            JoinWaitingRequestDto requestDto = new JoinWaitingRequestDto(
                 "파트라슈처럼 뛰겠습니다.");
 
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
             when(profileRepository.findById(applicant.getId())).thenReturn(Optional.empty());
 
             // when & then
-            assertThatThrownBy(() -> joinWaitingService.create(TEAM_ID, requestDto))
-                .isInstanceOf(UserNotFoundException.class);
+            assertThatThrownBy(() -> joinWaitingService.create(TEAM_ID, applicant.getId(), requestDto))
+                .isInstanceOf(NotFoundException.class);
+        }
+
+        @Test
+        @DisplayName("create - 전역 소속(다른 팀 소속)인 경우 예외")
+        void create_alreadyOtherTeamMember_throws() {
+            // given
+            Long applicantId = applicant.getId();
+            JoinWaitingRequestDto requestDto = new JoinWaitingRequestDto("파트라슈처럼 뛰겠습니다.");
+
+            when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
+            when(profileRepository.findById(applicantId)).thenReturn(Optional.of(applicant));
+            when(teamMemberRepository.existsByUser_Id(applicantId)).thenReturn(true);
+
+            // when & then
+            assertThatThrownBy(() -> joinWaitingService.create(TEAM_ID, applicantId, requestDto))
+                .isInstanceOf(DuplicatedException.class);
         }
     }
 
@@ -273,11 +285,11 @@ public class JoinWaitingServiceTest {
             // given
             Long applicantId = applicant.getId();
             JoinWaitingApproveRequestDto requestDto = new JoinWaitingApproveRequestDto(
-                TEAM_MEMBER_ID, MEMBER, "승인합니다.");
+                MEMBER, "승인합니다.");
 
             JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입요청");
 
-            when(teamMemberRepository.findByIdAndTeam_TeamId(TEAM_MEMBER_ID, TEAM_ID))
+            when(teamMemberRepository.findByUser_Id(teamLeader.getId()))
                 .thenReturn(Optional.of(leaderMember));
             when(joinWaitingRepository.findByIdAndTeam_TeamIdForUpdate(JOIN_WAITING_ID, TEAM_ID))
                 .thenReturn(Optional.of(joinWaiting));
@@ -285,16 +297,16 @@ public class JoinWaitingServiceTest {
                 .thenReturn(false);
 
             JoinWaitingResponseDto expected = new JoinWaitingResponseDto(
-                JOIN_WAITING_ID, TEAM_ID, applicantId,
+                JOIN_WAITING_ID, applicant.getName(), TEAM_ID, team.getTeamName().name(), applicantId,
                 JoinWaitingStatus.APPROVED.getDisplayName(),
-                "승인합니다", teamLeader.toString(), FIXED_TIME
+                "승인합니다", teamLeader.getName(), FIXED_TIME
             );
 
             when(joinWaitingMapper.toJoinWaitingResponseDto(any(JoinWaiting.class))).thenReturn(
                 expected);
 
             // when
-            JoinWaitingResponseDto resultDto = joinWaitingService.approve(TEAM_ID, JOIN_WAITING_ID,
+            JoinWaitingResponseDto resultDto = joinWaitingService.approve(TEAM_ID, JOIN_WAITING_ID, teamLeader.getId(),
                 requestDto);
 
             // then
@@ -311,15 +323,12 @@ public class JoinWaitingServiceTest {
         void approve_teamMemberNotFound_throws() {
             // given
             JoinWaitingApproveRequestDto requestDto = new JoinWaitingApproveRequestDto(
-                TEAM_MEMBER_ID, MEMBER, "승인합니다.");
-
-            when(teamMemberRepository.findByIdAndTeam_TeamId(TEAM_MEMBER_ID, TEAM_ID))
-                .thenReturn(Optional.empty());
+                 MEMBER, "승인합니다.");
 
             // when & then
             assertThatThrownBy(
-                () -> joinWaitingService.approve(TEAM_ID, JOIN_WAITING_ID, requestDto))
-                .isInstanceOf(TeamMemberNotFoundException.class);
+                () -> joinWaitingService.approve(TEAM_ID, JOIN_WAITING_ID, teamLeader.getId(), requestDto))
+                .isInstanceOf(NotFoundException.class);
         }
 
         @Test
@@ -327,17 +336,12 @@ public class JoinWaitingServiceTest {
         void approve_joinWaitingNotFound_throws() {
             // given
             JoinWaitingApproveRequestDto requestDto = new JoinWaitingApproveRequestDto(
-                TEAM_MEMBER_ID, MEMBER, "승인합니다.");
-
-            when(teamMemberRepository.findByIdAndTeam_TeamId(TEAM_MEMBER_ID, TEAM_ID))
-                .thenReturn(Optional.of(leaderMember));
-            when(joinWaitingRepository.findByIdAndTeam_TeamIdForUpdate(JOIN_WAITING_ID, TEAM_ID))
-                .thenReturn(Optional.empty());
+                MEMBER, "승인합니다.");
 
             // when & then
             assertThatThrownBy(
-                () -> joinWaitingService.approve(TEAM_ID, JOIN_WAITING_ID, requestDto))
-                .isInstanceOf(JoinWaitingNotFoundException.class);
+                () -> joinWaitingService.approve(TEAM_ID, JOIN_WAITING_ID, teamLeader.getId(), requestDto))
+                .isInstanceOf(NotFoundException.class);
         }
 
         @Test
@@ -347,11 +351,11 @@ public class JoinWaitingServiceTest {
             Long applicantId = applicant.getId();
 
             JoinWaitingApproveRequestDto requestDto = new JoinWaitingApproveRequestDto(
-                TEAM_MEMBER_ID, MEMBER, "승인합니다.");
+                MEMBER, "승인합니다.");
 
             JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입요청");
 
-            when(teamMemberRepository.findByIdAndTeam_TeamId(TEAM_MEMBER_ID, TEAM_ID))
+            when(teamMemberRepository.findByUser_Id(teamLeader.getId()))
                 .thenReturn(Optional.of(leaderMember));
             when(joinWaitingRepository.findByIdAndTeam_TeamIdForUpdate(JOIN_WAITING_ID, TEAM_ID))
                 .thenReturn(Optional.of(joinWaiting));
@@ -360,8 +364,30 @@ public class JoinWaitingServiceTest {
 
             // when & then
             assertThatThrownBy(
-                () -> joinWaitingService.approve(TEAM_ID, JOIN_WAITING_ID, requestDto))
-                .isInstanceOf(AlreadyTeamMemberException.class);
+                () -> joinWaitingService.approve(TEAM_ID, JOIN_WAITING_ID, teamLeader.getId(), requestDto))
+                .isInstanceOf(DuplicatedException.class);
+        }
+
+        @Test
+        @DisplayName("approve - 전역 소속(다른 팀 소속)인 경우 예외")
+        void approve_alreadyOtherTeamMember_throws() {
+            // given
+            Long applicantId = applicant.getId();
+            JoinWaitingApproveRequestDto requestDto = new JoinWaitingApproveRequestDto(
+                MEMBER, "승인합니다.");
+
+            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입요청");
+
+            when(teamMemberRepository.findByUser_Id(teamLeader.getId()))
+                .thenReturn(Optional.of(leaderMember));
+            when(joinWaitingRepository.findByIdAndTeam_TeamIdForUpdate(JOIN_WAITING_ID, TEAM_ID))
+                .thenReturn(Optional.of(joinWaiting));
+            when(teamMemberRepository.existsByUser_Id(applicantId)).thenReturn(true);
+
+            // when & then
+            assertThatThrownBy(
+                () -> joinWaitingService.approve(TEAM_ID, JOIN_WAITING_ID, teamLeader.getId(), requestDto))
+                .isInstanceOf(DuplicatedException.class);
         }
     }
 
@@ -377,25 +403,25 @@ public class JoinWaitingServiceTest {
             Long applicantId = applicant.getId();
 
             JoinWaitingRejectRequestDto requestDto = new JoinWaitingRejectRequestDto(
-                approverId, "죄송합니다.");
+                "죄송합니다.");
 
             JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입요청");
 
-            when(teamMemberRepository.findByIdAndTeam_TeamId(approverId, TEAM_ID))
+            when(teamMemberRepository.findByUser_Id(teamLeader.getId()))
                 .thenReturn(Optional.of(leaderMember));
             when(joinWaitingRepository.findByIdAndTeam_TeamIdForUpdate(JOIN_WAITING_ID, TEAM_ID))
                 .thenReturn(Optional.of(joinWaiting));
 
             JoinWaitingResponseDto expected = new JoinWaitingResponseDto(
-                JOIN_WAITING_ID, TEAM_ID, applicantId,
+                JOIN_WAITING_ID, applicant.getName(), TEAM_ID, team.getTeamName().name(), applicantId,
                 JoinWaitingStatus.REJECTED.getDisplayName(),
-                "죄송합니다", teamLeader.toString(), FIXED_TIME
+                "죄송합니다", teamLeader.getName(), FIXED_TIME
             );
             when(joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting)).thenReturn(expected);
 
             // when
             JoinWaitingResponseDto resultDto = joinWaitingService.reject(TEAM_ID, JOIN_WAITING_ID,
-                requestDto);
+                leaderMember.getId(), requestDto);
 
             // then
             assertThat(resultDto.status()).isEqualTo(JoinWaitingStatus.REJECTED.getDisplayName());
@@ -417,22 +443,22 @@ public class JoinWaitingServiceTest {
             JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입요청");
 
             JoinWaitingCancelRequestDto requestDto = new JoinWaitingCancelRequestDto(
-                requesterId, "개인 사정으로 취소합니다.");
+                "개인 사정으로 취소합니다.");
 
             when(profileRepository.findById(requesterId)).thenReturn(Optional.of(applicant));
             when(joinWaitingRepository.findByIdAndTeam_TeamIdForUpdate(JOIN_WAITING_ID, TEAM_ID))
                 .thenReturn(Optional.of(joinWaiting));
 
             JoinWaitingResponseDto expected = new JoinWaitingResponseDto(
-                JOIN_WAITING_ID, TEAM_ID, applicantId,
+                JOIN_WAITING_ID, applicant.getName(), TEAM_ID, team.getTeamName().name(), applicantId,
                 JoinWaitingStatus.CANCELED.getDisplayName(),
-                "개인 사정으로 취소합니다.", applicant.toString(), FIXED_TIME
+                "개인 사정으로 취소합니다.", applicant.getName(), FIXED_TIME
             );
             when(joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting)).thenReturn(expected);
 
             // when
             JoinWaitingResponseDto resultDto = joinWaitingService.cancel(TEAM_ID, JOIN_WAITING_ID,
-                requestDto);
+                applicant.getId(), requestDto);
 
             // then
             assertThat(resultDto.status()).isEqualTo(JoinWaitingStatus.CANCELED.getDisplayName());
@@ -456,11 +482,11 @@ public class JoinWaitingServiceTest {
             Page<JoinWaiting> joinWaitingPage = new PageImpl<>(joinWaitingList, pageRequest, 2);
 
             JoinWaitingResponseDto responseDto1 = new JoinWaitingResponseDto(
-                1L, TEAM_ID, applicant.getId(), JoinWaitingStatus.PENDING.getDisplayName(), null,
+                1L, applicant.getName(), TEAM_ID, team.getTeamName().name(), applicant.getId(), JoinWaitingStatus.PENDING.getDisplayName(), null,
                 null, null
             );
             JoinWaitingResponseDto responseDto2 = new JoinWaitingResponseDto(
-                2L, TEAM_ID, anotherUser.getId(), JoinWaitingStatus.PENDING.getDisplayName(), null,
+                2L, anotherUser.getName(), TEAM_ID, team.getTeamName().name(), anotherUser.getId(), JoinWaitingStatus.PENDING.getDisplayName(), null,
                 null, null
             );
 
@@ -472,6 +498,108 @@ public class JoinWaitingServiceTest {
             assertThat(resultDtoPage.getContent()).hasSize(2);
             assertThat(resultDtoPage.getContent().get(0).id()).isEqualTo(1L);
             assertThat(resultDtoPage.getContent().get(1).id()).isEqualTo(2L);
+        }
+    }
+
+    @Nested
+    @DisplayName("findAllByApplicant_IdAndStatusIn 테스트")
+    class findAllByApplicantIdAndStatusIn {
+
+        private Team anotherTeam;
+        private List<JoinWaitingStatus> targetStatuses = List.of(JoinWaitingStatus.PENDING,
+            JoinWaitingStatus.REJECTED);
+
+        @BeforeEach
+        void setUpForfindAllByApplicantIdAndStatusIn() {
+            anotherTeam = new Team(
+                "감자빵 FC",
+                anotherUser,
+                "강원대학교",
+                TeamType.fromDisplayName("과동아리"),
+                TeamSkillLevel.fromDisplayName("아마추어"),
+                "주 2회 연습합니다."
+            );
+            ReflectionTestUtils.setField(anotherTeam, "teamId", 2L);
+        }
+
+        @Test
+        @DisplayName("findAllByApplicant_IdAndStatusIn - 사용자 별 가입 요청 목록 페이징 조회")
+        void findAllByApplicant_IdAndStatusIn_success() {
+            // given
+            Long applicantId = applicant.getId();
+
+            JoinWaiting joinWaiting1 = JoinWaiting.create(team, applicant, "가입요청");
+            JoinWaiting joinWaiting2 = JoinWaiting.create(anotherTeam, applicant, "가입요청2");
+
+            List<JoinWaiting> joinWaitingList = List.of(joinWaiting1, joinWaiting2);
+            PageRequest pageRequest = PageRequest.of(PAGE, SIZE);
+            Page<JoinWaiting> joinWaitingPage = new PageImpl<>(joinWaitingList, pageRequest, 2);
+
+            JoinWaitingResponseDto responseDto1 = new JoinWaitingResponseDto(
+                1L, applicant.getName(), 1L, team.getTeamName().name(), applicantId, JoinWaitingStatus.PENDING.getDisplayName(),
+                "저 잘 뜁니다 1", null, null
+            );
+
+            JoinWaitingResponseDto responseDto2 = new JoinWaitingResponseDto(
+                2L, applicant.getName(), 2L, anotherTeam.getTeamName().name(), applicantId, JoinWaitingStatus.PENDING.getDisplayName(),
+                "저 잘 뜁니다 2", null, null
+            );
+
+            when(profileRepository.findById(applicantId)).thenReturn(Optional.of(applicant));
+            when(joinWaitingRepository.findAllByApplicant_IdAndStatusIn(applicantId,
+                targetStatuses, pageRequest)).thenReturn(joinWaitingPage);
+            when(joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting1)).thenReturn(responseDto1);
+            when(joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting2)).thenReturn(responseDto2);
+
+            // when
+            Page<JoinWaitingResponseDto> resultDtoPage = joinWaitingService.findAllByApplicant_IdAndStatusIn(
+                applicantId, pageRequest);
+
+            // then
+            assertThat(resultDtoPage).hasSize(2);
+            assertThat(resultDtoPage.getContent()).hasSize(2);
+            assertThat(resultDtoPage.getTotalElements()).isEqualTo(2);
+            assertThat(resultDtoPage.getContent().get(0).applicantId()).isEqualTo(applicantId);
+            assertThat(resultDtoPage.getContent().get(1).applicantId()).isEqualTo(applicantId);
+        }
+
+        @Test
+        @DisplayName("findAllByApplicant_IdAndStatusIn - 사용자 없음 예외")
+        void findAllByApplicant_IdAndStatusIn_userNotFound_throws() {
+            // given
+            Long nonExistApplicantId = 100L;
+            PageRequest pageRequest = PageRequest.of(PAGE, SIZE);
+
+            when(profileRepository.findById(nonExistApplicantId)).thenReturn(Optional.empty());
+
+            // when & then
+            assertThatThrownBy(
+                () -> joinWaitingService.findAllByApplicant_IdAndStatusIn(
+                    nonExistApplicantId, pageRequest))
+                .isInstanceOf(NotFoundException.class);
+        }
+
+        @Test
+        @DisplayName("findAllByApplicant_IdAndStatusIn - 빈 결과 반환")
+        void findAllByApplicant_IdAndStatusIn_emptyResult() {
+            // given
+            Long applicantId = applicant.getId();
+            PageRequest pageRequest = PageRequest.of(PAGE, SIZE);
+            Page<JoinWaiting> emptyPage = new PageImpl<>(List.of(), pageRequest, 0);
+
+            when(profileRepository.findById(applicantId)).thenReturn(Optional.of(applicant));
+            when(joinWaitingRepository.findAllByApplicant_IdAndStatusIn(applicantId, targetStatuses,
+                pageRequest)).thenReturn(
+                emptyPage);
+
+            // when
+            Page<JoinWaitingResponseDto> resultDtoPage = joinWaitingService.findAllByApplicant_IdAndStatusIn(
+                applicantId, pageRequest);
+
+            // then
+            assertThat(resultDtoPage).hasSize(0);
+            assertThat(resultDtoPage.getContent()).isEmpty();
+            assertThat(resultDtoPage.getTotalElements()).isEqualTo(0);
         }
     }
 }

@@ -2,172 +2,229 @@ package com.shootdoori.match.service;
 
 
 import com.shootdoori.match.dto.*;
-import com.shootdoori.match.entity.*;
-import com.shootdoori.match.exception.MatchRequestNotFoundException;
-import com.shootdoori.match.exception.MatchWaitingNotFoundException;
-import com.shootdoori.match.exception.TeamNotFoundException;
-import com.shootdoori.match.repository.MatchRequestRepository;
-import com.shootdoori.match.repository.MatchWaitingRepository;
-import com.shootdoori.match.repository.MatchRepository;
-import com.shootdoori.match.repository.TeamRepository;
-
-import java.time.LocalDateTime;
-
+import com.shootdoori.match.entity.match.Match;
+import com.shootdoori.match.entity.match.MatchStatus;
+import com.shootdoori.match.entity.match.request.MatchRequest;
+import com.shootdoori.match.entity.match.request.MatchRequestStatus;
+import com.shootdoori.match.entity.match.waiting.MatchWaiting;
+import com.shootdoori.match.entity.match.waiting.MatchWaitingStatus;
+import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.team.TeamMember;
+import com.shootdoori.match.exception.common.DuplicatedException;
+import com.shootdoori.match.exception.common.ErrorCode;
+import com.shootdoori.match.exception.common.NoPermissionException;
+import com.shootdoori.match.exception.common.NotFoundException;
+import com.shootdoori.match.exception.domain.match.OneselfMatchException;
+import com.shootdoori.match.repository.*;
+import com.shootdoori.match.value.TeamName;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+
 @Service
 public class MatchRequestService {
 
-  private final MatchRequestRepository matchRequestRepository;
-  private final MatchWaitingRepository matchWaitingRepository;
-  private final MatchRepository matchRepository;
-  private final TeamRepository teamRepository;
+    private final MatchRequestRepository matchRequestRepository;
+    private final MatchWaitingRepository matchWaitingRepository;
+    private final MatchRepository matchRepository;
+    private final TeamRepository teamRepository;
+    private final TeamMemberRepository teamMemberRepository;
 
-  public MatchRequestService(MatchRequestRepository matchRequestRepository,
-                             MatchWaitingRepository matchWaitingRepository,
-                             MatchRepository matchRepository,
-                             TeamRepository teamRepository) {
-    this.matchRequestRepository = matchRequestRepository;
-    this.matchWaitingRepository = matchWaitingRepository;
-    this.matchRepository = matchRepository;
-    this.teamRepository = teamRepository;
-  }
+    public MatchRequestService(MatchRequestRepository matchRequestRepository,
+                               MatchWaitingRepository matchWaitingRepository,
+                               MatchRepository matchRepository,
+                               TeamRepository teamRepository,
+                               TeamMemberRepository teamMemberRepository) {
+        this.matchRequestRepository = matchRequestRepository;
+        this.matchWaitingRepository = matchWaitingRepository;
+        this.matchRepository = matchRepository;
+        this.teamRepository = teamRepository;
+        this.teamMemberRepository = teamMemberRepository;
+    }
 
-  @Transactional(readOnly = true)
-  public Slice<MatchWaitingResponseDto> getWaitingMatches(MatchWaitingRequestDto matchWaitingRequestDto, Pageable pageable){
-    Team searchRequestTeam = teamRepository.findById(matchWaitingRequestDto.teamId())
-      .orElseThrow(() -> new TeamNotFoundException(matchWaitingRequestDto.teamId()));
+    @Transactional(readOnly = true)
+    public Slice<MatchWaitingResponseDto> getWaitingMatches(Long loginUserId,
+                                                            MatchWaitingRequestDto matchWaitingRequestDto, Pageable pageable) {
+        TeamMember teamMember = teamMemberRepository.findByUser_Id(loginUserId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
-    return matchWaitingRepository.findAvailableMatchesByDateCursor
-        (matchWaitingRequestDto.teamId(),
-          matchWaitingRequestDto.selectDate(),
-          matchWaitingRequestDto.startTime(),
-          pageable)
-      .map(mw -> new MatchWaitingResponseDto(
-        mw.getWaitingId(),
-        mw.getTeam().getTeamId(),
-        mw.getPreferredDate(),
-        mw.getPreferredTimeStart(),
-        mw.getPreferredTimeEnd(),
-        mw.getPreferredVenue().getVenueId(),
-        mw.getSkillLevelMin(),
-        mw.getSkillLevelMax(),
-        mw.getUniversityOnly(),
-        mw.getMessage(),
-        mw.getMatchRequestStatus(),
-        mw.getExpiresAt()
-      ));
-  }
+        Team team = teamMember.getTeam();
 
-  @Transactional
-  public MatchRequestResponseDto requestToMatch(Long waitingId, MatchRequestRequestDto requestDto) {
+        Long myTeamId = team.getTeamId();
 
-    MatchWaiting targetWaiting = matchWaitingRepository.findById(waitingId)
-        .orElseThrow(() -> new MatchWaitingNotFoundException(waitingId));
+        return matchWaitingRepository.findAvailableMatchesByDateCursor
+                (myTeamId,
+                    matchWaitingRequestDto.selectDate(),
+                    matchWaitingRequestDto.startTime(),
+                    pageable)
+            .map(MatchWaitingResponseDto::from);
+    }
 
-    Team requestTeam = teamRepository.findById(requestDto.requestTeamId())
-        .orElseThrow(() -> new TeamNotFoundException(requestDto.requestTeamId()));
+    @Transactional
+    public MatchRequestResponseDto requestToMatch(Long loginUserId, Long waitingId,
+                                                  MatchRequestRequestDto requestDto) {
+        TeamMember teamMember = teamMemberRepository.findByUser_Id(loginUserId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
-    MatchRequest matchRequest = new MatchRequest(
-      targetWaiting,
-      requestTeam,
-      targetWaiting.getTeam(),
-      requestDto.requestMessage()
-    );
+        Team requestTeam = teamMember.getTeam();
 
-    MatchRequest saved = matchRequestRepository.save(matchRequest);
+        Long requestTeamId = requestTeam.getTeamId();
 
-    return new MatchRequestResponseDto(
-        saved.getRequestId(),
-        saved.getRequestTeam().getTeamId(),
-        saved.getTargetTeam().getTeamId(),
-        saved.getRequestMessage(),
-        saved.getStatus()
-    );
-  }
+        MatchWaiting targetWaiting = matchWaitingRepository.findById(waitingId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.MATCH_WAITING_NOT_FOUND,
+                String.valueOf(waitingId)));
 
-  @Transactional
-  public MatchRequestResponseDto cancelMatchRequest(Long requestId) {
-    MatchRequest matchRequest = matchRequestRepository.findById(requestId)
-      .orElseThrow(() -> new MatchRequestNotFoundException(requestId));
+        Long targetTeamId = targetWaiting.getTeam().getTeamId();
 
-    matchRequest.cancelRequest();
+        if (targetTeamId.equals(requestTeamId)) {
+            throw new OneselfMatchException();
+        }
 
-    return new MatchRequestResponseDto(
-      matchRequest.getRequestId(),
-      matchRequest.getRequestTeam().getTeamId(),
-      matchRequest.getTargetTeam().getTeamId(),
-      matchRequest.getRequestMessage(),
-      matchRequest.getStatus()
-    );
-  }
+        boolean alreadyRequested = matchRequestRepository.existsActiveRequest(
+            waitingId,
+            requestTeamId,
+            MatchRequestStatus.CANCELED
+        );
+        if (alreadyRequested) {
+            throw new DuplicatedException(ErrorCode.ALREADY_MATCH_REQUEST);
+        }
+
+        MatchRequest matchRequest = new MatchRequest(
+            targetWaiting,
+            requestTeam,
+            targetWaiting.getTeam(),
+            requestDto.requestMessage()
+        );
+
+        MatchRequest saved = matchRequestRepository.save(matchRequest);
+
+        return MatchRequestResponseDto.from(saved);
+    }
+
+    @Transactional
+    public MatchRequestResponseDto cancelMatchRequest(Long loginUserId, Long requestId) {
+        TeamMember teamMember = teamMemberRepository.findByUser_Id(loginUserId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
+
+        Team cancelRequestTeam = teamMember.getTeam();
+
+        Long cancelRequestTeamId = cancelRequestTeam.getTeamId();
+
+        MatchRequest matchRequest = matchRequestRepository.findById(requestId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.MATCH_REQUEST_NOT_FOUND,
+                String.valueOf(requestId)));
+
+        Long existMatchRequestedTeamId = matchRequest.getRequestTeam().getTeamId();
+
+        if (cancelRequestTeamId.longValue() != existMatchRequestedTeamId.longValue()) {
+            throw new NoPermissionException();
+        }
+
+        matchRequest.cancelRequest();
+
+        return MatchRequestResponseDto.from(matchRequest);
+    }
 
 
-  @Transactional(readOnly = true)
-  public Slice<MatchRequestResponseDto> getReceivedPendingRequests(Long teamId, Pageable pageable) {
-    Team targetTeam = teamRepository.findById(teamId)
-      .orElseThrow(() -> new TeamNotFoundException(teamId));
+    @Transactional(readOnly = true)
+    public Slice<MatchRequestResponseDto> getReceivedPendingRequests(Long loginUserId,
+                                                                     Pageable pageable) {
+        TeamMember teamMember = teamMemberRepository.findByUser_Id(loginUserId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
-    return matchRequestRepository.findPendingRequestsByTargetTeam(teamId, pageable)
-      .map(mr -> new MatchRequestResponseDto(
-        mr.getRequestId(),
-        mr.getRequestTeam().getTeamId(),
-        mr.getTargetTeam().getTeamId(),
-        mr.getRequestMessage(),
-        mr.getStatus()
-      ));
-  }
+        Team myTeam = teamMember.getTeam();
 
-  @Transactional
-  public MatchConfirmedResponseDto acceptRequest(Long requestId) {
-    MatchRequest matchRequest = matchRequestRepository.findById(requestId)
-      .orElseThrow(() -> new MatchRequestNotFoundException(requestId));
+        Long myTeamId = myTeam.getTeamId();
 
-    MatchWaiting matchWaiting = matchRequest.getMatchWaiting();
+        return matchRequestRepository.findPendingRequestsByTargetTeam(myTeamId, pageable)
+            .map(MatchRequestResponseDto::from);
+    }
 
-    matchRequest.updateRequestStatus(MatchRequestStatus.ACCEPTED, LocalDateTime.now());
-    matchWaiting.updateWaitingStatus(MatchWaitingStatus.MATCHED);
+    @Transactional
+    public MatchConfirmedResponseDto acceptRequest(Long loginUserId, Long requestId) {
+        MatchRequest matchRequest = matchRequestRepository.findById(requestId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.MATCH_REQUEST_NOT_FOUND,
+                String.valueOf(requestId)));
 
-    matchRequestRepository.rejectOtherRequests(matchRequest.getTargetTeam().getTeamId(), requestId, matchWaiting.getWaitingId());
+        TeamMember teamMember = teamMemberRepository.findByUser_Id(loginUserId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
-    Match match = new Match(
-      matchRequest.getTargetTeam(),
-      matchRequest.getRequestTeam(),
-      matchWaiting.getPreferredDate(),
-      matchWaiting.getPreferredTimeStart(),
-      matchWaiting.getPreferredVenue(),
-      MatchStatus.MATCHED
-    );
-    matchRepository.save(match);
+        Team determineTeam = teamMember.getTeam();
+        Long determineTeamId = determineTeam.getTeamId();
 
-    return new MatchConfirmedResponseDto(
-      match.getMatchId(),
-      match.getTeam1().getTeamId(),
-      match.getTeam2().getTeamId(),
-      match.getMatchDate(),
-      match.getMatchTime(),
-      match.getVenue().getVenueId(),
-      match.getStatus()
-    );
-  }
+        MatchWaiting matchWaiting = matchRequest.getMatchWaiting();
+        Long waitingTeamId = matchWaiting.getTeam().getTeamId();
 
-  @Transactional
-  public MatchRequestResponseDto rejectRequest(Long requestId) {
-    MatchRequest matchRequest = matchRequestRepository.findById(requestId)
-      .orElseThrow(() -> new MatchRequestNotFoundException(requestId));
+        if (!determineTeamId.equals(waitingTeamId)) {
+            throw new NoPermissionException();
+        }
 
-    matchRequest.updateRequestStatus(MatchRequestStatus.REJECTED, LocalDateTime.now());
+        Team targetTeam = matchRequest.getTargetTeam();
+        Team requestTeam = matchRequest.getRequestTeam();
+        TeamName targetTeamName = targetTeam.getTeamName();
+        TeamName requestTeamName = requestTeam.getTeamName();
 
-    return new MatchRequestResponseDto(
-      matchRequest.getRequestId(),
-      matchRequest.getRequestTeam().getTeamId(),
-      matchRequest.getTargetTeam().getTeamId(),
-      matchRequest.getRequestMessage(),
-      matchRequest.getStatus()
-    );
-  }
+        matchRequest.updateRequestStatus(MatchRequestStatus.ACCEPTED, LocalDateTime.now());
+        matchWaiting.updateWaitingStatus(MatchWaitingStatus.MATCHED);
 
+        matchRequestRepository.rejectOtherRequests(targetTeam.getTeamId(), requestId,
+            matchWaiting.getWaitingId());
+
+        Match match = new Match(
+            targetTeam,
+            requestTeam,
+            matchWaiting.getPreferredDate(),
+            matchWaiting.getPreferredTimeStart(),
+            matchWaiting.getPreferredVenue(),
+            MatchStatus.FINISHED // 임시 변경
+        );
+        matchRepository.save(match);
+
+        return MatchConfirmedResponseDto.from(match);
+    }
+
+    @Transactional
+    public MatchRequestResponseDto rejectRequest(Long loginUserId, Long requestId) {
+        MatchRequest matchRequest = matchRequestRepository.findById(requestId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.MATCH_REQUEST_NOT_FOUND,
+                String.valueOf(requestId)));
+
+        TeamMember teamMember = teamMemberRepository.findByUser_Id(loginUserId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
+
+        Team determineTeam = teamMember.getTeam();
+
+        Long determineTeamId = determineTeam.getTeamId();
+
+        MatchWaiting matchWaiting = matchRequest.getMatchWaiting();
+        Long waitingTeamId = matchWaiting.getTeam().getTeamId();
+
+        if (determineTeamId.longValue() != waitingTeamId.longValue()) {
+            throw new NoPermissionException();
+        }
+
+        matchRequest.updateRequestStatus(MatchRequestStatus.REJECTED, LocalDateTime.now());
+
+        return MatchRequestResponseDto.from(matchRequest);
+    }
+
+    @Transactional(readOnly = true)
+    public Slice<MatchRequestHistoryResponseDto> getSentRequestsByMyTeam(Long loginUserId,
+                                                          Pageable pageable) {
+        TeamMember teamMember = teamMemberRepository.findByUser_Id(loginUserId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
+
+        Long myTeamId = teamMember.getTeam().getTeamId();
+
+        return matchRequestRepository.findSentRequestsByTeam(myTeamId, pageable)
+            .map(MatchRequestHistoryResponseDto::from);
+    }
+
+    @Transactional
+    public void deleteAllByTeamId(Long teamId) {
+        matchRequestRepository.deleteAllByTeamId(teamId);
+    }
 }

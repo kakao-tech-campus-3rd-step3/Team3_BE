@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>계정 및 데이터 삭제 요청 – 슛두리</title>
+  <meta name="description" content="사용자의 계정 및 관련 데이터 삭제 요청 안내 페이지" />
+  <meta property="og:title" content="계정 및 데이터 삭제 요청 – 슛두리" />
+  <meta property="og:description" content="개인 정보 보호를 위해 계정 및 연관 데이터 삭제를 요청할 수 있습니다." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="/images/logo_without_background.png" th:content="@{/images/logo_without_background.png}" />
+  <meta name="theme-color" content="#2b7a4b" />
+  <style>
+    :root{
+      --bg: #0f1312;
+      --card: #111815;
+      --muted: #8aa396;
+      --text: #e9f4ee;
+      --brand: #2b7a4b;
+      --brand-2: #1f5a37;
+      --brand-soft: rgba(43,122,75,.15);
+      --ring: rgba(43,122,75,.5);
+      --shadow: rgba(0,0,0,.45);
+      --radius-lg: 18px;
+      --radius-md: 14px;
+      --radius-sm: 10px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%;}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Pretendard, "Noto Sans KR", Arial, Apple SD Gothic Neo, sans-serif;
+      color: var(--text);
+      background: radial-gradient(1200px 600px at 20% -10%, rgba(43,122,75,.25), transparent 60%),
+                  radial-gradient(900px 500px at 90% 10%, rgba(0,200,150,.15), transparent 60%),
+                  linear-gradient(180deg, #0b0f0e, #0f1312 25%, #0f1312 100%);
+      line-height:1.8;
+      word-break: keep-all;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    a{color:inherit; text-decoration:none}
+    a:hover{text-decoration:none; opacity:.9}
+    img{display:block; max-width:100%}
+    .container{width:100%; max-width:860px; margin:0 auto; padding:0 20px}
+    header{position:sticky; top:0; z-index:50; backdrop-filter:saturate(1.4) blur(10px); background: rgba(15,19,18,.65); border-bottom: 1px solid rgba(255,255,255,.06)}
+    .nav{display:flex; align-items:center; justify-content:space-between; height:64px}
+    .brand{display:flex; align-items:center; gap:12px}
+    .brand img{width:32px; height:32px}
+    .brand b{font-weight:800}
+    .actions{display:flex; gap:10px; align-items:center}
+    .btn{display:inline-flex; align-items:center; gap:8px; border:none; cursor:pointer; font-weight:700}
+    .btn.primary{background:var(--brand); color:#fff; padding:10px 14px; border-radius:999px; box-shadow:0 10px 24px var(--shadow)}
+    .btn.primary:hover{background:var(--brand-2)}
+    .btn.ghost{padding:8px 12px; border-radius:999px; background:transparent; color:var(--text)}
+    .card{background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02)); border:1px solid rgba(255,255,255,.06); border-radius: var(--radius-md); padding:18px}
+    .section-title{font-size:24px; font-weight:900; margin:0 0 8px}
+    .section-sub{color:#cfe3d8; margin:0 0 16px}
+    main{padding:48px 0}
+    .list{margin:0; padding-left:18px}
+    .list li{margin:6px 0}
+    .callout{background:#0c110f; border:1px solid rgba(255,255,255,.06); border-radius:12px; padding:12px 14px; color:#cfe3d8}
+    form .row{display:flex; align-items:center; gap:10px; margin:10px 0}
+    label{font-weight:700}
+    input[type="checkbox"]{width:16px; height:16px}
+    .muted{color:#b8c8bf}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container nav">
+      <div class="brand">
+        <img src="/images/logo_without_background.png" th:src="@{/images/logo_without_background.png}" alt="슛두리 로고"/>
+        <b>슛두리</b>
+      </div>
+      <nav class="actions">
+        <a class="btn ghost" href="/" th:href="@{/}">메인</a>
+        <a class="btn ghost" href="#faq">FAQ</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <div class="container">
+      <h1 class="section-title">계정 및 데이터 삭제 요청</h1>
+      <p class="section-sub">아래 안내를 확인하시고 삭제 요청을 제출해 주세요. 삭제는 되돌릴 수 없습니다.</p>
+
+      <section class="card" aria-labelledby="scope">
+        <h2 id="scope" class="section-title" style="font-size:18px">삭제 범위</h2>
+        <ul class="list">
+          <li>계정 정보: 이름, 이메일, 전화번호 등 식별 정보</li>
+          <li>프로필/팀/매치/용병/리뷰 등 귀하가 직접 생성한 콘텐츠</li>
+          <li>로그/보안 기록: 법적 의무 또는 분쟁 대응 목적 범위 내 최소한 보관</li>
+        </ul>
+        <p class="muted" style="margin-top:8px">법령상 보관 의무가 있는 항목은 해당 기간 종료 후 완전 삭제됩니다.</p>
+      </section>
+
+      <section class="card" style="margin-top:14px" aria-labelledby="steps">
+        <h2 id="steps" class="section-title" style="font-size:18px">진행 단계</h2>
+        <ol class="list">
+          <li>요청 접수 → 확인 메일 전송(필요 시 재인증)</li>
+          <li>관리자 검토 및 처리(영업일 기준 최대 7일)</li>
+          <li>처리 완료 알림 및 계정 접근 차단</li>
+        </ol>
+      </section>
+
+      <section class="card" style="margin-top:14px" aria-labelledby="request">
+        <h2 id="request" class="section-title" style="font-size:18px">삭제 요청 제출</h2>
+        <p class="muted">요청 제출 시 본인 확인을 위해 로그인되어 있어야 하며, CSRF 토큰이 포함됩니다.</p>
+        <form method="post" action="/api/users/me/deletion-requests" th:action="@{/api/users/me/deletion-requests}">
+          <input type="hidden" name="_csrf" th:value="${_csrf.token}" th:if="${_csrf != null}" />
+          <div class="row">
+            <input id="confirm" type="checkbox" name="confirm" required />
+            <label for="confirm">삭제는 되돌릴 수 없음을 이해했으며 동의합니다.</label>
+          </div>
+          <div class="row">
+            <label for="reasonSelect" style="min-width:74px">사유(선택)</label>
+            <select id="reasonSelect" style="flex:1; padding:10px; border-radius:10px; border:1px solid rgba(255,255,255,.12); background:#0c110f; color:var(--text)">
+              <option value="" selected>선택하세요</option>
+              <option value="SERVICE_INCONVENIENT">서비스 이용이 불편함</option>
+              <option value="FEATURE_LACK">원하는 기능이 부족함 (예: 채팅, 기록 관리 등)</option>
+              <option value="NO_PLAYMATES">함께 플레이할 사람이 없음</option>
+              <option value="OTHER_PLATFORM">다른 플랫폼/방법을 이용함</option>
+              <option value="PRIVACY_CONCERN">개인정보 보호 우려</option>
+              <option value="NOTIFICATION_ISSUE">알림/이메일이 불편함</option>
+              <option value="RECREATE_ACCOUNT">계정을 새로 만들고 싶음</option>
+              <option value="STOPPED_FOOTBALL">더 이상 축구 활동을 하지 않음</option>
+              <option value="OTHER">기타 (직접 입력)</option>
+            </select>
+          </div>
+          <div class="row" id="reasonOtherRow" style="display:none">
+            <label for="reasonOther" style="min-width:74px">기타 내용</label>
+            <input id="reasonOther" type="text" placeholder="사유를 입력해 주세요" style="flex:1; padding:10px; border-radius:10px; border:1px solid rgba(255,255,255,.12); background:#0c110f; color:var(--text)" />
+          </div>
+          <input type="hidden" id="reason" name="reason" />
+          <div class="row">
+            <button class="btn primary" type="submit">삭제 요청 제출</button>
+            <a class="btn ghost" href="/" th:href="@{/}">메인으로</a>
+          </div>
+        </form>
+        <p class="callout" style="margin-top:10px">요청이 접수되면 처리 진행 상황을 이메일로 안내드립니다. 이미 접수된 요청이 있는 경우 중복으로 접수되지 않을 수 있습니다.</p>
+      </section>
+
+      <section id="faq" class="card" style="margin-top:14px" aria-labelledby="faq-title">
+        <h2 id="faq-title" class="section-title" style="font-size:18px">자주 묻는 질문</h2>
+        <details>
+          <summary>바로 즉시 삭제되나요?</summary>
+          <div class="muted">처리 안전성 및 분쟁 대응을 위해 단계적으로 진행됩니다. 법적 의무 데이터는 별도 보관 기간 적용 후 삭제됩니다.</div>
+        </details>
+        <details>
+          <summary>요청을 취소할 수 있나요?</summary>
+          <div class="muted">처리 시작 전까지는 고객센터 또는 회신 메일을 통해 취소를 요청하실 수 있습니다.</div>
+        </details>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="container" style="padding:40px 0 56px; color:#b8c8bf; border-top:1px solid rgba(255,255,255,.06)">
+      <div style="display:flex; align-items:center; gap:10px">
+        <img src="/images/logo_without_background.png" th:src="@{/images/logo_without_background.png}" alt="슛두리" width="28" height="28"/>
+        <span>© <span id="yy"></span> 슛두리</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    window.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('yy').textContent = new Date().getFullYear();
+
+      const select = document.getElementById('reasonSelect');
+      const otherRow = document.getElementById('reasonOtherRow');
+      const otherInput = document.getElementById('reasonOther');
+      const hiddenReason = document.getElementById('reason');
+
+      function syncReason(){
+        const val = select.value;
+        if(val === 'OTHER'){
+          otherRow.style.display = '';
+          hiddenReason.value = otherInput.value.trim();
+        }else{
+          otherRow.style.display = 'none';
+          hiddenReason.value = val;
+        }
+      }
+      select.addEventListener('change', syncReason);
+      otherInput.addEventListener('input', syncReason);
+      syncReason();
+    });
+  </script>
+</body>
+</html>

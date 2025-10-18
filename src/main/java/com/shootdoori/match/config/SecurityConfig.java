@@ -32,13 +32,24 @@ public class SecurityConfig {
             )
             .sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authorize -> authorize
-                .requestMatchers("/api/auth/**").permitAll()
-                .anyRequest().authenticated()
+
+                    .requestMatchers("/", "/health").permitAll()
+                    .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/refresh").permitAll()
+                    .requestMatchers("/h2-console/**").permitAll()
+
+                    .requestMatchers(HttpMethod.GET, "/images/**").permitAll()
+
+                    .requestMatchers(HttpMethod.GET, "/api/venues/**").permitAll()
+
+                    .requestMatchers(HttpMethod.POST, "/api/password-reset/**").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/auth/signup/email/**").permitAll()
+
+                    .anyRequest().authenticated()
             )
             .exceptionHandling(exceptions -> exceptions
                 .authenticationEntryPoint(authenticationEntryPoint())
             )
-            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);;
+            .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

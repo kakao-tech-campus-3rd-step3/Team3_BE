@@ -1,6 +1,6 @@
 package com.shootdoori.match.value;
 
-import com.shootdoori.match.exception.UnauthorizedException;
+import com.shootdoori.match.exception.common.UnauthorizedException;
 import jakarta.persistence.Embeddable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 

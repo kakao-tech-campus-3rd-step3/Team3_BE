@@ -4,14 +4,15 @@ import com.shootdoori.match.dto.TeamMemberMapper;
 import com.shootdoori.match.dto.TeamMemberRequestDto;
 import com.shootdoori.match.dto.TeamMemberResponseDto;
 import com.shootdoori.match.dto.UpdateTeamMemberRequestDto;
-import com.shootdoori.match.entity.Team;
-import com.shootdoori.match.entity.TeamMember;
-import com.shootdoori.match.entity.TeamMemberRole;
-import com.shootdoori.match.entity.User;
-import com.shootdoori.match.exception.AlreadyTeamMemberException;
-import com.shootdoori.match.exception.TeamMemberNotFoundException;
-import com.shootdoori.match.exception.TeamNotFoundException;
-import com.shootdoori.match.exception.UserNotFoundException;
+import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.team.TeamMember;
+import com.shootdoori.match.entity.team.TeamMemberRole;
+import com.shootdoori.match.entity.user.User;
+import com.shootdoori.match.exception.common.DifferentException;
+import com.shootdoori.match.exception.common.DuplicatedException;
+import com.shootdoori.match.exception.common.ErrorCode;
+import com.shootdoori.match.exception.common.NoPermissionException;
+import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.repository.TeamRepository;
@@ -40,18 +41,28 @@ public class TeamMemberService {
         this.teamMemberMapper = teamMemberMapper;
     }
 
-    public TeamMemberResponseDto create(Long teamId, TeamMemberRequestDto requestDto) {
+    public TeamMemberResponseDto create(Long teamId,
+        TeamMemberRequestDto requestDto,
+        Long captainId) {
 
         Long userId = requestDto.userId();
 
         Team team = teamRepository.findById(teamId).orElseThrow(() ->
-            new TeamNotFoundException(teamId));
+            new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
+
+        if (!team.getCaptain().getId().equals(captainId)) {
+            throw new NoPermissionException();
+        }
 
         User user = profileRepository.findById(userId).orElseThrow(
-            () -> new UserNotFoundException(userId));
+            () -> new NotFoundException(ErrorCode.USER_NOT_FOUND, String.valueOf(userId)));
+
+        if (teamMemberRepository.existsByUser_Id(userId)) {
+            throw new DuplicatedException(ErrorCode.ALREADY_OTHER_TEAM_MEMBER);
+        }
 
         if (teamMemberRepository.existsByTeam_TeamIdAndUser_Id(teamId, userId)) {
-            throw new AlreadyTeamMemberException();
+            throw new DuplicatedException(ErrorCode.ALREADY_TEAM_MEMBER);
         }
 
         team.validateSameUniversity(user);
@@ -64,7 +75,7 @@ public class TeamMemberService {
         teamRepository.save(team);
 
         TeamMember savedTeamMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId,
-            userId).orElseThrow(() -> new TeamMemberNotFoundException());
+            userId).orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
         return teamMemberMapper.toTeamMemberResponseDto(savedTeamMember);
     }
@@ -72,7 +83,7 @@ public class TeamMemberService {
     @Transactional(readOnly = true)
     public TeamMemberResponseDto findByTeamIdAndUserId(Long teamId, Long userId) {
         TeamMember teamMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId, userId)
-            .orElseThrow(() -> new TeamMemberNotFoundException());
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
         return teamMemberMapper.toTeamMemberResponseDto(teamMember);
     }
@@ -87,27 +98,103 @@ public class TeamMemberService {
         return teamMemberPage.map(teamMemberMapper::toTeamMemberResponseDto);
     }
 
-    public TeamMemberResponseDto update(Long teamId, Long userId,
-        UpdateTeamMemberRequestDto requestDto) {
+    public TeamMemberResponseDto update(Long teamId, Long targetUserId,
+        UpdateTeamMemberRequestDto requestDto, Long loginUserId) {
+
         Team team = teamRepository.findById(teamId)
-            .orElseThrow(() -> new TeamNotFoundException(teamId));
+            .orElseThrow(
+                () -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
 
-        TeamMember teamMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId, userId)
-            .orElseThrow(() -> new TeamMemberNotFoundException());
+        TeamMember actor = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId, loginUserId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
-        teamMember.changeRole(team, TeamMemberRole.fromDisplayName(requestDto.role()));
+        TeamMember targetMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId,
+                targetUserId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
-        return teamMemberMapper.toTeamMemberResponseDto(teamMember);
+        if (isForbiddenSelfRoleChange(targetUserId, loginUserId, actor)) {
+            throw new DuplicatedException(ErrorCode.SELF_DELEGATION_NOT_ALLOWED);
+        }
+
+        if (!actor.getRole().canMakeJoinDecision()) {
+            throw new NoPermissionException();
+        }
+
+        targetMember.changeRole(team, TeamMemberRole.fromDisplayName(requestDto.role()));
+
+        return teamMemberMapper.toTeamMemberResponseDto(targetMember);
     }
 
-    public void delete(Long teamId, Long userId) {
+    public void leave(Long teamId, Long loginUserId) {
         Team team = teamRepository.findById(teamId)
-            .orElseThrow(() -> new TeamNotFoundException(teamId));
+            .orElseThrow(
+                () -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
 
-        TeamMember teamMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId, userId)
-            .orElseThrow(() -> new TeamMemberNotFoundException());
+        TeamMember loginMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId,
+                loginUserId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
-        team.removeMember(teamMember);
+        if (loginMember.isCaptain()) {
+            throw new NoPermissionException();
+        }
+
+        team.removeMember(loginMember);
         teamRepository.save(team);
+    }
+
+    public void kick(Long teamId, Long userId, Long loginUserId) {
+        Team team = teamRepository.findById(teamId)
+            .orElseThrow(
+                () -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
+
+        TeamMember loginMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId,
+                loginUserId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
+
+        TeamMember targetMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId, userId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
+
+        if (!loginMember.getRole().canKick(targetMember.getRole())) {
+            throw new NoPermissionException();
+        }
+
+        team.removeMember(targetMember);
+        teamRepository.save(team);
+    }
+
+    public TeamMemberResponseDto delegateLeadership(Long teamId, Long currentUserId,
+        Long targetMemberId) {
+        Team team = teamRepository.findById(teamId).orElseThrow(() ->
+            new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
+
+        TeamMember currentMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId,
+                currentUserId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
+
+        TeamMember targetMember = teamMemberRepository.findById(targetMemberId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
+
+        if (!team.equals(targetMember.getTeam())) {
+            throw new DifferentException(ErrorCode.DIFFERENT_TEAM_DELEGATION_NOT_ALLOWED);
+        }
+
+        currentMember.delegateLeadership(targetMember);
+
+        return teamMemberMapper.toTeamMemberResponseDto(targetMember);
+    }
+
+    public TeamMemberResponseDto delegateViceLeadership(Long teamId, Long currentUserId,
+        Long targetMemberId) {
+        // TODO: 부회장 위임 로직 구현 필요 (권한/자기위임/같은 팀 검증 후 역할 변경)
+        throw new NoPermissionException();
+    }
+
+    private boolean isForbiddenSelfRoleChange(Long targetUserId, Long loginUserId,
+        TeamMember actor) {
+        return loginUserId.equals(targetUserId) && (actor.isCaptain() || actor.isViceCaptain());
+    }
+
+    private boolean isEqualsCaptainId(Team team, Long loginUserId) {
+        return team.getCaptain().getId().equals(loginUserId);
     }
 }

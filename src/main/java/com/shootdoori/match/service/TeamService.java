@@ -4,14 +4,16 @@ import com.shootdoori.match.dto.CreateTeamResponseDto;
 import com.shootdoori.match.dto.TeamDetailResponseDto;
 import com.shootdoori.match.dto.TeamMapper;
 import com.shootdoori.match.dto.TeamRequestDto;
-import com.shootdoori.match.entity.Team;
-import com.shootdoori.match.entity.TeamMemberRole;
-import com.shootdoori.match.entity.User;
-import com.shootdoori.match.exception.CaptainNotFoundException;
-import com.shootdoori.match.exception.TeamNotFoundException;
+import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.team.TeamMemberRole;
+import com.shootdoori.match.entity.user.User;
+import com.shootdoori.match.exception.common.ErrorCode;
+import com.shootdoori.match.exception.common.NoPermissionException;
+import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamRepository;
 import com.shootdoori.match.value.UniversityName;
+import java.util.Objects;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -26,25 +28,25 @@ public class TeamService {
     private final ProfileRepository profileRepository;
     private final TeamRepository teamRepository;
     private final TeamMapper teamMapper;
+    private final MatchRequestService matchRequestService;
+    private final MatchCreateService matchCreateService;
+    private final MatchCompleteService matchCompleteService;
 
 
     public TeamService(ProfileRepository profileRepository, TeamRepository teamRepository,
-        TeamMapper teamMapper) {
+        TeamMapper teamMapper, MatchRequestService matchRequestService,
+        MatchCreateService matchCreateService, MatchCompleteService matchCompleteService) {
         this.profileRepository = profileRepository;
         this.teamRepository = teamRepository;
         this.teamMapper = teamMapper;
+        this.matchRequestService = matchRequestService;
+        this.matchCreateService = matchCreateService;
+        this.matchCompleteService = matchCompleteService;
     }
 
-    public CreateTeamResponseDto create(TeamRequestDto requestDto, User captain) {
-        if (captain == null) {
-            throw new CaptainNotFoundException();
-        }
-
-        /*
-            TODO: JWT 토큰에서 captain 정보 받아와야 함. 현재는 하나의 User를 생성해 captain으로 대체하였음.
-         */
-        captain = profileRepository.save(captain);
-
+    public CreateTeamResponseDto create(TeamRequestDto requestDto, Long userId) {
+        User captain = profileRepository.findById(userId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.CAPTAIN_NOT_FOUND));
         Team team = TeamMapper.toEntity(requestDto, captain);
         team.recruitMember(captain, TeamMemberRole.LEADER);
         Team savedTeam = teamRepository.save(team);
@@ -55,7 +57,7 @@ public class TeamService {
     @Transactional(readOnly = true)
     public TeamDetailResponseDto findById(Long id) {
         Team team = teamRepository.findById(id).orElseThrow(() ->
-            new TeamNotFoundException(id));
+            new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(id)));
 
         return teamMapper.toTeamDetailResponse(team);
     }
@@ -70,9 +72,14 @@ public class TeamService {
         return teamPage.map(teamMapper::toTeamDetailResponse);
     }
 
-    public TeamDetailResponseDto update(Long id, TeamRequestDto requestDto) {
+    public TeamDetailResponseDto update(Long id, TeamRequestDto requestDto, Long userId) {
         Team team = teamRepository.findById(id).orElseThrow(() ->
-            new TeamNotFoundException(id));
+            new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(id)));
+
+        // 기존 팀장과 요청을 보낸 유저가 동일하지 않다면 권한 없음으로 거부
+        if (!Objects.equals(team.getCaptain().getId(), userId)) {
+            throw new NoPermissionException();
+        }
 
         team.changeTeamInfo(requestDto.name(), requestDto.university(),
             requestDto.skillLevel(), requestDto.description());
@@ -80,9 +87,17 @@ public class TeamService {
         return teamMapper.toTeamDetailResponse(team);
     }
 
-    public void delete(Long id) {
+    public void delete(Long id, Long userId) {
         Team team = teamRepository.findById(id).orElseThrow(() ->
-            new TeamNotFoundException(id));
+            new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(id)));
+
+        if (!Objects.equals(team.getCaptain().getId(), userId)) {
+            throw new NoPermissionException();
+        }
+
+        matchRequestService.deleteAllByTeamId(id);
+        matchCreateService.deleteAllByTeamId(id);
+        matchCompleteService.deleteAllByTeamId(id);
 
         teamRepository.delete(team);
     }

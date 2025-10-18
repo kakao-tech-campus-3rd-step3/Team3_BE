@@ -3,8 +3,14 @@ package com.shootdoori.mercenary;
 import com.shootdoori.match.dto.RecruitmentCreateRequest;
 import com.shootdoori.match.dto.RecruitmentResponse;
 import com.shootdoori.match.dto.RecruitmentUpdateRequest;
-import com.shootdoori.match.entity.*;
-import com.shootdoori.match.exception.TeamNotFoundException;
+import com.shootdoori.match.entity.mercenary.MercenaryPosition;
+import com.shootdoori.match.entity.mercenary.MercenaryRecruitment;
+import com.shootdoori.match.entity.mercenary.MercenaryRecruitmentSkillLevel;
+import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.team.TeamType;
+import com.shootdoori.match.entity.user.User;
+import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.MercenaryRecruitmentRepository;
 import com.shootdoori.match.repository.TeamRepository;
 import com.shootdoori.match.service.MercenaryRecruitmentService;
@@ -124,7 +130,7 @@ class MercenaryRecruitmentTest {
         given(teamRepository.findById(nonExistentTeamId)).willReturn(Optional.empty());
 
         // when & then
-        assertThrows(TeamNotFoundException.class, () -> {
+        assertThrows(NotFoundException.class, () -> {
             mercenaryRecruitmentService.create(request);
         });
     }
@@ -210,7 +216,7 @@ class MercenaryRecruitmentTest {
                 User.create(
                     "김학생", "아마추어", "student@example.com", "student@kangwon.ac.kr",
                     "asdf02~!", "imkim25", "공격수", "강원대학교", "컴퓨터공학과", "20", "안녕하세요!"),
-                "강원대학교", TeamType.CENTRAL_CLUB, SkillLevel.AMATEUR, "즐겜해요~"
+                "강원대학교", TeamType.CENTRAL_CLUB, TeamSkillLevel.AMATEUR, "즐겜해요~"
             );
         }
 
@@ -220,8 +226,8 @@ class MercenaryRecruitmentTest {
                 MATCH_DATE,
                 MATCH_START_TIME,
                 MESSAGE,
-                Position.fromDisplayName(POSITION),
-                SkillLevel.fromDisplayName(SKILL_LEVEL)
+                MercenaryPosition.fromDisplayName(POSITION),
+                MercenaryRecruitmentSkillLevel.fromDisplayName(SKILL_LEVEL)
             );
         }
 

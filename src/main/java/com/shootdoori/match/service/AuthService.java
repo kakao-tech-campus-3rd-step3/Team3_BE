@@ -3,21 +3,17 @@ package com.shootdoori.match.service;
 import com.shootdoori.match.dto.AuthToken;
 import com.shootdoori.match.dto.LoginRequest;
 import com.shootdoori.match.dto.ProfileCreateRequest;
-import com.shootdoori.match.entity.DeviceType;
-import com.shootdoori.match.entity.RefreshToken;
-import com.shootdoori.match.entity.User;
-import com.shootdoori.match.exception.UnauthorizedException;
+import com.shootdoori.match.entity.common.DeviceType;
+import com.shootdoori.match.entity.user.User;
+import com.shootdoori.match.exception.common.UnauthorizedException;
 import com.shootdoori.match.repository.RefreshTokenRepository;
 import com.shootdoori.match.util.JwtUtil;
-import io.jsonwebtoken.Claims;
+import com.shootdoori.match.util.TokenIssuer;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
-
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 
 @Service
 public class AuthService {
@@ -25,12 +21,14 @@ public class AuthService {
     private final ProfileService profileService;
     private final PasswordEncoder passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
+    private final TokenIssuer tokenIssuer;
 
-    public AuthService(JwtUtil jwtUtil, ProfileService profileService, PasswordEncoder passwordEncoder, RefreshTokenRepository refreshTokenRepository) {
+    public AuthService(JwtUtil jwtUtil, ProfileService profileService, PasswordEncoder passwordEncoder, RefreshTokenRepository refreshTokenRepository, TokenIssuer tokenIssuer) {
         this.jwtUtil = jwtUtil;
         this.profileService = profileService;
         this.passwordEncoder = passwordEncoder;
         this.refreshTokenRepository = refreshTokenRepository;
+        this.tokenIssuer = tokenIssuer;
     }
 
     @Transactional
@@ -63,20 +61,9 @@ public class AuthService {
     }
 
     private AuthToken issueTokens(User user, HttpServletRequest httpServletRequest) {
-        String accessToken = jwtUtil.generateAccessToken(user);
-        String refreshTokenValue = jwtUtil.generateRefreshToken(user);
-
-        Claims claims = jwtUtil.getClaims(refreshTokenValue);
-        String tokenId = claims.getId();
-        LocalDateTime expiryDate = claims.getExpiration().toInstant()
-            .atZone(ZoneId.systemDefault()).toLocalDateTime();
         String userAgent = httpServletRequest.getHeader("User-Agent");
         DeviceType deviceType = parseDeviceTypeFromUserAgent(userAgent);
-
-        RefreshToken refreshToken = new RefreshToken(tokenId, user, expiryDate, deviceType, userAgent);
-        refreshTokenRepository.save(refreshToken);
-
-        return new AuthToken(accessToken, refreshTokenValue);
+        return tokenIssuer.issue(user, deviceType, userAgent);
     }
 
     private DeviceType parseDeviceTypeFromUserAgent(String userAgent) {

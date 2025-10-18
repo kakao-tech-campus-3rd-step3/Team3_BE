@@ -10,14 +10,16 @@ import com.shootdoori.match.dto.CreateTeamResponseDto;
 import com.shootdoori.match.dto.TeamDetailResponseDto;
 import com.shootdoori.match.dto.TeamMapper;
 import com.shootdoori.match.dto.TeamRequestDto;
-import com.shootdoori.match.entity.SkillLevel;
-import com.shootdoori.match.entity.Team;
-import com.shootdoori.match.entity.TeamType;
-import com.shootdoori.match.entity.User;
-import com.shootdoori.match.exception.CaptainNotFoundException;
-import com.shootdoori.match.exception.TeamNotFoundException;
+import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.team.TeamType;
+import com.shootdoori.match.entity.user.User;
+import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamRepository;
+import com.shootdoori.match.service.MatchCompleteService;
+import com.shootdoori.match.service.MatchCreateService;
+import com.shootdoori.match.service.MatchRequestService;
 import com.shootdoori.match.service.TeamService;
 import com.shootdoori.match.value.UniversityName;
 import java.util.Arrays;
@@ -57,6 +59,15 @@ public class TeamServiceTest {
     @Mock
     private TeamMapper teamMapper;
 
+    @Mock
+    private MatchRequestService matchRequestService;
+
+    @Mock
+    private MatchCreateService matchCreateService;
+
+    @Mock
+    private MatchCompleteService matchCompleteService;
+
     private TeamService teamService;
     private TeamRequestDto requestDto;
     private User captain;
@@ -64,7 +75,8 @@ public class TeamServiceTest {
 
     @BeforeEach
     void setUp() {
-        teamService = new TeamService(profileRepository, teamRepository, teamMapper);
+        teamService = new TeamService(profileRepository, teamRepository, teamMapper,
+            matchRequestService, matchCreateService, matchCompleteService);
 
         requestDto = new TeamRequestDto(
             "강원대 FC",
@@ -120,19 +132,19 @@ public class TeamServiceTest {
         Team savedTeam = createTeam(
             "강원대 FC",
             TeamType.fromDisplayName("과동아리"),
-            SkillLevel.fromDisplayName("아마추어"),
+            TeamSkillLevel.fromDisplayName("아마추어"),
             "주 2회 연습합니다."
         );
 
         ReflectionTestUtils.setField(savedTeam, "teamId", TEAM_ID);
 
         // TODO: JWT 토큰 도입 이후 필요 없는 코드 - save(captain)
-        when(profileRepository.save(captain)).thenReturn(captain);
+        when(profileRepository.findById(captain.getId())).thenReturn(Optional.ofNullable(captain));
         when(teamRepository.save(any(Team.class))).thenReturn(savedTeam);
         when(teamMapper.toCreateTeamResponse(savedTeam)).thenReturn(createResponseDto);
 
         // when
-        CreateTeamResponseDto resultDto = teamService.create(requestDto, captain);
+        CreateTeamResponseDto resultDto = teamService.create(requestDto, captain.getId());
 
         // then
         assertThat(resultDto).isEqualTo(createResponseDto);
@@ -145,12 +157,12 @@ public class TeamServiceTest {
     @DisplayName("create - captain null이면 예외")
     void create_nullCaptain_throws() {
         // given
-        User nullCaptain = null;
+        Long nullUserId = null;
 
         // when & then
         assertThatThrownBy(() ->
-            teamService.create(requestDto, nullCaptain))
-            .isInstanceOf(CaptainNotFoundException.class);
+            teamService.create(requestDto, nullUserId))
+            .isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -160,7 +172,7 @@ public class TeamServiceTest {
         Team mockTeam = createTeam(
             "강원대 FC",
             TeamType.fromDisplayName("과동아리"),
-            SkillLevel.fromDisplayName("아마추어"),
+            TeamSkillLevel.fromDisplayName("아마추어"),
             "주 2회 연습합니다."
         );
 
@@ -169,7 +181,7 @@ public class TeamServiceTest {
             "강원대 FC",
             "강원대 1위 팀 먹겠습니다.",
             "강원대학교",
-            SkillLevel.AMATEUR,
+            TeamSkillLevel.AMATEUR,
             TeamType.DEPARTMENT_CLUB,
             1,
             "2024-01-01T00:00:00"
@@ -188,7 +200,7 @@ public class TeamServiceTest {
         assertThat(resultDto.id()).isEqualTo(TEAM_ID);
         assertThat(resultDto.name()).isEqualTo("강원대 FC");
         assertThat(resultDto.university()).isEqualTo("강원대학교");
-        assertThat(resultDto.skillLevel()).isEqualTo(SkillLevel.AMATEUR);
+        assertThat(resultDto.skillLevel()).isEqualTo(TeamSkillLevel.AMATEUR);
         assertThat(resultDto.teamType()).isEqualTo(TeamType.DEPARTMENT_CLUB);
         assertThat(resultDto.memberCount()).isEqualTo(1);
     }
@@ -202,7 +214,7 @@ public class TeamServiceTest {
         // when & then
         assertThatThrownBy(() ->
             teamService.findById(NON_EXISTENT_TEAM_ID))
-            .isInstanceOf(TeamNotFoundException.class);
+            .isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -212,14 +224,14 @@ public class TeamServiceTest {
         Team team1 = createTeam(
             "강원대 FC",
             TeamType.fromDisplayName("과동아리"),
-            SkillLevel.fromDisplayName("아마추어"),
+            TeamSkillLevel.fromDisplayName("아마추어"),
             "주 2회 연습합니다."
         );
 
         Team team2 = createTeam(
             "감자의 신 FC",
             TeamType.fromDisplayName("중앙동아리"),
-            SkillLevel.fromDisplayName("세미프로"),
+            TeamSkillLevel.fromDisplayName("세미프로"),
             "감자빵이 맛있어요."
         );
 
@@ -228,9 +240,9 @@ public class TeamServiceTest {
             PageRequest.of(PAGE, SIZE, Sort.by("teamName").ascending()), 2);
 
         TeamDetailResponseDto response1 = new TeamDetailResponseDto(1L, "강원대 FC", "주 2회 연습합니다.",
-            "강원대학교", SkillLevel.AMATEUR, TeamType.DEPARTMENT_CLUB, 1, "2025-09-25T00:00:00");
+            "강원대학교", TeamSkillLevel.AMATEUR, TeamType.DEPARTMENT_CLUB, 1, "2025-09-25T00:00:00");
         TeamDetailResponseDto response2 = new TeamDetailResponseDto(2L, "감자의 신 FC", "감자빵이 맛있어요.",
-            "강원대학교", SkillLevel.SEMI_PRO, TeamType.CENTRAL_CLUB, 1, "2025-09-25T00:00:00");
+            "강원대학교", TeamSkillLevel.SEMI_PRO, TeamType.CENTRAL_CLUB, 1, "2025-09-25T00:00:00");
 
         when(teamRepository.findAllByUniversity(any(UniversityName.class), any(Pageable.class)))
             .thenReturn(teamPage);
@@ -263,7 +275,7 @@ public class TeamServiceTest {
         Team existingTeam = createTeam(
             "강원대 FC",
             TeamType.fromDisplayName("과동아리"),
-            SkillLevel.fromDisplayName("아마추어"),
+            TeamSkillLevel.fromDisplayName("아마추어"),
             "주 2회 연습합니다."
         );
 
@@ -272,7 +284,7 @@ public class TeamServiceTest {
             "수정된 팀명",
             "수정된 설명",
             "강원대학교",
-            SkillLevel.SEMI_PRO,
+            TeamSkillLevel.SEMI_PRO,
             TeamType.CENTRAL_CLUB,
             1,
             "2024-01-01T00:00:00"
@@ -282,14 +294,15 @@ public class TeamServiceTest {
         when(teamMapper.toTeamDetailResponse(existingTeam)).thenReturn(updatedResponseDto);
 
         // when
-        TeamDetailResponseDto resultDto = teamService.update(TEAM_ID, updateRequestDto);
+        TeamDetailResponseDto resultDto = teamService.update(TEAM_ID, updateRequestDto,
+            captain.getId());
 
         // then
         assertThat(resultDto).isNotNull();
         assertThat(resultDto.id()).isEqualTo(TEAM_ID);
         assertThat(resultDto.name()).isEqualTo("수정된 팀명");
         assertThat(resultDto.description()).isEqualTo("수정된 설명");
-        assertThat(resultDto.skillLevel()).isEqualTo(SkillLevel.SEMI_PRO);
+        assertThat(resultDto.skillLevel()).isEqualTo(TeamSkillLevel.SEMI_PRO);
     }
 
     @Test
@@ -308,8 +321,8 @@ public class TeamServiceTest {
 
         // when & then
         assertThatThrownBy(() ->
-            teamService.update(NON_EXISTENT_TEAM_ID, updateRequestDto))
-            .isInstanceOf(TeamNotFoundException.class);
+            teamService.update(NON_EXISTENT_TEAM_ID, updateRequestDto, captain.getId()))
+            .isInstanceOf(NotFoundException.class);
     }
 
     @Test
@@ -319,14 +332,14 @@ public class TeamServiceTest {
         Team existingTeam = createTeam(
             "삭제될 팀",
             TeamType.CENTRAL_CLUB,
-            SkillLevel.AMATEUR,
+            TeamSkillLevel.AMATEUR,
             "삭제될 팀입니다."
         );
 
         when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(existingTeam));
 
         // when
-        teamService.delete(TEAM_ID);
+        teamService.delete(TEAM_ID, captain.getId());
 
         // then
         verify(teamRepository).findById(TEAM_ID);
@@ -340,11 +353,11 @@ public class TeamServiceTest {
         when(teamRepository.findById(NON_EXISTENT_TEAM_ID)).thenReturn(Optional.empty());
 
         // when & then
-        assertThatThrownBy(() -> teamService.delete(NON_EXISTENT_TEAM_ID))
-            .isInstanceOf(TeamNotFoundException.class);
+        assertThatThrownBy(() -> teamService.delete(NON_EXISTENT_TEAM_ID, captain.getId()))
+            .isInstanceOf(NotFoundException.class);
     }
 
-    private Team createTeam(String name, TeamType teamType, SkillLevel skillLevel,
+    private Team createTeam(String name, TeamType teamType, TeamSkillLevel skillLevel,
         String description) {
         return new Team(
             name,

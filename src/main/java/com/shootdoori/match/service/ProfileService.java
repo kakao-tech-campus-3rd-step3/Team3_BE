@@ -4,9 +4,12 @@ import com.shootdoori.match.dto.ProfileCreateRequest;
 import com.shootdoori.match.dto.ProfileMapper;
 import com.shootdoori.match.dto.ProfileResponse;
 import com.shootdoori.match.dto.ProfileUpdateRequest;
-import com.shootdoori.match.entity.User;
-import com.shootdoori.match.exception.DuplicatedUserException;
-import com.shootdoori.match.exception.ProfileNotFoundException;
+import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.user.User;
+import com.shootdoori.match.exception.common.DuplicatedException;
+import com.shootdoori.match.exception.common.ErrorCode;
+import com.shootdoori.match.exception.common.NotFoundException;
+import com.shootdoori.match.exception.LeaderCannotLeaveTeamException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.RefreshTokenRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
@@ -38,7 +41,7 @@ public class ProfileService {
         if (profileRepository.existsByEmailOrUniversityEmail(
             createRequest.email(), createRequest.universityEmail())
         ) {
-            throw new DuplicatedUserException();
+            throw new DuplicatedException(ErrorCode.DUPLICATED_USER);
         }
 
         String encodePassword = passwordEncoder.encode(createRequest.password());
@@ -64,7 +67,7 @@ public class ProfileService {
     @Transactional(readOnly = true)
     public ProfileResponse findProfileById(Long id) {
         User profile = profileRepository.findById(id)
-            .orElseThrow(ProfileNotFoundException::new);
+            .orElseThrow(() -> new NotFoundException(ErrorCode.PROFILE_NOT_FOUND));
 
         Long teamId = teamMemberRepository.findByUser_Id(id)
             .map(teamMember -> teamMember.getTeam().getTeamId())
@@ -78,19 +81,31 @@ public class ProfileService {
         return profileRepository.findByEmail(email);
     }
 
-    public void updateProfile(Long id, ProfileUpdateRequest updateRequest) {
+    public ProfileResponse updateProfile(Long id, ProfileUpdateRequest updateRequest) {
         User profile = profileRepository.findById(id)
-            .orElseThrow(ProfileNotFoundException::new);
+            .orElseThrow(() -> new NotFoundException(ErrorCode.PROFILE_NOT_FOUND));
+
         profile.update(updateRequest.skillLevel(), updateRequest.position(), updateRequest.bio());
+
+        Long teamId = teamMemberRepository.findByUser_Id(id)
+            .map(teamMember -> teamMember.getTeam().getTeamId())
+            .orElse(null);
+
+        return profileMapper.toProfileResponse(profile, teamId);
     }
 
     public void deleteAccount(Long id) {
-        if (!profileRepository.existsById(id)) {
-            throw new ProfileNotFoundException();
-        }
+        User user = profileRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.PROFILE_NOT_FOUND));
+
+        teamMemberRepository.findByUser_Id(id).ifPresent(teamMember -> {
+            Team team = teamMember.getTeam();
+            if (team.getCaptain().equals(user)) {
+                throw new LeaderCannotLeaveTeamException(ErrorCode.LEADER_CANNOT_LEAVE_TEAM);
+            }
+        });
+        user.requestDeletion();
 
         refreshTokenRepository.deleteAllByUserId(id);
-
-        profileRepository.deleteById(id);
     }
 }

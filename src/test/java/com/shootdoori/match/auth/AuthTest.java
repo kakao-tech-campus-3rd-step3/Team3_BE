@@ -4,6 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shootdoori.match.dto.AuthToken;
 import com.shootdoori.match.dto.LoginRequest;
 import com.shootdoori.match.dto.ProfileCreateRequest;
+import com.shootdoori.match.entity.user.User;
+import com.shootdoori.match.entity.user.UserStatus;
+import com.shootdoori.match.dto.TokenRefreshRequest;
+import jakarta.persistence.EntityManager;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.RefreshTokenRepository;
 import com.shootdoori.match.service.AuthService;
@@ -25,12 +29,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @SpringBootTest
 @AutoConfigureMockMvc
-@Transactional
 @DisplayName("인증 통합 테스트")
 class AuthTest {
+    @Autowired private EntityManager entityManager;
     @Autowired private MockMvc mockMvc;
     @Autowired private AuthService authService;
     @Autowired private ObjectMapper objectMapper;
@@ -38,9 +43,20 @@ class AuthTest {
     @Autowired private ProfileRepository profileRepository;
     @Autowired private JwtUtil jwtUtil;
 
+    private String stripBearer(String token) {
+        return token != null && token.startsWith("Bearer ") ? token.substring(7) : token;
+    }
+
     @Nested
     @DisplayName("회원가입 (/api/auth/register)")
+    @Transactional
     class RegisterTests {
+
+        @BeforeEach
+        void setup() {
+            refreshTokenRepository.deleteAll();
+            profileRepository.deleteAll();
+        }
 
         @Test
         @DisplayName("성공: 새로운 사용자가 정상적으로 회원가입된다")
@@ -52,7 +68,7 @@ class AuthTest {
                     .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").exists())
-                .andExpect(cookie().exists("refreshToken"));
+                    .andExpect(jsonPath("$.refreshToken").exists());
         }
 
         @Test
@@ -73,10 +89,13 @@ class AuthTest {
 
     @Nested
     @DisplayName("로그인 (/api/auth/login)")
+    @Transactional
     class LoginTests {
 
         @BeforeEach
         void setup() {
+            refreshTokenRepository.deleteAll();
+            profileRepository.deleteAll();
             authService.register(
                 AuthFixtures.createProfileRequest(),
                 new MockHttpServletRequest()
@@ -93,7 +112,7 @@ class AuthTest {
                     .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.accessToken").exists())
-                .andExpect(cookie().exists("refreshToken"));
+                    .andExpect(jsonPath("$.refreshToken").exists());
         }
 
         @Test
@@ -133,8 +152,16 @@ class AuthTest {
 
         @BeforeEach
         void setup() {
-            initialTokens = authService.register(
+            // 깨끗한 상태로 시작
+            refreshTokenRepository.deleteAll();
+            profileRepository.deleteAll();
+            // 계정 생성 후 실제 로그인 플로우로 토큰 발급
+            authService.register(
                 AuthFixtures.createProfileRequest(),
+                new MockHttpServletRequest()
+            );
+            initialTokens = authService.login(
+                AuthFixtures.createLoginRequest(),
                 new MockHttpServletRequest()
             );
         }
@@ -142,15 +169,16 @@ class AuthTest {
         @Test
         @DisplayName("성공: 현재 기기에서 로그아웃한다")
         void logoutSuccess() throws Exception {
+            String accessToken = initialTokens.accessToken();
             String refreshToken = initialTokens.refreshToken();
 
             String tokenId = jwtUtil.getClaims(refreshToken).getId();
-            Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
 
             mockMvc.perform(post("/api/auth/logout")
-                    .cookie(refreshTokenCookie))
-                .andExpect(status().isOk())
-                .andExpect(cookie().maxAge("refreshToken", 0));
+                    .header("Authorization", "Bearer " + accessToken)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(new TokenRefreshRequest(refreshToken))))
+                    .andExpect(status().isOk());
 
             assertThat(refreshTokenRepository.findById(tokenId)).isEmpty();
         }
@@ -164,16 +192,15 @@ class AuthTest {
             );
 
             String accessToken = otherDeviceLoginTokens.accessToken();
-            Long userId = Long.parseLong(jwtUtil.getUserId(accessToken));
+            Long userId = Long.parseLong(jwtUtil.getUserId(stripBearer(accessToken)));
 
             String refreshToken = otherDeviceLoginTokens.refreshToken();
-            Cookie refreshTokenCookie = new Cookie("refreshToken", refreshToken);
 
             mockMvc.perform(post("/api/auth/logout-all")
                     .header("Authorization", "Bearer " + accessToken)
-                    .cookie(refreshTokenCookie))
-                .andExpect(status().isOk())
-                .andExpect(cookie().maxAge("refreshToken", 0));
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(new TokenRefreshRequest(refreshToken))))
+                    .andExpect(status().isOk());
 
             assertThat(refreshTokenRepository.countByUserId(userId)).isZero();
         }
@@ -191,6 +218,12 @@ class AuthTest {
     @DisplayName("토큰 재발급 (/api/auth/refresh)")
     class TokenRefreshTests {
 
+        @BeforeEach
+        void setup() {
+            refreshTokenRepository.deleteAll();
+            profileRepository.deleteAll();
+        }
+
         @Test
         @DisplayName("성공: 유효한 리프레시 토큰으로 재발급 후, 기존 토큰 사용 시 실패한다 (Rotation 검증)")
         void tokenRefreshAndRotationSuccess() throws Exception {
@@ -199,20 +232,19 @@ class AuthTest {
                 new MockHttpServletRequest()
             );
 
-            Cookie refreshTokenCookie = new Cookie(
-                "refreshToken",
-                initialTokens.refreshToken()
-            );
+            String initialRefresh = initialTokens.refreshToken();
 
             mockMvc.perform(post("/api/auth/refresh")
-                    .cookie(refreshTokenCookie))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken").exists())
-                .andExpect(cookie().exists("refreshToken"));
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(new TokenRefreshRequest(initialRefresh))))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.accessToken").exists())
+                    .andExpect(jsonPath("$.refreshToken").exists());
 
             mockMvc.perform(post("/api/auth/refresh")
-                    .cookie(refreshTokenCookie))
-                .andExpect(status().isUnauthorized());
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(new TokenRefreshRequest(initialRefresh))))
+                    .andExpect(status().isUnauthorized());
         }
     }
 
@@ -225,27 +257,36 @@ class AuthTest {
 
         @BeforeEach
         void setup() {
-            AuthToken tokens = authService.register(
+            refreshTokenRepository.deleteAll();
+            profileRepository.deleteAll();
+
+            authService.register(
                 AuthFixtures.createProfileRequest(),
                 new MockHttpServletRequest()
             );
+            AuthToken tokens = authService.login(
+                AuthFixtures.createLoginRequest(),
+                new MockHttpServletRequest()
+            );
             accessToken = tokens.accessToken();
-            userId = Long.parseLong(jwtUtil.getUserId(accessToken));
+            userId = Long.parseLong(jwtUtil.getUserId(stripBearer(accessToken)));
         }
 
         @Test
-        @DisplayName("성공: 로그인된 사용자가 정상적으로 회원 탈퇴한다")
+        @DisplayName("성공: 로그인된 사용자가 정상적으로 회원 탈퇴를 요청한다")
         void deleteAccountSuccess() throws Exception {
             mockMvc.perform(delete("/api/profiles/me")
                     .header("Authorization", "Bearer " + accessToken))
+                .andDo(print())
                 .andExpect(status().isNoContent());
 
-            assertThat(profileRepository.findById(userId)).isEmpty();
+            User user = profileRepository.findById(userId).orElseThrow();
+            assertThat(user.getUserStatus()).isEqualTo(UserStatus.PENDING_DELETION);
             assertThat(refreshTokenRepository.countByUserId(userId)).isZero();
         }
 
         @Test
-        @DisplayName("실패: 인증되지 않은 사용자가 회원 탈퇴 시 401 Unauthorized 에러가 발생한다")
+        @DisplayName("실패: 인증되지 않은 사용자가 회원탈퇴 요청 시 401 Unauthorized 에러가 발생한다")
         void deleteAccountFailWithoutAuth() throws Exception {
             mockMvc.perform(delete("/api/profiles/me"))
                 .andExpect(status().isUnauthorized());

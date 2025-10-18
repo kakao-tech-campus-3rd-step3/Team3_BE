@@ -3,7 +3,6 @@ package com.shootdoori.match.controller;
 import com.shootdoori.match.dto.ProfileCreateRequest;
 import com.shootdoori.match.dto.ProfileResponse;
 import com.shootdoori.match.dto.ProfileUpdateRequest;
-import com.shootdoori.match.entity.User;
 import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.ProfileService;
 import jakarta.validation.Valid;
@@ -21,14 +20,10 @@ public class ProfileController {
     }
 
     @PostMapping
-    public ResponseEntity<ProfileResponse> postProfile(@Valid @RequestBody ProfileCreateRequest request) {
+    public ResponseEntity<ProfileResponse> postProfile(
+        @Valid @RequestBody ProfileCreateRequest request
+    ) {
         return new ResponseEntity<>(profileService.createProfile(request), HttpStatus.CREATED);
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Void> updateProfile(@PathVariable Long id, @Valid @RequestBody ProfileUpdateRequest request) {
-        profileService.updateProfile(id, request);
-        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")
@@ -36,9 +31,23 @@ public class ProfileController {
         return new ResponseEntity<>(profileService.findProfileById(id), HttpStatus.OK);
     }
 
+    @GetMapping("/me")
+    public ResponseEntity<ProfileResponse> getMyProfile(@LoginUser Long userId) {
+        return ResponseEntity.ok(profileService.findProfileById(userId));
+    }
+
+    @PutMapping("/me")
+    public ResponseEntity<ProfileResponse> updateProfile(
+        @LoginUser Long userId,
+        @Valid @RequestBody ProfileUpdateRequest request
+    ) {
+        ProfileResponse updatedProfile = profileService.updateProfile(userId, request);
+        return ResponseEntity.ok(updatedProfile);
+    }
+
     @DeleteMapping("/me")
-    public ResponseEntity<Void> deleteProfile(@LoginUser User user) {
-        profileService.deleteAccount(user.getId());
+    public ResponseEntity<Void> deleteProfile(@LoginUser Long userId) {
+        profileService.deleteAccount(userId);
         return ResponseEntity.noContent().build();
     }
 }

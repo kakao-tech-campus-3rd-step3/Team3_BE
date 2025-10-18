@@ -3,12 +3,12 @@ package com.shootdoori.match.service;
 import com.shootdoori.match.dto.RecruitmentCreateRequest;
 import com.shootdoori.match.dto.RecruitmentResponse;
 import com.shootdoori.match.dto.RecruitmentUpdateRequest;
-import com.shootdoori.match.entity.MercenaryRecruitment;
-import com.shootdoori.match.entity.Position;
-import com.shootdoori.match.entity.SkillLevel;
-import com.shootdoori.match.entity.Team;
-import com.shootdoori.match.exception.RecruitmentNotFoundException;
-import com.shootdoori.match.exception.TeamNotFoundException;
+import com.shootdoori.match.entity.mercenary.MercenaryRecruitment;
+import com.shootdoori.match.entity.mercenary.MercenaryPosition;
+import com.shootdoori.match.entity.mercenary.MercenaryRecruitmentSkillLevel;
+import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.exception.common.NotFoundException;
+import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.repository.MercenaryRecruitmentRepository;
 import com.shootdoori.match.repository.TeamRepository;
 import org.springframework.data.domain.Page;
@@ -31,10 +31,10 @@ public class MercenaryRecruitmentService {
         // TODO: 요청을 보낸 사용자가 이 게시글을 생성할 권한이 있는지 확인하는 로직 추가
 
         Team team = teamRepository.findById(request.teamId()).orElseThrow(
-            () -> new TeamNotFoundException(request.teamId()));
+            () -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(request.teamId())));
 
-        Position position = Position.fromDisplayName(request.position());
-        SkillLevel skillLevel = SkillLevel.fromDisplayName(request.skillLevel());
+        MercenaryPosition position = MercenaryPosition.fromDisplayName(request.position());
+        MercenaryRecruitmentSkillLevel skillLevel = MercenaryRecruitmentSkillLevel.fromDisplayName(request.skillLevel());
 
         MercenaryRecruitment savedRecruitment = recruitmentRepository.save(MercenaryRecruitment.create(
             team, request.matchDate(), request.matchTime(), request.message(), position, skillLevel));
@@ -52,7 +52,7 @@ public class MercenaryRecruitmentService {
     @Transactional(readOnly = true)
     public RecruitmentResponse findById(Long id) {
         MercenaryRecruitment recruitment = recruitmentRepository.findById(id)
-            .orElseThrow(RecruitmentNotFoundException::new);
+            .orElseThrow(() -> new NotFoundException(ErrorCode.RECRUITMENT_NOT_FOUND));
 
         return new RecruitmentResponse(recruitment);
     }
@@ -61,10 +61,10 @@ public class MercenaryRecruitmentService {
         // TODO: 요청을 보낸 사용자가 이 게시글을 수정할 권한이 있는지 확인하는 로직 추가
 
         MercenaryRecruitment recruitment = recruitmentRepository.findById(id)
-            .orElseThrow(RecruitmentNotFoundException::new);
+            .orElseThrow(() -> new NotFoundException(ErrorCode.RECRUITMENT_NOT_FOUND));
 
-        Position position = Position.fromDisplayName(updateRequest.position());
-        SkillLevel skillLevel = SkillLevel.fromDisplayName(updateRequest.skillLevel());
+        MercenaryPosition position = MercenaryPosition.fromDisplayName(updateRequest.position());
+        MercenaryRecruitmentSkillLevel skillLevel = MercenaryRecruitmentSkillLevel.fromDisplayName(updateRequest.skillLevel());
 
         recruitment.updateRecruitmentInfo(
             updateRequest.matchDate(), updateRequest.matchTime(), updateRequest.message(), position, skillLevel);
@@ -76,7 +76,7 @@ public class MercenaryRecruitmentService {
         // TODO: 요청을 보낸 사용자가 이 게시글을 삭제할 권한이 있는지 확인하는 로직 추가
 
         recruitmentRepository.findById(id)
-            .orElseThrow(RecruitmentNotFoundException::new);
+            .orElseThrow(() -> new NotFoundException(ErrorCode.RECRUITMENT_NOT_FOUND));
 
         recruitmentRepository.deleteById(id);
     }
