@@ -74,7 +74,7 @@ public enum ErrorCode {
     MATCH_NOT_FINISHED_YET("아직 경기가 종료되지 않아 리뷰를 작성할 수 없습니다.", HttpStatus.BAD_REQUEST),
 
     // Lineup
-    LINEUP_NOT_FOUND("해당 라인업을 찾을 수 없습니다.", HttpStatus.BAD_REQUEST),
+    LINEUP_NOT_FOUND("해당 라인업을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
     LINEUP_CREATION_FAILED("라인업 생성에 실패했습니다 (매치나 팀멤버 정보가 없습니다)", HttpStatus.BAD_REQUEST);
 
 

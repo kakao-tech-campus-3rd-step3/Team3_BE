@@ -42,9 +42,10 @@ public class LineupService {
         TeamMember teamMember = teamMemberRepository.findById(requestDto.teamMemberId()).orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
         teamMember.checkCaptainPermission(userId);
 
-        Lineup lineup = new Lineup(matchRepository.getReferenceById(requestDto.matchId()),
-                matchWaitingRepository.getReferenceById(requestDto.waitingId()),
-                matchRequestRepository.getReferenceById(requestDto.requestId()),
+        Lineup lineup = new Lineup(
+                requestDto.matchId() != null ? matchRepository.getReferenceById(requestDto.matchId()) : null,
+                requestDto.waitingId() != null ? matchWaitingRepository.getReferenceById(requestDto.waitingId()) : null,
+                requestDto.requestId() != null ? matchRequestRepository.getReferenceById(requestDto.requestId()) : null,
                 teamMember,
                 requestDto.position(),
                 requestDto.isStarter()
@@ -81,11 +82,13 @@ public class LineupService {
 
         lineup.getTeamMember().checkCaptainPermission(userId);
 
-        lineup.update(matchRepository.getReferenceById(requestDto.matchId()),
-                matchWaitingRepository.getReferenceById(requestDto.waitingId()),
-                matchRequestRepository.getReferenceById(requestDto.requestId()),
+        lineup.update(
+                requestDto.matchId() != null ? matchRepository.getReferenceById(requestDto.matchId()) : null,
+                requestDto.waitingId() != null ? matchWaitingRepository.getReferenceById(requestDto.waitingId()) : null,
+                requestDto.requestId() != null ? matchRequestRepository.getReferenceById(requestDto.requestId()) : null,
                 requestDto.position(),
-                requestDto.isStarter());
+                requestDto.isStarter()
+        );
 
         return LineupResponseDto.from(lineup);
     }
@@ -94,6 +97,6 @@ public class LineupService {
     public void deleteLineup(Long id, Long userId) {
         Lineup lineup = lineupRepository.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.LINEUP_NOT_FOUND));
         lineup.getTeamMember().checkCaptainPermission(userId);
-        lineupRepository.deleteById(id);
+        lineupRepository.delete(lineup);
     }
 }
