@@ -39,10 +39,6 @@ public interface MatchWaitingRepository extends JpaRepository<MatchWaiting, Long
     );
 
     @Modifying(clearAutomatically = true, flushAutomatically = true)
-    @Query("delete from MatchWaiting mw where mw.team.teamId = :teamId")
-    void deleteAllByTeamId(@Param("teamId") Long teamId);
-
-    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE MatchWaiting mw SET mw.status = com.shootdoori.match.entity.match.waiting.MatchWaitingStatus.CANCELED WHERE mw.team.teamId = :teamId")
     void cancelAllByTeamId(@Param("teamId") Long teamId);
 }
