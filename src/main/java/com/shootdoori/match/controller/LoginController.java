@@ -86,6 +86,41 @@ public class LoginController {
 
         return ResponseEntity.ok().build();
     }
+
+    @PostMapping("/login-cookie")
+    public ResponseEntity<Void> loginWithCookie(
+        @Valid @RequestBody LoginRequest loginRequest,
+        HttpServletRequest request,
+        HttpServletResponse response
+    ) {
+        ClientInfo clientInfo = getClientInfo(request);
+        AuthToken token = authService.login(loginRequest, clientInfo);
+        setHttpOnlyCookie(response, "accessToken", token.accessToken(), ACCESS_TOKEN_EXPIRES_IN_SECONDS);
+        setHttpOnlyCookie(response, "refreshToken", token.refreshToken(), REFRESH_TOKEN_EXPIRES_IN_SECONDS);
+
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/logout-cookie")
+    public ResponseEntity<Void> logoutWithCookie(
+        HttpServletRequest request,
+        HttpServletResponse response
+    ) {
+        String refreshToken = extractTokenFromCookie(request, "refreshToken");
+
+        if (refreshToken != null) {
+            try {
+                authService.logout(refreshToken);
+            } catch (Exception e) {
+                logger.warn("Token already invalid or not found: {}", e.getMessage());
+            }
+        }
+
+        clearHttpOnlyCookie(response, "accessToken");
+        clearHttpOnlyCookie(response, "refreshToken");
+
+        return ResponseEntity.ok().build();
+    }
     
     private ClientInfo getClientInfo(HttpServletRequest request) {
         String userAgent = request.getHeader("User-Agent");
