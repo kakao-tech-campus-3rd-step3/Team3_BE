@@ -301,7 +301,7 @@ class LineupServiceTest {
     void deleteLineup_Success() {
         // given
         given(lineupRepository.findById(1L)).willReturn(Optional.ofNullable(savedLineup));
-        doNothing().when(lineupRepository).deleteById(1L);
+        doNothing().when(lineupRepository).delete(savedLineup);
 
         // when
         lineupService.deleteLineup(1L, 1L);
@@ -310,7 +310,7 @@ class LineupServiceTest {
 
         // verify
         verify(lineupRepository, times(1)).findById(1L);
-        verify(lineupRepository, times(1)).deleteById(1L);
+        verify(lineupRepository, times(1)).delete(savedLineup);
     }
 
     @Test

@@ -182,7 +182,7 @@ class LineupControllerIntegrationTest {
                 .accept(MediaType.APPLICATION_JSON));
 
         // then (검증)
-        actions.andExpect(status().isBadRequest())
+        actions.andExpect(status().isNotFound())
                 .andDo(print());
     }
 
