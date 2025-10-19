@@ -21,10 +21,18 @@ public class LineupController {
         this.lineupService = lineupService;
     }
 
+    /* 단일 생성
     @PostMapping
     public ResponseEntity<LineupResponseDto> createLineup(@RequestBody LineupRequestDto requestDto,
                                                           @LoginUser Long userId) {
         return ResponseEntity.status(HttpStatus.CREATED).body(lineupService.createLineup(requestDto, userId));
+    }
+     */
+
+    @PostMapping()
+    public ResponseEntity<List<LineupResponseDto>> createLineup(@RequestBody List<LineupRequestDto> requestDtos,
+                                                                @LoginUser Long userId) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(lineupService.createLineup(requestDtos, userId));
     }
 
     @GetMapping
