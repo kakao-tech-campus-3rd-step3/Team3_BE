@@ -40,29 +40,6 @@ public class LineupService {
         this.teamMemberRepository = teamMemberRepository;
     }
 
-    /* 단일 생성 코드
-    @Transactional
-    public LineupResponseDto createLineup(LineupRequestDto requestDto, Long userId) {
-        TeamMember teamMember = teamMemberRepository.findById(requestDto.teamMemberId()).orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
-        teamMember.checkCaptainPermission(userId);
-
-        Lineup lineup = new Lineup(
-                requestDto.matchId() != null ? matchRepository.getReferenceById(requestDto.matchId()) : null,
-                requestDto.waitingId() != null ? matchWaitingRepository.getReferenceById(requestDto.waitingId()) : null,
-                requestDto.requestId() != null ? matchRequestRepository.getReferenceById(requestDto.requestId()) : null,
-                teamMember,
-                requestDto.position(),
-                requestDto.isStarter()
-        );
-        try {
-            Lineup savedLineup = lineupRepository.saveAndFlush(lineup);
-            return LineupResponseDto.from(savedLineup);
-        } catch (DataIntegrityViolationException e) {
-            throw new CreationFailException(ErrorCode.LINEUP_CREATION_FAILED);
-        }
-    }
-     */
-
     public List<LineupResponseDto> getAllLineupsByTeamId(Long teamId) {
         return lineupRepository.findByTeamMemberTeamTeamId(teamId).stream()
                 .map(LineupResponseDto::from)
@@ -82,13 +59,20 @@ public class LineupService {
         Map<Long, TeamMember> teamMemberMap = teamMemberRepository.findAllById(teamMemberIds).stream()
                 .collect(Collectors.toMap(TeamMember::getId, teamMember -> teamMember));
 
+        if (teamMemberIds.size() != teamMemberMap.size()) {
+            throw new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND);
+        }
+
+        // 모든 팀원이 같은 팀에 속한다고 가정하고, 대표로 한 명만 권한 검사를 수행합니다.
+        TeamMember representativeMember = teamMemberMap.values().iterator().next();
+        representativeMember.checkCaptainPermission(userId);
+
         List<Lineup> lineupsToSave = requestDtos.stream()
                 .map(dto -> {
                     TeamMember teamMember = teamMemberMap.get(dto.teamMemberId());
                     if (teamMember == null) {
                         throw new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND);
                     }
-                    teamMember.checkCaptainPermission(userId);
 
                     return new Lineup(
                             dto.matchId() != null ? matchRepository.getReferenceById(dto.matchId()) : null,

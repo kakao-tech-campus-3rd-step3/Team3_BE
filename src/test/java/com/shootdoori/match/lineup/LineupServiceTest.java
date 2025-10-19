@@ -87,55 +87,6 @@ class LineupServiceTest {
         ReflectionTestUtils.setField(savedLineup, "id", 1L);
     }
 
-    /* 단일 생성 테스트 코드
-    @Test
-    @DisplayName("라인업 생성 - 성공")
-    void createLineup_Success() {
-        // given
-        given(matchRepository.getReferenceById(1L)).willReturn(mockMatch);
-        given(matchWaitingRepository.getReferenceById(1L)).willReturn(mockMatchWaiting);
-        given(matchRequestRepository.getReferenceById(1L)).willReturn(mockMatchRequest);
-        given(teamMemberRepository.findById(1L)).willReturn(Optional.ofNullable(mockTeamMember));
-
-        given(lineupRepository.saveAndFlush(any(Lineup.class))).willReturn(savedLineup);
-
-        // when
-        LineupResponseDto responseDto = lineupService.createLineup(requestDto, 1L);
-
-        // then
-        assertThat(responseDto).isNotNull();
-        assertThat(responseDto.id()).isEqualTo(1L);
-        assertThat(responseDto.position()).isEqualTo(UserPosition.GK);
-        assertThat(responseDto.isStarter()).isTrue();
-    }
-
-    @Test
-    @DisplayName("라인업 생성 - 실패 (DB 제약 조건 위반)")
-    void createLineup_Failure_DataIntegrityViolation() {
-        // given
-        given(matchRepository.getReferenceById(1L)).willReturn(mockMatch);
-        given(matchWaitingRepository.getReferenceById(1L)).willReturn(mockMatchWaiting);
-        given(matchRequestRepository.getReferenceById(1L)).willReturn(mockMatchRequest);
-        given(teamMemberRepository.findById(1L)).willReturn(Optional.ofNullable(mockTeamMember));
-        given(lineupRepository.saveAndFlush(any(Lineup.class)))
-                .willThrow(new DataIntegrityViolationException("Test DB Error"));
-
-        // when & then
-        CreationFailException exception = assertThrows(CreationFailException.class, () -> {
-            lineupService.createLineup(requestDto, 1L);
-        });
-
-        assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.LINEUP_CREATION_FAILED);
-
-        // verify
-        verify(lineupRepository, times(1)).saveAndFlush(any(Lineup.class));
-    }
-    */
-
-    // =================================================================
-    //  새로운 List<DTO> 기반 createLineup 테스트
-    // =================================================================
-
     @Test
     @DisplayName("라인업 일괄 생성 - 성공 (여러 항목)")
     void createLineup_List_Success_Multiple() {
@@ -159,7 +110,6 @@ class LineupServiceTest {
 
         // 2-2. 권한 검사 Mocking (void 메서드)
         doNothing().when(mockTeamMember).checkCaptainPermission(1L);
-        doNothing().when(mockTeamMember2).checkCaptainPermission(1L);
 
         // 2-3. getReferenceById (연관관계 설정)
         given(matchRepository.getReferenceById(1L)).willReturn(mockMatch);
@@ -185,7 +135,6 @@ class LineupServiceTest {
         // verify
         verify(teamMemberRepository, times(1)).findAllById(teamMemberIds);
         verify(mockTeamMember, times(1)).checkCaptainPermission(1L);
-        verify(mockTeamMember2, times(1)).checkCaptainPermission(1L);
         verify(lineupRepository, times(1)).saveAllAndFlush(any(List.class));
     }
 
