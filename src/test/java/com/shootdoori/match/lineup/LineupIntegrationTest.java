@@ -1,5 +1,6 @@
 package com.shootdoori.match.lineup;
 
+import com.fasterxml.jackson.databind.JsonNode; // JsonNode import 추가
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shootdoori.match.dto.LineupRequestDto;
 import com.shootdoori.match.entity.lineup.Lineup;
@@ -66,7 +67,7 @@ class LineupControllerIntegrationTest {
     @Autowired private MatchRequestRepository matchRequestRepository;
     @Autowired private TeamMemberRepository teamMemberRepository;
     @Autowired private TeamRepository teamRepository;
-    @Autowired private ProfileRepository profileRepository; // User용 리포지토리
+    @Autowired private ProfileRepository profileRepository;
     @Autowired private VenueRepository venueRepository;
 
     private User savedUser1, savedUser2;
@@ -116,8 +117,8 @@ class LineupControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("POST /api/lineups - 라인업 생성 통합 테스트 (201 CREATED)")
-    void createLineup_IntegrationTest() throws Exception {
+    @DisplayName("POST /api/lineups - 라인업 생성 (단일 항목 리스트) (201 CREATED)")
+    void createLineup_List_Success_SingleItem_IntegrationTest() throws Exception {
         // given (준비)
         LineupRequestDto requestDto = new LineupRequestDto(
                 savedMatch.getMatchId(),
@@ -128,8 +129,10 @@ class LineupControllerIntegrationTest {
                 true
         );
 
+        List<LineupRequestDto> requestList = List.of(requestDto);
+
         Authentication authentication = new UsernamePasswordAuthenticationToken(
-                savedUser1.getId(),
+                savedUser1.getId(), // 1번팀 주장으로 인증
                 null,
                 Collections.emptyList()
         );
@@ -137,21 +140,78 @@ class LineupControllerIntegrationTest {
         // when (실행)
         ResultActions actions = mockMvc.perform(post("/api/lineups")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(requestDto))
+                .content(objectMapper.writeValueAsString(requestList))
                 .with(SecurityMockMvcRequestPostProcessors.authentication(authentication)));
 
         // then (검증)
         MvcResult result = actions.andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").exists()) // ID가 생성되었는지
-                .andExpect(jsonPath("$.position").value("GK"))
-                .andExpect(jsonPath("$.teamMemberId").value(savedTeamMember1.getId()))
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$[0].id").exists()) // ID가 생성되었는지
+                .andExpect(jsonPath("$[0].position").value("GK"))
+                .andExpect(jsonPath("$[0].teamMemberId").value(savedTeamMember1.getId()))
                 .andDo(print())
                 .andReturn();
+
         String jsonResponse = result.getResponse().getContentAsString();
-        Long savedLineupId = objectMapper.readTree(jsonResponse).get("id").asLong();
+        Long savedLineupId = objectMapper.readTree(jsonResponse).get(0).get("id").asLong();
 
         assertThat(lineupRepository.findById(savedLineupId)).isPresent();
     }
+
+    @Test
+    @DisplayName("POST /api/lineups - 라인업 일괄 생성 (다중 항목 리스트) (201 CREATED)")
+    void createLineup_List_Success_MultipleItems_IntegrationTest() throws Exception {
+        // given (준비)
+        User savedUser3 = User.create("멤버1", "아마추어", "member1@test.ac.kr", "password123",
+                "member1_kakao", "미드필더", "테스트대학교", "체육학과", "22", "멤버1입니다.");
+        profileRepository.save(savedUser3);
+        TeamMember savedTeamMember3 = new TeamMember(savedTeam1, savedUser3, TeamMemberRole.MEMBER);
+        teamMemberRepository.save(savedTeamMember3);
+
+        LineupRequestDto requestDto1 = new LineupRequestDto(
+                savedMatch.getMatchId(), null, null,
+                savedTeamMember1.getId(), // 1번팀 멤버 (주장)
+                UserPosition.GK, true
+        );
+        LineupRequestDto requestDto2 = new LineupRequestDto(
+                savedMatch.getMatchId(), null, null,
+                savedTeamMember3.getId(), // 1번팀 멤버 (일반)
+                UserPosition.DF, true
+        );
+
+        List<LineupRequestDto> requestList = List.of(requestDto1, requestDto2);
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                savedUser1.getId(), // 1번팀 주장으로 인증 (주장이 멤버 등록)
+                null,
+                Collections.emptyList()
+        );
+
+        // when (실행)
+        ResultActions actions = mockMvc.perform(post("/api/lineups")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestList))
+                .with(SecurityMockMvcRequestPostProcessors.authentication(authentication)));
+
+        // then (검증)
+        MvcResult result = actions.andExpect(status().isCreated())
+                .andExpect(jsonPath("$").isArray())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].position").value("GK"))
+                .andExpect(jsonPath("$[1].position").value("DF"))
+                .andDo(print())
+                .andReturn();
+
+        String jsonResponse = result.getResponse().getContentAsString();
+        JsonNode responseNode = objectMapper.readTree(jsonResponse);
+        Long savedLineupId1 = responseNode.get(0).get("id").asLong();
+        Long savedLineupId2 = responseNode.get(1).get("id").asLong();
+
+        // 2개 항목 모두 DB에 저장되었는지 확인
+        assertThat(lineupRepository.findById(savedLineupId1)).isPresent();
+        assertThat(lineupRepository.findById(savedLineupId2)).isPresent();
+    }
+
 
     @Test
     @DisplayName("GET /api/lineups/{id} - 라인업 단건 조회 통합 테스트 (200 OK)")
@@ -175,10 +235,10 @@ class LineupControllerIntegrationTest {
     }
 
     @Test
-    @DisplayName("GET /api/lineups/{id} - 라인업 조회 실패 통합 테스트 (400 BAD_REQUEST)")
+    @DisplayName("GET /api/lineups/{id} - 라인업 조회 실패 통합 테스트 (404 NOT_FOUND)")
     void getLineupById_NotFound_IntegrationTest() throws Exception {
         // when (실행)
-        ResultActions actions = mockMvc.perform(get("/api/lineups/{id}", 999L)
+        ResultActions actions = mockMvc.perform(get("/api/lineups/{id}", 99999L) // 존재하지 않을 ID
                 .accept(MediaType.APPLICATION_JSON));
 
         // then (검증)
