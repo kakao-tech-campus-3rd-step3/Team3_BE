@@ -130,7 +130,7 @@ class LineupServiceTest {
     }
 
     @Test
-    @DisplayName("매치 ID로 모든 라인업 조회 - 성공 (결과 1개)")
+    @DisplayName("팀 ID로 모든 라인업 조회 - 성공 (결과 1개)")
     void getAllLineupsByTeamId_Success() {
         // given
         List<Lineup> lineups = List.of(savedLineup);
@@ -150,7 +150,7 @@ class LineupServiceTest {
     }
 
     @Test
-    @DisplayName("매치 ID로 모든 라인업 조회 - 성공 (결과 없음)")
+    @DisplayName("팀 ID로 모든 라인업 조회 - 성공 (결과 없음)")
     void getAllLineupsByTeamId_Success_Empty() {
         // given
         given(lineupRepository.findByTeamMemberTeamTeamId(1L)).willReturn(Collections.emptyList());
