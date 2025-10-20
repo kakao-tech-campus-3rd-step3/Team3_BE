@@ -3,11 +3,11 @@ package com.shootdoori.mercenary;
 import com.shootdoori.match.dto.RecruitmentCreateRequest;
 import com.shootdoori.match.dto.RecruitmentResponse;
 import com.shootdoori.match.dto.RecruitmentUpdateRequest;
-import com.shootdoori.match.entity.mercenary.MercenaryPosition;
+import com.shootdoori.match.entity.Position;
 import com.shootdoori.match.entity.mercenary.MercenaryRecruitment;
-import com.shootdoori.match.entity.mercenary.MercenaryRecruitmentSkillLevel;
+import com.shootdoori.match.entity.SkillLevel;
 import com.shootdoori.match.entity.team.Team;
-import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.SkillLevel;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.NotFoundException;
@@ -215,11 +215,11 @@ class MercenaryRecruitmentTest {
 
         public static Team createTeam() {
             return new Team(
-                "두리FC",
+                "맨유FC",
                 User.create(
                     "김학생", "아마추어", "student@kangwon.ac.kr",
-                    "asdf02~!", "imkim25", "공격수", "강원대학교", "컴퓨터공학과", "20", "안녕하세요!"),
-                "강원대학교", TeamType.CENTRAL_CLUB, TeamSkillLevel.AMATEUR, "즐겜해요~"
+                    "asdf02~!", "imkim25", "공격수", "강원대학교", "컴퓨터공학과", "20", "안녕하세요"),
+                "강원대학교", TeamType.CENTRAL_CLUB, SkillLevel.AMATEUR, "즐겜해요~"
             );
         }
 
@@ -229,8 +229,8 @@ class MercenaryRecruitmentTest {
                 MATCH_DATE,
                 MATCH_START_TIME,
                 MESSAGE,
-                MercenaryPosition.fromDisplayName(POSITION),
-                MercenaryRecruitmentSkillLevel.fromDisplayName(SKILL_LEVEL)
+                Position.fromDisplayName(POSITION),
+                SkillLevel.fromDisplayName(SKILL_LEVEL)
             );
         }
 

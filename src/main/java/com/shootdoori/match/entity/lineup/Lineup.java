@@ -5,7 +5,7 @@ import com.shootdoori.match.entity.match.Match;
 import com.shootdoori.match.entity.match.request.MatchRequest;
 import com.shootdoori.match.entity.match.waiting.MatchWaiting;
 import com.shootdoori.match.entity.team.TeamMember;
-import com.shootdoori.match.entity.user.UserPosition;
+import com.shootdoori.match.entity.Position;
 import jakarta.persistence.*;
 
 @Entity
@@ -35,7 +35,7 @@ public class Lineup extends DateEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(length = 50)
-    private UserPosition position;
+    private Position position;
 
     @Column(name = "is_starter")
     private Boolean isStarter = true;
@@ -48,7 +48,7 @@ public class Lineup extends DateEntity {
                   MatchWaiting waiting,
                   MatchRequest request,
                   TeamMember teamMember,
-                  UserPosition position,
+                  Position position,
                   Boolean isStarter) {
         this.match = match;
         this.waiting = waiting;
@@ -81,7 +81,7 @@ public class Lineup extends DateEntity {
         return teamMember;
     }
 
-    public UserPosition getPosition() {
+    public Position getPosition() {
         return position;
     }
 
@@ -108,7 +108,7 @@ public class Lineup extends DateEntity {
     public void update(Match match,
                        MatchWaiting waiting,
                        MatchRequest request,
-                       UserPosition position,
+                       Position position,
                        Boolean isStarter) {
         this.match = match;
         this.waiting = waiting;

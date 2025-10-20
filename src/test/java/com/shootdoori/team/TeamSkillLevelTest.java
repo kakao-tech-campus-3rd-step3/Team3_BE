@@ -3,7 +3,7 @@ package com.shootdoori.team;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.SkillLevel;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -19,7 +19,7 @@ class TeamSkillLevelTest {
     @DisplayName("유효하지 않은 표시 이름이면 IllegalArgumentException 발생")
     void fromDisplayName_invalid_throws(String displayName) {
         // when & then
-        assertThatThrownBy(() -> TeamSkillLevel.fromDisplayName(displayName))
+        assertThatThrownBy(() -> SkillLevel.fromDisplayName(displayName))
             .isInstanceOf(IllegalArgumentException.class);
     }
 
@@ -30,9 +30,9 @@ class TeamSkillLevelTest {
         "아마추어, AMATEUR"
     })
     @DisplayName("유효한 표시 이름이면 해당 Enum 반환")
-    void fromDisplayName_valid_returnsEnum(String input, TeamSkillLevel expected) {
+    void fromDisplayName_valid_returnsEnum(String input, SkillLevel expected) {
         // when
-        TeamSkillLevel result = TeamSkillLevel.fromDisplayName(input);
+        SkillLevel result = SkillLevel.fromDisplayName(input);
 
         // then
         assertThat(result).isEqualTo(expected);

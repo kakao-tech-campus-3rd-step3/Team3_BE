@@ -2,6 +2,7 @@ package com.shootdoori.scheduler;
 
 import com.shootdoori.match.entity.match.Match;
 import com.shootdoori.match.entity.match.MatchStatus;
+import com.shootdoori.match.entity.SkillLevel;
 import com.shootdoori.match.entity.team.*;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.entity.venue.Venue;
@@ -63,8 +64,8 @@ class MatchStatusSchedulerTest {
         ));
 
         // 팀 생성
-        team1 = teamRepository.save(new Team("Team 1", team1Captain, "강원대학교", TeamType.OTHER, TeamSkillLevel.AMATEUR, "Team 1"));
-        team2 = teamRepository.save(new Team("Team 2", team2Captain, "강원대학교", TeamType.OTHER, TeamSkillLevel.AMATEUR, "Team 2"));
+        team1 = teamRepository.save(new Team("Team 1", team1Captain, "강원대학교", TeamType.OTHER, SkillLevel.AMATEUR, "Team 1"));
+        team2 = teamRepository.save(new Team("Team 2", team2Captain, "강원대학교", TeamType.OTHER, SkillLevel.AMATEUR, "Team 2"));
 
         // 팀 멤버 생성
         team1Member = teamMemberRepository.save(new TeamMember(team1, team1Captain, TeamMemberRole.LEADER));

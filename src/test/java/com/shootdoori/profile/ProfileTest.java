@@ -16,11 +16,10 @@ import com.shootdoori.match.dto.ProfileUpdateRequest;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.team.TeamMemberRole;
-import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.SkillLevel;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
-import com.shootdoori.match.entity.user.UserPosition;
-import com.shootdoori.match.entity.user.UserSkillLevel;
+import com.shootdoori.match.entity.Position;
 import com.shootdoori.match.entity.user.UserStatus;
 import com.shootdoori.match.exception.LeaderCannotLeaveTeamException;
 import com.shootdoori.match.exception.common.DuplicatedException;
@@ -85,8 +84,8 @@ class ProfileTest {
             // then
             assertThat(response).isNotNull();
             assertThat(response.name()).isEqualTo(request.name());
-            assertThat(response.skillLevel()).isEqualTo(UserSkillLevel.AMATEUR.name());
-            assertThat(response.position()).isEqualTo(UserPosition.FW.name());
+            assertThat(response.skillLevel()).isEqualTo(SkillLevel.AMATEUR.name());
+            assertThat(response.position()).isEqualTo(Position.FW.name());
             verify(profileRepository).save(any(User.class));
         }
 
@@ -233,8 +232,8 @@ class ProfileTest {
             ProfileResponse response = profileService.updateProfile(userId, updateRequest);
 
             // then
-            assertThat(user.getSkillLevel()).isEqualTo(UserSkillLevel.PRO);
-            assertThat(user.getPosition()).isEqualTo(UserPosition.GK);
+            assertThat(user.getSkillLevel()).isEqualTo(SkillLevel.PRO);
+            assertThat(user.getPosition()).isEqualTo(Position.GK);
             assertThat(user.getBio()).isEqualTo("변경된 자기소개");
             assertThat(response.skillLevel()).isEqualTo("PRO");
             assertThat(response.position()).isEqualTo("GK");
@@ -347,6 +346,6 @@ class ProfileTest {
     }
 
     private Team createTeam(User captain) {
-        return new Team("팀이름", captain, "knu", TeamType.OTHER, TeamSkillLevel.AMATEUR, "설명");
+        return new Team("팀이름", captain, "knu", TeamType.OTHER, SkillLevel.AMATEUR, "설명");
     }
 }

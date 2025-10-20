@@ -4,6 +4,7 @@ import com.shootdoori.match.entity.common.DateEntity;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.venue.Venue;
 import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.SkillLevel;
 import com.shootdoori.match.value.TeamName;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -48,11 +49,11 @@ public class MatchWaiting extends DateEntity {
 
   @Enumerated(EnumType.STRING)
   @Column(name = "SKILL_LEVEL_MIN", nullable = false)
-  private MatchWaitingSkillLevel skillLevelMin;
+  private SkillLevel skillLevelMin;
 
   @Enumerated(EnumType.STRING)
   @Column(name = "SKILL_LEVEL_MAX", nullable = false)
-  private MatchWaitingSkillLevel skillLevelMax;
+  private SkillLevel skillLevelMax;
 
     @Column(name = "UNIVERSITY_ONLY", nullable = false, columnDefinition = "BOOLEAN DEFAULT false")
     private Boolean universityOnly = false;
@@ -77,8 +78,8 @@ public class MatchWaiting extends DateEntity {
                       LocalTime preferredTimeStart,
                       LocalTime preferredTimeEnd,
                       Venue preferredVenue,
-                      MatchWaitingSkillLevel skillLevelMin,
-                      MatchWaitingSkillLevel skillLevelMax,
+                      SkillLevel skillLevelMin,
+                      SkillLevel skillLevelMax,
                       Boolean universityOnly,
                       String message,
                       MatchWaitingStatus status,
@@ -121,11 +122,11 @@ public class MatchWaiting extends DateEntity {
         return preferredVenue;
     }
 
-  public MatchWaitingSkillLevel getSkillLevelMin() {
+  public SkillLevel getSkillLevelMin() {
     return skillLevelMin;
   }
 
-  public MatchWaitingSkillLevel getSkillLevelMax() {
+  public SkillLevel getSkillLevelMax() {
     return skillLevelMax;
   }
 

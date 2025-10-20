@@ -1,6 +1,6 @@
 package com.shootdoori.match.dto;
 
-import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.SkillLevel;
 import com.shootdoori.match.entity.team.TeamType;
 
 public record TeamDetailResponseDto(
@@ -8,7 +8,7 @@ public record TeamDetailResponseDto(
     String name,
     String description,
     String university,
-    TeamSkillLevel skillLevel,
+    SkillLevel skillLevel,
     TeamType teamType,
     Integer memberCount,
     String createdAt

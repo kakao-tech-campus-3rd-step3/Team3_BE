@@ -1,6 +1,6 @@
 package com.shootdoori.match.dto;
 
-import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.SkillLevel;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
@@ -47,11 +47,11 @@ public class TeamMapper {
         return TeamType.fromDisplayName(value);
     }
 
-    private static TeamSkillLevel parseToSkillLevel(String value) {
+    private static SkillLevel parseToSkillLevel(String value) {
         if (value == null) {
-            return TeamSkillLevel.AMATEUR;
+            return SkillLevel.AMATEUR;
         }
 
-        return TeamSkillLevel.fromDisplayName(value);
+        return SkillLevel.fromDisplayName(value);
     }
 }

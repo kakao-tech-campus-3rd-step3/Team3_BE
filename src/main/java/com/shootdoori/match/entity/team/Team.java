@@ -2,6 +2,7 @@ package com.shootdoori.match.entity.team;
 
 import com.shootdoori.match.entity.common.SoftDeleteTeamEntity;
 import com.shootdoori.match.entity.user.User;
+import com.shootdoori.match.entity.SkillLevel;
 import com.shootdoori.match.exception.common.DifferentException;
 import com.shootdoori.match.exception.common.DuplicatedException;
 import com.shootdoori.match.exception.common.ErrorCode;
@@ -65,7 +66,7 @@ public class Team extends SoftDeleteTeamEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "SKILL_LEVEL", nullable = false, length = 20)
-    private TeamSkillLevel skillLevel = TeamSkillLevel.AMATEUR;
+    private SkillLevel skillLevel = SkillLevel.AMATEUR;
 
     @Embedded
     @AttributeOverride(name = "description", column = @Column(name = "DESCRIPTION", length = 1000))
@@ -82,12 +83,12 @@ public class Team extends SoftDeleteTeamEntity {
     }
 
     public Team(String teamName, User captain, String university, TeamType teamType,
-        TeamSkillLevel skillLevel, String description) {
+        SkillLevel skillLevel, String description) {
         this.teamName = TeamName.of(teamName);
         this.captain = captain;
         this.university = UniversityName.of(university);
         this.teamType = teamType != null ? teamType : TeamType.OTHER;
-        this.skillLevel = skillLevel != null ? skillLevel : TeamSkillLevel.AMATEUR;
+        this.skillLevel = skillLevel != null ? skillLevel : SkillLevel.AMATEUR;
         this.description = Description.of(description);
     }
 
@@ -116,7 +117,7 @@ public class Team extends SoftDeleteTeamEntity {
         return memberCount;
     }
 
-    public TeamSkillLevel getSkillLevel() {
+    public SkillLevel getSkillLevel() {
         return skillLevel;
     }
 
@@ -169,7 +170,7 @@ public class Team extends SoftDeleteTeamEntity {
 
         this.teamName = TeamName.of(teamName);
         this.university = UniversityName.of(university);
-        this.skillLevel = TeamSkillLevel.fromDisplayName(skillLevel);
+        this.skillLevel = SkillLevel.fromDisplayName(skillLevel);
         this.description = Description.of(description);
     }
 
