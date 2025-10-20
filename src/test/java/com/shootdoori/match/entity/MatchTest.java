@@ -3,7 +3,7 @@ package com.shootdoori.match.entity;
 import com.shootdoori.match.entity.match.Match;
 import com.shootdoori.match.entity.match.MatchStatus;
 import com.shootdoori.match.entity.team.Team;
-import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.entity.venue.Venue;
@@ -33,8 +33,8 @@ class MatchTest {
             "Abcd1234!", "imkakao", "골키퍼", "강원대학교", "컴퓨터공학과", "25", "캡틴"
         );
 
-        team1 = new Team("팀1", captain, "강원대학교", TeamType.OTHER, TeamSkillLevel.AMATEUR, "설명");
-        team2 = new Team("팀2", captain, "강원대학교", TeamType.OTHER, TeamSkillLevel.AMATEUR, "설명");
+        team1 = new Team("팀1", captain, "강원대학교", TeamType.OTHER, SkillLevel.AMATEUR, "설명");
+        team2 = new Team("팀2", captain, "강원대학교", TeamType.OTHER, SkillLevel.AMATEUR, "설명");
 
         venue = new Venue(
             "강원대 대운동장",

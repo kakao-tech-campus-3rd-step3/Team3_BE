@@ -3,10 +3,9 @@ package com.shootdoori.match.entity;
 import com.shootdoori.match.entity.match.request.MatchRequest;
 import com.shootdoori.match.entity.match.request.MatchRequestStatus;
 import com.shootdoori.match.entity.match.waiting.MatchWaiting;
-import com.shootdoori.match.entity.match.waiting.MatchWaitingSkillLevel;
+import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.entity.match.waiting.MatchWaitingStatus;
 import com.shootdoori.match.entity.team.Team;
-import com.shootdoori.match.entity.team.TeamSkillLevel;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.entity.venue.Venue;
@@ -26,8 +25,8 @@ class MatchRequestTest {
     private static final LocalDate PREFERRED_DATE = LocalDate.of(2025, 9, 26);
     private static final LocalTime PREFERRED_TIME_START = LocalTime.of(10, 0);
     private static final LocalTime PREFERRED_TIME_END = LocalTime.of(12, 0);
-    private static final MatchWaitingSkillLevel SKILL_LEVEL_MIN = MatchWaitingSkillLevel.AMATEUR;
-    private static final MatchWaitingSkillLevel SKILL_LEVEL_MAX = MatchWaitingSkillLevel.PRO;
+    private static final SkillLevel SKILL_LEVEL_MIN = SkillLevel.AMATEUR;
+    private static final SkillLevel SKILL_LEVEL_MAX = SkillLevel.PRO;
     private static final boolean UNIVERSITY_ONLY = true;
     private static final String WAITING_MESSAGE = "매치 신청합니다.";
     private static final MatchWaitingStatus WAITING_STATUS = MatchWaitingStatus.WAITING;
@@ -82,7 +81,7 @@ class MatchRequestTest {
             captain,
             "강원대학교",
             TeamType.fromDisplayName("과동아리"),
-            TeamSkillLevel.fromDisplayName("아마추어"),
+            SkillLevel.fromDisplayName("아마추어"),
             "주 2회 연습합니다."
         );
 
@@ -91,7 +90,7 @@ class MatchRequestTest {
             captain,
             "강원대학교",
             TeamType.fromDisplayName("과동아리"),
-            TeamSkillLevel.fromDisplayName("아마추어"),
+            SkillLevel.fromDisplayName("아마추어"),
             "주 1회 연습합니다."
         );
 

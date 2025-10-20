@@ -3,6 +3,7 @@ package com.shootdoori.match.service;
 import com.shootdoori.match.dto.EnemyTeamResponseDto;
 import com.shootdoori.match.entity.match.Match;
 import com.shootdoori.match.entity.match.MatchStatus;
+import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.entity.team.*;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.entity.venue.Venue;
@@ -88,7 +89,7 @@ class MatchCompleteServiceTest {
             team1Captain,
             "강원대학교",
             TeamType.OTHER,
-            TeamSkillLevel.AMATEUR,
+            SkillLevel.AMATEUR,
             "Team 1"
         ));
 
@@ -97,7 +98,7 @@ class MatchCompleteServiceTest {
             team2Captain,
             "강원대학교",
             TeamType.OTHER,
-            TeamSkillLevel.AMATEUR,
+            SkillLevel.AMATEUR,
             "Team 2"
         ));
 

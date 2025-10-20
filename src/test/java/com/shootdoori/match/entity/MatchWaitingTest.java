@@ -1,10 +1,9 @@
 package com.shootdoori.match.entity;
 
 import com.shootdoori.match.entity.match.waiting.MatchWaiting;
-import com.shootdoori.match.entity.match.waiting.MatchWaitingSkillLevel;
+import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.entity.match.waiting.MatchWaitingStatus;
 import com.shootdoori.match.entity.team.Team;
-import com.shootdoori.match.entity.team.TeamSkillLevel;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.entity.venue.Venue;
@@ -24,8 +23,8 @@ class MatchWaitingTest {
     private static final LocalDate PREFERRED_DATE = LocalDate.of(2025, 9, 26);
     private static final LocalTime PREFERRED_TIME_START = LocalTime.of(10, 0);
     private static final LocalTime PREFERRED_TIME_END = LocalTime.of(12, 0);
-    private static final MatchWaitingSkillLevel SKILL_LEVEL_MIN = MatchWaitingSkillLevel.AMATEUR;
-    private static final MatchWaitingSkillLevel SKILL_LEVEL_MAX = MatchWaitingSkillLevel.PRO;
+    private static final SkillLevel SKILL_LEVEL_MIN = SkillLevel.AMATEUR;
+    private static final SkillLevel SKILL_LEVEL_MAX = SkillLevel.PRO;
     private static final boolean UNIVERSITY_ONLY = true;
     private static final String WAITING_MESSAGE = "매치 신청합니다.";
     private static final MatchWaitingStatus WAITING_STATUS = MatchWaitingStatus.WAITING;
@@ -40,7 +39,7 @@ class MatchWaitingTest {
             "Abcd1234!", "imkakao", "골키퍼", "강원대학교", "컴퓨터공학과", "25", "캡틴"
         );
 
-        team = new Team("팀", captain, "강원대학교", TeamType.OTHER, TeamSkillLevel.AMATEUR, "설명");
+        team = new Team("팀", captain, "강원대학교", TeamType.OTHER, SkillLevel.AMATEUR, "설명");
         venue = new Venue(
             "강원대 대운동장",
             "춘천",

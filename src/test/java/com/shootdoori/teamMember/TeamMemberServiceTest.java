@@ -13,7 +13,7 @@ import com.shootdoori.match.dto.UpdateTeamMemberRequestDto;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.team.TeamMemberRole;
-import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.DifferentException;
@@ -111,7 +111,7 @@ public class TeamMemberServiceTest {
             captain,
             "강원대학교",
             TeamType.CENTRAL_CLUB,
-            TeamSkillLevel.AMATEUR,
+            SkillLevel.AMATEUR,
             "주 2회 연습합니다."
         );
 
@@ -702,7 +702,7 @@ public class TeamMemberServiceTest {
                 captain,
                 "강원대학교",
                 TeamType.CENTRAL_CLUB,
-                TeamSkillLevel.AMATEUR,
+                SkillLevel.AMATEUR,
                 "춘천 유포리 막국수를 사랑하는 모임"
             );
 
@@ -836,7 +836,7 @@ public class TeamMemberServiceTest {
                 captain,
                 "강원대학교",
                 TeamType.CENTRAL_CLUB,
-                TeamSkillLevel.AMATEUR,
+                SkillLevel.AMATEUR,
                 "춘천 유포리 막국수를 사랑하는 모임"
             );
 

@@ -5,13 +5,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMemberRole;
-import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
-import com.shootdoori.match.exception.common.BusinessException;
 import com.shootdoori.match.exception.common.DifferentException;
 import com.shootdoori.match.exception.common.DuplicatedException;
-import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NoPermissionException;
 import com.shootdoori.match.exception.domain.team.LastTeamMemberRemovalNotAllowedException;
 import com.shootdoori.match.exception.domain.team.TeamCapacityExceededException;
@@ -83,7 +81,7 @@ public class TeamTest {
             captain,
             "강원대학교",
             TeamType.fromDisplayName("과동아리"),
-            TeamSkillLevel.fromDisplayName("아마추어"),
+            SkillLevel.fromDisplayName("아마추어"),
             "주 2회 연습합니다."
         );
         team.recruitMember(captain, TeamMemberRole.LEADER);
@@ -103,7 +101,7 @@ public class TeamTest {
                     captain,
                     "강원대학교",
                     TeamType.fromDisplayName("과동아리"),
-                    TeamSkillLevel.fromDisplayName("아마추어"),
+                    SkillLevel.fromDisplayName("아마추어"),
                     "주 2회 연습합니다."
                 ))
                 .isInstanceOf(IllegalArgumentException.class);
@@ -122,7 +120,7 @@ public class TeamTest {
                     captain,
                     "강원대학교",
                     TeamType.fromDisplayName("과동아리"),
-                    TeamSkillLevel.fromDisplayName("아마추어"),
+                    SkillLevel.fromDisplayName("아마추어"),
                     "주 2회 연습합니다."
                 ))
                 .isInstanceOf(IllegalArgumentException.class);
@@ -254,7 +252,7 @@ public class TeamTest {
             // then
             assertThat(team.getTeamName().name()).isEqualTo("감자 FC");
             assertThat(team.getUniversity().name()).isEqualTo("한림대학교");
-            assertThat(team.getSkillLevel()).isEqualTo(TeamSkillLevel.PRO);
+            assertThat(team.getSkillLevel()).isEqualTo(SkillLevel.PRO);
         }
 
         @Test

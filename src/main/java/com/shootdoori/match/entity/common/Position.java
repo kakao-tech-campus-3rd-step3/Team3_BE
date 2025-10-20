@@ -1,6 +1,6 @@
-package com.shootdoori.match.entity.user;
+package com.shootdoori.match.entity.common;
 
-public enum UserPosition {
+public enum Position {
 
     GK("골키퍼"),
     DF("수비수"),
@@ -25,7 +25,7 @@ public enum UserPosition {
 
     private final String displayName;
 
-    UserPosition(String displayName) {
+    Position(String displayName) {
         this.displayName = displayName;
     }
 
@@ -33,8 +33,8 @@ public enum UserPosition {
         return displayName;
     }
 
-    public static UserPosition fromDisplayName(String displayName) {
-        for (UserPosition p : values()) {
+    public static Position fromDisplayName(String displayName) {
+        for (Position p : values()) {
             if (p.displayName.equals(displayName)) {
                 return p;
             }
@@ -42,9 +42,9 @@ public enum UserPosition {
         throw new IllegalArgumentException("Unknown position: " + displayName);
     }
 
-    public static UserPosition fromCode(String code) {
+    public static Position fromCode(String code) {
         try {
-            return UserPosition.valueOf(code.toUpperCase());
+            return Position.valueOf(code.toUpperCase());
         } catch (Exception e) {
             throw new IllegalArgumentException("Unknown position code: " + code);
         }

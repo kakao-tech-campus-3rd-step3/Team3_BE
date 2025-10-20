@@ -7,7 +7,7 @@ import com.shootdoori.match.entity.match.Match;
 import com.shootdoori.match.entity.match.request.MatchRequest;
 import com.shootdoori.match.entity.match.waiting.MatchWaiting;
 import com.shootdoori.match.entity.team.TeamMember;
-import com.shootdoori.match.entity.user.UserPosition;
+import com.shootdoori.match.entity.common.Position;
 import com.shootdoori.match.exception.common.CreationFailException;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NotFoundException;
@@ -52,7 +52,7 @@ class LineupServiceTest {
     private TeamMemberRepository teamMemberRepository;
 
     private LineupRequestDto requestDto;
-    private Lineup savedLineup; // 리포지토리에서 반환될 엔티티
+    private Lineup savedLineup;
     private Match mockMatch;
     private MatchWaiting mockMatchWaiting;
     private MatchRequest mockMatchRequest;
@@ -70,7 +70,7 @@ class LineupServiceTest {
                 1L, // waitingId
                 1L, // requestId
                 1L, // teamMemberId
-                UserPosition.GK,
+                Position.GK,
                 true
         );
 
@@ -79,7 +79,7 @@ class LineupServiceTest {
                 mockMatchWaiting,
                 mockMatchRequest,
                 mockTeamMember,
-                UserPosition.GK,
+                Position.GK,
                 true
         );
 
@@ -103,7 +103,7 @@ class LineupServiceTest {
         // then
         assertThat(responseDto).isNotNull();
         assertThat(responseDto.id()).isEqualTo(1L);
-        assertThat(responseDto.position()).isEqualTo(UserPosition.GK);
+        assertThat(responseDto.position()).isEqualTo(Position.GK);
         assertThat(responseDto.isStarter()).isTrue();
     }
 
@@ -130,7 +130,7 @@ class LineupServiceTest {
     }
 
     @Test
-    @DisplayName("팀 ID로 모든 라인업 조회 - 성공 (결과 1개)")
+    @DisplayName("매치 ID로 모든 라인업 조회 - 성공 (결과 1개)")
     void getAllLineupsByTeamId_Success() {
         // given
         List<Lineup> lineups = List.of(savedLineup);
@@ -143,14 +143,14 @@ class LineupServiceTest {
         assertThat(responseDtos).isNotNull();
         assertThat(responseDtos.size()).isEqualTo(1);
         assertThat(responseDtos.get(0).id()).isEqualTo(1L);
-        assertThat(responseDtos.get(0).position()).isEqualTo(UserPosition.GK);
+        assertThat(responseDtos.get(0).position()).isEqualTo(Position.GK);
 
         // verify
         verify(lineupRepository, times(1)).findByTeamMemberTeamTeamId(1L);
     }
 
     @Test
-    @DisplayName("팀 ID로 모든 라인업 조회 - 성공 (결과 없음)")
+    @DisplayName("매치 ID로 모든 라인업 조회 - 성공 (결과 없음)")
     void getAllLineupsByTeamId_Success_Empty() {
         // given
         given(lineupRepository.findByTeamMemberTeamTeamId(1L)).willReturn(Collections.emptyList());
@@ -178,7 +178,7 @@ class LineupServiceTest {
         // then
         assertThat(responseDto).isNotNull();
         assertThat(responseDto.id()).isEqualTo(1L);
-        assertThat(responseDto.position()).isEqualTo(UserPosition.GK);
+        assertThat(responseDto.position()).isEqualTo(Position.GK);
 
         // verify
         verify(lineupRepository, times(1)).findById(1L);
@@ -240,7 +240,7 @@ class LineupServiceTest {
     @DisplayName("라인업 수정 - 성공")
     void updateLineup_Success() {
         // given
-        LineupRequestDto updateDto = new LineupRequestDto(2L, 2L, 2L, 2L, UserPosition.DF, false);
+        LineupRequestDto updateDto = new LineupRequestDto(2L, 2L, 2L, 2L, Position.DF, false);
 
         Match mockMatch2 = mock(Match.class);
         MatchWaiting mockMatchWaiting2 = mock(MatchWaiting.class);
@@ -261,12 +261,12 @@ class LineupServiceTest {
 
         // then
         assertThat(responseDto).isNotNull();
-        assertThat(responseDto.position()).isEqualTo(UserPosition.DF);
+        assertThat(responseDto.position()).isEqualTo(Position.DF);
         assertThat(responseDto.isStarter()).isFalse();
-        assertThat(responseDto.matchId()).isEqualTo(2L); // ID도 변경되었는지 확인
-        assertThat(savedLineup.getPosition()).isEqualTo(UserPosition.DF);
+        assertThat(responseDto.matchId()).isEqualTo(2L);
+        assertThat(savedLineup.getPosition()).isEqualTo(Position.DF);
         assertThat(savedLineup.getIsStarter()).isFalse();
-        assertThat(savedLineup.getMatch()).isEqualTo(mockMatch2); // 내부 엔티티 참조가 변경되었는지 확인
+        assertThat(savedLineup.getMatch()).isEqualTo(mockMatch2);
 
         // verify
         verify(lineupRepository, times(1)).findById(1L);
@@ -279,7 +279,7 @@ class LineupServiceTest {
     @DisplayName("라인업 수정 - 실패 (라인업 없음)")
     void updateLineup_NotFound() {
         // given
-        LineupRequestDto updateDto = new LineupRequestDto(2L, 2L, 2L, 2L, UserPosition.DF, false);
+        LineupRequestDto updateDto = new LineupRequestDto(2L, 2L, 2L, 2L, Position.DF, false);
         given(lineupRepository.findById(1L)).willReturn(Optional.empty());
 
         // when & then

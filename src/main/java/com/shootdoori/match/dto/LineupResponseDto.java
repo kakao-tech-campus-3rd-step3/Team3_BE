@@ -2,7 +2,7 @@ package com.shootdoori.match.dto;
 
 import com.shootdoori.match.entity.lineup.Lineup;
 import com.shootdoori.match.entity.lineup.LineupStatus;
-import com.shootdoori.match.entity.user.UserPosition;
+import com.shootdoori.match.entity.common.Position;
 
 import java.time.LocalDateTime;
 
@@ -11,7 +11,7 @@ public record LineupResponseDto(Long id,
                                 Long waitingId,
                                 Long requestId,
                                 Long teamMemberId,
-                                UserPosition position,
+                                Position position,
                                 Boolean isStarter,
                                 LineupStatus lineupStatus,
                                 LocalDateTime createdAt,
