@@ -2,8 +2,8 @@ package com.shootdoori.match.entity.mercenary;
 
 import com.shootdoori.match.entity.common.DateEntity;
 import com.shootdoori.match.entity.team.Team;
-import com.shootdoori.match.entity.Position;
-import com.shootdoori.match.entity.SkillLevel;
+import com.shootdoori.match.entity.common.Position;
+import com.shootdoori.match.entity.common.SkillLevel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;

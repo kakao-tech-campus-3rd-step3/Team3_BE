@@ -1,4 +1,4 @@
-package com.shootdoori.match.entity;
+package com.shootdoori.match.entity.common;
 
 public enum Position {
 

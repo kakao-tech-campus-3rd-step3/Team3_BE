@@ -7,7 +7,7 @@ import com.shootdoori.match.entity.match.Match;
 import com.shootdoori.match.entity.match.request.MatchRequest;
 import com.shootdoori.match.entity.match.waiting.MatchWaiting;
 import com.shootdoori.match.entity.team.TeamMember;
-import com.shootdoori.match.entity.Position;
+import com.shootdoori.match.entity.common.Position;
 import com.shootdoori.match.exception.common.CreationFailException;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NotFoundException;

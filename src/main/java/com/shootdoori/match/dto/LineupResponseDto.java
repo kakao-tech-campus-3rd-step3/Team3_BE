@@ -2,7 +2,7 @@ package com.shootdoori.match.dto;
 
 import com.shootdoori.match.entity.lineup.Lineup;
 import com.shootdoori.match.entity.lineup.LineupStatus;
-import com.shootdoori.match.entity.Position;
+import com.shootdoori.match.entity.common.Position;
 
 import java.time.LocalDateTime;
 

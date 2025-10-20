@@ -1,5 +1,5 @@
 package com.shootdoori.match.dto;
-import com.shootdoori.match.entity.Position;
+import com.shootdoori.match.entity.common.Position;
 
 public record LineupRequestDto(Long matchId,
                                Long waitingId,

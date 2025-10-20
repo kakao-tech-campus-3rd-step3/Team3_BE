@@ -8,15 +8,14 @@ import com.shootdoori.match.entity.match.MatchStatus;
 import com.shootdoori.match.entity.match.request.MatchRequest;
 import com.shootdoori.match.entity.match.request.MatchRequestStatus;
 import com.shootdoori.match.entity.match.waiting.MatchWaiting;
-import com.shootdoori.match.entity.SkillLevel;
+import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.entity.match.waiting.MatchWaitingStatus;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.team.TeamMemberRole;
-import com.shootdoori.match.entity.SkillLevel;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
-import com.shootdoori.match.entity.Position;
+import com.shootdoori.match.entity.common.Position;
 import com.shootdoori.match.entity.venue.Venue;
 import com.shootdoori.match.repository.*; // 모든 리포지토리 import
 import org.junit.jupiter.api.BeforeEach;

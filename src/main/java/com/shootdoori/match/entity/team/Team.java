@@ -2,7 +2,7 @@ package com.shootdoori.match.entity.team;
 
 import com.shootdoori.match.entity.common.SoftDeleteTeamEntity;
 import com.shootdoori.match.entity.user.User;
-import com.shootdoori.match.entity.SkillLevel;
+import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.exception.common.DifferentException;
 import com.shootdoori.match.exception.common.DuplicatedException;
 import com.shootdoori.match.exception.common.ErrorCode;

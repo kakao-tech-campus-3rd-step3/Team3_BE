@@ -4,7 +4,7 @@ import com.shootdoori.match.entity.common.DateEntity;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.venue.Venue;
 import com.shootdoori.match.entity.team.Team;
-import com.shootdoori.match.entity.SkillLevel;
+import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.value.TeamName;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
