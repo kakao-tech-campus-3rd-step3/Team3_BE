@@ -124,7 +124,7 @@ class LineupControllerIntegrationTest {
                 savedMatchWaiting.getWaitingId(),
                 savedMatchRequest.getRequestId(),
                 savedTeamMember1.getId(),
-                UserPosition.GK,
+                Position.GK,
                 true
         );
 
@@ -162,7 +162,7 @@ class LineupControllerIntegrationTest {
     void createLineup_List_Success_MultipleItems_IntegrationTest() throws Exception {
         // given
         User savedUser3 = User.create("멤버1", "아마추어", "member1@test.ac.kr", "password123",
-                "member1_kakao", "미드필더", "테스트대학교", "체육학과", "22", "멤버1입니다.");
+                "member1_kakao", "MF", "테스트대학교", "체육학과", "22", "멤버1입니다.");
         profileRepository.save(savedUser3);
         TeamMember savedTeamMember3 = new TeamMember(savedTeam1, savedUser3, TeamMemberRole.MEMBER);
         teamMemberRepository.save(savedTeamMember3);
@@ -170,12 +170,12 @@ class LineupControllerIntegrationTest {
         LineupRequestDto requestDto1 = new LineupRequestDto(
                 savedMatch.getMatchId(), null, null,
                 savedTeamMember1.getId(),
-                UserPosition.GK, true
+                Position.GK, true
         );
         LineupRequestDto requestDto2 = new LineupRequestDto(
                 savedMatch.getMatchId(), null, null,
                 savedTeamMember3.getId(),
-                UserPosition.DF, true
+                Position.DF, true
         );
 
         List<LineupRequestDto> requestList = List.of(requestDto1, requestDto2);

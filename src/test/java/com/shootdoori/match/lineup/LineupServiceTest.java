@@ -71,7 +71,7 @@ class LineupServiceTest {
                 1L,
                 1L,
                 1L,
-                UserPosition.GK,
+                Position.GK,
                 true
         );
 
@@ -94,10 +94,10 @@ class LineupServiceTest {
         TeamMember mockTeamMember2 = mock(TeamMember.class);
         given(mockTeamMember2.getId()).willReturn(2L);
 
-        LineupRequestDto requestDto2 = new LineupRequestDto(1L, 1L, 1L, 2L, UserPosition.DF, true);
+        LineupRequestDto requestDto2 = new LineupRequestDto(1L, 1L, 1L, 2L, Position.DF, true);
         List<LineupRequestDto> requestDtos = List.of(requestDto, requestDto2);
 
-        Lineup savedLineup2 = new Lineup(mockMatch, mockMatchWaiting, mockMatchRequest, mockTeamMember2, UserPosition.DF, true);
+        Lineup savedLineup2 = new Lineup(mockMatch, mockMatchWaiting, mockMatchRequest, mockTeamMember2, Position.DF, true);
         ReflectionTestUtils.setField(savedLineup2, "id", 2L);
 
         List<Lineup> savedLineups = List.of(savedLineup, savedLineup2);
@@ -118,9 +118,9 @@ class LineupServiceTest {
         assertThat(responseDtos).isNotNull();
         assertThat(responseDtos.size()).isEqualTo(2);
         assertThat(responseDtos.get(0).id()).isEqualTo(1L);
-        assertThat(responseDtos.get(0).position()).isEqualTo(UserPosition.GK);
+        assertThat(responseDtos.get(0).position()).isEqualTo(Position.GK);
         assertThat(responseDtos.get(1).id()).isEqualTo(2L);
-        assertThat(responseDtos.get(1).position()).isEqualTo(UserPosition.DF);
+        assertThat(responseDtos.get(1).position()).isEqualTo(Position.DF);
         verify(teamMemberRepository, times(1)).findAllById(teamMemberIds);
         verify(mockTeamMember, times(1)).checkCaptainPermission(1L);
         verify(lineupRepository, times(1)).saveAllAndFlush(any(List.class));
@@ -227,7 +227,7 @@ class LineupServiceTest {
         assertThat(responseDtos).isNotNull();
         assertThat(responseDtos.size()).isEqualTo(1);
         assertThat(responseDtos.get(0).id()).isEqualTo(1L);
-        assertThat(responseDtos.get(0).position()).isEqualTo(UserPosition.GK);
+        assertThat(responseDtos.get(0).position()).isEqualTo(Position.GK);
         verify(lineupRepository, times(1)).findByTeamMemberTeamTeamId(1L);
     }
 
@@ -258,7 +258,7 @@ class LineupServiceTest {
         // then
         assertThat(responseDto).isNotNull();
         assertThat(responseDto.id()).isEqualTo(1L);
-        assertThat(responseDto.position()).isEqualTo(UserPosition.GK);
+        assertThat(responseDto.position()).isEqualTo(Position.GK);
         verify(lineupRepository, times(1)).findById(1L);
     }
 
@@ -336,7 +336,7 @@ class LineupServiceTest {
         assertThat(responseDto.position()).isEqualTo(Position.DF);
         assertThat(responseDto.isStarter()).isFalse();
         assertThat(responseDto.matchId()).isEqualTo(2L);
-        assertThat(savedLineup.getPosition()).isEqualTo(UserPosition.DF);
+        assertThat(savedLineup.getPosition()).isEqualTo(Position.DF);
         assertThat(savedLineup.getIsStarter()).isFalse();
         assertThat(savedLineup.getMatch()).isEqualTo(mockMatch2);
         verify(lineupRepository, times(1)).findById(1L);
