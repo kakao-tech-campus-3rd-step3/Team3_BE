@@ -88,7 +88,7 @@ public class TeamService {
             throw new NoPermissionException(ErrorCode.CAPTAIN_ONLY_OPERATION);
         }
 
-        team.updateInfo(requestDto.name(), requestDto.university(),
+        team.changeTeamInfo(requestDto.name(), requestDto.university(),
             requestDto.skillLevel(), requestDto.description());
 
         return teamMapper.toTeamDetailResponse(team);

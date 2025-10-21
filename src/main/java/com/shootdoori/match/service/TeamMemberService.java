@@ -66,7 +66,7 @@ public class TeamMemberService {
             throw new DuplicatedException(ErrorCode.ALREADY_TEAM_MEMBER);
         }
 
-        team.ensureSameUniversityAs(user);
+        team.validateSameUniversityAs(user);
 
         team.ensureCapacityAvailable();
 

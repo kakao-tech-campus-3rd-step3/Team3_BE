@@ -1,7 +1,6 @@
 package com.shootdoori.match.value;
 
 import com.shootdoori.match.exception.domain.team.InvalidMemberCountException;
-import com.shootdoori.match.exception.domain.team.TeamCapacityExceededException;
 import jakarta.persistence.Embeddable;
 
 @Embeddable
@@ -18,19 +17,5 @@ public record MemberCount(int count) {
 
     public static MemberCount of(int count) {
         return new MemberCount(count);
-    }
-
-    public MemberCount increase() {
-        return new MemberCount(count + 1);
-    }
-
-    public MemberCount decrease() {
-        return new MemberCount(count - 1);
-    }
-
-    public void validateMaxMembers() {
-        if (count >= MAX_TEAM_MEMBERS) {
-            throw new TeamCapacityExceededException();
-        }
     }
 }

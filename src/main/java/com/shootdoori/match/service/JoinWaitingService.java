@@ -63,7 +63,7 @@ public class JoinWaitingService {
         String message = requestDto.message();
         boolean isMercenary = requestDto.isMercenary();
 
-        team.ensureSameUniversityAs(applicant);
+        team.validateSameUniversityAs(applicant);
 
         if (teamMemberRepository.existsByUser_Id(applicantId)) {
             throw new DuplicatedException(ErrorCode.ALREADY_OTHER_TEAM_MEMBER);
@@ -115,7 +115,7 @@ public class JoinWaitingService {
             throw new DuplicatedException(ErrorCode.ALREADY_TEAM_MEMBER);
         }
 
-        team.ensureSameUniversityAs(joinWaiting.getApplicant());
+        team.validateSameUniversityAs(joinWaiting.getApplicant());
         team.ensureCapacityAvailable();
 
         joinWaiting.approve(approver, role, approveReason);

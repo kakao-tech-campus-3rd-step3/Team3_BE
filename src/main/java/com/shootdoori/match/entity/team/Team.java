@@ -8,6 +8,7 @@ import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NoPermissionException;
 import com.shootdoori.match.value.Description;
 import com.shootdoori.match.value.MemberCount;
+import com.shootdoori.match.value.TeamMembers;
 import com.shootdoori.match.value.TeamName;
 import com.shootdoori.match.value.UniversityName;
 import jakarta.persistence.AttributeOverride;
@@ -23,6 +24,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import org.hibernate.annotations.SQLRestriction;
@@ -52,10 +54,6 @@ public class Team extends SoftDeleteTeamEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "TEAM_TYPE", nullable = false, length = 20)
     private TeamType teamType = TeamType.OTHER;
-
-    @Embedded
-    @AttributeOverride(name = "count", column = @Column(name = "MEMBER_COUNT", nullable = false))
-    private MemberCount memberCount = MemberCount.of(0);
 
     @Enumerated(EnumType.STRING)
     @Column(name = "SKILL_LEVEL", nullable = false, length = 20)
@@ -103,7 +101,7 @@ public class Team extends SoftDeleteTeamEntity {
     }
 
     public MemberCount getMemberCount() {
-        return memberCount;
+        return teamMembers.getMemberCount();
     }
 
     public SkillLevel getSkillLevel() {
@@ -115,31 +113,29 @@ public class Team extends SoftDeleteTeamEntity {
     }
 
     public List<TeamMember> getTeamMembers() {
-        return teamMembers.getTeamMembers();
+        return Collections.unmodifiableList(teamMembers.getTeamMembers());
     }
 
-    public void ensureSameUniversityAs(User user) {
+    public void validateSameUniversityAs(User user) {
         if (!this.university.equals(user.getUniversity())) {
             throw new DifferentException(ErrorCode.DIFFERENT_UNIVERSITY);
         }
     }
 
     public void ensureCapacityAvailable() {
-        memberCount.validateMaxMembers();
+        teamMembers.ensureNotFull();
     }
 
     public void addMember(User user, TeamMemberRole role) {
         TeamMember teamMember = new TeamMember(this, user, role);
         teamMembers.addMember(teamMember);
-        memberCount = this.memberCount.increase();
     }
 
     public void removeMember(TeamMember member) {
         teamMembers.removeMember(member);
-        this.memberCount = this.memberCount.decrease();
     }
 
-    public void updateInfo(String teamName,
+    public void changeTeamInfo(String teamName,
         String university,
         String skillLevel,
         String description) {
@@ -164,8 +160,6 @@ public class Team extends SoftDeleteTeamEntity {
         }
 
         teamMembers.clear();
-        memberCount = MemberCount.of(0);
-
         changeStatusDeleted();
     }
 

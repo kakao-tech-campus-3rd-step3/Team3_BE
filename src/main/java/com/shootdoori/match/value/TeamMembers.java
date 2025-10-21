@@ -1,14 +1,19 @@
-package com.shootdoori.match.entity.team;
+package com.shootdoori.match.value;
 
+import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.DuplicatedException;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.domain.team.LastTeamMemberRemovalNotAllowedException;
 import com.shootdoori.match.exception.domain.team.TeamCapacityExceededException;
+import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.OneToMany;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Embeddable
@@ -23,14 +28,25 @@ public class TeamMembers {
     )
     private List<TeamMember> teamMembers = new ArrayList<>();
 
-    protected TeamMembers() {}
+    @Embedded
+    @AttributeOverride(name = "count", column = @Column(name = "MEMBER_COUNT", nullable = false))
+    private MemberCount memberCount = MemberCount.of(0);
+
+    protected TeamMembers() {
+    }
 
     public TeamMembers(List<TeamMember> teamMembers) {
-        this.teamMembers = teamMembers;
+        this.teamMembers = teamMembers == null
+            ? new ArrayList<>()
+            : new ArrayList<>(teamMembers);
     }
 
     public List<TeamMember> getTeamMembers() {
-        return teamMembers;
+        return Collections.unmodifiableList(teamMembers);
+    }
+
+    public MemberCount getMemberCount() {
+        return memberCount;
     }
 
     public static TeamMembers empty() {
@@ -59,18 +75,21 @@ public class TeamMembers {
         ensureNotFull();
         ensureNotMember(targetUser);
         teamMembers.add(targetMember);
+        syncMemberCount();
     }
 
     public void removeMember(TeamMember targetMember) {
         ensureRemovable();
         teamMembers.remove(targetMember);
+        syncMemberCount();
     }
 
     public void clear() {
         teamMembers.clear();
+        syncMemberCount();
     }
 
-    private void ensureNotFull() {
+    public void ensureNotFull() {
         if (size() >= MAX_TEAM_MEMBERS) {
             throw new TeamCapacityExceededException();
         }
@@ -86,5 +105,9 @@ public class TeamMembers {
         if (teamMembers.stream().anyMatch(member -> member.getUser().equals(targetUser))) {
             throw new DuplicatedException(ErrorCode.ALREADY_TEAM_MEMBER);
         }
+    }
+
+    private void syncMemberCount() {
+        memberCount = memberCount.of(size());
     }
 }
