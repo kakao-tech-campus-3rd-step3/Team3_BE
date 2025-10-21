@@ -115,7 +115,7 @@ public class TeamMemberServiceTest {
             "주 2회 연습합니다."
         );
 
-        team.recruitMember(captain, TeamMemberRole.LEADER);
+        team.addMember(captain, TeamMemberRole.LEADER);
 
         teamMember = new TeamMember(team, captain, TeamMemberRole.LEADER);
 
@@ -390,7 +390,7 @@ public class TeamMemberServiceTest {
         void leave_success() {
             // given
             TeamMember loginMember = new TeamMember(team, anotherUser, TeamMemberRole.MEMBER);
-            team.recruitMember(anotherUser, TeamMemberRole.MEMBER);
+            team.addMember(anotherUser, TeamMemberRole.MEMBER);
 
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
             when(teamMemberRepository.findByTeam_TeamIdAndUser_Id(TEAM_ID,
@@ -459,8 +459,8 @@ public class TeamMemberServiceTest {
             ReflectionTestUtils.setField(user, "id", leaderMemberId);
             ReflectionTestUtils.setField(anotherUser, "id", viceLeaderMemberId);
 
-            team.recruitMember(user, TeamMemberRole.LEADER);
-            team.recruitMember(anotherUser, TeamMemberRole.VICE_LEADER);
+            team.addMember(user, TeamMemberRole.LEADER);
+            team.addMember(anotherUser, TeamMemberRole.VICE_LEADER);
 
             leaderMember = new TeamMember(team, user, TeamMemberRole.LEADER);
             viceLeaderMember = new TeamMember(team, anotherUser, TeamMemberRole.VICE_LEADER);
@@ -710,7 +710,7 @@ public class TeamMemberServiceTest {
             ReflectionTestUtils.setField(anotherTeam, "teamId", 2L);
 
             Long anotherLeaderId = 4L;
-            anotherTeam.recruitMember(captain, TeamMemberRole.LEADER);
+            anotherTeam.addMember(captain, TeamMemberRole.LEADER);
             TeamMember anotherLeader = new TeamMember(anotherTeam, captain, TeamMemberRole.LEADER);
 
             when(teamRepository.findById(anotherTeamId)).thenReturn(Optional.of(anotherTeam));

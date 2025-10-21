@@ -3,9 +3,10 @@ package com.shootdoori.team;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import com.shootdoori.match.entity.team.Team;
-import com.shootdoori.match.entity.team.TeamMemberRole;
 import com.shootdoori.match.entity.common.SkillLevel;
+import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.team.TeamMember;
+import com.shootdoori.match.entity.team.TeamMemberRole;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.DifferentException;
@@ -13,7 +14,9 @@ import com.shootdoori.match.exception.common.DuplicatedException;
 import com.shootdoori.match.exception.common.NoPermissionException;
 import com.shootdoori.match.exception.domain.team.LastTeamMemberRemovalNotAllowedException;
 import com.shootdoori.match.exception.domain.team.TeamCapacityExceededException;
-import com.shootdoori.match.value.MemberCount;
+import com.shootdoori.match.value.TeamMembers;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -84,7 +87,7 @@ public class TeamTest {
             SkillLevel.fromDisplayName("아마추어"),
             "주 2회 연습합니다."
         );
-        team.recruitMember(captain, TeamMemberRole.LEADER);
+        team.addMember(captain, TeamMemberRole.LEADER);
     }
 
     @Nested
@@ -135,25 +138,25 @@ public class TeamTest {
         @DisplayName("정상적으로 멤버를 모집한다")
         void recruitMember_success() {
             // when
-            team.recruitMember(newMember, TeamMemberRole.MEMBER);
+            team.addMember(newMember, TeamMemberRole.MEMBER);
 
             // then
-            assertThat(team.getMembers()).hasSize(2);
+            assertThat(team.getTeamMembers()).hasSize(2);
             assertThat(team.getMemberCount().count()).isEqualTo(2);
-            assertThat(team.getMembers().get(1).getUser()).isEqualTo(newMember);
-            assertThat(team.getMembers().get(1).getRole()).isEqualTo(TeamMemberRole.MEMBER);
+            assertThat(team.getTeamMembers().get(1).getUser()).isEqualTo(newMember);
+            assertThat(team.getTeamMembers().get(1).getRole()).isEqualTo(TeamMemberRole.MEMBER);
         }
 
         @Test
         @DisplayName("중복 멤버 예외 테스트")
         void recruitMember_duplicate_throwsException() {
             // given
-            team.recruitMember(newMember, TeamMemberRole.MEMBER);
+            team.addMember(newMember, TeamMemberRole.MEMBER);
 
             // when & then
             assertThatThrownBy(
                 () ->
-                    team.recruitMember(newMember, TeamMemberRole.MEMBER))
+                    team.addMember(newMember, TeamMemberRole.MEMBER))
                 .isInstanceOf(DuplicatedException.class);
         }
     }
@@ -166,13 +169,13 @@ public class TeamTest {
         @DisplayName("멤버가 2명 이상일 때 정상적으로 제거한다")
         void removeMember_success() {
             // given
-            team.recruitMember(newMember, TeamMemberRole.MEMBER);
+            team.addMember(newMember, TeamMemberRole.MEMBER);
 
             // when
-            team.removeMember(team.getMembers().get(1));
+            team.removeMember(team.getTeamMembers().get(1));
 
             // then
-            assertThat(team.getMembers()).hasSize(1);
+            assertThat(team.getTeamMembers()).hasSize(1);
             assertThat(team.getMemberCount().count()).isEqualTo(1);
         }
 
@@ -181,7 +184,7 @@ public class TeamTest {
         void removeMember_lastMember_throwsException() {
             // when & then
             assertThatThrownBy(() ->
-                team.removeMember(team.getMembers().get(0)))
+                team.removeMember(team.getTeamMembers().get(0)))
                 .isInstanceOf(LastTeamMemberRemovalNotAllowedException.class);
         }
     }
@@ -194,7 +197,7 @@ public class TeamTest {
         @DisplayName("같은 대학교 사용자는 검증을 통과한다")
         void validateSameUniversity_success() {
             // when & then
-            team.validateSameUniversity(newMember);
+            team.validateSameUniversityAs(newMember);
         }
 
         @Test
@@ -202,7 +205,7 @@ public class TeamTest {
         void validateSameUniversity_throwsException() {
             // when & then
             assertThatThrownBy(() ->
-                team.validateSameUniversity(differentUniversityMember))
+                team.validateSameUniversityAs(differentUniversityMember))
                 .isInstanceOf(DifferentException.class);
         }
     }
@@ -216,19 +219,28 @@ public class TeamTest {
         void validateCanAcceptNewMember_success() {
 
             // when & then
-            team.validateCanAcceptNewMember();
+            team.ensureCapacityAvailable();
         }
 
         @Test
         @DisplayName("정원 여유가 없을 때 예외 테스트")
         void validateCanAcceptNewMember_throwsException() {
-
             // given
-            ReflectionTestUtils.setField(team, "memberCount", MemberCount.of(100));
+            TeamMembers teamMembers = (TeamMembers) ReflectionTestUtils.getField(team,
+                "teamMembers");
+            List<TeamMember> members = new ArrayList<>();
+            for (int i = 0; i < 100; i++) {
+                members.add(new TeamMember(
+                    team,
+                    newMember,
+                    TeamMemberRole.MEMBER
+                ));
+            }
+            ReflectionTestUtils.setField(teamMembers, "teamMembers", members);
 
             // when & then
             assertThatThrownBy(() ->
-                team.validateCanAcceptNewMember())
+                team.ensureCapacityAvailable())
                 .isInstanceOf(TeamCapacityExceededException.class);
         }
     }
@@ -274,6 +286,7 @@ public class TeamTest {
     @Nested
     @DisplayName("팀 삭제 테스트")
     class DeleteTeamTest {
+
         @Test
         @DisplayName("팀 정상 삭제 테스트")
         void deleteTeamTest_success() {
@@ -309,6 +322,7 @@ public class TeamTest {
     @Nested
     @DisplayName("팀 복구 테스트")
     class RestoreTeamTest {
+
         @BeforeEach
         void setUpForRestore() {
             team.delete(captainId);

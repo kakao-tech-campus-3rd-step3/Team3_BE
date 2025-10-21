@@ -82,8 +82,8 @@ public class JoinWaitingTest {
             "주 3회 연습합니다."
         );
 
-        team.recruitMember(teamLeader, TeamMemberRole.LEADER);
-        leaderMember = team.getMembers().get(0);
+        team.addMember(teamLeader, TeamMemberRole.LEADER);
+        leaderMember = team.getTeamMembers().get(0);
     }
 
     @Nested
@@ -152,9 +152,9 @@ public class JoinWaitingTest {
             assertThat(joinWaiting.getDecidedBy()).isEqualTo(teamLeader);
             assertThat(joinWaiting.getDecidedAt()).isNotNull();
 
-            assertThat(team.getMembers()).hasSize(2);
-            assertThat(team.getMembers().get(1).getUser()).isEqualTo(applicant);
-            assertThat(team.getMembers().get(1).getRole()).isEqualTo(TeamMemberRole.MEMBER);
+            assertThat(team.getTeamMembers()).hasSize(2);
+            assertThat(team.getTeamMembers().get(1).getUser()).isEqualTo(applicant);
+            assertThat(team.getTeamMembers().get(1).getRole()).isEqualTo(TeamMemberRole.MEMBER);
         }
 
         @Test
@@ -177,8 +177,8 @@ public class JoinWaitingTest {
         void approve_byRegularMember_throwsNoPermission() {
             // given
             JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입 요청입니다.", false);
-            team.recruitMember(anotherUser, TeamMemberRole.MEMBER);
-            TeamMember regularMember = team.getMembers().get(1);
+            team.addMember(anotherUser, TeamMemberRole.MEMBER);
+            TeamMember regularMember = team.getTeamMembers().get(1);
 
             // when & then
             assertThatThrownBy(() ->
@@ -206,7 +206,7 @@ public class JoinWaitingTest {
             assertThat(joinWaiting.getDecidedBy()).isEqualTo(teamLeader);
             assertThat(joinWaiting.getDecidedAt()).isNotNull();
 
-            assertThat(team.getMembers()).hasSize(1);
+            assertThat(team.getTeamMembers()).hasSize(1);
         }
 
         @Test
@@ -229,8 +229,8 @@ public class JoinWaitingTest {
         void reject_byRegularMember_throwsNoPermission() {
             // given
             JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입 요청입니다.", false);
-            team.recruitMember(anotherUser, TeamMemberRole.MEMBER);
-            TeamMember regularMember = team.getMembers().get(1);
+            team.addMember(anotherUser, TeamMemberRole.MEMBER);
+            TeamMember regularMember = team.getTeamMembers().get(1);
 
             // when & then
             assertThatThrownBy(() ->
@@ -258,7 +258,7 @@ public class JoinWaitingTest {
             assertThat(joinWaiting.getDecidedBy()).isEqualTo(applicant);
             assertThat(joinWaiting.getDecidedAt()).isNotNull();
 
-            assertThat(team.getMembers()).hasSize(1);
+            assertThat(team.getTeamMembers()).hasSize(1);
         }
 
         @Test

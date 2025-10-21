@@ -127,7 +127,7 @@ public class JoinWaiting extends DateEntity {
         verifyPending();
         approver.canMakeJoinDecisionFor(this.team);
 
-        this.team.recruitMember(this.applicant, role);
+        this.team.addMember(this.applicant, role);
         this.status = JoinWaitingStatus.APPROVED;
         this.decisionReason = decisionReason;
         this.decidedBy = approver.getUser();
