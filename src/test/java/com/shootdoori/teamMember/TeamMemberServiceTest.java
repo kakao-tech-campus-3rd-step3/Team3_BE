@@ -13,7 +13,7 @@ import com.shootdoori.match.dto.UpdateTeamMemberRequestDto;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.team.TeamMemberRole;
-import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.DifferentException;
@@ -86,11 +86,11 @@ public class TeamMemberServiceTest {
             "student@kangwon.ac.kr",
             "Abcd1234!",
             "010-1234-5678",
-            "골키퍼",
+            "GK",
             "강원대학교",
             "컴퓨터공학과",
             "25",
-            "축구를 좋아하는 대학생입니다. 골키퍼 포지션을 주로 맡고 있으며, 즐겁게 운동하고 싶습니다!"
+            "축구를 좋아하는 대학생입니다. GK 포지션을 주로 맡고 있으며, 즐겁게 운동하고 싶습니다!"
         );
 
         user = User.create(
@@ -99,7 +99,7 @@ public class TeamMemberServiceTest {
             "student35@kangwon.ac.kr",
             "Abcd1234!",
             "010-0000-0000",
-            "풀백",
+            "RB",
             "강원대학교",
             "컴퓨터공학과",
             "35",
@@ -111,7 +111,7 @@ public class TeamMemberServiceTest {
             captain,
             "강원대학교",
             TeamType.CENTRAL_CLUB,
-            TeamSkillLevel.AMATEUR,
+            SkillLevel.AMATEUR,
             "주 2회 연습합니다."
         );
 
@@ -125,7 +125,7 @@ public class TeamMemberServiceTest {
             "student35@kangwon.ac.kr",
             "Abcd1234!",
             "010-0000-0000",
-            "풀백",
+            "RB",
             "강원대학교",
             "컴퓨터공학과",
             "35",
@@ -702,7 +702,7 @@ public class TeamMemberServiceTest {
                 captain,
                 "강원대학교",
                 TeamType.CENTRAL_CLUB,
-                TeamSkillLevel.AMATEUR,
+                SkillLevel.AMATEUR,
                 "춘천 유포리 막국수를 사랑하는 모임"
             );
 
@@ -836,7 +836,7 @@ public class TeamMemberServiceTest {
                 captain,
                 "강원대학교",
                 TeamType.CENTRAL_CLUB,
-                TeamSkillLevel.AMATEUR,
+                SkillLevel.AMATEUR,
                 "춘천 유포리 막국수를 사랑하는 모임"
             );
 

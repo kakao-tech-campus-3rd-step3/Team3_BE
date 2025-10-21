@@ -9,15 +9,14 @@ import com.shootdoori.match.entity.match.MatchStatus;
 import com.shootdoori.match.entity.match.request.MatchRequest;
 import com.shootdoori.match.entity.match.request.MatchRequestStatus;
 import com.shootdoori.match.entity.match.waiting.MatchWaiting;
-import com.shootdoori.match.entity.match.waiting.MatchWaitingSkillLevel;
+import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.entity.match.waiting.MatchWaitingStatus;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.team.TeamMemberRole;
-import com.shootdoori.match.entity.team.TeamSkillLevel;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
-import com.shootdoori.match.entity.user.UserPosition;
+import com.shootdoori.match.entity.common.Position;
 import com.shootdoori.match.entity.venue.Venue;
 import com.shootdoori.match.repository.*;
 import org.junit.jupiter.api.BeforeEach;
@@ -81,9 +80,9 @@ class LineupControllerIntegrationTest {
     @BeforeEach
     void setUp() {
         savedUser1 = User.create("주장1", "아마추어", "captain1@test.ac.kr", "password123",
-                "captain1_kakao", "공격수", "테스트대학교", "컴퓨터공학과", "20", "주장1입니다.");
+                "captain1_kakao", "FW", "테스트대학교", "컴퓨터공학과", "20", "주장1입니다.");
         savedUser2 = User.create("주장2", "세미프로", "captain2@test.ac.kr", "password123",
-                "captain2_kakao", "수비수", "테스트대학교", "경영학과", "21", "주장2입니다.");
+                "captain2_kakao", "DF", "테스트대학교", "경영학과", "21", "주장2입니다.");
         profileRepository.saveAll(List.of(savedUser1, savedUser2));
 
         savedVenue = new Venue("테스트 경기장", "서울시 테스트구",
@@ -92,9 +91,9 @@ class LineupControllerIntegrationTest {
         venueRepository.save(savedVenue);
 
         savedTeam1 = new Team("팀A", savedUser1, "테스트대학교", TeamType.CENTRAL_CLUB,
-                TeamSkillLevel.AMATEUR, "팀A입니다.");
+                SkillLevel.AMATEUR, "팀A입니다.");
         savedTeam2 = new Team("팀B", savedUser2, "테스트대학교", TeamType.DEPARTMENT_CLUB,
-                TeamSkillLevel.SEMI_PRO, "팀B입니다.");
+                SkillLevel.SEMI_PRO, "팀B입니다.");
         teamRepository.saveAll(List.of(savedTeam1, savedTeam2));
 
         savedTeamMember1 = new TeamMember(savedTeam1, savedUser1, TeamMemberRole.LEADER);
@@ -107,7 +106,7 @@ class LineupControllerIntegrationTest {
 
         savedMatchWaiting = new MatchWaiting(savedTeam1, LocalDate.now().plusDays(8),
                 LocalTime.of(14, 0), LocalTime.of(16, 0), savedVenue,
-                MatchWaitingSkillLevel.AMATEUR, MatchWaitingSkillLevel.SEMI_PRO,
+                SkillLevel.AMATEUR, SkillLevel.SEMI_PRO,
                 false, "대기1", MatchWaitingStatus.WAITING, LocalDateTime.now().plusDays(1));
         matchWaitingRepository.save(savedMatchWaiting);
 
@@ -217,7 +216,7 @@ class LineupControllerIntegrationTest {
         // given
         Lineup testLineup = new Lineup(
                 savedMatch, savedMatchWaiting, savedMatchRequest, savedTeamMember1,
-                UserPosition.FW, true
+                Position.FW, true
         );
         Lineup savedLineup = lineupRepository.save(testLineup);
         Long savedLineupId = savedLineup.getId();
@@ -250,7 +249,7 @@ class LineupControllerIntegrationTest {
         // given
         Lineup testLineup = new Lineup(
                 savedMatch, savedMatchWaiting, savedMatchRequest, savedTeamMember1,
-                UserPosition.DF, false
+                Position.DF, false
         );
         Lineup savedLineup = lineupRepository.save(testLineup);
         Long savedLineupId = savedLineup.getId();
@@ -277,7 +276,7 @@ class LineupControllerIntegrationTest {
         // given
         Lineup originalLineup = new Lineup(
                 savedMatch, savedMatchWaiting, savedMatchRequest, savedTeamMember1,
-                UserPosition.GK, true
+                Position.GK, true
         );
         Lineup savedLineup = lineupRepository.save(originalLineup);
         Long savedLineupId = savedLineup.getId();
@@ -286,7 +285,7 @@ class LineupControllerIntegrationTest {
                 savedMatchWaiting.getWaitingId(),
                 savedMatchRequest.getRequestId(),
                 savedTeamMember1.getId(),
-                UserPosition.MF, false
+                Position.MF, false
         );
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
@@ -309,7 +308,7 @@ class LineupControllerIntegrationTest {
         Lineup updatedLineup = lineupRepository.findById(savedLineupId)
                 .orElseThrow(() -> new AssertionError("라인업이 DB에 없습니다."));
 
-        assertThat(updatedLineup.getPosition()).isEqualTo(UserPosition.MF);
+        assertThat(updatedLineup.getPosition()).isEqualTo(Position.MF);
         assertThat(updatedLineup.getIsStarter()).isFalse();
     }
 }
