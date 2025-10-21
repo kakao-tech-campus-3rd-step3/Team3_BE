@@ -2,6 +2,7 @@ package com.shootdoori.match.service;
 
 import com.shootdoori.match.dto.AuthToken;
 import com.shootdoori.match.entity.auth.RefreshToken;
+import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.UnauthorizedException;
 import com.shootdoori.match.repository.RefreshTokenRepository;
 import com.shootdoori.match.util.JwtUtil;
@@ -28,11 +29,11 @@ public class TokenRefreshService {
         String tokenId = claims.getId();
 
         RefreshToken storedToken = refreshTokenRepository.findById(tokenId)
-            .orElseThrow(() -> new UnauthorizedException("유효하지 않은 리프레시 토큰"));
+            .orElseThrow(() -> new UnauthorizedException(ErrorCode.INVALID_TOKEN));
 
         if (storedToken.isExpired() || storedToken.isRevoked()) {
             refreshTokenRepository.delete(storedToken);
-            throw new UnauthorizedException("만료된 토큰입니다. 다시 로그인해주세요.");
+            throw new UnauthorizedException(ErrorCode.EXPIRED_TOKEN);
         }
 
         storedToken.revoke();
