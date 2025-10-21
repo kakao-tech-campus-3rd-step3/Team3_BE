@@ -58,6 +58,6 @@ public class MercenaryRecruitmentController {
     public ResponseEntity<Void> delete(@PathVariable Long id,
                                        @LoginUser Long loginUserId) {
         recruitmentService.delete(id, loginUserId);
-        return ResponseEntity.noContent().build();
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }
