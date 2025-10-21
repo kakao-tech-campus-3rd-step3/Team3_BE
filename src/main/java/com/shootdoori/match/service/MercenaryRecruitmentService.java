@@ -37,7 +37,7 @@ public class MercenaryRecruitmentService {
             throw new NoPermissionException();
         }
 
-        Position position = Position.fromDisplayName(request.position());
+        Position position = Position.fromCode(request.position());
         SkillLevel skillLevel = SkillLevel.fromDisplayName(request.skillLevel());
 
         MercenaryRecruitment savedRecruitment = recruitmentRepository.save(MercenaryRecruitment.create(
@@ -75,7 +75,7 @@ public class MercenaryRecruitmentService {
             throw new NoPermissionException();
         }
 
-        Position position = Position.fromDisplayName(updateRequest.position());
+        Position position = Position.fromCode(updateRequest.position());
         SkillLevel skillLevel = SkillLevel.fromDisplayName(updateRequest.skillLevel());
 
         recruitment.updateRecruitmentInfo(

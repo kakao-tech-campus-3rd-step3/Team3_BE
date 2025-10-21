@@ -218,7 +218,7 @@ class ProfileTest {
             // given
             Long userId = 1L;
             User user = createUser(createProfileRequest());
-            ProfileUpdateRequest updateRequest = new ProfileUpdateRequest("jam", "프로", "골키퍼",
+            ProfileUpdateRequest updateRequest = new ProfileUpdateRequest("jam", "프로", "GK",
                 "변경된 자기소개");
 
             given(profileRepository.findById(userId)).willReturn(Optional.of(user));
@@ -332,7 +332,7 @@ class ProfileTest {
     private ProfileCreateRequest createProfileRequest() {
         return new ProfileCreateRequest(
             "jam", "아마추어", "test@any.ac.kr",
-            "asdf02~!", "imkim2511", "공격수", "knu", "cs",
+            "asdf02~!", "imkim2511", "FW", "knu", "cs",
             "20", "hello, world"
         );
     }

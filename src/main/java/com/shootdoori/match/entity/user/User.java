@@ -59,7 +59,7 @@ public class User extends SoftDeleteUserEntity {
 
     private User(String name, SkillLevel skillLevel, String email, String password, String kakaoTalkId,
         Position position, String university, String department, String studentYear, String bio) {
-        validate(name, skillLevel.getDisplayName(), email, password, kakaoTalkId, position.getDisplayName(), university, department, studentYear, bio);
+        validate(name, skillLevel.getDisplayName(), email, password, kakaoTalkId, position.name(), university, department, studentYear, bio);
         this.name = name;
         this.skillLevel = skillLevel;
         this.email = email;
@@ -74,7 +74,7 @@ public class User extends SoftDeleteUserEntity {
 
     public static User create(String name, String skillLevelName, String email, String encodedPassword, String kakaoTalkId,
                               String positionName, String university, String department, String studentYear, String bio) {
-        Position position = Position.fromDisplayName(positionName);
+        Position position = Position.fromCode(positionName);
         SkillLevel skillLevel = SkillLevel.fromDisplayName(skillLevelName);
         return new User(name, skillLevel, email, encodedPassword, kakaoTalkId, position, university, department,
             studentYear, bio);
@@ -142,7 +142,7 @@ public class User extends SoftDeleteUserEntity {
         }
 
         try {
-            Position.fromDisplayName(position);
+            Position.fromCode(position);
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("유효하지 않은 포지션입니다: " + position);
         }
@@ -232,7 +232,7 @@ public class User extends SoftDeleteUserEntity {
         validatePosition(position);
         validateBio(bio);
         this.skillLevel = SkillLevel.fromDisplayName(skillLevel);
-        this.position = Position.fromDisplayName(position);
+        this.position = Position.fromCode(position);
         this.bio = bio;
     }
 

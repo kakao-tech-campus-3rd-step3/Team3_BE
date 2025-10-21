@@ -79,9 +79,9 @@ class LineupControllerIntegrationTest {
     @BeforeEach
     void setUp() {
         savedUser1 = User.create("주장1", "아마추어", "captain1@test.ac.kr", "password123",
-                "captain1_kakao", "공격수", "테스트대학교", "컴퓨터공학과", "20", "주장1입니다.");
+                "captain1_kakao", "FW", "테스트대학교", "컴퓨터공학과", "20", "주장1입니다.");
         savedUser2 = User.create("주장2", "세미프로", "captain2@test.ac.kr", "password123",
-                "captain2_kakao", "수비수", "테스트대학교", "경영학과", "21", "주장2입니다.");
+                "captain2_kakao", "DF", "테스트대학교", "경영학과", "21", "주장2입니다.");
         profileRepository.saveAll(List.of(savedUser1, savedUser2));
 
         savedVenue = new Venue("테스트 경기장", "서울시 테스트구",

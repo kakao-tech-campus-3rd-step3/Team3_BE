@@ -93,11 +93,11 @@ public class TeamServiceTest {
             "student@kangwon.ac.kr",
             "Abcd1234!",
             "imkim2501",
-            "골키퍼",
+            "GK",
             "강원대학교",
             "컴퓨터공학과",
             "25",
-            "축구를 좋아하는 대학생입니다. 골키퍼 포지션을 주로 맡고 있으며, 즐겁게 운동하고 싶습니다!"
+            "축구를 좋아하는 대학생입니다. GK 포지션을 주로 맡고 있으며, 즐겁게 운동하고 싶습니다!"
         );
 
         newMember = User.create(
@@ -106,7 +106,7 @@ public class TeamServiceTest {
             "student35@kangwon.ac.kr",
             "Abcd1234!",
             "imkim2502",
-            "풀백",
+            "RB",
             "강원대학교",
             "컴퓨터공학과",
             "35",

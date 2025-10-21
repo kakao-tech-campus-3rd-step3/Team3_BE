@@ -39,11 +39,11 @@ public class TeamTest {
             "student@kangwon.ac.kr",
             "Abcd1234!",
             "imkim251",
-            "골키퍼",
+            "GK",
             "강원대학교",
             "컴퓨터공학과",
             "25",
-            "축구를 좋아하는 대학생입니다. 골키퍼 포지션을 주로 맡고 있으며, 즐겁게 운동하고 싶습니다!"
+            "축구를 좋아하는 대학생입니다. GK 포지션을 주로 맡고 있으며, 즐겁게 운동하고 싶습니다!"
         );
 
         newMember = User.create(
@@ -52,7 +52,7 @@ public class TeamTest {
             "student35@kangwon.ac.kr",
             "Abcd1234!",
             "imkim252",
-            "풀백",
+            "RB",
             "강원대학교",
             "컴퓨터공학과",
             "35",
@@ -65,7 +65,7 @@ public class TeamTest {
             "seoul@seoul.ac.kr",
             "Abcd1234!",
             "imkim253",
-            "공격수",
+            "FW",
             "서울대학교",
             "체육학과",
             "22",
