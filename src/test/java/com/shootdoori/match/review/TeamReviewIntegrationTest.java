@@ -202,7 +202,7 @@ class TeamReviewIntegrationTest {
     // 테스트 데이터 생성용 메서드들
     private User createUser(String name, String email, String phoneNumber) {
         return User.create(name, "아마추어", email, "encodedPassword", phoneNumber,
-                "미드필더", email.contains("hallym") ? "한림대학교" : "강원대학교", "컴퓨터공학과", "23", "테스트용 유저입니다.");
+                "MF", email.contains("hallym") ? "한림대학교" : "강원대학교", "컴퓨터공학과", "23", "테스트용 유저입니다.");
     }
 
     private Team createTeam(String name, User captain) {

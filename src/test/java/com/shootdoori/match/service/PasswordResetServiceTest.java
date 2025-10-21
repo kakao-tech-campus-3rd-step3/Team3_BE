@@ -376,7 +376,7 @@ class PasswordResetServiceTest {
             "test@email.ac.kr",
             "asdf02~!",
             "mykakao12",
-            "공격수",
+            "FW",
             "강원대학교",
             "컴퓨터공학과",
             "25",

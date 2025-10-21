@@ -177,7 +177,7 @@ class MercenaryRecruitmentTest {
             LocalDate.now().plusDays(2),
             LocalTime.of(20, 0),
             "Updated Message",
-            "미드필더",
+            "MF",
             "아마추어"
         );
         given(recruitmentRepository.findById(1L)).willReturn(Optional.of(testRecruitment));
@@ -206,7 +206,7 @@ class MercenaryRecruitmentTest {
 
     static class Fixture {
         public static final String MESSAGE = "Test Message";
-        public static final String POSITION = "공격수";
+        public static final String POSITION = "FW";
         public static final String SKILL_LEVEL = "아마추어";
         public static final LocalDate MATCH_DATE = LocalDate.now().plusDays(1);
         public static final LocalTime MATCH_START_TIME = LocalTime.of(18, 0);
@@ -216,7 +216,7 @@ class MercenaryRecruitmentTest {
                 "맨유FC",
                 User.create(
                     "김학생", "아마추어", "student@kangwon.ac.kr",
-                    "asdf02~!", "imkim25", "공격수", "강원대학교", "컴퓨터공학과", "20", "안녕하세요"),
+                    "asdf02~!", "imkim25", "FW", "강원대학교", "컴퓨터공학과", "20", "안녕하세요"),
                 "강원대학교", TeamType.CENTRAL_CLUB, SkillLevel.AMATEUR, "즐겜해요~"
             );
         }
@@ -227,7 +227,7 @@ class MercenaryRecruitmentTest {
                 MATCH_DATE,
                 MATCH_START_TIME,
                 MESSAGE,
-                Position.fromDisplayName(POSITION),
+                Position.fromCode(POSITION),
                 SkillLevel.fromDisplayName(SKILL_LEVEL)
             );
         }
