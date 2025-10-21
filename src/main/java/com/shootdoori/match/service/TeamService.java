@@ -5,7 +5,6 @@ import com.shootdoori.match.dto.TeamDetailResponseDto;
 import com.shootdoori.match.dto.TeamMapper;
 import com.shootdoori.match.dto.TeamRequestDto;
 import com.shootdoori.match.entity.team.Team;
-import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.team.TeamMemberRole;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.ErrorCode;
@@ -14,7 +13,6 @@ import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamRepository;
 import com.shootdoori.match.value.UniversityName;
-import java.util.List;
 import java.util.Objects;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -51,7 +49,7 @@ public class TeamService {
         User captain = profileRepository.findById(userId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.CAPTAIN_NOT_FOUND));
         Team team = TeamMapper.toEntity(requestDto, captain);
-        team.recruitMember(captain, TeamMemberRole.LEADER);
+        team.addMember(captain, TeamMemberRole.LEADER);
         Team savedTeam = teamRepository.save(team);
 
         return teamMapper.toCreateTeamResponse(savedTeam);
@@ -90,7 +88,7 @@ public class TeamService {
             throw new NoPermissionException(ErrorCode.CAPTAIN_ONLY_OPERATION);
         }
 
-        team.changeTeamInfo(requestDto.name(), requestDto.university(),
+        team.updateInfo(requestDto.name(), requestDto.university(),
             requestDto.skillLevel(), requestDto.description());
 
         return teamMapper.toTeamDetailResponse(team);

@@ -66,13 +66,13 @@ public class TeamMemberService {
             throw new DuplicatedException(ErrorCode.ALREADY_TEAM_MEMBER);
         }
 
-        team.validateSameUniversity(user);
+        team.ensureSameUniversityAs(user);
 
-        team.validateCanAcceptNewMember();
+        team.ensureCapacityAvailable();
 
         TeamMemberRole teamMemberRole = TeamMemberRole.fromDisplayName(requestDto.role());
 
-        team.recruitMember(user, teamMemberRole);
+        team.addMember(user, teamMemberRole);
         teamRepository.save(team);
 
         TeamMember savedTeamMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId,

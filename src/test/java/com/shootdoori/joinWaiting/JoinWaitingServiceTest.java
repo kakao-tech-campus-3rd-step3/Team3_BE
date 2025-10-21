@@ -147,8 +147,8 @@ public class JoinWaitingServiceTest {
             "주 3회 연습합니다."
         );
 
-        team.recruitMember(teamLeader, TeamMemberRole.LEADER);
-        leaderMember = team.getMembers().get(0);
+        team.addMember(teamLeader, TeamMemberRole.LEADER);
+        leaderMember = team.getTeamMembers().get(0);
         ReflectionTestUtils.setField(leaderMember, "id", 1L);
     }
 
@@ -366,9 +366,9 @@ public class JoinWaitingServiceTest {
             assertThat(resultDto).isEqualTo(expected);
             assertThat(resultDto.status()).isEqualTo(JoinWaitingStatus.APPROVED.getDisplayName());
 
-            assertThat(team.getMembers()).hasSize(2);
-            assertThat(team.getMembers().get(1).getUser()).isEqualTo(applicant);
-            assertThat(team.getMembers().get(1).getRole()).isEqualTo(TeamMemberRole.MEMBER);
+            assertThat(team.getTeamMembers()).hasSize(2);
+            assertThat(team.getTeamMembers().get(1).getUser()).isEqualTo(applicant);
+            assertThat(team.getTeamMembers().get(1).getRole()).isEqualTo(TeamMemberRole.MEMBER);
 
             verify(mailService).sendEmail(eq(applicant.getEmail()), anyString(), anyString());
         }
@@ -410,9 +410,9 @@ public class JoinWaitingServiceTest {
             assertThat(resultDto).isEqualTo(expected);
             assertThat(resultDto.status()).isEqualTo(JoinWaitingStatus.APPROVED.getDisplayName());
 
-            assertThat(team.getMembers()).hasSize(2);
-            assertThat(team.getMembers().get(1).getUser()).isEqualTo(applicant);
-            assertThat(team.getMembers().get(1).getRole()).isEqualTo(TeamMemberRole.MERCENARY);
+            assertThat(team.getTeamMembers()).hasSize(2);
+            assertThat(team.getTeamMembers().get(1).getUser()).isEqualTo(applicant);
+            assertThat(team.getTeamMembers().get(1).getRole()).isEqualTo(TeamMemberRole.MERCENARY);
 
             verify(mailService).sendEmail(eq(applicant.getEmail()), anyString(), anyString());
         }
@@ -528,7 +528,7 @@ public class JoinWaitingServiceTest {
 
             // then
             assertThat(resultDto.status()).isEqualTo(JoinWaitingStatus.REJECTED.getDisplayName());
-            assertThat(team.getMembers()).hasSize(1);
+            assertThat(team.getTeamMembers()).hasSize(1);
 
             verify(mailService).sendEmail(eq(applicant.getEmail()), anyString(), anyString());
         }
@@ -568,7 +568,7 @@ public class JoinWaitingServiceTest {
 
             // then
             assertThat(resultDto.status()).isEqualTo(JoinWaitingStatus.CANCELED.getDisplayName());
-            assertThat(team.getMembers()).hasSize(1);
+            assertThat(team.getTeamMembers()).hasSize(1);
 
             verify(mailService).sendEmail(eq(teamLeader.getEmail()), anyString(), anyString());
         }

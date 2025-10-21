@@ -82,9 +82,9 @@ public class TeamMemberTest {
             "주 2회 연습합니다."
         );
 
-        team.recruitMember(captain, TeamMemberRole.LEADER);
-        team.recruitMember(user, TeamMemberRole.MEMBER);
-        teamMember = team.getMembers().get(1);
+        team.addMember(captain, TeamMemberRole.LEADER);
+        team.addMember(user, TeamMemberRole.MEMBER);
+        teamMember = team.getTeamMembers().get(1);
     }
 
     @Nested
@@ -175,7 +175,7 @@ public class TeamMemberTest {
         @DisplayName("이미 부회장이 있을 때 부회장으로 승격 시 예외가 발생한다")
         void changeRole_toViceLeader_throws_whenViceLeaderExists() {
             // given
-            team.recruitMember(anotherUser, TeamMemberRole.VICE_LEADER);
+            team.addMember(anotherUser, TeamMemberRole.VICE_LEADER);
 
             // when & then
             assertThatThrownBy(() -> teamMember.changeRole(team, TeamMemberRole.VICE_LEADER))

@@ -84,7 +84,7 @@ public class TeamTest {
             SkillLevel.fromDisplayName("아마추어"),
             "주 2회 연습합니다."
         );
-        team.recruitMember(captain, TeamMemberRole.LEADER);
+        team.addMember(captain, TeamMemberRole.LEADER);
     }
 
     @Nested
@@ -135,25 +135,25 @@ public class TeamTest {
         @DisplayName("정상적으로 멤버를 모집한다")
         void recruitMember_success() {
             // when
-            team.recruitMember(newMember, TeamMemberRole.MEMBER);
+            team.addMember(newMember, TeamMemberRole.MEMBER);
 
             // then
-            assertThat(team.getMembers()).hasSize(2);
+            assertThat(team.getTeamMembers()).hasSize(2);
             assertThat(team.getMemberCount().count()).isEqualTo(2);
-            assertThat(team.getMembers().get(1).getUser()).isEqualTo(newMember);
-            assertThat(team.getMembers().get(1).getRole()).isEqualTo(TeamMemberRole.MEMBER);
+            assertThat(team.getTeamMembers().get(1).getUser()).isEqualTo(newMember);
+            assertThat(team.getTeamMembers().get(1).getRole()).isEqualTo(TeamMemberRole.MEMBER);
         }
 
         @Test
         @DisplayName("중복 멤버 예외 테스트")
         void recruitMember_duplicate_throwsException() {
             // given
-            team.recruitMember(newMember, TeamMemberRole.MEMBER);
+            team.addMember(newMember, TeamMemberRole.MEMBER);
 
             // when & then
             assertThatThrownBy(
                 () ->
-                    team.recruitMember(newMember, TeamMemberRole.MEMBER))
+                    team.addMember(newMember, TeamMemberRole.MEMBER))
                 .isInstanceOf(DuplicatedException.class);
         }
     }
@@ -166,13 +166,13 @@ public class TeamTest {
         @DisplayName("멤버가 2명 이상일 때 정상적으로 제거한다")
         void removeMember_success() {
             // given
-            team.recruitMember(newMember, TeamMemberRole.MEMBER);
+            team.addMember(newMember, TeamMemberRole.MEMBER);
 
             // when
-            team.removeMember(team.getMembers().get(1));
+            team.removeMember(team.getTeamMembers().get(1));
 
             // then
-            assertThat(team.getMembers()).hasSize(1);
+            assertThat(team.getTeamMembers()).hasSize(1);
             assertThat(team.getMemberCount().count()).isEqualTo(1);
         }
 
@@ -181,7 +181,7 @@ public class TeamTest {
         void removeMember_lastMember_throwsException() {
             // when & then
             assertThatThrownBy(() ->
-                team.removeMember(team.getMembers().get(0)))
+                team.removeMember(team.getTeamMembers().get(0)))
                 .isInstanceOf(LastTeamMemberRemovalNotAllowedException.class);
         }
     }
@@ -194,7 +194,7 @@ public class TeamTest {
         @DisplayName("같은 대학교 사용자는 검증을 통과한다")
         void validateSameUniversity_success() {
             // when & then
-            team.validateSameUniversity(newMember);
+            team.ensureSameUniversityAs(newMember);
         }
 
         @Test
@@ -202,7 +202,7 @@ public class TeamTest {
         void validateSameUniversity_throwsException() {
             // when & then
             assertThatThrownBy(() ->
-                team.validateSameUniversity(differentUniversityMember))
+                team.ensureSameUniversityAs(differentUniversityMember))
                 .isInstanceOf(DifferentException.class);
         }
     }
@@ -216,7 +216,7 @@ public class TeamTest {
         void validateCanAcceptNewMember_success() {
 
             // when & then
-            team.validateCanAcceptNewMember();
+            team.ensureCapacityAvailable();
         }
 
         @Test
@@ -228,7 +228,7 @@ public class TeamTest {
 
             // when & then
             assertThatThrownBy(() ->
-                team.validateCanAcceptNewMember())
+                team.ensureCapacityAvailable())
                 .isInstanceOf(TeamCapacityExceededException.class);
         }
     }
@@ -239,10 +239,10 @@ public class TeamTest {
 
         @Test
         @DisplayName("유효한 정보로 팀 정보를 변경하면 검증을 통과한다")
-        void changeTeamInfo_success() {
+        void updateInfo_success() {
 
             // when
-            team.changeTeamInfo(
+            team.updateInfo(
                 "감자 FC",
                 "한림대학교",
                 "프로",
@@ -257,11 +257,11 @@ public class TeamTest {
 
         @Test
         @DisplayName("잘못된 SkillLevel로 변경 시 예외 발생")
-        void changeTeamInfo_throwsException() {
+        void updateInfo_throwsException() {
 
             // when & then
             assertThatThrownBy(() ->
-                team.changeTeamInfo(
+                team.updateInfo(
                     "감자 FC",
                     "한림대학교",
                     "잘못된 SkillLevel",
