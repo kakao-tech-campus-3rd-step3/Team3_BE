@@ -1,6 +1,6 @@
 package com.shootdoori.match.lineup;
 
-import com.fasterxml.jackson.databind.JsonNode; // JsonNode import 추가
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shootdoori.match.dto.LineupRequestDto;
 import com.shootdoori.match.entity.lineup.Lineup;
@@ -19,7 +19,7 @@ import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.entity.user.UserPosition;
 import com.shootdoori.match.entity.venue.Venue;
-import com.shootdoori.match.repository.*; // 모든 리포지토리 import
+import com.shootdoori.match.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -119,12 +119,12 @@ class LineupControllerIntegrationTest {
     @Test
     @DisplayName("POST /api/lineups - 라인업 생성 (단일 항목 리스트) (201 CREATED)")
     void createLineup_List_Success_SingleItem_IntegrationTest() throws Exception {
-        // given (준비)
+        // given
         LineupRequestDto requestDto = new LineupRequestDto(
                 savedMatch.getMatchId(),
                 savedMatchWaiting.getWaitingId(),
                 savedMatchRequest.getRequestId(),
-                savedTeamMember1.getId(), // 1번팀 멤버
+                savedTeamMember1.getId(),
                 UserPosition.GK,
                 true
         );
@@ -132,21 +132,21 @@ class LineupControllerIntegrationTest {
         List<LineupRequestDto> requestList = List.of(requestDto);
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
-                savedUser1.getId(), // 1번팀 주장으로 인증
+                savedUser1.getId(),
                 null,
                 Collections.emptyList()
         );
 
-        // when (실행)
+        // when
         ResultActions actions = mockMvc.perform(post("/api/lineups")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestList))
                 .with(SecurityMockMvcRequestPostProcessors.authentication(authentication)));
 
-        // then (검증)
+        // then
         MvcResult result = actions.andExpect(status().isCreated())
                 .andExpect(jsonPath("$").isArray())
-                .andExpect(jsonPath("$[0].id").exists()) // ID가 생성되었는지
+                .andExpect(jsonPath("$[0].id").exists())
                 .andExpect(jsonPath("$[0].position").value("GK"))
                 .andExpect(jsonPath("$[0].teamMemberId").value(savedTeamMember1.getId()))
                 .andDo(print())
@@ -161,7 +161,7 @@ class LineupControllerIntegrationTest {
     @Test
     @DisplayName("POST /api/lineups - 라인업 일괄 생성 (다중 항목 리스트) (201 CREATED)")
     void createLineup_List_Success_MultipleItems_IntegrationTest() throws Exception {
-        // given (준비)
+        // given
         User savedUser3 = User.create("멤버1", "아마추어", "member1@test.ac.kr", "password123",
                 "member1_kakao", "미드필더", "테스트대학교", "체육학과", "22", "멤버1입니다.");
         profileRepository.save(savedUser3);
@@ -170,30 +170,30 @@ class LineupControllerIntegrationTest {
 
         LineupRequestDto requestDto1 = new LineupRequestDto(
                 savedMatch.getMatchId(), null, null,
-                savedTeamMember1.getId(), // 1번팀 멤버 (주장)
+                savedTeamMember1.getId(),
                 UserPosition.GK, true
         );
         LineupRequestDto requestDto2 = new LineupRequestDto(
                 savedMatch.getMatchId(), null, null,
-                savedTeamMember3.getId(), // 1번팀 멤버 (일반)
+                savedTeamMember3.getId(),
                 UserPosition.DF, true
         );
 
         List<LineupRequestDto> requestList = List.of(requestDto1, requestDto2);
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
-                savedUser1.getId(), // 1번팀 주장으로 인증 (주장이 멤버 등록)
+                savedUser1.getId(),
                 null,
                 Collections.emptyList()
         );
 
-        // when (실행)
+        // when
         ResultActions actions = mockMvc.perform(post("/api/lineups")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestList))
                 .with(SecurityMockMvcRequestPostProcessors.authentication(authentication)));
 
-        // then (검증)
+        // then
         MvcResult result = actions.andExpect(status().isCreated())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(2))
@@ -206,8 +206,6 @@ class LineupControllerIntegrationTest {
         JsonNode responseNode = objectMapper.readTree(jsonResponse);
         Long savedLineupId1 = responseNode.get(0).get("id").asLong();
         Long savedLineupId2 = responseNode.get(1).get("id").asLong();
-
-        // 2개 항목 모두 DB에 저장되었는지 확인
         assertThat(lineupRepository.findById(savedLineupId1)).isPresent();
         assertThat(lineupRepository.findById(savedLineupId2)).isPresent();
     }
@@ -216,7 +214,7 @@ class LineupControllerIntegrationTest {
     @Test
     @DisplayName("GET /api/lineups/{id} - 라인업 단건 조회 통합 테스트 (200 OK)")
     void getLineupById_IntegrationTest() throws Exception {
-        // given (준비)
+        // given
         Lineup testLineup = new Lineup(
                 savedMatch, savedMatchWaiting, savedMatchRequest, savedTeamMember1,
                 UserPosition.FW, true
@@ -224,11 +222,11 @@ class LineupControllerIntegrationTest {
         Lineup savedLineup = lineupRepository.save(testLineup);
         Long savedLineupId = savedLineup.getId();
 
-        // when (실행)
+        // when
         ResultActions actions = mockMvc.perform(get("/api/lineups/{id}", savedLineupId)
                 .accept(MediaType.APPLICATION_JSON));
 
-        // then (검증)
+        // then
         actions.andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(savedLineupId))
                 .andExpect(jsonPath("$.position").value("FW"));
@@ -237,11 +235,11 @@ class LineupControllerIntegrationTest {
     @Test
     @DisplayName("GET /api/lineups/{id} - 라인업 조회 실패 통합 테스트 (404 NOT_FOUND)")
     void getLineupById_NotFound_IntegrationTest() throws Exception {
-        // when (실행)
-        ResultActions actions = mockMvc.perform(get("/api/lineups/{id}", 99999L) // 존재하지 않을 ID
+        // when
+        ResultActions actions = mockMvc.perform(get("/api/lineups/{id}", 99999L)
                 .accept(MediaType.APPLICATION_JSON));
 
-        // then (검증)
+        // then
         actions.andExpect(status().isNotFound())
                 .andDo(print());
     }
@@ -249,7 +247,7 @@ class LineupControllerIntegrationTest {
     @Test
     @DisplayName("DELETE /api/lineups/{id} - 라인업 삭제 통합 테스트 (204 NO_CONTENT)")
     void deleteLineup_IntegrationTest() throws Exception {
-        // given (준비)
+        // given
         Lineup testLineup = new Lineup(
                 savedMatch, savedMatchWaiting, savedMatchRequest, savedTeamMember1,
                 UserPosition.DF, false
@@ -264,11 +262,11 @@ class LineupControllerIntegrationTest {
                 Collections.emptyList()
         );
 
-        // when (실행)
+        // when
         ResultActions actions = mockMvc.perform(delete("/api/lineups/{id}", savedLineupId)
                 .with(SecurityMockMvcRequestPostProcessors.authentication(authentication)));
 
-        // then (검증)
+        // then
         actions.andExpect(status().isNoContent());
         assertThat(lineupRepository.existsById(savedLineupId)).isFalse();
     }
@@ -276,7 +274,7 @@ class LineupControllerIntegrationTest {
     @Test
     @DisplayName("PATCH /api/lineups/{id} - 라인업 수정 통합 테스트 (200 OK)")
     void updateLineup_IntegrationTest() throws Exception {
-        // given (준비)
+        // given
         Lineup originalLineup = new Lineup(
                 savedMatch, savedMatchWaiting, savedMatchRequest, savedTeamMember1,
                 UserPosition.GK, true
@@ -297,13 +295,13 @@ class LineupControllerIntegrationTest {
                 Collections.emptyList()
         );
 
-        // when (실행)
+        // when
         ResultActions actions = mockMvc.perform(patch("/api/lineups/{id}", savedLineupId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateDto))
                 .with(SecurityMockMvcRequestPostProcessors.authentication(authentication)));
 
-        // then (검증)
+        // then
         actions.andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(savedLineupId))
                 .andExpect(jsonPath("$.position").value("MF"))

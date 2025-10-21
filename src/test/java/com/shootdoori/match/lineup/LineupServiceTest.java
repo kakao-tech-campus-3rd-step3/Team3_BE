@@ -53,7 +53,7 @@ class LineupServiceTest {
     private TeamMemberRepository teamMemberRepository;
 
     private LineupRequestDto requestDto;
-    private Lineup savedLineup; // 리포지토리에서 반환될 엔티티
+    private Lineup savedLineup;
     private Match mockMatch;
     private MatchWaiting mockMatchWaiting;
     private MatchRequest mockMatchRequest;
@@ -67,10 +67,10 @@ class LineupServiceTest {
         mockTeamMember = mock(TeamMember.class);
 
         requestDto = new LineupRequestDto(
-                1L, // matchId
-                1L, // waitingId
-                1L, // requestId
-                1L, // teamMemberId
+                1L,
+                1L,
+                1L,
+                1L,
                 UserPosition.GK,
                 true
         );
@@ -91,9 +91,8 @@ class LineupServiceTest {
     @DisplayName("라인업 일괄 생성 - 성공 (여러 항목)")
     void createLineup_List_Success_Multiple() {
         // given
-        // 1. 두 번째 DTO 및 Mock 객체 생성
         TeamMember mockTeamMember2 = mock(TeamMember.class);
-        given(mockTeamMember2.getId()).willReturn(2L); // ID Mocking
+        given(mockTeamMember2.getId()).willReturn(2L);
 
         LineupRequestDto requestDto2 = new LineupRequestDto(1L, 1L, 1L, 2L, UserPosition.DF, true);
         List<LineupRequestDto> requestDtos = List.of(requestDto, requestDto2);
@@ -103,22 +102,13 @@ class LineupServiceTest {
 
         List<Lineup> savedLineups = List.of(savedLineup, savedLineup2);
 
-        // 2. Repository Mocking 설정
-        // 2-1. findAllById (N+1 방지)
         Set<Long> teamMemberIds = Set.of(1L, 2L);
         given(teamMemberRepository.findAllById(teamMemberIds)).willReturn(List.of(mockTeamMember, mockTeamMember2));
-
-        // 2-2. 권한 검사 Mocking (void 메서드)
         doNothing().when(mockTeamMember).checkCaptainPermission(1L);
-
-        // 2-3. getReferenceById (연관관계 설정)
         given(matchRepository.getReferenceById(1L)).willReturn(mockMatch);
         given(matchWaitingRepository.getReferenceById(1L)).willReturn(mockMatchWaiting);
         given(matchRequestRepository.getReferenceById(1L)).willReturn(mockMatchRequest);
-
-        // 2-4. saveAllAndFlush (일괄 저장)
         given(lineupRepository.saveAllAndFlush(any(List.class))).willReturn(savedLineups);
-
         given(mockTeamMember.getId()).willReturn(1L);
 
         // when
@@ -131,8 +121,6 @@ class LineupServiceTest {
         assertThat(responseDtos.get(0).position()).isEqualTo(UserPosition.GK);
         assertThat(responseDtos.get(1).id()).isEqualTo(2L);
         assertThat(responseDtos.get(1).position()).isEqualTo(UserPosition.DF);
-
-        // verify
         verify(teamMemberRepository, times(1)).findAllById(teamMemberIds);
         verify(mockTeamMember, times(1)).checkCaptainPermission(1L);
         verify(lineupRepository, times(1)).saveAllAndFlush(any(List.class));
@@ -161,8 +149,6 @@ class LineupServiceTest {
         assertThat(responseDtos).isNotNull();
         assertThat(responseDtos.size()).isEqualTo(1);
         assertThat(responseDtos.get(0).id()).isEqualTo(1L);
-
-        // verify
         verify(teamMemberRepository, times(1)).findAllById(teamMemberIds);
         verify(mockTeamMember, times(1)).checkCaptainPermission(1L);
         verify(lineupRepository, times(1)).saveAllAndFlush(any(List.class));
@@ -180,8 +166,6 @@ class LineupServiceTest {
         // then
         assertThat(responseDtos).isNotNull();
         assertThat(responseDtos).isEmpty();
-
-        // verify (DB 호출이 없는지 확인)
         verify(teamMemberRepository, never()).findAllById(any());
         verify(lineupRepository, never()).saveAllAndFlush(any());
     }
@@ -190,11 +174,8 @@ class LineupServiceTest {
     @DisplayName("라인업 일괄 생성 - 실패 (팀 멤버 조회 실패)")
     void createLineup_List_Failure_TeamMemberNotFound() {
         // given
-        // DTO는 1L 멤버를 요청하지만,
         List<LineupRequestDto> requestDtos = List.of(requestDto);
         Set<Long> teamMemberIds = Set.of(1L);
-
-        // DB에서는 아무도 반환되지 않음 (Map이 비어있게 됨)
         given(teamMemberRepository.findAllById(teamMemberIds)).willReturn(Collections.emptyList());
 
         // when & then
@@ -203,8 +184,6 @@ class LineupServiceTest {
         });
 
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.TEAM_MEMBER_NOT_FOUND);
-
-        // verify (조회 후 저장 로직이 실행되지 않았는지 확인)
         verify(teamMemberRepository, times(1)).findAllById(teamMemberIds);
         verify(mockTeamMember, never()).checkCaptainPermission(anyLong());
         verify(lineupRepository, never()).saveAllAndFlush(any());
@@ -223,8 +202,6 @@ class LineupServiceTest {
         given(matchWaitingRepository.getReferenceById(1L)).willReturn(mockMatchWaiting);
         given(matchRequestRepository.getReferenceById(1L)).willReturn(mockMatchRequest);
         given(mockTeamMember.getId()).willReturn(1L);
-
-        // saveAllAndFlush에서 예외 발생
         given(lineupRepository.saveAllAndFlush(any(List.class)))
                 .willThrow(new DataIntegrityViolationException("Test DB Error"));
 
@@ -232,10 +209,7 @@ class LineupServiceTest {
         CreationFailException exception = assertThrows(CreationFailException.class, () -> {
             lineupService.createLineup(requestDtos, 1L);
         });
-
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.LINEUP_CREATION_FAILED);
-
-        // verify
         verify(lineupRepository, times(1)).saveAllAndFlush(any(List.class));
     }
 
@@ -254,8 +228,6 @@ class LineupServiceTest {
         assertThat(responseDtos.size()).isEqualTo(1);
         assertThat(responseDtos.get(0).id()).isEqualTo(1L);
         assertThat(responseDtos.get(0).position()).isEqualTo(UserPosition.GK);
-
-        // verify
         verify(lineupRepository, times(1)).findByTeamMemberTeamTeamId(1L);
     }
 
@@ -271,8 +243,6 @@ class LineupServiceTest {
         // then
         assertThat(responseDtos).isNotNull();
         assertThat(responseDtos).isEmpty();
-
-        // verify
         verify(lineupRepository, times(1)).findByTeamMemberTeamTeamId(1L);
     }
 
@@ -289,8 +259,6 @@ class LineupServiceTest {
         assertThat(responseDto).isNotNull();
         assertThat(responseDto.id()).isEqualTo(1L);
         assertThat(responseDto.position()).isEqualTo(UserPosition.GK);
-
-        // verify
         verify(lineupRepository, times(1)).findById(1L);
     }
 
@@ -306,8 +274,6 @@ class LineupServiceTest {
         });
 
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.LINEUP_NOT_FOUND);
-
-        // verify
         verify(lineupRepository, times(1)).findById(1L);
     }
 
@@ -324,8 +290,6 @@ class LineupServiceTest {
         assertThat(foundEntity).isNotNull();
         assertThat(foundEntity.getId()).isEqualTo(1L);
         assertThat(foundEntity).isEqualTo(savedLineup);
-
-        // verify
         verify(lineupRepository, times(1)).findById(1L);
     }
 
@@ -341,8 +305,6 @@ class LineupServiceTest {
         });
 
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.LINEUP_NOT_FOUND);
-
-        // verify
         verify(lineupRepository, times(1)).findById(1L);
     }
 
@@ -373,12 +335,10 @@ class LineupServiceTest {
         assertThat(responseDto).isNotNull();
         assertThat(responseDto.position()).isEqualTo(UserPosition.DF);
         assertThat(responseDto.isStarter()).isFalse();
-        assertThat(responseDto.matchId()).isEqualTo(2L); // ID도 변경되었는지 확인
+        assertThat(responseDto.matchId()).isEqualTo(2L);
         assertThat(savedLineup.getPosition()).isEqualTo(UserPosition.DF);
         assertThat(savedLineup.getIsStarter()).isFalse();
-        assertThat(savedLineup.getMatch()).isEqualTo(mockMatch2); // 내부 엔티티 참조가 변경되었는지 확인
-
-        // verify
+        assertThat(savedLineup.getMatch()).isEqualTo(mockMatch2);
         verify(lineupRepository, times(1)).findById(1L);
         verify(matchRepository, times(1)).getReferenceById(2L);
         verify(matchWaitingRepository, times(1)).getReferenceById(2L);
@@ -398,8 +358,6 @@ class LineupServiceTest {
         });
 
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.LINEUP_NOT_FOUND);
-
-        // verify
         verify(lineupRepository, times(1)).findById(1L);
         verify(matchRepository, never()).getReferenceById(anyLong());
         verify(matchWaitingRepository, never()).getReferenceById(anyLong());
@@ -417,8 +375,6 @@ class LineupServiceTest {
         lineupService.deleteLineup(1L, 1L);
 
         // then
-
-        // verify
         verify(lineupRepository, times(1)).findById(1L);
         verify(lineupRepository, times(1)).delete(savedLineup);
     }
@@ -432,8 +388,6 @@ class LineupServiceTest {
         });
 
         assertThat(exception.getErrorCode()).isEqualTo(ErrorCode.LINEUP_NOT_FOUND);
-
-        // verify
         verify(lineupRepository, times(1)).findById(2L);
         verify(lineupRepository, never()).deleteById(1L);
     }
