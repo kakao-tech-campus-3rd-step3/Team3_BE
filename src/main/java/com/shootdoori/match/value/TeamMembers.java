@@ -13,7 +13,6 @@ import jakarta.persistence.Embeddable;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.OneToMany;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Embeddable
@@ -42,7 +41,7 @@ public class TeamMembers {
     }
 
     public List<TeamMember> getTeamMembers() {
-        return Collections.unmodifiableList(teamMembers);
+        return teamMembers;
     }
 
     public MemberCount getMemberCount() {
