@@ -23,7 +23,6 @@ public class EmailJoinWaitingNotificationService {
         boolean isMercenary) {
 
         emailComposer.composeCreated(team, applicant, message, isMercenary)
-            .stream()
             .forEach(mailService::sendEmail);
     }
 
@@ -31,7 +30,6 @@ public class EmailJoinWaitingNotificationService {
         LocalDateTime decidedAt, boolean isMercenary) {
 
         emailComposer.composeApproved(team, applicant, approver, decidedAt, isMercenary)
-            .stream()
             .forEach(mailService::sendEmail);
     }
 
@@ -40,7 +38,6 @@ public class EmailJoinWaitingNotificationService {
 
         emailComposer.composeRejected(team, applicant, approver, decidedAt, rejectReason,
                 isMercenary)
-            .stream()
             .forEach(mailService::sendEmail);
     }
 
@@ -48,7 +45,6 @@ public class EmailJoinWaitingNotificationService {
         String cancelReason, boolean isMercenary) {
 
         emailComposer.composeCanceled(team, applicant, decidedAt, cancelReason, isMercenary)
-            .stream()
             .forEach(mailService::sendEmail);
     }
 }
