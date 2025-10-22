@@ -83,7 +83,7 @@ public class TeamMember extends DateEntity {
         this.team = team;
     }
 
-    public void delegateLeadership(TeamMember newLeader) {
+    public TeamMember delegateLeadership(TeamMember newLeader) {
 
         if (!this.isCaptain()) {
             throw new NoPermissionException(ErrorCode.LEADERSHIP_DELEGATION_FORBIDDEN);
@@ -93,9 +93,11 @@ public class TeamMember extends DateEntity {
 
         this.role = TeamMemberRole.MEMBER;
         newLeader.role = TeamMemberRole.LEADER;
+
+        return this;
     }
 
-    public void delegateViceLeadership(TeamMember newViceLeader) {
+    public TeamMember delegateViceLeadership(TeamMember newViceLeader) {
 
         if (!this.isViceCaptain()) {
             throw new NoPermissionException(ErrorCode.VICE_LEADERSHIP_DELEGATION_FORBIDDEN);
@@ -105,6 +107,8 @@ public class TeamMember extends DateEntity {
 
         this.role = TeamMemberRole.MEMBER;
         newViceLeader.role = TeamMemberRole.VICE_LEADER;
+
+        return this;
     }
 
     public void changeRole(Team team, TeamMemberRole newRole) {
