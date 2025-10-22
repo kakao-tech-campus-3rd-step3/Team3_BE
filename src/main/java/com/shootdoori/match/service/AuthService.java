@@ -82,8 +82,10 @@ public class AuthService {
                     return new UsernamePasswordAuthenticationToken(
                         principalUserId, null, Collections.emptyList());
                 }
+            } catch (io.jsonwebtoken.ExpiredJwtException e) {
+                throw new UnauthorizedException(ErrorCode.EXPIRED_TOKEN);
             } catch (JwtException | NumberFormatException e) {
-                log.warn("Invalid JWT Token: {}", e.getMessage());
+                throw new UnauthorizedException(ErrorCode.INVALID_TOKEN);
             }
         }
         return null;
