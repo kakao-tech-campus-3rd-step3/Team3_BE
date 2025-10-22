@@ -183,7 +183,7 @@ public class TeamMemberService {
     public TeamMemberResponseDto delegateLeadership(Long teamId, Long currentUserId,
         Long targetMemberId) {
         TeamMember targetLeader = targetMember(targetMemberId);
-        TeamMember delegatedMember = currentMember(teamId, currentUserId).delegateLeadership(
+        currentMember(teamId, currentUserId).delegateLeadership(
             targetLeader);
 
         return teamMemberMapper.toTeamMemberResponseDto(targetLeader);
@@ -192,7 +192,7 @@ public class TeamMemberService {
     public TeamMemberResponseDto delegateViceLeadership(Long teamId, Long currentUserId,
         Long targetMemberId) {
         TeamMember targetViceLeader = targetMember(targetMemberId);
-        TeamMember delegatedMember = currentMember(teamId, currentUserId).delegateViceLeadership(
+        currentMember(teamId, currentUserId).delegateViceLeadership(
             targetViceLeader);
 
         return teamMemberMapper.toTeamMemberResponseDto(targetViceLeader);
