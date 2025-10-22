@@ -19,8 +19,6 @@ import com.shootdoori.match.repository.JoinWaitingRepository;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.repository.TeamRepository;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,18 +33,18 @@ public class JoinWaitingService {
     private final TeamMemberRepository teamMemberRepository;
     private final JoinWaitingRepository joinWaitingRepository;
     private final JoinWaitingMapper joinWaitingMapper;
-    private final MailService mailService;
+    private final EmailJoinWaitingNotificationService notificationService;
 
     public JoinWaitingService(ProfileRepository profileRepository, TeamRepository teamRepository,
         TeamMemberRepository teamMemberRepository,
         JoinWaitingRepository joinWaitingRepository, JoinWaitingMapper joinWaitingMapper,
-        MailService mailService) {
+        EmailJoinWaitingNotificationService notificationService) {
         this.profileRepository = profileRepository;
         this.teamRepository = teamRepository;
         this.teamMemberRepository = teamMemberRepository;
         this.joinWaitingRepository = joinWaitingRepository;
         this.joinWaitingMapper = joinWaitingMapper;
-        this.mailService = mailService;
+        this.notificationService = notificationService;
     }
 
     @Transactional
@@ -82,7 +80,8 @@ public class JoinWaitingService {
 
         JoinWaiting savedJoinWaiting = joinWaitingRepository.save(joinWaiting);
 
-        sendJoinCreateNotification(team, applicant, message, isMercenary);
+        notificationService.sendJoinCreateNotification(team, applicant, message,
+            isMercenary);
 
         return joinWaitingMapper.toJoinWaitingResponseDto(savedJoinWaiting);
     }
@@ -118,8 +117,8 @@ public class JoinWaitingService {
 
         joinWaiting.approve(approver, role, approveReason);
 
-        sendJoinApprovalNotification(team, applicant, approver, joinWaiting.getDecidedAt(),
-            joinWaiting.isMercenary());
+        notificationService.sendJoinApprovalNotification(team, applicant, approver,
+            joinWaiting.getDecidedAt(), joinWaiting.isMercenary());
 
         return joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting);
     }
@@ -141,8 +140,8 @@ public class JoinWaitingService {
 
         joinWaiting.reject(approver, rejectReason);
 
-        sendJoinRejectionNotification(team, applicant, approver, joinWaiting.getDecidedAt(),
-            rejectReason);
+        notificationService.sendJoinRejectionNotification(team, applicant, approver,
+            joinWaiting.getDecidedAt(), rejectReason, joinWaiting.isMercenary());
 
         return joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting);
     }
@@ -167,7 +166,8 @@ public class JoinWaitingService {
 
         joinWaiting.cancel(requester, cancelReason);
 
-        sendJoinCancelNotification(team, applicant, joinWaiting.getDecidedAt(), cancelReason);
+        notificationService.sendJoinCancelNotification(team, applicant,
+            joinWaiting.getDecidedAt(), cancelReason, joinWaiting.isMercenary());
 
         return joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting);
     }
@@ -196,125 +196,5 @@ public class JoinWaitingService {
         return joinWaitingRepository.findAllByApplicant_IdAndStatusIn(applicantId, targetStatuses,
                 pageable)
             .map(joinWaitingMapper::toJoinWaitingResponseDto);
-    }
-
-    private void sendJoinCreateNotification(Team team, User applicant, String message,
-        boolean isMercenary) {
-
-        String type = isMercenary ? "용병 신청" : "팀원 가입";
-        String subject = "[슛두리] " + type + " 알림";
-
-        String captainText = String.format(
-            "안녕하세요!\n\n" +
-                "[%s] %s님이 '%s' 팀에 신청했습니다.\n\n" +
-                "신청 메시지: %s\n\n" +
-                "슛두리 앱에서 가입 승인/거절을 처리해주세요.",
-            type, applicant.getName(), team.getTeamName().name(), message
-        );
-
-        String applicantText = String.format(
-            "안녕하세요!\n\n" +
-                "'%s' 팀에 %s이(가) 완료되었습니다.\n\n" +
-                "신청 메시지: %s\n\n" +
-                "승인/거절 결과는 이메일로 안내드리겠습니다.",
-            team.getTeamName().name(), isMercenary ? "용병 신청" : "가입 신청", message
-        );
-
-        mailService.sendEmail(team.getCaptain().getEmail(), subject, captainText);
-
-        team.getTeamMembers().stream()
-            .filter(TeamMember::isViceCaptain)
-            .findFirst()
-            .ifPresent(viceCaptain -> {
-                String viceCaptainText = String.format(
-                    "안녕하세요!\n\n" +
-                        "[%s] %s님이 '%s' 팀에 신청했습니다.\n\n" +
-                        "신청 메시지: %s\n\n" +
-                        "슛두리 앱에서 가입 승인/거절을 처리해주세요.",
-                    type, applicant.getName(), team.getTeamName().name(), message
-                );
-
-                mailService.sendEmail(viceCaptain.getUser().getEmail(), subject, viceCaptainText);
-            });
-
-        mailService.sendEmail(applicant.getEmail(), subject, applicantText);
-    }
-
-    private void sendJoinApprovalNotification(Team team, User applicant, TeamMember approver,
-        LocalDateTime decidedAt, boolean isMercenary) {
-        String type = isMercenary ? "용병" : "팀원";
-        String subject = "[슛두리] " + type + " 신청 승인 알림";
-
-        String text = String.format(
-            "축하합니다!\n\n" +
-                "'%s' 팀의 %s 신청이 승인되었습니다.\n\n" +
-                "승인자: %s\n" +
-                "승인 시간: %s\n\n" +
-                "이제 팀 활동에 참여할 수 있습니다.",
-            team.getTeamName().name(),
-            type,
-            approver.getUser().getName(),
-            decidedAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
-        );
-
-        mailService.sendEmail(applicant.getEmail(), subject, text);
-    }
-
-    private void sendJoinRejectionNotification(Team team, User applicant, TeamMember approver,
-        LocalDateTime decidedAt, String rejectReason) {
-        String subject = "[슛두리] 팀 가입 거절 안내";
-
-        String text = String.format(
-            "안녕하세요.\n\n" +
-                "'%s' 팀의 가입 신청이 거절되었습니다.\n\n" +
-                "거절 사유: %s\n" +
-                "처리자: %s\n" +
-                "처리 시간: %s\n\n" +
-                "아쉽지만 현재 팀 사정상 함께하기 어려울 것 같습니다. 다른 팀에 지원을 검토해 주시면 감사하겠습니다.",
-            team.getTeamName().name(),
-            rejectReason,
-            approver.getUser().getName(),
-            decidedAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
-        );
-
-        mailService.sendEmail(applicant.getEmail(), subject, text);
-    }
-
-    private void sendJoinCancelNotification(Team team, User applicant, LocalDateTime decidedAt,
-        String cancelReason) {
-        String subject = "[슛두리] 팀 가입 신청 취소 안내";
-
-        String captainText = String.format(
-            "안녕하세요!\n\n" +
-                "%s님이 '%s' 팀에 대한 가입 신청을 취소했습니다.\n\n" +
-                "취소 사유: %s\n" +
-                "취소 시간: %s\n\n" +
-                "더 이상 가입 승인/거절 처리가 필요하지 않습니다.",
-            applicant.getName(),
-            team.getTeamName().name(),
-            cancelReason,
-            decidedAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
-        );
-
-        String applicantText = String.format(
-            "안녕하세요!\n\n" +
-                "'%s' 팀 가입 신청을 취소하셨습니다.\n\n" +
-                "취소 사유: %s\n" +
-                "취소 시간: %s\n\n",
-            team.getTeamName().name(),
-            cancelReason,
-            decidedAt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
-        );
-
-        mailService.sendEmail(team.getCaptain().getEmail(), subject, captainText);
-
-        team.getTeamMembers().stream()
-            .filter(TeamMember::isViceCaptain)
-            .findFirst()
-            .ifPresent(viceCaptain -> {
-                mailService.sendEmail(viceCaptain.getUser().getEmail(), subject, captainText);
-            });
-
-        mailService.sendEmail(applicant.getEmail(), subject, applicantText);
     }
 }
