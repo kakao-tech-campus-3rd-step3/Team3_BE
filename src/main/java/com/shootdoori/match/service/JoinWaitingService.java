@@ -100,9 +100,7 @@ public class JoinWaitingService {
             .findByIdAndTeam_TeamIdForUpdate(joinWaitingId, teamId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.JOIN_WAITING_NOT_FOUND));
 
-        TeamMemberRole role = joinWaiting.isMercenary()
-            ? TeamMemberRole.MERCENARY
-            : TeamMemberRole.fromDisplayName(requestDto.role());
+        TeamMemberRole role = TeamMemberRole.determineRole(joinWaiting, requestDto.role());
 
         Team team = joinWaiting.getTeam();
         User applicant = joinWaiting.getApplicant();
