@@ -1,6 +1,6 @@
 package com.shootdoori.match.entity.team.join;
 
-import com.shootdoori.match.entity.common.DateEntity;
+import com.shootdoori.match.entity.common.AuditInfo;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.team.TeamMemberRole;
@@ -9,7 +9,9 @@ import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NoPermissionException;
 import com.shootdoori.match.exception.domain.joinwaiting.JoinWaitingNotPendingException;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -22,15 +24,17 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import java.time.LocalDateTime;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(
     name = "join_waiting",
     indexes = {
         @Index(name = "idx_join_waiting_team_status", columnList = "team_id,status")
     }
 )
-public class JoinWaiting extends DateEntity {
+public class JoinWaiting {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -63,6 +67,9 @@ public class JoinWaiting extends DateEntity {
 
     @Column(name = "is_mercenary", nullable = false)
     private boolean isMercenary = false;
+
+    @Embedded
+    private AuditInfo audit = new AuditInfo();
 
     @Version
     private Long version;

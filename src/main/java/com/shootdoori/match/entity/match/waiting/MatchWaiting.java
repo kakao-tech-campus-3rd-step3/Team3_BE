@@ -1,13 +1,15 @@
 package com.shootdoori.match.entity.match.waiting;
 
-import com.shootdoori.match.entity.common.DateEntity;
+import com.shootdoori.match.entity.common.AuditInfo;
+import com.shootdoori.match.entity.common.SkillLevel;
+import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.venue.Venue;
-import com.shootdoori.match.entity.team.Team;
-import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.value.TeamName;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -20,10 +22,12 @@ import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "match_waiting")
-public class MatchWaiting extends DateEntity {
+public class MatchWaiting {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -67,6 +71,9 @@ public class MatchWaiting extends DateEntity {
 
     @Column(name = "EXPIRES_AT", nullable = false, columnDefinition = "TIMESTAMP DEFAULT (CURRENT_TIMESTAMP + INTERVAL '24' HOUR)")
     private LocalDateTime expiresAt;
+
+    @Embedded
+    private AuditInfo audit = new AuditInfo();
 
 
     protected MatchWaiting() {

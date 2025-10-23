@@ -1,13 +1,22 @@
 package com.shootdoori.match.entity.venue;
 
-import com.shootdoori.match.entity.common.DateEntity;
-import jakarta.persistence.*;
-
+import com.shootdoori.match.entity.common.AuditInfo;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "venues")
-public class Venue extends DateEntity {
+public class Venue {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,6 +43,9 @@ public class Venue extends DateEntity {
 
     @Column(name = "PRICE_PER_HOUR")
     private Long pricePerHour;
+
+    @Embedded
+    private AuditInfo audit = new AuditInfo();
 
     protected Venue() {
     }
@@ -84,5 +96,13 @@ public class Venue extends DateEntity {
 
     public Long getPricePerHour() {
         return pricePerHour;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return audit.getCreatedAt();
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return audit.getUpdatedAt();
     }
 }

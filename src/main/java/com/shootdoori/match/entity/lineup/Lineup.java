@@ -1,16 +1,31 @@
 package com.shootdoori.match.entity.lineup;
 
-import com.shootdoori.match.entity.common.DateEntity;
+import com.shootdoori.match.entity.common.AuditInfo;
+import com.shootdoori.match.entity.common.Position;
 import com.shootdoori.match.entity.match.Match;
 import com.shootdoori.match.entity.match.request.MatchRequest;
 import com.shootdoori.match.entity.match.waiting.MatchWaiting;
 import com.shootdoori.match.entity.team.TeamMember;
-import com.shootdoori.match.entity.common.Position;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
+import java.time.LocalDateTime;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "lineup")
-public class Lineup extends DateEntity {
+public class Lineup {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,6 +58,10 @@ public class Lineup extends DateEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "lineup_status", nullable = false)
     private LineupStatus lineupStatus = LineupStatus.CREATED;
+
+    @Embedded
+    private AuditInfo audit = new AuditInfo();
+
 
     public Lineup(Match match,
                   MatchWaiting waiting,
@@ -91,6 +110,14 @@ public class Lineup extends DateEntity {
 
     public LineupStatus getLineupStatus() {
         return lineupStatus;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return audit.getCreatedAt();
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return audit.getUpdatedAt();
     }
 
     public void toCreated() {

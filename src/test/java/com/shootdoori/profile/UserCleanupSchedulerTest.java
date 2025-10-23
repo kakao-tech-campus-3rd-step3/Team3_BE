@@ -43,7 +43,7 @@ class UserCleanupSchedulerTest {
         void cleanupDeletedUsers_Success() {
             // given
             List<User> usersToDelete = Arrays.asList(createUser1(), createUser2());
-            given(userRepository.findByStatusAndUpdatedAtBefore(
+            given(userRepository.findBySoftDeleteStatusAndAuditUpdatedAtBefore(
                     eq(UserStatus.DELETED),
                     any(LocalDateTime.class)
             )).willReturn(usersToDelete);
@@ -53,7 +53,7 @@ class UserCleanupSchedulerTest {
 
             // then
             verify(userRepository, times(1))
-                    .findByStatusAndUpdatedAtBefore(
+                    .findBySoftDeleteStatusAndAuditUpdatedAtBefore(
                             eq(UserStatus.DELETED),
                             any(LocalDateTime.class)
                     );
@@ -65,7 +65,7 @@ class UserCleanupSchedulerTest {
         void cleanupDeletedUsers_ChecksSevenDaysAgo() {
             // given
             ArgumentCaptor<LocalDateTime> dateCaptor = ArgumentCaptor.forClass(LocalDateTime.class);
-            given(userRepository.findByStatusAndUpdatedAtBefore(
+            given(userRepository.findBySoftDeleteStatusAndAuditUpdatedAtBefore(
                     eq(UserStatus.DELETED),
                     dateCaptor.capture()
             )).willReturn(Collections.emptyList());
@@ -87,7 +87,7 @@ class UserCleanupSchedulerTest {
             User user1 = createUser1();
             User user2 = createUser2();
             List<User> usersToDelete = Arrays.asList(user1, user2);
-            given(userRepository.findByStatusAndUpdatedAtBefore(
+            given(userRepository.findBySoftDeleteStatusAndAuditUpdatedAtBefore(
                     eq(UserStatus.DELETED),
                     any(LocalDateTime.class)
             )).willReturn(usersToDelete);
@@ -113,7 +113,7 @@ class UserCleanupSchedulerTest {
         @DisplayName("삭제할 사용자가 없으면 cleanup 서비스를 호출하지 않음")
         void cleanupDeletedUsers_NoUsersToDelete() {
             // given
-            given(userRepository.findByStatusAndUpdatedAtBefore(
+            given(userRepository.findBySoftDeleteStatusAndAuditUpdatedAtBefore(
                     eq(UserStatus.DELETED),
                     any(LocalDateTime.class)
             )).willReturn(Collections.emptyList());
@@ -123,7 +123,7 @@ class UserCleanupSchedulerTest {
 
             // then
             verify(userRepository, times(1))
-                    .findByStatusAndUpdatedAtBefore(
+                    .findBySoftDeleteStatusAndAuditUpdatedAtBefore(
                             eq(UserStatus.DELETED),
                             any(LocalDateTime.class)
                     );
@@ -135,7 +135,7 @@ class UserCleanupSchedulerTest {
         void cleanupDeletedUsers_SingleUser() {
             // given
             List<User> usersToDelete = Collections.singletonList(createUser1());
-            given(userRepository.findByStatusAndUpdatedAtBefore(
+            given(userRepository.findBySoftDeleteStatusAndAuditUpdatedAtBefore(
                     eq(UserStatus.DELETED),
                     any(LocalDateTime.class)
             )).willReturn(usersToDelete);
@@ -156,7 +156,7 @@ class UserCleanupSchedulerTest {
         @DisplayName("조회 조건: DELETED 상태")
         void cleanupDeletedUsers_UsesPendingDeletionStatus() {
             // given
-            given(userRepository.findByStatusAndUpdatedAtBefore(
+            given(userRepository.findBySoftDeleteStatusAndAuditUpdatedAtBefore(
                     eq(UserStatus.DELETED),
                     any(LocalDateTime.class)
             )).willReturn(Collections.emptyList());
@@ -165,7 +165,7 @@ class UserCleanupSchedulerTest {
             userCleanupScheduler.cleanupDeletedUsers();
 
             // then
-            verify(userRepository).findByStatusAndUpdatedAtBefore(
+            verify(userRepository).findBySoftDeleteStatusAndAuditUpdatedAtBefore(
                     eq(UserStatus.DELETED),
                     any(LocalDateTime.class)
             );
@@ -175,7 +175,7 @@ class UserCleanupSchedulerTest {
         @DisplayName("스케줄러가 여러 번 호출되어도 독립적으로 동작")
         void cleanupDeletedUsers_MultipleInvocations() {
             // given
-            given(userRepository.findByStatusAndUpdatedAtBefore(
+            given(userRepository.findBySoftDeleteStatusAndAuditUpdatedAtBefore(
                     eq(UserStatus.DELETED),
                     any(LocalDateTime.class)
             )).willReturn(Collections.singletonList(createUser1()));
@@ -186,7 +186,7 @@ class UserCleanupSchedulerTest {
 
             // then
             verify(userRepository, times(2))
-                    .findByStatusAndUpdatedAtBefore(
+                    .findBySoftDeleteStatusAndAuditUpdatedAtBefore(
                             eq(UserStatus.DELETED),
                             any(LocalDateTime.class)
                     );
@@ -203,7 +203,7 @@ class UserCleanupSchedulerTest {
         @DisplayName("UserRepository 조회 실패 시 예외 전파")
         void cleanupDeletedUsers_RepositoryException() {
             // given
-            given(userRepository.findByStatusAndUpdatedAtBefore(
+            given(userRepository.findBySoftDeleteStatusAndAuditUpdatedAtBefore(
                     eq(UserStatus.DELETED),
                     any(LocalDateTime.class)
             )).willThrow(new RuntimeException("Database error"));
@@ -222,7 +222,7 @@ class UserCleanupSchedulerTest {
         void cleanupDeletedUsers_ServiceException() {
             // given
             List<User> usersToDelete = Collections.singletonList(createUser1());
-            given(userRepository.findByStatusAndUpdatedAtBefore(
+            given(userRepository.findBySoftDeleteStatusAndAuditUpdatedAtBefore(
                     eq(UserStatus.DELETED),
                     any(LocalDateTime.class)
             )).willReturn(usersToDelete);
