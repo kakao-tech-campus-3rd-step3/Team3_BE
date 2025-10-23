@@ -1,6 +1,6 @@
 package com.shootdoori.match.entity.team;
 
-import com.shootdoori.match.entity.common.DateEntity;
+import com.shootdoori.match.entity.common.AuditInfo;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.DifferentException;
 import com.shootdoori.match.exception.common.DuplicatedException;
@@ -8,7 +8,9 @@ import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NoPermissionException;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -21,8 +23,10 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(
     name = "team_member",
     uniqueConstraints = {
@@ -30,7 +34,7 @@ import java.util.Objects;
     }
 )
 @AttributeOverride(name = "createdAt", column = @Column(name = "joined_at", nullable = false, updatable = false))
-public class TeamMember extends DateEntity {
+public class TeamMember {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -49,6 +53,8 @@ public class TeamMember extends DateEntity {
     @Column(name = "role", nullable = false, length = 20)
     private TeamMemberRole role = TeamMemberRole.MEMBER;
 
+    @Embedded
+    private AuditInfo audit = new AuditInfo();
 
     protected TeamMember() {
     }
@@ -75,9 +81,9 @@ public class TeamMember extends DateEntity {
         return role;
     }
 
-    public LocalDateTime getJoinedAt() {
-        return getCreatedAt();
-    }
+    public LocalDateTime getJoinedAt() { return audit.getCreatedAt(); }
+
+    public LocalDateTime getUpdatedAt() { return audit.getUpdatedAt(); }
 
     public void setTeam(Team team) {
         this.team = team;

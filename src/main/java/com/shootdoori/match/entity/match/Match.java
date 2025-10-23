@@ -1,19 +1,33 @@
 package com.shootdoori.match.entity.match;
 
-import com.shootdoori.match.entity.common.DateEntity;
+import com.shootdoori.match.entity.common.AuditInfo;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.venue.Venue;
 import com.shootdoori.match.exception.domain.review.MatchNotFinishedException;
 import com.shootdoori.match.value.TeamName;
-import jakarta.persistence.*;
-
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(name = "match_table")
-public class Match extends DateEntity {
+public class Match {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,6 +55,9 @@ public class Match extends DateEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "STATUS", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '예정'")
     private MatchStatus status = MatchStatus.RECRUITING;
+
+    @Embedded
+    private AuditInfo audit = new AuditInfo();
 
     public Match(Team matchCreateTeam, Team matchRequestTeam, LocalDate matchDate, LocalTime matchTime, Venue venue,
                  MatchStatus status) {
@@ -81,6 +98,14 @@ public class Match extends DateEntity {
 
     public MatchStatus getStatus() {
         return status;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return audit.getCreatedAt();
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return audit.getUpdatedAt();
     }
 
     public Team findEnemyTeam(TeamMember teamMember) {

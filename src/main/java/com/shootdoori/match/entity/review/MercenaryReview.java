@@ -1,10 +1,11 @@
 package com.shootdoori.match.entity.review;
 
-import com.shootdoori.match.entity.common.DateEntity;
+import com.shootdoori.match.entity.common.AuditInfo;
 import com.shootdoori.match.entity.match.Match;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.user.User;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -31,7 +32,7 @@ import org.hibernate.annotations.Check;
     name = "ck_mercenary_review_ratings",
     constraints = "rating BETWEEN 1 AND 5 "
 )
-public class MercenaryReview extends DateEntity {
+public class MercenaryReview {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -66,6 +67,9 @@ public class MercenaryReview extends DateEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "skill_level_review")
     private ReviewSkillLevel skillLevelReview;
+
+    @Embedded
+    private AuditInfo audit;
 
 
     protected MercenaryReview() {

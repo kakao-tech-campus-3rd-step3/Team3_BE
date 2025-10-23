@@ -1,19 +1,31 @@
 package com.shootdoori.match.entity.user;
 
-import com.shootdoori.match.entity.common.SoftDeleteUserEntity;
-import com.shootdoori.match.value.Password;
-import com.shootdoori.match.value.UniversityName;
+import com.shootdoori.match.entity.common.AuditInfo;
 import com.shootdoori.match.entity.common.Position;
 import com.shootdoori.match.entity.common.SkillLevel;
-import jakarta.persistence.*;
+import com.shootdoori.match.entity.common.SoftDeleteUserInfo;
+import com.shootdoori.match.value.Password;
+import com.shootdoori.match.value.UniversityName;
+import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import java.time.LocalDateTime;
+import java.util.Objects;
 import org.hibernate.annotations.SQLRestriction;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.Objects;
-
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @SQLRestriction("status = 'ACTIVE'")
-public class User extends SoftDeleteUserEntity {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,6 +64,12 @@ public class User extends SoftDeleteUserEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "POSITION", nullable = false, length = 2)
     private Position position;
+
+    @Embedded
+    private AuditInfo audit = new AuditInfo();
+
+    @Embedded
+    private SoftDeleteUserInfo softDelete = new SoftDeleteUserInfo();
 
     protected User() {
 
@@ -225,6 +243,34 @@ public class User extends SoftDeleteUserEntity {
 
     public Position getPosition() {
         return this.position;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return audit.getCreatedAt();
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return audit.getUpdatedAt();
+    }
+
+    public UserStatus getStatus() {
+        return softDelete.getStatus();
+    }
+
+    public boolean isDeleted() {
+        return softDelete.isDeleted();
+    }
+
+    public boolean isActive() {
+        return softDelete.isActive();
+    }
+
+    public void changeStatusDeleted() {
+        softDelete.changeStatusDeleted();
+    }
+
+    public void changeStatusActive() {
+        softDelete.changeStatusActive();
     }
 
     public void update(String skillLevel, String position, String bio) {

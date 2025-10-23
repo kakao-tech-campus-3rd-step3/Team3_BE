@@ -1,11 +1,13 @@
 package com.shootdoori.match.entity.mercenary;
 
-import com.shootdoori.match.entity.common.DateEntity;
-import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.common.AuditInfo;
 import com.shootdoori.match.entity.common.Position;
 import com.shootdoori.match.entity.common.SkillLevel;
+import com.shootdoori.match.entity.team.Team;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -17,9 +19,11 @@ import jakarta.persistence.ManyToOne;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-public class MercenaryRecruitment extends DateEntity {
+@EntityListeners(AuditingEntityListener.class)
+public class MercenaryRecruitment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -48,6 +52,9 @@ public class MercenaryRecruitment extends DateEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "RECRUITMENT_STATUS", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '모집중'")
     private RecruitmentStatus recruitmentStatus;
+
+    @Embedded
+    private AuditInfo audit = new AuditInfo();
 
     protected MercenaryRecruitment() {
     }
@@ -150,6 +157,14 @@ public class MercenaryRecruitment extends DateEntity {
 
     public RecruitmentStatus getRecruitmentStatus() {
         return this.recruitmentStatus;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return audit.getCreatedAt();
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return audit.getUpdatedAt();
     }
 
     public void updateRecruitmentInfo(LocalDate matchDate, LocalTime matchTime, String message, Position position, SkillLevel skillLevel) {

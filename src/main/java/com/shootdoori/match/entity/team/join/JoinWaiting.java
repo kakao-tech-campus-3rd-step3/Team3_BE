@@ -1,6 +1,6 @@
 package com.shootdoori.match.entity.team.join;
 
-import com.shootdoori.match.entity.common.DateEntity;
+import com.shootdoori.match.entity.common.AuditInfo;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.team.TeamMemberRole;
@@ -9,6 +9,7 @@ import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NoPermissionException;
 import com.shootdoori.match.exception.domain.joinwaiting.JoinWaitingNotPendingException;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -30,7 +31,7 @@ import java.time.LocalDateTime;
         @Index(name = "idx_join_waiting_team_status", columnList = "team_id,status")
     }
 )
-public class JoinWaiting extends DateEntity {
+public class JoinWaiting {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -63,6 +64,9 @@ public class JoinWaiting extends DateEntity {
 
     @Column(name = "is_mercenary", nullable = false)
     private boolean isMercenary = false;
+
+    @Embedded
+    private AuditInfo audit;
 
     @Version
     private Long version;

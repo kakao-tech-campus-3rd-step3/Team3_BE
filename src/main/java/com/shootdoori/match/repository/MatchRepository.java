@@ -22,7 +22,7 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
         SELECT new com.shootdoori.match.dto.MatchSummaryProjection(
             m.matchId, m.matchDate, m.matchTime, m.status,
             createTeam.teamName.name, requestTeam.teamName.name,
-            v.venueName, m.createdAt, m.updatedAt
+            v.venueName, m.audit.createdAt, m.audit.updatedAt
         )
         FROM Match m
         JOIN m.matchCreateTeam createTeam

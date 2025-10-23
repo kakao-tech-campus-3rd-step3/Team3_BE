@@ -1,7 +1,8 @@
 package com.shootdoori.match.entity.team;
 
+import com.shootdoori.match.entity.common.AuditInfo;
 import com.shootdoori.match.entity.common.SkillLevel;
-import com.shootdoori.match.entity.common.SoftDeleteTeamEntity;
+import com.shootdoori.match.entity.common.SoftDeleteTeamInfo;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.DifferentException;
 import com.shootdoori.match.exception.common.ErrorCode;
@@ -15,6 +16,7 @@ import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -24,15 +26,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import org.hibernate.annotations.SQLRestriction;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Table(name = "team")
+@EntityListeners(AuditingEntityListener.class)
 @SQLRestriction("status = 'ACTIVE'")
-public class Team extends SoftDeleteTeamEntity {
+public class Team {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -65,6 +70,12 @@ public class Team extends SoftDeleteTeamEntity {
 
     @Embedded
     private TeamMembers teamMembers = TeamMembers.empty();
+
+    @Embedded
+    private AuditInfo audit = new AuditInfo();
+
+    @Embedded
+    SoftDeleteTeamInfo softDelete = new SoftDeleteTeamInfo();
 
     protected Team() {
     }
@@ -116,6 +127,26 @@ public class Team extends SoftDeleteTeamEntity {
         return Collections.unmodifiableList(teamMembers.getTeamMembers());
     }
 
+    public LocalDateTime getCreatedAt() {
+        return audit.getCreatedAt();
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return audit.getUpdatedAt();
+    }
+
+    public TeamStatus getStatus() {
+        return softDelete.getStatus();
+    }
+
+    public boolean isDeleted() {
+        return softDelete.isDeleted();
+    }
+
+    public boolean isActive() {
+        return softDelete.isActive();
+    }
+
     public void validateSameUniversityAs(User user) {
         if (!this.university.equals(user.getUniversity())) {
             throw new DifferentException(ErrorCode.DIFFERENT_UNIVERSITY);
@@ -160,7 +191,7 @@ public class Team extends SoftDeleteTeamEntity {
         }
 
         teamMembers.clear();
-        changeStatusDeleted();
+        softDelete.changeStatusDeleted();
     }
 
     public void restore(Long userId) {
@@ -169,7 +200,7 @@ public class Team extends SoftDeleteTeamEntity {
         }
 
         addMember(captain, TeamMemberRole.LEADER);
-        changeStatusActive();
+        softDelete.changeStatusActive();
     }
 
     @Override
