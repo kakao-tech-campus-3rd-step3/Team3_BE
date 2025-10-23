@@ -114,6 +114,10 @@ public class JoinWaiting {
         return isMercenary;
     }
 
+    public AuditInfo getAudit() {
+        return audit;
+    }
+
     protected JoinWaiting() {
 
     }

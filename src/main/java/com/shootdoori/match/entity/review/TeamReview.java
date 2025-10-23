@@ -160,4 +160,8 @@ public class TeamReview {
     public LocalDateTime getUpdatedAt() {
         return audit.getUpdatedAt();
     }
+
+    public AuditInfo getAudit() {
+        return audit;
+    }
 }

@@ -177,4 +177,8 @@ public class MatchWaiting {
         return this.preferredVenue.getVenueId();
     }
 
+    public AuditInfo getAudit() {
+        return audit;
+    }
+
 }

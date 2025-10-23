@@ -167,6 +167,10 @@ public class MercenaryRecruitment {
         return audit.getUpdatedAt();
     }
 
+    public AuditInfo getAudit() {
+        return audit;
+    }
+
     public void updateRecruitmentInfo(LocalDate matchDate, LocalTime matchTime, String message, Position position, SkillLevel skillLevel) {
         validate(matchDate, matchTime, message, position, skillLevel);
         this.matchDate = matchDate;
