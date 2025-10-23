@@ -7,6 +7,7 @@ import com.shootdoori.match.entity.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -20,8 +21,10 @@ import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import org.hibernate.annotations.Check;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(
     name = "mercenary_review",
     uniqueConstraints = {
@@ -69,19 +72,19 @@ public class MercenaryReview {
     private ReviewSkillLevel skillLevelReview;
 
     @Embedded
-    private AuditInfo audit;
+    private AuditInfo audit = new AuditInfo();
 
 
     protected MercenaryReview() {
     }
 
     public MercenaryReview(Match match,
-                           Team reviewerTeam,
-                           User mercenaryUser,
-                           Integer rating,
-                           ReviewBinaryEvaluation punctualityReview,
-                           ReviewBinaryEvaluation sportsmanshipReview,
-                           ReviewSkillLevel skillLevelReview) {
+        Team reviewerTeam,
+        User mercenaryUser,
+        Integer rating,
+        ReviewBinaryEvaluation punctualityReview,
+        ReviewBinaryEvaluation sportsmanshipReview,
+        ReviewSkillLevel skillLevelReview) {
         this.match = match;
         this.reviewerTeam = reviewerTeam;
         this.mercenaryUser = mercenaryUser;

@@ -11,6 +11,7 @@ import com.shootdoori.match.exception.domain.joinwaiting.JoinWaitingNotPendingEx
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -23,8 +24,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import java.time.LocalDateTime;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(
     name = "join_waiting",
     indexes = {
@@ -66,7 +69,7 @@ public class JoinWaiting {
     private boolean isMercenary = false;
 
     @Embedded
-    private AuditInfo audit;
+    private AuditInfo audit = new AuditInfo();
 
     @Version
     private Long version;
