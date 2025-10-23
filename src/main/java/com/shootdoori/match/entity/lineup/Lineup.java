@@ -120,6 +120,10 @@ public class Lineup {
         return audit.getUpdatedAt();
     }
 
+    public AuditInfo getAudit() {
+        return audit;
+    }
+
     public void toCreated() {
         this.lineupStatus = LineupStatus.CREATED;
     }

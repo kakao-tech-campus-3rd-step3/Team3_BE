@@ -135,4 +135,8 @@ public class MercenaryReview {
     public ReviewSkillLevel getSkillLevelReview() {
         return skillLevelReview;
     }
+
+    public AuditInfo getAudit() {
+        return audit;
+    }
 }

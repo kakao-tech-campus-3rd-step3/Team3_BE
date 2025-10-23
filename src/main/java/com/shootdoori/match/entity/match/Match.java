@@ -108,6 +108,10 @@ public class Match {
         return audit.getUpdatedAt();
     }
 
+    public AuditInfo getAudit() {
+        return audit;
+    }
+
     public Team findEnemyTeam(TeamMember teamMember) {
         if (teamMember.getTeam().equals(this.getMatchCreateTeam())) {
             return this.getMatchRequestTeam();

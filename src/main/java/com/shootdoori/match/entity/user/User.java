@@ -253,6 +253,10 @@ public class User {
         return audit.getUpdatedAt();
     }
 
+    public AuditInfo getAudit() {
+        return audit;
+    }
+
     public UserStatus getStatus() {
         return softDelete.getStatus();
     }

@@ -135,6 +135,10 @@ public class Team {
         return audit.getUpdatedAt();
     }
 
+    public AuditInfo getAudit() {
+        return audit;
+    }
+
     public TeamStatus getStatus() {
         return softDelete.getStatus();
     }

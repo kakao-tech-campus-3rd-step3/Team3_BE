@@ -105,4 +105,8 @@ public class Venue {
     public LocalDateTime getUpdatedAt() {
         return audit.getUpdatedAt();
     }
+
+    public AuditInfo getAudit() {
+        return audit;
+    }
 }
