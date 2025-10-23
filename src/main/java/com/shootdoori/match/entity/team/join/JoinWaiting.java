@@ -62,7 +62,7 @@ public class JoinWaiting extends DateEntity {
     private LocalDateTime decidedAt;
 
     @Column(name = "is_mercenary", nullable = false)
-    private boolean mercenary = false;
+    private boolean isMercenary = false;
 
     @Version
     private Long version;
@@ -104,7 +104,7 @@ public class JoinWaiting extends DateEntity {
     }
 
     public boolean isMercenary() {
-        return mercenary;
+        return isMercenary;
     }
 
     protected JoinWaiting() {
@@ -115,7 +115,7 @@ public class JoinWaiting extends DateEntity {
         this.team = team;
         this.applicant = applicant;
         this.message = message;
-        this.mercenary = isMercenary;
+        this.isMercenary = isMercenary;
     }
 
     public static JoinWaiting create(Team team, User applicant, String message,

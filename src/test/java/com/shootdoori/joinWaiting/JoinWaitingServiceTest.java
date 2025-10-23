@@ -3,7 +3,6 @@ package com.shootdoori.joinWaiting;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -14,10 +13,10 @@ import com.shootdoori.match.dto.JoinWaitingMapper;
 import com.shootdoori.match.dto.JoinWaitingRejectRequestDto;
 import com.shootdoori.match.dto.JoinWaitingRequestDto;
 import com.shootdoori.match.dto.JoinWaitingResponseDto;
+import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.team.TeamMemberRole;
-import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.team.join.JoinWaiting;
 import com.shootdoori.match.entity.team.join.JoinWaitingStatus;
@@ -28,8 +27,8 @@ import com.shootdoori.match.repository.JoinWaitingRepository;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.repository.TeamRepository;
+import com.shootdoori.match.service.EmailJoinWaitingNotificationService;
 import com.shootdoori.match.service.JoinWaitingService;
-import com.shootdoori.match.service.MailService;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -43,6 +42,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -66,7 +66,7 @@ public class JoinWaitingServiceTest {
     private JoinWaitingMapper joinWaitingMapper;
 
     @Mock
-    private MailService mailService;
+    private EmailJoinWaitingNotificationService notificationService;
 
     private JoinWaitingService joinWaitingService;
 
@@ -92,7 +92,7 @@ public class JoinWaitingServiceTest {
             teamMemberRepository,
             joinWaitingRepository,
             joinWaitingMapper,
-            mailService
+            notificationService
         );
 
         teamLeader = User.create(
@@ -194,7 +194,12 @@ public class JoinWaitingServiceTest {
             assertThat(resultDto.id()).isEqualTo(JOIN_WAITING_ID);
             assertThat(resultDto.status()).isEqualTo(JoinWaitingStatus.PENDING.getDisplayName());
 
-            verify(mailService).sendEmail(eq(teamLeader.getEmail()), anyString(), anyString());
+            verify(notificationService).sendJoinCreateNotification(
+                team,
+                applicant,
+                requestDto.message(),
+                requestDto.isMercenary()
+            );
         }
 
         @Test
@@ -234,8 +239,6 @@ public class JoinWaitingServiceTest {
             assertThat(resultDto).isEqualTo(expected);
             assertThat(resultDto.id()).isEqualTo(JOIN_WAITING_ID);
             assertThat(resultDto.status()).isEqualTo(JoinWaitingStatus.PENDING.getDisplayName());
-
-            verify(mailService).sendEmail(eq(teamLeader.getEmail()), anyString(), anyString());
         }
 
         @Test
@@ -370,7 +373,13 @@ public class JoinWaitingServiceTest {
             assertThat(team.getTeamMembers().get(1).getUser()).isEqualTo(applicant);
             assertThat(team.getTeamMembers().get(1).getRole()).isEqualTo(TeamMemberRole.MEMBER);
 
-            verify(mailService).sendEmail(eq(applicant.getEmail()), anyString(), anyString());
+            verify(notificationService).sendJoinApprovalNotification(
+                eq(team),
+                eq(applicant),
+                eq(leaderMember),
+                any(LocalDateTime.class),
+                eq(false)
+            );
         }
 
         @Test
@@ -413,8 +422,6 @@ public class JoinWaitingServiceTest {
             assertThat(team.getTeamMembers()).hasSize(2);
             assertThat(team.getTeamMembers().get(1).getUser()).isEqualTo(applicant);
             assertThat(team.getTeamMembers().get(1).getRole()).isEqualTo(TeamMemberRole.MERCENARY);
-
-            verify(mailService).sendEmail(eq(applicant.getEmail()), anyString(), anyString());
         }
 
         @Test
@@ -530,7 +537,14 @@ public class JoinWaitingServiceTest {
             assertThat(resultDto.status()).isEqualTo(JoinWaitingStatus.REJECTED.getDisplayName());
             assertThat(team.getTeamMembers()).hasSize(1);
 
-            verify(mailService).sendEmail(eq(applicant.getEmail()), anyString(), anyString());
+            verify(notificationService).sendJoinRejectionNotification(
+                eq(team),
+                eq(applicant),
+                eq(leaderMember),
+                any(LocalDateTime.class),
+                eq(requestDto.decisionReason()),
+                eq(false)
+            );
         }
     }
 
@@ -570,7 +584,13 @@ public class JoinWaitingServiceTest {
             assertThat(resultDto.status()).isEqualTo(JoinWaitingStatus.CANCELED.getDisplayName());
             assertThat(team.getTeamMembers()).hasSize(1);
 
-            verify(mailService).sendEmail(eq(teamLeader.getEmail()), anyString(), anyString());
+            verify(notificationService).sendJoinCancelNotification(
+                eq(team),
+                eq(applicant),
+                any(LocalDateTime.class),
+                eq(requestDto.decisionReason()),
+                eq(false)
+            );
         }
     }
 
@@ -582,6 +602,10 @@ public class JoinWaitingServiceTest {
         @DisplayName("findPending - 대기중 목록 페이징/매핑")
         void findPending_success() {
             // given
+            Pageable pageable = PageRequest.of(PAGE, SIZE, Sort.by("teamName").ascending());
+
+            JoinWaiting joinWaiting1 = JoinWaiting.create(team, applicant, "열심히 뛰겠습니다! 111", false);
+            JoinWaiting joinWaiting2 = JoinWaiting.create(team, applicant, "열심히 뛰겠습니다! 222", false);
 
             JoinWaitingResponseDto responseDto1 = new JoinWaitingResponseDto(
                 1L, applicant.getName(), TEAM_ID, team.getTeamName().name(), applicant.getId(),
@@ -594,14 +618,25 @@ public class JoinWaitingServiceTest {
                 null, null, false
             );
 
-            Page<JoinWaitingResponseDto> resultDtoPage = new PageImpl<>(
-                List.of(responseDto1, responseDto2),
-                PageRequest.of(PAGE, SIZE, Sort.by("teamName").ascending()), 2);
+            Page<JoinWaiting> joinWaitingPage = new PageImpl<>(List.of(joinWaiting1, joinWaiting2),
+                pageable, 2);
 
+            when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
+            when(joinWaitingRepository.findAllByTeam_TeamIdAndStatus(TEAM_ID,
+                JoinWaitingStatus.PENDING, pageable))
+                .thenReturn(joinWaitingPage);
+
+            when(joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting1)).thenReturn(responseDto1);
+            when(joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting2)).thenReturn(responseDto2);
+
+            // when
+            Page<JoinWaitingResponseDto> resultDtoPage = joinWaitingService.findPending(
+                TEAM_ID, JoinWaitingStatus.PENDING, pageable
+            );
+
+            // then
             assertThat(resultDtoPage).hasSize(2);
-            assertThat(resultDtoPage.getContent()).hasSize(2);
-            assertThat(resultDtoPage.getContent().get(0).id()).isEqualTo(1L);
-            assertThat(resultDtoPage.getContent().get(1).id()).isEqualTo(2L);
+            assertThat(resultDtoPage.getContent()).containsExactly(responseDto1, responseDto2);
         }
     }
 
