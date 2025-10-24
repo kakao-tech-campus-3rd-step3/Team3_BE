@@ -1,9 +1,12 @@
 package com.shootdoori.match.config;
 
 import com.shootdoori.match.resolver.JwtAuthenticationFilter;
+import com.shootdoori.match.service.AuthService;
+import com.shootdoori.match.util.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -16,14 +19,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 public class SecurityConfig {
 
-    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-
-    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
-        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
-    }
-
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
         http
             .httpBasic(config -> config.disable())
             .csrf(config -> config.disable())
@@ -33,11 +30,13 @@ public class SecurityConfig {
             .sessionManagement(config -> config.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authorize -> authorize
 
-                    .requestMatchers("/", "/health").permitAll()
-                    .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/refresh").permitAll()
+                    .requestMatchers("/", "/health", "/delete", "/login", "/actuator/health").permitAll()
+                    .requestMatchers("/api/auth/register", "/api/auth/login", "/api/auth/login-cookie", "/api/auth/refresh", "/api/auth/logout-cookie").permitAll()
                     .requestMatchers("/h2-console/**").permitAll()
 
                     .requestMatchers(HttpMethod.GET, "/images/**").permitAll()
+
+                    .requestMatchers(HttpMethod.GET, "/api/teams/**").permitAll()
 
                     .requestMatchers(HttpMethod.GET, "/api/venues/**").permitAll()
 
@@ -61,6 +60,11 @@ public class SecurityConfig {
             response.setContentType("application/json;charset=UTF-8");
             response.getWriter().write("{\"error\": \"Unauthorized\", \"message\": \"" + authException.getMessage() + "\"}");
         };
+    }
+
+    @Bean
+    public JwtAuthenticationFilter jwtAuthenticationFilter(@Lazy AuthService authService, JwtUtil jwtUtil) {
+        return new JwtAuthenticationFilter(authService, jwtUtil);
     }
 
     @Bean

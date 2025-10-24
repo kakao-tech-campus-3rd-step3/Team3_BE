@@ -31,6 +31,7 @@ import com.shootdoori.match.repository.RefreshTokenRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.service.ProfileService;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -70,13 +71,11 @@ class ProfileTest {
             ProfileCreateRequest request = createProfileRequest();
             User user = createUser(request);
 
-            given(profileRepository.existsByEmailOrUniversityEmail(request.email(),
-                request.universityEmail()))
-                .willReturn(false);
+            given(profileRepository.existsByEmail(request.email())).willReturn(false);
             given(passwordEncoder.encode(request.password())).willReturn("encodedPassword");
             given(profileRepository.save(any(User.class))).willReturn(user);
             given(profileMapper.toProfileResponse(user)).willReturn(
-                new ProfileResponse("jam", "AMATEUR", "test@email.com", "imkim25",
+                new ProfileResponse("jam", "AMATEUR", "test@any.ac.kr", "imkim25",
                     "FW", "knu", "cs", "20", "hello, world", LocalDateTime.now(), null)
             );
 
@@ -97,9 +96,7 @@ class ProfileTest {
             // given
             ProfileCreateRequest request = createProfileRequest();
 
-            given(profileRepository.existsByEmailOrUniversityEmail(request.email(),
-                request.universityEmail()))
-                .willReturn(true);
+            given(profileRepository.existsByEmail(request.email())).willReturn(true);
 
             // when & then
             assertThatThrownBy(() -> profileService.createProfile(request))
@@ -112,7 +109,7 @@ class ProfileTest {
         void createProfile_Fail_InvalidPosition() {
             // given
             ProfileCreateRequest request = new ProfileCreateRequest(
-                "jam", "아마추어", "new@email.com", "new@ac.kr",
+                "jam", "아마추어", "new@any.ac.kr",
                 "asdf02~!", "imkim2512", "마법사", "knu", "cs",
                 "20", "hello, world"
             );
@@ -139,7 +136,7 @@ class ProfileTest {
             TeamMember teamMember = new TeamMember(team, user, TeamMemberRole.MEMBER);
 
             ProfileResponse expectedResponse = new ProfileResponse(
-                "jam", "AMATEUR", "test@email.com", "imkim25", "FW",
+                "jam", "AMATEUR", "test@email.ac.kr", "imkim25", "FW",
                 "knu", "cs", "20", "hello, world", LocalDateTime.now(), teamId);
 
             given(profileRepository.findById(userId)).willReturn(Optional.of(user));
@@ -162,7 +159,7 @@ class ProfileTest {
             Long userId = 1L;
             User user = createUser(createProfileRequest());
             ProfileResponse expectedResponse = new ProfileResponse(
-                "jam", "AMATEUR", "test@email.com", "imkim25", "FW",
+                "jam", "AMATEUR", "test@email.ac.kr", "imkim25", "FW",
                 "knu", "cs", "20", "hello, world", LocalDateTime.now(), null);
 
             given(profileRepository.findById(userId)).willReturn(Optional.of(user));
@@ -176,6 +173,39 @@ class ProfileTest {
             assertThat(response).isNotNull();
             assertThat(response.teamId()).isNull();
             verify(teamMemberRepository).findByUser_Id(userId);
+        }
+    }
+
+    @Nested
+    @DisplayName("모든 프로필 조회 (삭제된 유저 포함)")
+    class GetProfilesWithDeleted {
+
+        @Test
+        @DisplayName("모든 프로필 조회 성공 - 삭제된 유저 포함")
+        void getProfilesWithDeleted_Success() {
+            // given
+            User activeUser = createUser(createProfileRequest());
+            User deletedUser = createUser(createProfileRequest());
+            deletedUser.changeStatusDeleted();
+
+            given(profileRepository.findAllIncludingDeleted())
+                .willReturn(List.of(activeUser, deletedUser));
+
+            given(teamMemberRepository.findByUser_Id(any()))
+                .willReturn(Optional.empty());
+
+            given(profileMapper.toProfileResponse(any(User.class), any()))
+                .willReturn(mock(ProfileResponse.class));
+
+            // when
+            var responses = profileService.getProfilesWithDeleted();
+
+            // then
+            verify(profileRepository, times(1)).findAllIncludingDeleted();
+            verify(teamMemberRepository, times(2)).findByUser_Id(any());
+            verify(profileMapper, times(2)).toProfileResponse(any(User.class), any());
+
+            assertThat(responses).hasSize(2);
         }
     }
 
@@ -195,7 +225,7 @@ class ProfileTest {
             given(profileRepository.findById(userId)).willReturn(Optional.of(user));
             given(teamMemberRepository.findByUser_Id(userId)).willReturn(Optional.empty());
             given(profileMapper.toProfileResponse(user, null)).willReturn(
-                new ProfileResponse("jam", "PRO", "test@email.com", "imkim2511",
+                new ProfileResponse("jam", "PRO", "test@any.ac.kr", "imkim2511",
                     "GK", "knu", "cs", "20", "변경된 자기소개", user.getCreatedAt(), null)
             );
 
@@ -230,9 +260,9 @@ class ProfileTest {
             profileService.deleteAccount(userId);
 
             // then
-            assertThat(user.getUserStatus()).isEqualTo(UserStatus.PENDING_DELETION);
-            verify(refreshTokenRepository, times(1)).deleteAllByUserId(userId);
+            assertThat(user.getStatus()).isEqualTo(UserStatus.DELETED);
             verify(teamMemberRepository, times(1)).findByUser_Id(userId);
+            verify(refreshTokenRepository, times(1)).deleteAllByUserId(userId);
         }
 
         @Test
@@ -254,7 +284,8 @@ class ProfileTest {
             profileService.deleteAccount(userId);
 
             // then
-            assertThat(user.getUserStatus()).isEqualTo(UserStatus.PENDING_DELETION);
+            assertThat(user.getStatus()).isEqualTo(UserStatus.DELETED);
+
             verify(refreshTokenRepository, times(1)).deleteAllByUserId(userId);
         }
 
@@ -292,7 +323,8 @@ class ProfileTest {
                 .isInstanceOf(LeaderCannotLeaveTeamException.class)
                 .hasMessageContaining(ErrorCode.LEADER_CANNOT_LEAVE_TEAM.getMessage());
 
-            assertThat(user.getUserStatus()).isEqualTo(UserStatus.ACTIVE);
+            assertThat(user.getStatus()).isEqualTo(UserStatus.ACTIVE);
+
             verify(refreshTokenRepository, never()).deleteAllByUserId(any());
         }
     }
@@ -300,7 +332,7 @@ class ProfileTest {
     // Test Fixtures
     private ProfileCreateRequest createProfileRequest() {
         return new ProfileCreateRequest(
-            "jam", "아마추어", "test@email.com", "test@ac.kr",
+            "jam", "아마추어", "test@any.ac.kr",
             "asdf02~!", "imkim2511", "공격수", "knu", "cs",
             "20", "hello, world"
         );
@@ -308,7 +340,7 @@ class ProfileTest {
 
     private User createUser(ProfileCreateRequest request) {
         return User.create(
-            request.name(), request.skillLevel(), request.email(), request.universityEmail(),
+            request.name(), request.skillLevel(), request.email(),
             request.password(), request.kakaoTalkId(), request.position(), request.university(),
             request.department(), request.studentYear(), request.bio()
         );

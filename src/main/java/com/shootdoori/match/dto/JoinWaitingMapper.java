@@ -15,7 +15,8 @@ public class JoinWaitingMapper {
             joinWaiting.getStatus().getDisplayName(),
             joinWaiting.getDecisionReason(),
             joinWaiting.getDecidedBy() != null ? joinWaiting.getDecidedBy().getName() : null,
-            joinWaiting.getDecidedAt()
+            joinWaiting.getDecidedAt(),
+            joinWaiting.isMercenary()
         );
     }
 }

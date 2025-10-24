@@ -16,6 +16,7 @@ import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.repository.TeamRepository;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -51,7 +52,7 @@ public class TeamMemberService {
             new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
 
         if (!team.getCaptain().getId().equals(captainId)) {
-            throw new NoPermissionException();
+            throw new NoPermissionException(ErrorCode.CAPTAIN_ONLY_OPERATION);
         }
 
         User user = profileRepository.findById(userId).orElseThrow(
@@ -98,6 +99,11 @@ public class TeamMemberService {
         return teamMemberPage.map(teamMemberMapper::toTeamMemberResponseDto);
     }
 
+    @Transactional(readOnly = true)
+    public TeamMember findByUserIdForEntity(Long userId) {
+        return teamMemberRepository.findByUser_Id(userId).orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
+    }
+
     public TeamMemberResponseDto update(Long teamId, Long targetUserId,
         UpdateTeamMemberRequestDto requestDto, Long loginUserId) {
 
@@ -117,7 +123,7 @@ public class TeamMemberService {
         }
 
         if (!actor.getRole().canMakeJoinDecision()) {
-            throw new NoPermissionException();
+            throw new NoPermissionException(ErrorCode.INSUFFICIENT_ROLE_FOR_ROLE_CHANGE);
         }
 
         targetMember.changeRole(team, TeamMemberRole.fromDisplayName(requestDto.role()));
@@ -135,7 +141,7 @@ public class TeamMemberService {
             .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
         if (loginMember.isCaptain()) {
-            throw new NoPermissionException();
+            throw new NoPermissionException(ErrorCode.LEADER_CANNOT_LEAVE);
         }
 
         team.removeMember(loginMember);
@@ -155,7 +161,7 @@ public class TeamMemberService {
             .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
         if (!loginMember.getRole().canKick(targetMember.getRole())) {
-            throw new NoPermissionException();
+            throw new NoPermissionException(ErrorCode.INSUFFICIENT_ROLE_FOR_KICK);
         }
 
         team.removeMember(targetMember);
@@ -164,11 +170,46 @@ public class TeamMemberService {
 
     public TeamMemberResponseDto delegateLeadership(Long teamId, Long currentUserId,
         Long targetMemberId) {
+        List<TeamMember> members = prepareDelegationMembers(teamId, currentUserId, targetMemberId);
+
+        TeamMember currentMember = members.get(0);
+        TeamMember targetMember = members.get(1);
+
+        currentMember.delegateLeadership(targetMember);
+
+        return teamMemberMapper.toTeamMemberResponseDto(targetMember);
+    }
+
+    public TeamMemberResponseDto delegateViceLeadership(Long teamId, Long currentUserId,
+        Long targetMemberId) {
+        List<TeamMember> members = prepareDelegationMembers(teamId, currentUserId, targetMemberId);
+
+        TeamMember currentMember = members.get(0);
+        TeamMember targetMember = members.get(1);
+
+        currentMember.delegateViceLeadership(targetMember);
+
+        return teamMemberMapper.toTeamMemberResponseDto(targetMember);
+    }
+
+    public void ensureNotMemberOfAnyTeam(Long userId) {
+        if (teamMemberRepository.existsByUser_Id(userId)) {
+            throw new DuplicatedException(ErrorCode.ALREADY_OTHER_TEAM_MEMBER);
+        }
+    }
+
+    private boolean isForbiddenSelfRoleChange(Long targetUserId, Long loginUserId,
+        TeamMember actor) {
+        return loginUserId.equals(targetUserId) && (actor.isCaptain() || actor.isViceCaptain());
+    }
+
+    private List<TeamMember> prepareDelegationMembers(Long teamId, Long currentUserId,
+        Long targetMemberId) {
         Team team = teamRepository.findById(teamId).orElseThrow(() ->
             new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
 
         TeamMember currentMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId,
-                currentUserId)
+            currentUserId)
             .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
 
         TeamMember targetMember = teamMemberRepository.findById(targetMemberId)
@@ -178,23 +219,6 @@ public class TeamMemberService {
             throw new DifferentException(ErrorCode.DIFFERENT_TEAM_DELEGATION_NOT_ALLOWED);
         }
 
-        currentMember.delegateLeadership(targetMember);
-
-        return teamMemberMapper.toTeamMemberResponseDto(targetMember);
-    }
-
-    public TeamMemberResponseDto delegateViceLeadership(Long teamId, Long currentUserId,
-        Long targetMemberId) {
-        // TODO: 부회장 위임 로직 구현 필요 (권한/자기위임/같은 팀 검증 후 역할 변경)
-        throw new NoPermissionException();
-    }
-
-    private boolean isForbiddenSelfRoleChange(Long targetUserId, Long loginUserId,
-        TeamMember actor) {
-        return loginUserId.equals(targetUserId) && (actor.isCaptain() || actor.isViceCaptain());
-    }
-
-    private boolean isEqualsCaptainId(Team team, Long loginUserId) {
-        return team.getCaptain().getId().equals(loginUserId);
+        return List.of(currentMember, targetMember);
     }
 }

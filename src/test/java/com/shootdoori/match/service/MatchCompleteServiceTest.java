@@ -60,7 +60,6 @@ class MatchCompleteServiceTest {
         team1Captain = profileRepository.save(User.create(
             "팀1 리더",
             "프로",
-            "team1@naver.com",
             "team1@kangwon.ac.kr",
             "12345678",
             "010-9999-9999",
@@ -74,7 +73,6 @@ class MatchCompleteServiceTest {
         team2Captain = profileRepository.save(User.create(
             "팀2 리더",
             "프로",
-            "team2@naver.com",
             "team2@kangwon.ac.kr",
             "12345678",
             "010-9999-9990",
@@ -129,9 +127,9 @@ class MatchCompleteServiceTest {
 
     @Test
     @DisplayName("내 팀이 team1일 때 상대팀(team2) 정보가 올바르게 조회된다")
-    void getEnemyTeam_whenMyTeamIsTeam1_returnsTeam2() {
+    void findEnemyTeam_whenMyTeamIsTeam1_returnsTeam2() {
         // when
-        EnemyTeamResponseDto response = matchCompleteService.getEnemyTeam(team1Captain.getId(), savedMatch.getMatchId());
+        EnemyTeamResponseDto response = matchCompleteService.findEnemyTeam(team1Captain.getId(), savedMatch.getMatchId());
 
         // then
         assertThat(response).isNotNull();
@@ -145,9 +143,9 @@ class MatchCompleteServiceTest {
 
     @Test
     @DisplayName("내 팀이 team2일 때 상대팀(team1) 정보가 올바르게 조회된다")
-    void getEnemyTeam_whenMyTeamIsTeam2_returnsTeam1() {
+    void findEnemyTeam_whenMyTeamIsTeam2_returnsTeam1() {
         // when
-        EnemyTeamResponseDto response = matchCompleteService.getEnemyTeam(team2Captain.getId(), savedMatch.getMatchId());
+        EnemyTeamResponseDto response = matchCompleteService.findEnemyTeam(team2Captain.getId(), savedMatch.getMatchId());
 
         // then
         assertThat(response).isNotNull();
@@ -161,10 +159,10 @@ class MatchCompleteServiceTest {
 
     @Test
     @DisplayName("존재하지 않는 매치 ID로 조회 시 NotFoundException 발생")
-    void getEnemyTeam_matchNotFound_throwsException() {
+    void findEnemyTeam_matchNotFound_throwsException() {
         // when
         Throwable thrown = catchThrowable(() ->
-            matchCompleteService.getEnemyTeam(team1Captain.getId(), NON_EXIST_MATCH_ID)
+            matchCompleteService.findEnemyTeam(team1Captain.getId(), NON_EXIST_MATCH_ID)
         );
 
         // then

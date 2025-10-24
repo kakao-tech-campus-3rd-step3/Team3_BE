@@ -17,6 +17,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -38,9 +39,7 @@ public class ProfileService {
     }
 
     public ProfileResponse createProfile(ProfileCreateRequest createRequest) {
-        if (profileRepository.existsByEmailOrUniversityEmail(
-            createRequest.email(), createRequest.universityEmail())
-        ) {
+        if (profileRepository.existsByEmail(createRequest.email())) {
             throw new DuplicatedException(ErrorCode.DUPLICATED_USER);
         }
 
@@ -50,7 +49,6 @@ public class ProfileService {
             createRequest.name(),
             createRequest.skillLevel(),
             createRequest.email(),
-            createRequest.universityEmail(),
             encodePassword,
             createRequest.kakaoTalkId(),
             createRequest.position(),
@@ -65,6 +63,20 @@ public class ProfileService {
     }
 
     @Transactional(readOnly = true)
+    public List<ProfileResponse> getProfilesWithDeleted() {
+        List<User> users = profileRepository.findAllIncludingDeleted();
+
+        return users.stream()
+            .map(user -> {
+                Long teamId = teamMemberRepository.findByUser_Id(user.getId())
+                    .map(teamMember -> teamMember.getTeam().getTeamId())
+                    .orElse(null);
+                return profileMapper.toProfileResponse(user, teamId);
+            })
+            .toList();
+    }
+
+    @Transactional(readOnly = true)
     public ProfileResponse findProfileById(Long id) {
         User profile = profileRepository.findById(id)
             .orElseThrow(() -> new NotFoundException(ErrorCode.PROFILE_NOT_FOUND));
@@ -74,6 +86,11 @@ public class ProfileService {
             .orElse(null);
 
         return profileMapper.toProfileResponse(profile, teamId);
+    }
+
+    @Transactional(readOnly = true)
+    public User findByIdForEntity(Long id) {
+        return profileRepository.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.PROFILE_NOT_FOUND));
     }
 
     @Transactional
@@ -104,8 +121,8 @@ public class ProfileService {
                 throw new LeaderCannotLeaveTeamException(ErrorCode.LEADER_CANNOT_LEAVE_TEAM);
             }
         });
-        user.requestDeletion();
 
+        user.changeStatusDeleted();
         refreshTokenRepository.deleteAllByUserId(id);
     }
 }

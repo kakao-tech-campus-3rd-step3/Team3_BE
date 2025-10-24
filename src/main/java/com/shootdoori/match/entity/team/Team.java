@@ -1,10 +1,11 @@
 package com.shootdoori.match.entity.team;
 
-import com.shootdoori.match.entity.common.DateEntity;
+import com.shootdoori.match.entity.common.SoftDeleteTeamEntity;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.DifferentException;
 import com.shootdoori.match.exception.common.DuplicatedException;
 import com.shootdoori.match.exception.common.ErrorCode;
+import com.shootdoori.match.exception.common.NoPermissionException;
 import com.shootdoori.match.exception.domain.team.LastTeamMemberRemovalNotAllowedException;
 import com.shootdoori.match.exception.domain.team.TeamCapacityExceededException;
 import com.shootdoori.match.exception.domain.team.TeamFullException;
@@ -27,13 +28,15 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.SQLRestriction;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
 @Table(name = "team")
-public class Team extends DateEntity {
+@SQLRestriction("status = 'ACTIVE'")
+public class Team extends SoftDeleteTeamEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -180,6 +183,26 @@ public class Team extends DateEntity {
             .anyMatch(TeamMember::isViceCaptain);
     }
 
+    public void delete(Long userId) {
+        if (!Objects.equals(getCaptain().getId(), userId)) {
+            throw new NoPermissionException(ErrorCode.CAPTAIN_ONLY_OPERATION);
+        }
+
+        members.clear();
+        memberCount = MemberCount.of(0);
+        
+        changeStatusDeleted();
+    }
+
+    public void restore(Long userId) {
+        if (!Objects.equals(getCaptain().getId(), userId)) {
+            throw new NoPermissionException(ErrorCode.CAPTAIN_ONLY_OPERATION);
+        }
+        
+        recruitMember(captain, TeamMemberRole.LEADER);
+        changeStatusActive();
+    }
+    
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

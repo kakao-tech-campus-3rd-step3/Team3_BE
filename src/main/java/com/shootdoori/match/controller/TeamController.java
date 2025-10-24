@@ -46,10 +46,11 @@ public class TeamController {
     public ResponseEntity<Page<TeamDetailResponseDto>> findAllByUniversity(
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size,
-        @RequestParam String university
+        @RequestParam String university,
+        @RequestParam(defaultValue = "false") boolean includeDeleted
     ) {
 
-        return new ResponseEntity<>(teamService.findAllByUniversity(page, size, university),
+        return new ResponseEntity<>(teamService.findAllByUniversity(page, size, university, includeDeleted),
             HttpStatus.OK);
     }
 
@@ -65,9 +66,16 @@ public class TeamController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id,
-                                       @LoginUser Long userId) {
+        @LoginUser Long userId) {
         teamService.delete(id, userId);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+    @PostMapping("/{id}")
+    public ResponseEntity<TeamDetailResponseDto> restore(@PathVariable Long id,
+        @LoginUser Long userId) {
+
+        return new ResponseEntity<>(teamService.restore(id, userId), HttpStatus.OK);
     }
 }

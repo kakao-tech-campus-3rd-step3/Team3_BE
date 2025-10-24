@@ -10,4 +10,14 @@ public class MainController {
     public String showMainPage() {
         return "main";
     }
+
+    @GetMapping("/login")
+    public String showLoginPage() {
+        return "login";
+    }
+
+    @GetMapping("/delete")
+    public String showDeletePage() {
+        return "delete";
+    }
 }

@@ -1,18 +1,15 @@
 package com.shootdoori.match.auth;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shootdoori.match.dto.AuthToken;
-import com.shootdoori.match.dto.LoginRequest;
-import com.shootdoori.match.dto.ProfileCreateRequest;
+import com.shootdoori.match.dto.*;
+import com.shootdoori.match.entity.common.DeviceType;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.entity.user.UserStatus;
-import com.shootdoori.match.dto.TokenRefreshRequest;
-import jakarta.persistence.EntityManager;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.RefreshTokenRepository;
 import com.shootdoori.match.service.AuthService;
 import com.shootdoori.match.util.JwtUtil;
-import jakarta.servlet.http.Cookie;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -21,15 +18,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -42,6 +39,8 @@ class AuthTest {
     @Autowired private RefreshTokenRepository refreshTokenRepository;
     @Autowired private ProfileRepository profileRepository;
     @Autowired private JwtUtil jwtUtil;
+
+    private final ClientInfo DEFAULT_CLIENT_INFO = new ClientInfo("JUnit-Test-Agent", DeviceType.ANDROID);
 
     private String stripBearer(String token) {
         return token != null && token.startsWith("Bearer ") ? token.substring(7) : token;
@@ -76,7 +75,7 @@ class AuthTest {
         void registerFailByDuplicateEmail() throws Exception {
             authService.register(
                 AuthFixtures.createProfileRequest(),
-                new MockHttpServletRequest()
+                DEFAULT_CLIENT_INFO
             );
             ProfileCreateRequest duplicateRequest = AuthFixtures.createProfileRequest();
 
@@ -98,7 +97,7 @@ class AuthTest {
             profileRepository.deleteAll();
             authService.register(
                 AuthFixtures.createProfileRequest(),
-                new MockHttpServletRequest()
+                DEFAULT_CLIENT_INFO
             );
         }
 
@@ -119,7 +118,7 @@ class AuthTest {
         @DisplayName("실패: 존재하지 않는 이메일로 로그인 시 401 Unauthorized 에러가 발생한다")
         void loginFailByNonExistentEmail() throws Exception {
             LoginRequest request = new LoginRequest(
-                "nonexistent@test.com",
+                "nonexistent@test.ac.kr",
                 AuthFixtures.USER_PASSWORD
             );
 
@@ -142,6 +141,22 @@ class AuthTest {
                     .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isUnauthorized());
         }
+
+        @Test
+        @DisplayName("실패: 이메일 형식이 잘못된 경우 400 Bad Request 에러가 발생한다")
+        void loginFailByInvalidEmailFormat() throws Exception {
+            // 이메일 형식이 잘못된 경우 (학교 이메일 아님)
+            LoginRequest request = new LoginRequest(
+                "invalid_email@gmail.com",
+                AuthFixtures.USER_PASSWORD
+            );
+
+            mockMvc.perform(post("/api/auth/login")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(objectMapper.writeValueAsString(request)))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+        }
     }
 
     @Nested
@@ -155,14 +170,14 @@ class AuthTest {
             // 깨끗한 상태로 시작
             refreshTokenRepository.deleteAll();
             profileRepository.deleteAll();
-            // 계정 생성 후 실제 로그인 플로우로 토큰 발급
+
             authService.register(
                 AuthFixtures.createProfileRequest(),
-                new MockHttpServletRequest()
+                DEFAULT_CLIENT_INFO
             );
             initialTokens = authService.login(
                 AuthFixtures.createLoginRequest(),
-                new MockHttpServletRequest()
+                DEFAULT_CLIENT_INFO
             );
         }
 
@@ -188,7 +203,7 @@ class AuthTest {
         void logoutAllSuccess() throws Exception {
             AuthToken otherDeviceLoginTokens = authService.login(
                 AuthFixtures.createLoginRequest(),
-                new MockHttpServletRequest()
+                DEFAULT_CLIENT_INFO
             );
 
             String accessToken = otherDeviceLoginTokens.accessToken();
@@ -229,7 +244,7 @@ class AuthTest {
         void tokenRefreshAndRotationSuccess() throws Exception {
             AuthToken initialTokens = authService.register(
                 AuthFixtures.createProfileRequest(),
-                new MockHttpServletRequest()
+                DEFAULT_CLIENT_INFO
             );
 
             String initialRefresh = initialTokens.refreshToken();
@@ -250,6 +265,7 @@ class AuthTest {
 
     @Nested
     @DisplayName("회원탈퇴 (/api/profiles/me)")
+    @Transactional
     class DeleteAccountTests {
 
         private String accessToken;
@@ -262,27 +278,30 @@ class AuthTest {
 
             authService.register(
                 AuthFixtures.createProfileRequest(),
-                new MockHttpServletRequest()
+                DEFAULT_CLIENT_INFO
             );
             AuthToken tokens = authService.login(
                 AuthFixtures.createLoginRequest(),
-                new MockHttpServletRequest()
+                DEFAULT_CLIENT_INFO
             );
             accessToken = tokens.accessToken();
             userId = Long.parseLong(jwtUtil.getUserId(stripBearer(accessToken)));
         }
 
         @Test
-        @DisplayName("성공: 로그인된 사용자가 정상적으로 회원 탈퇴를 요청한다")
+        @DisplayName("성공: 로그인된 사용자가 정상적으로 회원 탈퇴를 요청하고, 상태가 DELETED로 변경된다")
         void deleteAccountSuccess() throws Exception {
             mockMvc.perform(delete("/api/profiles/me")
                     .header("Authorization", "Bearer " + accessToken))
                 .andDo(print())
                 .andExpect(status().isNoContent());
 
-            User user = profileRepository.findById(userId).orElseThrow();
-            assertThat(user.getUserStatus()).isEqualTo(UserStatus.PENDING_DELETION);
-            assertThat(refreshTokenRepository.countByUserId(userId)).isZero();
+            entityManager.flush();
+            entityManager.clear();
+
+            User userAfterDelete = profileRepository.findByIdIncludingDeleted(userId)
+                .orElseThrow();
+            assertThat(userAfterDelete.getStatus()).isEqualTo(UserStatus.DELETED);
         }
 
         @Test
@@ -294,13 +313,12 @@ class AuthTest {
     }
 
     private static class AuthFixtures {
-        public static final String USER_EMAIL = "test@test.com";
-        public static final String UNIVERSITY_EMAIL = "university@test.ac.kr";
+        public static final String USER_EMAIL = "university@test.ac.kr";
         public static final String USER_PASSWORD = "password25~!";
 
         public static ProfileCreateRequest createProfileRequest() {
             return new ProfileCreateRequest(
-                "tester", "아마추어", USER_EMAIL, UNIVERSITY_EMAIL, USER_PASSWORD,
+                "tester", "아마추어", USER_EMAIL, USER_PASSWORD,
                 "imkim250", "공격수", "강원대학교", "컴퓨터공학과", "25", "안녕하세요"
             );
         }

@@ -20,9 +20,9 @@ public class MatchCompleteController {
     }
 
     @GetMapping("/{matchId}/enemyTeam")
-    public ResponseEntity<EnemyTeamResponseDto> getEnemyTeam(@LoginUser Long loginUserId,
+    public ResponseEntity<EnemyTeamResponseDto> findEnemyTeam(@LoginUser Long loginUserId,
                                                              @PathVariable Long matchId) {
-        EnemyTeamResponseDto response = matchCompleteService.getEnemyTeam(loginUserId, matchId);
+        EnemyTeamResponseDto response = matchCompleteService.findEnemyTeam(loginUserId, matchId);
         return ResponseEntity.ok(response);
     }
 }

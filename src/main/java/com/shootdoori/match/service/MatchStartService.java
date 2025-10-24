@@ -3,12 +3,8 @@ package com.shootdoori.match.service;
 import com.shootdoori.match.dto.MatchSummaryProjection;
 import com.shootdoori.match.dto.RecentMatchesResponseDto;
 import com.shootdoori.match.entity.match.MatchStatus;
-import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMember;
-import com.shootdoori.match.exception.common.ErrorCode;
-import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.MatchRepository;
-import com.shootdoori.match.repository.TeamMemberRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
 import org.springframework.stereotype.Service;
@@ -22,13 +18,12 @@ import java.util.List;
 public class MatchStartService {
 
     private final MatchRepository matchRepository;
-
-    private final TeamMemberRepository teamMemberRepository;
+    private final TeamMemberService teamMemberService;
 
     public MatchStartService(MatchRepository matchRepository,
-                             TeamMemberRepository teamMemberRepository) {
+                             TeamMemberService teamMemberService) {
         this.matchRepository = matchRepository;
-        this.teamMemberRepository = teamMemberRepository;
+        this.teamMemberService = teamMemberService;
     }
 
     @Transactional(readOnly = true)
@@ -39,22 +34,22 @@ public class MatchStartService {
         LocalTime cursorTime,
         Pageable pageable
     ) {
-        TeamMember teamMember = teamMemberRepository.findByUser_Id(loginUserId)
-            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
+        TeamMember teamMember = teamMemberService.findByUserIdForEntity(loginUserId);
 
-        Team team = teamMember.getTeam();
-
-        Slice<MatchSummaryProjection> slice = isFirstPageRequest(cursorDate, cursorTime)
-            ? matchRepository.findFirstPageMatchSummariesByTeamIdAndStatus(team.getTeamId(), status,
-            pageable)
-            : matchRepository.findMatchSummariesByTeamIdAndStatus(team.getTeamId(), status,
-            cursorDate, cursorTime, pageable);
+        Slice<MatchSummaryProjection> slice = matchRepository.findMatchSummariesByTeamIdAndStatus(
+            teamMember.getTeamId(),
+            status,
+            cursorDate,
+            resolveCursorTime(cursorDate, cursorTime),
+            pageable
+        );
 
         return slice.getContent().stream()
             .map(RecentMatchesResponseDto::from)
             .toList();
     }
-    private boolean isFirstPageRequest(LocalDate cursorDate, LocalTime cursorTime) {
-        return cursorDate == null && cursorTime == null;
+
+    private static LocalTime resolveCursorTime(LocalDate cursorDate, LocalTime cursorTime) {
+        return (cursorDate != null && cursorTime == null) ? LocalTime.MAX : cursorTime;
     }
 }

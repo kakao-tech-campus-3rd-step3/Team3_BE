@@ -7,6 +7,7 @@ import com.shootdoori.match.entity.mercenary.MercenaryRecruitment;
 import com.shootdoori.match.entity.mercenary.MercenaryPosition;
 import com.shootdoori.match.entity.mercenary.MercenaryRecruitmentSkillLevel;
 import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.exception.common.NoPermissionException;
 import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.repository.MercenaryRecruitmentRepository;
@@ -27,11 +28,14 @@ public class MercenaryRecruitmentService {
         this.teamRepository = teamRepository;
     }
 
-    public RecruitmentResponse create(RecruitmentCreateRequest request) {
-        // TODO: 요청을 보낸 사용자가 이 게시글을 생성할 권한이 있는지 확인하는 로직 추가
+    public RecruitmentResponse create(RecruitmentCreateRequest request, Long loginUserId) {
 
         Team team = teamRepository.findById(request.teamId()).orElseThrow(
             () -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(request.teamId())));
+
+        if(!team.getCaptain().getId().equals(loginUserId)) {
+            throw new NoPermissionException();
+        }
 
         MercenaryPosition position = MercenaryPosition.fromDisplayName(request.position());
         MercenaryRecruitmentSkillLevel skillLevel = MercenaryRecruitmentSkillLevel.fromDisplayName(request.skillLevel());
@@ -57,11 +61,19 @@ public class MercenaryRecruitmentService {
         return new RecruitmentResponse(recruitment);
     }
 
-    public RecruitmentResponse update(Long id, RecruitmentUpdateRequest updateRequest) {
-        // TODO: 요청을 보낸 사용자가 이 게시글을 수정할 권한이 있는지 확인하는 로직 추가
+    @Transactional(readOnly = true)
+    public MercenaryRecruitment findByIdForEntity(Long id) {
+        return recruitmentRepository.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.RECRUITMENT_NOT_FOUND));
+    }
+
+    public RecruitmentResponse update(Long id, RecruitmentUpdateRequest updateRequest, Long loginUserId) {
 
         MercenaryRecruitment recruitment = recruitmentRepository.findById(id)
             .orElseThrow(() -> new NotFoundException(ErrorCode.RECRUITMENT_NOT_FOUND));
+
+        if(!recruitment.getTeam().getCaptain().getId().equals(loginUserId)) {
+            throw new NoPermissionException();
+        }
 
         MercenaryPosition position = MercenaryPosition.fromDisplayName(updateRequest.position());
         MercenaryRecruitmentSkillLevel skillLevel = MercenaryRecruitmentSkillLevel.fromDisplayName(updateRequest.skillLevel());
@@ -72,11 +84,13 @@ public class MercenaryRecruitmentService {
         return new RecruitmentResponse(recruitment);
     }
 
-    public void delete(Long id) {
-        // TODO: 요청을 보낸 사용자가 이 게시글을 삭제할 권한이 있는지 확인하는 로직 추가
+    public void delete(Long id, Long loginUserId) {
 
-        recruitmentRepository.findById(id)
-            .orElseThrow(() -> new NotFoundException(ErrorCode.RECRUITMENT_NOT_FOUND));
+        MercenaryRecruitment recruitment = recruitmentRepository.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.RECRUITMENT_NOT_FOUND));
+
+        if(!recruitment.getTeam().getCaptain().getId().equals(loginUserId)) {
+            throw new NoPermissionException();
+        }
 
         recruitmentRepository.deleteById(id);
     }

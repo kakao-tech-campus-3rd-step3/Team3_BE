@@ -2,6 +2,8 @@ package com.shootdoori.match.service;
 
 import com.shootdoori.match.dto.VenueSearchResponseDto;
 import com.shootdoori.match.entity.venue.Venue;
+import com.shootdoori.match.exception.common.ErrorCode;
+import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.VenueRepository;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -29,5 +31,11 @@ public class VenueService {
             v.getFacilities(),
             v.getPricePerHour()
         ));
+    }
+
+    @Transactional(readOnly = true)
+    public Venue findByIdForEntity(Long id) {
+        return venueRepository.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.VENUE_NOT_FOUND,
+            String.valueOf(id)));
     }
 }

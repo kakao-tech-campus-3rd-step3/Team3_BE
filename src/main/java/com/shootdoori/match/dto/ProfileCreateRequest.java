@@ -15,18 +15,14 @@ public record ProfileCreateRequest(
 
     @NotBlank(message = "이메일은 필수 입력 값입니다.")
     @Email(message = "이메일 형식이 올바르지 않습니다.")
+    @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@([a-zA-Z0-9-]+\\.)*ac\\.kr$", message = "학교 이메일은 'ac.kr' 도메인이어야 합니다.")
     @Size(max = 255, message = "이메일 주소는 255자를 초과할 수 없습니다.")
     String email,
 
-    @NotBlank(message = "학교 이메일은 필수 입력 값입니다.")
-    @Email(message = "학교 이메일 형식이 올바르지 않습니다.")
-    @Pattern(regexp = "^[a-zA-Z0-9._%+-]+@([a-zA-Z0-9-]+\\.)*ac\\.kr$", message = "학교 이메일은 'ac.kr' 도메인이어야 합니다.")
-    @Size(max = 255, message = "학교 이메일 주소는 255자를 초과할 수 없습니다.")
-    String universityEmail,
-
-    @NotBlank @Size(min = 8, max = 20) @Pattern(
-        regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&])[A-Za-z\\d@$!%*#?&]{8,20}$",
-        message = "비밀번호는 8자 이상 20자 이하로 영문, 숫자, 특수문자를 포함해야 합니다."
+    @NotBlank @Size(min = 8, max = 20)
+    @Pattern(
+        regexp = "^(?=.*[A-Za-z])(?=.*\\d)(?=.*[@$!%*#?&~])[A-Za-z\\d@$!%*#?&~]{8,20}$",
+        message = "비밀번호는 8자 이상 20자 이하로 영문, 숫자, 특수문자(@,$,!,%,*,#,?,&,~)를 포함해야 합니다."
     ) String password,
     
     @NotBlank(message = "카카오톡 채널(친구추가) 아이디는 필수 입력 값입니다.")

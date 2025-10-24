@@ -1,6 +1,18 @@
 package com.shootdoori.match.service;
 
-import com.shootdoori.match.dto.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.catchThrowable;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.contains;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.then;
+
+import com.shootdoori.match.dto.MatchConfirmedResponseDto;
+import com.shootdoori.match.dto.MatchRequestHistoryResponseDto;
+import com.shootdoori.match.dto.MatchRequestRequestDto;
+import com.shootdoori.match.dto.MatchRequestResponseDto;
+import com.shootdoori.match.dto.MatchWaitingRequestDto;
+import com.shootdoori.match.dto.MatchWaitingResponseDto;
 import com.shootdoori.match.entity.match.Match;
 import com.shootdoori.match.entity.match.MatchStatus;
 import com.shootdoori.match.entity.match.request.MatchRequest;
@@ -8,13 +20,28 @@ import com.shootdoori.match.entity.match.request.MatchRequestStatus;
 import com.shootdoori.match.entity.match.waiting.MatchWaiting;
 import com.shootdoori.match.entity.match.waiting.MatchWaitingSkillLevel;
 import com.shootdoori.match.entity.match.waiting.MatchWaitingStatus;
-import com.shootdoori.match.entity.team.*;
+import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.team.TeamMember;
+import com.shootdoori.match.entity.team.TeamMemberRole;
+import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.entity.venue.Venue;
 import com.shootdoori.match.exception.common.DuplicatedException;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NotFoundException;
-import com.shootdoori.match.repository.*;
+import com.shootdoori.match.repository.MatchRepository;
+import com.shootdoori.match.repository.MatchRequestRepository;
+import com.shootdoori.match.repository.MatchWaitingRepository;
+import com.shootdoori.match.repository.ProfileRepository;
+import com.shootdoori.match.repository.TeamMemberRepository;
+import com.shootdoori.match.repository.TeamRepository;
+import com.shootdoori.match.repository.VenueRepository;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -26,16 +53,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.catchThrowable;
 
 @SpringBootTest
 @Transactional
@@ -65,6 +84,9 @@ class MatchRequestServiceTest {
     @Autowired
     private TeamMemberRepository teamMemberRepository;
 
+    @MockitoBean
+    private MailService mailService;
+
     private User requestTeamCaptain1;
     private User requestTeamCaptain2;
     private User targetTeamCaptain;
@@ -88,7 +110,6 @@ class MatchRequestServiceTest {
         User matchCreateTeamCaptain = User.create(
             "매치 생성 역할을 맡는 팀의 리더",
             "프로",
-            "swj@naver.com",
             "swj@kangwon.ac.kr",
             "12345678",
             "010-1234-5678",
@@ -103,7 +124,6 @@ class MatchRequestServiceTest {
         User matchRequestTeamCaptain1 = User.create(
             "매치 신청 역할을 맡는 팀의 리더 1",
             "프로",
-            "swj2@naver.com",
             "swj2@kangwon.ac.kr",
             "12345678",
             "010-1234-5679",
@@ -118,7 +138,6 @@ class MatchRequestServiceTest {
         User matchRequestTeamCaptain2 = User.create(
             "매치 신청 역할을 맡는 팀의 리더 2",
             "프로",
-            "swj3@naver.com",
             "swj3@kangwon.ac.kr",
             "12345678",
             "010-1234-5680",
@@ -234,7 +253,7 @@ class MatchRequestServiceTest {
     // ------------------- requestToMatch 테스트 -------------------
 
     @Test
-    @DisplayName("매치 요청 생성 성공(PENDING 상태)")
+    @DisplayName("매치 요청 생성 성공(PENDING 상태) 및 메일 발송 확인")
     void requestToMatch_success() {
 
         MatchRequestRequestDto dto = new MatchRequestRequestDto(
@@ -252,6 +271,12 @@ class MatchRequestServiceTest {
         Optional<MatchRequest> found = matchRequestRepository.findById(response.requestId());
         assertThat(found).isPresent();
         assertThat(found.get().getStatus()).isEqualTo(MatchRequestStatus.PENDING);
+
+        then(mailService).should().sendEmail(
+            eq(targetTeamCaptain.getEmail()),
+            contains("신청"),
+            anyString()
+        );
     }
 
     @Test
@@ -396,7 +421,7 @@ class MatchRequestServiceTest {
     // ------------------- acceptRequest 테스트 -------------------
 
     @Test
-    @DisplayName("acceptRequest 정상 동작 테스트 - team1 수락 시 ACCEPTED, team2 자동 REJECTED, Match 생성 및 상태 MATCHED, MatchWaiting의 경우도 MATCHED")
+    @DisplayName("acceptRequest 정상 동작 테스트 - team1 수락 시 ACCEPTED, team2 자동 REJECTED, Match 생성 및 상태 MATCHED, MatchWaiting의 경우도 MATCHED, 및 메일 발송")
     void acceptRequest_success() {
         // given: 두 팀이 waiting에 요청
         MatchRequestResponseDto savedRequest1 = matchRequestService.requestToMatch(requestTeamCaptain1.getId(), savedWaiting.getWaitingId(),
@@ -407,6 +432,17 @@ class MatchRequestServiceTest {
 
         // when: team1 요청 수락
         MatchConfirmedResponseDto confirmed = matchRequestService.acceptRequest(targetTeamCaptain.getId(), savedRequest1.requestId());
+
+        then(mailService).should().sendEmail(
+            eq(requestTeamCaptain1.getEmail()),
+            contains("수락"),
+            anyString()
+        );
+        then(mailService).should().sendEmail(
+            eq(requestTeamCaptain2.getEmail()),
+            contains("거절"),
+            anyString()
+        );
 
         // then: DB에서 상태 확인
         MatchRequest updatedRequest1 = matchRequestRepository.findById(savedRequest1.requestId()).orElseThrow();
@@ -424,16 +460,16 @@ class MatchRequestServiceTest {
         assertThat(updatedWaiting.getMatchWaitingStatus()).isEqualTo(MatchWaitingStatus.MATCHED);
 
         // 4) Match 생성 확인
-        assertThat(match.getTeam1().getTeamId()).isEqualTo(targetTeam.getTeamId());
-        assertThat(match.getTeam2().getTeamId()).isEqualTo(requestTeam1.getTeamId());
-        assertThat(match.getStatus()).isEqualTo(MatchStatus.FINISHED); // FE 연동 위한 잠정 변경 MATCHED->FINISHED
+        assertThat(match.getMatchCreateTeam().getTeamId()).isEqualTo(targetTeam.getTeamId());
+        assertThat(match.getMatchRequestTeam().getTeamId()).isEqualTo(requestTeam1.getTeamId());
+        assertThat(match.getStatus()).isEqualTo(MatchStatus.MATCHED); 
         assertThat(match.getMatchDate()).isEqualTo(savedWaiting.getPreferredDate());
         assertThat(match.getMatchTime()).isEqualTo(savedWaiting.getPreferredTimeStart());
         assertThat(match.getVenue().getVenueId()).isEqualTo(savedWaiting.getPreferredVenue().getVenueId());
     }
 
     @Test
-    @DisplayName("MatchRequest 거절 시 상태가 REJECTED로 변경")
+    @DisplayName("MatchRequest 거절 시 상태가 REJECTED로 변경 및 메일 발송")
     void rejectRequest_success() {
         MatchRequestRequestDto dto = new MatchRequestRequestDto(REQUEST_MESSAGE);
         MatchRequestResponseDto savedRequest = matchRequestService.requestToMatch(requestTeamCaptain1.getId(), savedWaiting.getWaitingId(), dto);
@@ -447,6 +483,12 @@ class MatchRequestServiceTest {
         Optional<MatchRequest> found = matchRequestRepository.findById(savedRequest.requestId());
         assertThat(found).isPresent();
         assertThat(found.get().getStatus()).isEqualTo(MatchRequestStatus.REJECTED);
+
+        then(mailService).should().sendEmail(
+            eq(requestTeamCaptain1.getEmail()),
+            contains("거절"),
+            anyString()
+        );
     }
 
     // ------------------- getSentRequestsByMyTeam 테스트 -------------------

@@ -1,8 +1,10 @@
 package com.shootdoori.match.entity.match.waiting;
 
 import com.shootdoori.match.entity.common.DateEntity;
+import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.venue.Venue;
 import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.value.TeamName;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -149,6 +151,22 @@ public class MatchWaiting extends DateEntity {
 
     public void cancelMatchWaiting() {
         this.status = MatchWaitingStatus.CANCELED;
+    }
+
+    public boolean belongTo(TeamMember teamMember){
+        return this.team.equals(teamMember.getTeam());
+    }
+
+    public Long getTeamId(){
+        return this.team.getTeamId();
+    }
+
+    public TeamName getTeamName(){
+        return this.team.getTeamName();
+    }
+
+    public Long getVenueId(){
+        return this.preferredVenue.getVenueId();
     }
 
 }

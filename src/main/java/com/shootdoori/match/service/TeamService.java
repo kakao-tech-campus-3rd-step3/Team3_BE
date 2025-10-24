@@ -5,6 +5,7 @@ import com.shootdoori.match.dto.TeamDetailResponseDto;
 import com.shootdoori.match.dto.TeamMapper;
 import com.shootdoori.match.dto.TeamRequestDto;
 import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.team.TeamMemberRole;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.ErrorCode;
@@ -13,6 +14,7 @@ import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamRepository;
 import com.shootdoori.match.value.UniversityName;
+import java.util.List;
 import java.util.Objects;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,21 +29,22 @@ public class TeamService {
 
     private final ProfileRepository profileRepository;
     private final TeamRepository teamRepository;
+    private final TeamMemberService teamMemberService;
     private final TeamMapper teamMapper;
     private final MatchRequestService matchRequestService;
     private final MatchCreateService matchCreateService;
-    private final MatchCompleteService matchCompleteService;
 
 
     public TeamService(ProfileRepository profileRepository, TeamRepository teamRepository,
-        TeamMapper teamMapper, MatchRequestService matchRequestService,
-        MatchCreateService matchCreateService, MatchCompleteService matchCompleteService) {
+        TeamMemberService teamMemberService, TeamMapper teamMapper,
+        MatchRequestService matchRequestService,
+        MatchCreateService matchCreateService) {
         this.profileRepository = profileRepository;
         this.teamRepository = teamRepository;
+        this.teamMemberService = teamMemberService;
         this.teamMapper = teamMapper;
         this.matchRequestService = matchRequestService;
         this.matchCreateService = matchCreateService;
-        this.matchCompleteService = matchCompleteService;
     }
 
     public CreateTeamResponseDto create(TeamRequestDto requestDto, Long userId) {
@@ -63,11 +66,18 @@ public class TeamService {
     }
 
     @Transactional(readOnly = true)
-    public Page<TeamDetailResponseDto> findAllByUniversity(int page, int size, String university) {
-        Pageable pageable = PageRequest.of(page, size, Sort.by("teamName").ascending());
+    public Team findByIdForEntity(Long id) {
+        return teamRepository.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(id)));
+    }
 
-        UniversityName universityName = UniversityName.of(university);
-        Page<Team> teamPage = teamRepository.findAllByUniversity(universityName, pageable);
+    @Transactional(readOnly = true)
+    public Page<TeamDetailResponseDto> findAllByUniversity(int page, int size, String university, boolean includeDeleted) {
+        Pageable jpaPageable = PageRequest.of(page, size, Sort.by("teamName").ascending());
+        Pageable nativePageable = PageRequest.of(page, size, Sort.by("team_name").ascending());
+        
+        Page<Team> teamPage = includeDeleted 
+            ? teamRepository.findAllByUniversityIncludingDeleted(university, nativePageable)
+            : teamRepository.findAllByUniversity(UniversityName.of(university), jpaPageable);
 
         return teamPage.map(teamMapper::toTeamDetailResponse);
     }
@@ -76,9 +86,8 @@ public class TeamService {
         Team team = teamRepository.findById(id).orElseThrow(() ->
             new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(id)));
 
-        // 기존 팀장과 요청을 보낸 유저가 동일하지 않다면 권한 없음으로 거부
         if (!Objects.equals(team.getCaptain().getId(), userId)) {
-            throw new NoPermissionException();
+            throw new NoPermissionException(ErrorCode.CAPTAIN_ONLY_OPERATION);
         }
 
         team.changeTeamInfo(requestDto.name(), requestDto.university(),
@@ -88,17 +97,29 @@ public class TeamService {
     }
 
     public void delete(Long id, Long userId) {
-        Team team = teamRepository.findById(id).orElseThrow(() ->
+        Team team = teamRepository.findByIdWithMembers(id).orElseThrow(() ->
             new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(id)));
 
-        if (!Objects.equals(team.getCaptain().getId(), userId)) {
-            throw new NoPermissionException();
-        }
+        cancelAllMatchesByTeamId(id);
 
-        matchRequestService.deleteAllByTeamId(id);
-        matchCreateService.deleteAllByTeamId(id);
-        matchCompleteService.deleteAllByTeamId(id);
+        team.delete(userId);
+        teamRepository.save(team);
+    }
 
-        teamRepository.delete(team);
+    public TeamDetailResponseDto restore(Long id, Long userId) {
+        Team team = teamRepository.findByTeamIdIncludingDeleted(id).orElseThrow(() ->
+            new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(id)));
+
+        teamMemberService.ensureNotMemberOfAnyTeam(userId);
+
+        team.restore(userId);
+        teamRepository.save(team);
+
+        return teamMapper.toTeamDetailResponse(team);
+    }
+
+    private void cancelAllMatchesByTeamId(Long teamId) {
+        matchRequestService.cancelAllMatchesByTeamId(teamId);
+        matchCreateService.cancelAllMatchesByTeamId(teamId);
     }
 }

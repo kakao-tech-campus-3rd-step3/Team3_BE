@@ -1,17 +1,17 @@
 package com.shootdoori.match.entity.user;
 
-import com.shootdoori.match.entity.common.DateEntity;
+import com.shootdoori.match.entity.common.SoftDeleteUserEntity;
 import com.shootdoori.match.value.Password;
 import com.shootdoori.match.value.UniversityName;
 import jakarta.persistence.*;
-import org.springframework.data.annotation.LastModifiedDate;
+import org.hibernate.annotations.SQLRestriction;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
-public class User extends DateEntity {
+@SQLRestriction("status = 'ACTIVE'")
+public class User extends SoftDeleteUserEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,11 +24,8 @@ public class User extends DateEntity {
     @Column(name = "SKILL_LEVEL", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '아마추어'")
     private UserSkillLevel skillLevel = UserSkillLevel.AMATEUR;
 
-    @Column(nullable = false, unique = true, length = 255)
+    @Column(name="email", nullable = false, unique = true, length = 255)
     private String email;
-
-    @Column(name = "university_email", nullable = false, unique = true, length = 255)
-    private String universityEmail;
 
     @Embedded
     @AttributeOverride(name = "password", column = @Column(name = "PASSWORD", nullable = false, length = 255))
@@ -54,24 +51,16 @@ public class User extends DateEntity {
     @Column(name = "POSITION", nullable = false, length = 2)
     private UserPosition position;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private UserStatus status = UserStatus.ACTIVE;
-
-    @LastModifiedDate
-    private LocalDateTime statusChangedAt;
-
     protected User() {
 
     }
 
-    private User(String name, UserSkillLevel skillLevel, String email, String universityEmail, String password, String kakaoTalkId,
+    private User(String name, UserSkillLevel skillLevel, String email, String password, String kakaoTalkId,
         UserPosition position, String university, String department, String studentYear, String bio) {
-        validate(name, skillLevel.getDisplayName(), email, universityEmail, password, kakaoTalkId, position.getDisplayName(), university, department, studentYear, bio);
+        validate(name, skillLevel.getDisplayName(), email, password, kakaoTalkId, position.getDisplayName(), university, department, studentYear, bio);
         this.name = name;
         this.skillLevel = skillLevel;
         this.email = email;
-        this.universityEmail = universityEmail;
         this.password = Password.of(password);
         this.kakaoTalkId = kakaoTalkId;
         this.position = position;
@@ -81,20 +70,19 @@ public class User extends DateEntity {
         this.bio = bio;
     }
 
-    public static User create(String name, String skillLevelName, String email, String universityEmail, String encodedPassword, String kakaoTalkId,
+    public static User create(String name, String skillLevelName, String email, String encodedPassword, String kakaoTalkId,
                               String positionName, String university, String department, String studentYear, String bio) {
         UserPosition position = UserPosition.fromDisplayName(positionName);
         UserSkillLevel skillLevel = UserSkillLevel.fromDisplayName(skillLevelName);
-        return new User(name, skillLevel, email, universityEmail, encodedPassword, kakaoTalkId, position, university, department,
+        return new User(name, skillLevel, email, encodedPassword, kakaoTalkId, position, university, department,
             studentYear, bio);
     }
 
-    private void validate(String name, String skillLevel, String email, String universityEmail, String password, String kakaoTalkId,
+    private void validate(String name, String skillLevel, String email, String password, String kakaoTalkId,
         String position, String university, String department, String studentYear, String bio) {
         validateName(name);
         validateSkillLevel(skillLevel);
         validateEmail(email);
-        validateUniversityEmail(universityEmail);
         validatePassword(password);
         validateKakaoTalkId(kakaoTalkId);
         validatePosition(position);
@@ -125,27 +113,15 @@ public class User extends DateEntity {
         }
     }
 
-    private void validateEmail(String email) {
-        if (email == null || email.isBlank()) {
+    private void validateEmail(String universityEmail) {
+        if (universityEmail == null || universityEmail.isBlank()) {
             throw new IllegalArgumentException("이메일은 필수 입력 값입니다.");
         }
-        if (email.length() > 255) {
+        if (universityEmail.length() > 255) {
             throw new IllegalArgumentException("이메일 주소는 255자를 초과할 수 없습니다.");
         }
-        if (!email.matches("^[\\w-.]+@([\\w-]+\\.)+[\\w-]{2,4}$")) {
-            throw new IllegalArgumentException("이메일 형식이 올바르지 않습니다.");
-        }
-    }
-
-    private void validateUniversityEmail(String universityEmail) {
-        if (universityEmail == null || universityEmail.isBlank()) {
-            throw new IllegalArgumentException("학교 이메일은 필수 입력 값입니다.");
-        }
-        if (universityEmail.length() > 255) {
-            throw new IllegalArgumentException("학교 이메일 주소는 255자를 초과할 수 없습니다.");
-        }
         if (!universityEmail.endsWith("ac.kr")) {
-            throw new IllegalArgumentException("학교 이메일은 'ac.kr' 도메인이어야 합니다.");
+            throw new IllegalArgumentException("이메일은 'ac.kr' 도메인이어야 합니다.");
         }
     }
 
@@ -225,10 +201,6 @@ public class User extends DateEntity {
         return this.email;
     }
 
-    public String getUniversityEmail() {
-        return this.universityEmail;
-    }
-
     public String getKakaoTalkId() {
         return this.kakaoTalkId;
     }
@@ -251,18 +223,6 @@ public class User extends DateEntity {
 
     public UserPosition getPosition() {
         return this.position;
-    }
-
-    public UserStatus getUserStatus() {
-        return status;
-    }
-
-    public void activate() {
-        this.status = UserStatus.ACTIVE;
-    }
-
-    public void requestDeletion() {
-        this.status = UserStatus.PENDING_DELETION;
     }
 
     public void update(String skillLevel, String position, String bio) {

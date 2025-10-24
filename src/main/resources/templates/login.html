@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>로그인 – 슛두리</title>
+  <meta name="description" content="슛두리 로그인 페이지" />
+  <meta name="theme-color" content="#2b7a4b" />
+  <style>
+    :root{
+      --bg:#0f1312; --bg-2:#0b0f0e; --card:#0f1713; --muted:#a3b6ac; --text:#e9f4ee;
+      --brand:#2b7a4b; --brand-2:#1f5a37; --brand-soft:rgba(43,122,75,.18);
+      --ring:rgba(43,122,75,.55); --shadow:rgba(0,0,0,.45);
+      --radius-lg:18px; --radius-md:14px; --radius-sm:10px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Pretendard, "Noto Sans KR", Arial, Apple SD Gothic Neo, sans-serif;
+      line-height:1.75; word-break:keep-all; text-rendering:optimizeLegibility;
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+      background:
+        radial-gradient(1200px 700px at 10% -10%, rgba(43,122,75,.22), transparent 60%),
+        radial-gradient(900px 600px at 95% 0%, rgba(0,200,150,.15), transparent 60%),
+        linear-gradient(180deg, var(--bg-2) 0%, var(--bg) 100%);
+      display:flex; align-items:center; justify-content:center; min-height:100vh;
+    }
+    
+    .login-container{
+      width:100%; max-width:400px; padding:0 20px;
+    }
+    
+    .login-card{
+      background:linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:var(--radius-md);
+      padding:32px;
+      box-shadow:0 20px 60px var(--shadow);
+    }
+    
+    .brand{
+      display:flex; align-items:center; justify-content:center; gap:12px; margin-bottom:32px;
+    }
+    
+    .brand img{width:40px; height:40px; object-fit:contain}
+    .brand b{font-size:24px; font-weight:800; letter-spacing:.2px}
+    
+    .form-group{
+      margin-bottom:20px;
+    }
+    
+    .form-group label{
+      display:block; margin-bottom:8px; font-weight:700; color:var(--text);
+    }
+    
+    .form-group input{
+      width:100%; padding:12px 16px; border-radius:var(--radius-sm);
+      border:1px solid rgba(255,255,255,.12); background:#0c110f;
+      color:var(--text); font-size:16px; transition:border-color .2s;
+    }
+    
+    .form-group input:focus{
+      outline:none; border-color:var(--brand); box-shadow:0 0 0 2px var(--ring);
+    }
+    
+    .btn{
+      width:100%; padding:14px; border:none; border-radius:999px;
+      font-weight:700; font-size:16px; cursor:pointer; transition:all .2s;
+      display:inline-flex; align-items:center; justify-content:center; gap:8px;
+    }
+    
+    .btn.primary{
+      background:var(--brand); color:#fff; box-shadow:0 10px 24px var(--shadow);
+    }
+    
+    .btn.primary:hover{background:var(--brand-2)}
+    .btn.primary:disabled{background:#4a5568; cursor:not-allowed; box-shadow:none}
+    
+    .btn.secondary{
+      background:transparent; color:var(--text); border:1px solid rgba(255,255,255,.12);
+    }
+    
+    .btn.secondary:hover{background:rgba(255,255,255,.06)}
+    
+    .divider{
+      text-align:center; margin:24px 0; position:relative; color:var(--muted);
+    }
+    
+    .divider::before{
+      content:""; position:absolute; top:50%; left:0; right:0; height:1px;
+      background:rgba(255,255,255,.12);
+    }
+    
+    .divider span{
+      background:var(--card); padding:0 16px; position:relative;
+    }
+    
+    .links{
+      text-align:center; margin-top:24px;
+    }
+    
+    .links a{
+      color:var(--brand); text-decoration:none; font-weight:700;
+    }
+    
+    .links a:hover{text-decoration:underline}
+    
+    .error{
+      background:rgba(239,68,68,.1); border:1px solid rgba(239,68,68,.2);
+      color:#fca5a5; padding:12px; border-radius:var(--radius-sm); margin-bottom:20px;
+      font-size:14px;
+    }
+    
+    .success{
+      background:rgba(34,197,94,.1); border:1px solid rgba(34,197,94,.2);
+      color:#86efac; padding:12px; border-radius:var(--radius-sm); margin-bottom:20px;
+      font-size:14px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="brand">
+        <img src="/images/logo_without_background.png" alt="슛두리 로고" width="40" height="40"/>
+        <b>슛두리</b>
+      </div>
+      
+      <div id="errorMessage" class="error" style="display:none"></div>
+      <div id="successMessage" class="success" style="display:none"></div>
+      
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="email">대학교 이메일</label>
+          <input 
+            type="email" 
+            id="email" 
+            name="email" 
+            placeholder="example@univ.ac.kr"
+            required 
+            autocomplete="email"
+          />
+        </div>
+        
+        <div class="form-group">
+          <label for="password">비밀번호</label>
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            placeholder="8자 이상 입력해주세요"
+            required 
+            autocomplete="current-password"
+          />
+        </div>
+        
+        <button type="submit" class="btn primary" id="loginBtn">
+          로그인
+        </button>
+      </form>
+      
+      
+      <div class="links">
+        <a href="/" th:href="@{/}">메인으로 돌아가기</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const loginForm = document.getElementById('loginForm');
+      const loginBtn = document.getElementById('loginBtn');
+      const errorMessage = document.getElementById('errorMessage');
+      const successMessage = document.getElementById('successMessage');
+
+      const urlParams = new URLSearchParams(window.location.search);
+      const rawRedirect = urlParams.get('redirect') || '/';
+      const redirectUrl =
+        (!rawRedirect || rawRedirect.startsWith('http') || rawRedirect.startsWith('//') || !rawRedirect.startsWith('/'))
+          ? '/'
+          : rawRedirect;
+
+      function showError(message) {
+        errorMessage.textContent = message;
+        errorMessage.style.display = 'block';
+        successMessage.style.display = 'none';
+      }
+
+      function showSuccess(message) {
+        successMessage.textContent = message;
+        successMessage.style.display = 'block';
+        errorMessage.style.display = 'none';
+      }
+
+      function hideMessages() {
+        errorMessage.style.display = 'none';
+        successMessage.style.display = 'none';
+      }
+
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        hideMessages();
+
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+
+        if (!email || !password) {
+          showError('이메일과 비밀번호를 모두 입력해주세요.');
+          return;
+        }
+
+        try {
+          loginBtn.textContent = '로그인 중...';
+          loginBtn.disabled = true;
+
+          const response = await fetch('/api/auth/login-cookie', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            credentials: 'include',
+            body: JSON.stringify({ email, password })
+          });
+
+          if (response.ok) {
+            showSuccess('로그인 성공! 잠시 후 이동합니다...');
+            
+            setTimeout(() => {
+              window.location.href = redirectUrl;
+            }, 1000);
+            
+          } else {
+            const errorData = await response.json();
+            
+            if (response.status === 401) {
+              showError('이메일 또는 비밀번호가 올바르지 않습니다.\n대학교 이메일(@ac.kr)과 비밀번호를 다시 확인해주세요.');
+            } else {
+              showError(errorData.message || '로그인에 실패했습니다.');
+            }
+          }
+        } catch (error) {
+          console.error('Login error:', error);
+          showError('네트워크 오류가 발생했습니다.');
+        } finally {
+          loginBtn.textContent = '로그인';
+          loginBtn.disabled = false;
+        }
+      });
+
+    });
+  </script>
+</body>
+</html>

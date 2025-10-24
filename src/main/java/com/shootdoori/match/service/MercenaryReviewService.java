@@ -10,7 +10,6 @@ import com.shootdoori.match.entity.review.MercenaryReview;
 
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NotFoundException;
-
 import com.shootdoori.match.repository.MatchRepository;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.MercenaryReviewRepository;
@@ -49,10 +48,17 @@ public class MercenaryReviewService {
         return MercenaryReviewResponseDto.from(mercenaryReviewRepository.findByMercenaryUserIdAndId(userId, reviewId));
     }
 
+    @Transactional(readOnly = true)
+    public MercenaryReview findByIdForEntity(Long reviewId) {
+        return mercenaryReviewRepository.findById(reviewId).orElseThrow(() -> new NotFoundException(ErrorCode.MERCENARY_REVIEW_NOT_FOUND));
+    }
+
     @Transactional
     public void post(MercenaryReviewRequestDto mercenaryReviewRequestDto) {
         Match match = matchRepository.findById(mercenaryReviewRequestDto.matchId())
                 .orElseThrow(() -> new NotFoundException(ErrorCode.MATCH_NOT_FOUND));
+
+        match.validateMatchFinished();
 
         Team reviewerTeam = teamRepository.findById(mercenaryReviewRequestDto.reviewerTeamId())
                 .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND));
