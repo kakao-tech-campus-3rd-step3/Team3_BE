@@ -6,21 +6,12 @@ import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.entity.common.SoftDeleteUserInfo;
 import com.shootdoori.match.value.Password;
 import com.shootdoori.match.value.UniversityName;
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import java.time.LocalDateTime;
-import java.util.Objects;
+import jakarta.persistence.*;
 import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -175,12 +166,6 @@ public class User {
         }
     }
 
-    private void validatePassword(String password) {
-        if (password == null || password.isBlank()) {
-            throw new IllegalArgumentException("비밀번호는 필수 입력 값입니다.");
-        }
-    }
-
     private void validateDepartment(String department) {
         if (department == null || department.isBlank()) {
             throw new IllegalArgumentException("학과 이름은 필수 입력 값입니다.");
@@ -286,8 +271,8 @@ public class User {
         this.bio = bio;
     }
 
-    public void validatePassword(String rawPassword, PasswordEncoder passwordEncoder) {
-        this.password.validate(rawPassword, passwordEncoder);
+    public void validatePassword(String rawPassword) {
+        this.password.validate(rawPassword);
     }
 
     public void changePassword(String encodedPassword) {

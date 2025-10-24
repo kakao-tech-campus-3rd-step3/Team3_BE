@@ -5,8 +5,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PasswordEncoderProvider {
+public class PasswordEncoderService {
+    private static PasswordEncoder staticPasswordEncoder;
     private final PasswordEncoder passwordEncoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+
+    public PasswordEncoderService() {
+        staticPasswordEncoder = passwordEncoder;
+    }
 
     public PasswordEncoder getEncoder() {
         return passwordEncoder;
@@ -14,5 +19,9 @@ public class PasswordEncoderProvider {
 
     public String encode(String rawPassword) {
         return passwordEncoder.encode(rawPassword);
+    }
+
+    public static boolean matches(String rawPassword, String encodedPassword) {
+        return staticPasswordEncoder.matches(rawPassword, encodedPassword);
     }
 }

@@ -1,6 +1,6 @@
 package com.shootdoori.match.service;
 
-import com.shootdoori.match.config.PasswordEncoderProvider;
+import com.shootdoori.match.config.PasswordEncoderService;
 import com.shootdoori.match.dto.AuthToken;
 import com.shootdoori.match.dto.ClientInfo;
 import com.shootdoori.match.dto.LoginRequest;
@@ -25,16 +25,14 @@ public class AuthService {
     private static final Logger log = LoggerFactory.getLogger(AuthService.class);
     private final JwtUtil jwtUtil;
     private final ProfileService profileService;
-    private final PasswordEncoderProvider passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
     private final TokenIssuer tokenIssuer;
 
     private static final String BEARER_PREFIX = "Bearer ";
 
-    public AuthService(JwtUtil jwtUtil, ProfileService profileService, PasswordEncoderProvider  passwordEncoder, RefreshTokenRepository refreshTokenRepository, TokenIssuer tokenIssuer) {
+    public AuthService(JwtUtil jwtUtil, ProfileService profileService, RefreshTokenRepository refreshTokenRepository, TokenIssuer tokenIssuer) {
         this.jwtUtil = jwtUtil;
         this.profileService = profileService;
-        this.passwordEncoder = passwordEncoder;
         this.refreshTokenRepository = refreshTokenRepository;
         this.tokenIssuer = tokenIssuer;
     }
@@ -52,7 +50,7 @@ public class AuthService {
     public AuthToken login(LoginRequest request, ClientInfo clientInfo) {
         User user = profileService.findByEmail(request.email())
             .orElseThrow(() -> new UnauthorizedException("잘못된 이메일 또는 비밀번호입니다."));
-        user.validatePassword(request.password(), passwordEncoder.getEncoder());
+        user.validatePassword(request.password());
 
         return issueTokens(user, clientInfo);
     }

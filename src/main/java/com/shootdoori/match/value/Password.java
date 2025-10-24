@@ -1,5 +1,6 @@
 package com.shootdoori.match.value;
 
+import com.shootdoori.match.config.PasswordEncoderService;
 import com.shootdoori.match.exception.common.UnauthorizedException;
 import jakarta.persistence.Embeddable;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -24,12 +25,12 @@ public class Password {
         return new Password(encodedPassword);
     }
 
-    public boolean matches(String rawPassword, PasswordEncoder passwordEncoder) {
-        return passwordEncoder.matches(rawPassword, this.password);
+    public boolean matches(String rawPassword) {
+        return PasswordEncoderService.matches(rawPassword, this.password);
     }
 
-    public void validate(String rawPassword, PasswordEncoder passwordEncoder) {
-        if (!matches(rawPassword, passwordEncoder)) {
+    public void validate(String rawPassword) {
+        if (!matches(rawPassword)) {
             throw new UnauthorizedException("잘못된 이메일 또는 비밀번호입니다.");
         }
     }

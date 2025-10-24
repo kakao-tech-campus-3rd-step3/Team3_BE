@@ -1,6 +1,6 @@
 package com.shootdoori.match.service;
 
-import com.shootdoori.match.config.PasswordEncoderProvider;
+import com.shootdoori.match.config.PasswordEncoderService;
 import com.shootdoori.match.dto.ProfileCreateRequest;
 import com.shootdoori.match.dto.ProfileMapper;
 import com.shootdoori.match.dto.ProfileResponse;
@@ -26,11 +26,11 @@ public class ProfileService {
 
     private final ProfileRepository profileRepository;
     private final ProfileMapper profileMapper;
-    private final PasswordEncoderProvider  passwordEncoder;
+    private final PasswordEncoderService passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
     private final TeamMemberRepository teamMemberRepository;
 
-    public ProfileService(ProfileRepository profileRepository, ProfileMapper profileMapper, PasswordEncoderProvider passwordEncoder, RefreshTokenRepository refreshTokenRepository, TeamMemberRepository teamMemberRepository) {
+    public ProfileService(ProfileRepository profileRepository, ProfileMapper profileMapper, PasswordEncoderService passwordEncoder, RefreshTokenRepository refreshTokenRepository, TeamMemberRepository teamMemberRepository) {
         this.profileRepository = profileRepository;
         this.profileMapper = profileMapper;
         this.passwordEncoder = passwordEncoder;

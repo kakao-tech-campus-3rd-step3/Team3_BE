@@ -1,6 +1,6 @@
 package com.shootdoori.match.service;
 
-import com.shootdoori.match.config.PasswordEncoderProvider;
+import com.shootdoori.match.config.PasswordEncoderService;
 import com.shootdoori.match.entity.auth.EmailVerificationCode;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.UnauthorizedException;
@@ -16,11 +16,11 @@ public class EmailVerificationService {
 
     private final EmailVerificationCodeRepository codeRepository;
     private final MailService mailService;
-    private final PasswordEncoderProvider passwordEncoder;
+    private final PasswordEncoderService passwordEncoder;
 
     public EmailVerificationService(EmailVerificationCodeRepository codeRepository,
                                     MailService mailService,
-                                    PasswordEncoderProvider  passwordEncoder) {
+                                    PasswordEncoderService passwordEncoder) {
         this.codeRepository = codeRepository;
         this.mailService = mailService;
         this.passwordEncoder = passwordEncoder;
@@ -49,7 +49,7 @@ public class EmailVerificationService {
         EmailVerificationCode codeEntity = codeRepository.findByEmail(email)
             .orElseThrow(() -> new UnauthorizedException(ErrorCode.OTP_NOT_FOUND));
 
-        codeEntity.validateCode(code, passwordEncoder.getEncoder());
+        codeEntity.validateCode(code);
 
         codeRepository.delete(codeEntity);
     }
