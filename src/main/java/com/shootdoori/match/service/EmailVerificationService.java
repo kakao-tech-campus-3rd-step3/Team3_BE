@@ -1,10 +1,10 @@
 package com.shootdoori.match.service;
 
+import com.shootdoori.match.config.PasswordEncoderProvider;
 import com.shootdoori.match.entity.auth.EmailVerificationCode;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.UnauthorizedException;
 import com.shootdoori.match.repository.EmailVerificationCodeRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,11 +16,11 @@ public class EmailVerificationService {
 
     private final EmailVerificationCodeRepository codeRepository;
     private final MailService mailService;
-    private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoderProvider passwordEncoder;
 
     public EmailVerificationService(EmailVerificationCodeRepository codeRepository,
                                     MailService mailService,
-                                    PasswordEncoder passwordEncoder) {
+                                    PasswordEncoderProvider  passwordEncoder) {
         this.codeRepository = codeRepository;
         this.mailService = mailService;
         this.passwordEncoder = passwordEncoder;
@@ -49,7 +49,7 @@ public class EmailVerificationService {
         EmailVerificationCode codeEntity = codeRepository.findByEmail(email)
             .orElseThrow(() -> new UnauthorizedException(ErrorCode.OTP_NOT_FOUND));
 
-        codeEntity.validateCode(code, passwordEncoder);
+        codeEntity.validateCode(code, passwordEncoder.getEncoder());
 
         codeRepository.delete(codeEntity);
     }

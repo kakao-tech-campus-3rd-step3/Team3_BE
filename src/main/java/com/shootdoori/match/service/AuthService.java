@@ -1,5 +1,6 @@
 package com.shootdoori.match.service;
 
+import com.shootdoori.match.config.PasswordEncoderProvider;
 import com.shootdoori.match.dto.AuthToken;
 import com.shootdoori.match.dto.ClientInfo;
 import com.shootdoori.match.dto.LoginRequest;
@@ -14,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,13 +25,13 @@ public class AuthService {
     private static final Logger log = LoggerFactory.getLogger(AuthService.class);
     private final JwtUtil jwtUtil;
     private final ProfileService profileService;
-    private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoderProvider passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
     private final TokenIssuer tokenIssuer;
 
     private static final String BEARER_PREFIX = "Bearer ";
 
-    public AuthService(JwtUtil jwtUtil, ProfileService profileService, PasswordEncoder passwordEncoder, RefreshTokenRepository refreshTokenRepository, TokenIssuer tokenIssuer) {
+    public AuthService(JwtUtil jwtUtil, ProfileService profileService, PasswordEncoderProvider  passwordEncoder, RefreshTokenRepository refreshTokenRepository, TokenIssuer tokenIssuer) {
         this.jwtUtil = jwtUtil;
         this.profileService = profileService;
         this.passwordEncoder = passwordEncoder;
@@ -52,7 +52,7 @@ public class AuthService {
     public AuthToken login(LoginRequest request, ClientInfo clientInfo) {
         User user = profileService.findByEmail(request.email())
             .orElseThrow(() -> new UnauthorizedException("잘못된 이메일 또는 비밀번호입니다."));
-        user.validatePassword(request.password(), passwordEncoder);
+        user.validatePassword(request.password(), passwordEncoder.getEncoder());
 
         return issueTokens(user, clientInfo);
     }

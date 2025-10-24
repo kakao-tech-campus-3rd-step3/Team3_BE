@@ -1,19 +1,19 @@
 package com.shootdoori.match.service;
 
+import com.shootdoori.match.config.PasswordEncoderProvider;
 import com.shootdoori.match.dto.ProfileCreateRequest;
 import com.shootdoori.match.dto.ProfileMapper;
 import com.shootdoori.match.dto.ProfileResponse;
 import com.shootdoori.match.dto.ProfileUpdateRequest;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.user.User;
+import com.shootdoori.match.exception.LeaderCannotLeaveTeamException;
 import com.shootdoori.match.exception.common.DuplicatedException;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NotFoundException;
-import com.shootdoori.match.exception.LeaderCannotLeaveTeamException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.RefreshTokenRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,11 +26,11 @@ public class ProfileService {
 
     private final ProfileRepository profileRepository;
     private final ProfileMapper profileMapper;
-    private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoderProvider  passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
     private final TeamMemberRepository teamMemberRepository;
 
-    public ProfileService(ProfileRepository profileRepository, ProfileMapper profileMapper, PasswordEncoder passwordEncoder, RefreshTokenRepository refreshTokenRepository, TeamMemberRepository teamMemberRepository) {
+    public ProfileService(ProfileRepository profileRepository, ProfileMapper profileMapper, PasswordEncoderProvider passwordEncoder, RefreshTokenRepository refreshTokenRepository, TeamMemberRepository teamMemberRepository) {
         this.profileRepository = profileRepository;
         this.profileMapper = profileMapper;
         this.passwordEncoder = passwordEncoder;
