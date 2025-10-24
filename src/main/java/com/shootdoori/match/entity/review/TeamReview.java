@@ -1,10 +1,12 @@
 package com.shootdoori.match.entity.review;
 
-import com.shootdoori.match.entity.common.DateEntity;
+import com.shootdoori.match.entity.common.AuditInfo;
 import com.shootdoori.match.entity.match.Match;
 import com.shootdoori.match.entity.team.Team;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -17,9 +19,12 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import java.time.LocalDateTime;
 import org.hibernate.annotations.Check;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
+@EntityListeners(AuditingEntityListener.class)
 @Table(
     name = "team_review",
     uniqueConstraints = {
@@ -30,7 +35,7 @@ import org.hibernate.annotations.Check;
     name = "ck_team_review_ratings",
     constraints = "rating BETWEEN 1 AND 5 "
 )
-public class TeamReview extends DateEntity {
+public class TeamReview {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -65,6 +70,9 @@ public class TeamReview extends DateEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "skill_level_review")
     private ReviewSkillLevel skillLevelReview;
+
+    @Embedded
+    private AuditInfo audit = new AuditInfo();
 
     protected TeamReview() {
     }
@@ -143,5 +151,17 @@ public class TeamReview extends DateEntity {
 
     public ReviewSkillLevel getSkillLevelReview() {
         return skillLevelReview;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return audit.getCreatedAt();
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return audit.getUpdatedAt();
+    }
+
+    public AuditInfo getAudit() {
+        return audit;
     }
 }

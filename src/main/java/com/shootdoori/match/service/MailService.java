@@ -1,5 +1,6 @@
 package com.shootdoori.match.service;
 
+import com.shootdoori.match.notification.EmailMessage;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -23,5 +24,9 @@ public class MailService {
         message.setSubject(subject);
         message.setText(text);
         mailSender.send(message);
+    }
+
+    public void sendEmail(EmailMessage emailMessage) {
+        sendEmail(emailMessage.to(), emailMessage.subject(), emailMessage.body());
     }
 }

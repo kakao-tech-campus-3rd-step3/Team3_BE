@@ -5,6 +5,7 @@ import com.shootdoori.match.dto.ClientInfo;
 import com.shootdoori.match.dto.LoginRequest;
 import com.shootdoori.match.dto.ProfileCreateRequest;
 import com.shootdoori.match.entity.user.User;
+import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.UnauthorizedException;
 import com.shootdoori.match.repository.RefreshTokenRepository;
 import com.shootdoori.match.util.JwtUtil;
@@ -43,7 +44,7 @@ public class AuthService {
     public AuthToken register(ProfileCreateRequest request, ClientInfo clientInfo) {
         profileService.createProfile(request);
         User savedUser = profileService.findByEmail(request.email())
-            .orElseThrow(() -> new UnauthorizedException("회원가입에 실패하였습니다."));
+            .orElseThrow(() -> new UnauthorizedException(ErrorCode.FAIL_REGISTER));
 
         return issueTokens(savedUser, clientInfo);
     }
@@ -51,7 +52,7 @@ public class AuthService {
     @Transactional
     public AuthToken login(LoginRequest request, ClientInfo clientInfo) {
         User user = profileService.findByEmail(request.email())
-            .orElseThrow(() -> new UnauthorizedException("잘못된 이메일 또는 비밀번호입니다."));
+            .orElseThrow(() -> new UnauthorizedException(ErrorCode.FAIL_LOGIN));
         user.validatePassword(request.password(), passwordEncoder);
 
         return issueTokens(user, clientInfo);
@@ -81,8 +82,10 @@ public class AuthService {
                     return new UsernamePasswordAuthenticationToken(
                         principalUserId, null, Collections.emptyList());
                 }
+            } catch (io.jsonwebtoken.ExpiredJwtException e) {
+                throw new UnauthorizedException(ErrorCode.EXPIRED_TOKEN);
             } catch (JwtException | NumberFormatException e) {
-                log.warn("Invalid JWT Token: {}", e.getMessage());
+                throw new UnauthorizedException(ErrorCode.INVALID_TOKEN);
             }
         }
         return null;
