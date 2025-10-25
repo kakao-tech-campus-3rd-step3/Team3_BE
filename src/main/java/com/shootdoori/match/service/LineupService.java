@@ -2,7 +2,7 @@ package com.shootdoori.match.service;
 
 import com.shootdoori.match.dto.LineupRequestDto;
 import com.shootdoori.match.dto.LineupResponseDto;
-import com.shootdoori.match.entity.lineup.Lineup;
+import com.shootdoori.match.entity.lineup.LineupMember;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.exception.common.CreationFailException;
 import com.shootdoori.match.exception.common.ErrorCode;
@@ -67,14 +67,14 @@ public class LineupService {
         TeamMember representativeMember = teamMemberMap.values().iterator().next();
         representativeMember.checkCaptainPermission(userId);
 
-        List<Lineup> lineupsToSave = requestDtos.stream()
+        List<LineupMember> lineupsToSave = requestDtos.stream()
                 .map(dto -> {
                     TeamMember teamMember = teamMemberMap.get(dto.teamMemberId());
                     if (teamMember == null) {
                         throw new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND);
                     }
 
-                    return new Lineup(
+                    return new LineupMember(
                             dto.matchId() != null ? matchRepository.getReferenceById(dto.matchId()) : null,
                             dto.waitingId() != null ? matchWaitingRepository.getReferenceById(dto.waitingId()) : null,
                             dto.requestId() != null ? matchRequestRepository.getReferenceById(dto.requestId()) : null,
@@ -86,8 +86,8 @@ public class LineupService {
                 .collect(Collectors.toList());
 
         try {
-            List<Lineup> savedLineups = lineupRepository.saveAllAndFlush(lineupsToSave);
-            return savedLineups.stream()
+            List<LineupMember> savedLineupMembers = lineupRepository.saveAllAndFlush(lineupsToSave);
+            return savedLineupMembers.stream()
                     .map(LineupResponseDto::from)
                     .collect(Collectors.toList());
         } catch (DataIntegrityViolationException e) {
@@ -96,24 +96,24 @@ public class LineupService {
     }
 
     public LineupResponseDto getLineupById(Long id) {
-        Lineup lineup = lineupRepository.findById(id)
+        LineupMember lineupMember = lineupRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.LINEUP_NOT_FOUND));
-        return LineupResponseDto.from(lineup);
+        return LineupResponseDto.from(lineupMember);
     }
 
-    public Lineup findByIdForEntity(Long id) {
+    public LineupMember findByIdForEntity(Long id) {
         return lineupRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.LINEUP_NOT_FOUND));
     }
 
     @Transactional
     public LineupResponseDto updateLineup(Long id, LineupRequestDto requestDto, Long userId) {
-        Lineup lineup = lineupRepository.findById(id)
+        LineupMember lineupMember = lineupRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.LINEUP_NOT_FOUND));
 
-        lineup.getTeamMember().checkCaptainPermission(userId);
+        lineupMember.getTeamMember().checkCaptainPermission(userId);
 
-        lineup.update(
+        lineupMember.update(
                 requestDto.matchId() != null ? matchRepository.getReferenceById(requestDto.matchId()) : null,
                 requestDto.waitingId() != null ? matchWaitingRepository.getReferenceById(requestDto.waitingId()) : null,
                 requestDto.requestId() != null ? matchRequestRepository.getReferenceById(requestDto.requestId()) : null,
@@ -121,13 +121,13 @@ public class LineupService {
                 requestDto.isStarter()
         );
 
-        return LineupResponseDto.from(lineup);
+        return LineupResponseDto.from(lineupMember);
     }
 
     @Transactional
     public void deleteLineup(Long id, Long userId) {
-        Lineup lineup = lineupRepository.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.LINEUP_NOT_FOUND));
-        lineup.getTeamMember().checkCaptainPermission(userId);
-        lineupRepository.delete(lineup);
+        LineupMember lineupMember = lineupRepository.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.LINEUP_NOT_FOUND));
+        lineupMember.getTeamMember().checkCaptainPermission(userId);
+        lineupRepository.delete(lineupMember);
     }
 }

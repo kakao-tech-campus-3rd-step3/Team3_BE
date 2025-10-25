@@ -2,7 +2,7 @@ package com.shootdoori.match.lineup;
 
 import com.shootdoori.match.dto.LineupRequestDto;
 import com.shootdoori.match.dto.LineupResponseDto;
-import com.shootdoori.match.entity.lineup.Lineup;
+import com.shootdoori.match.entity.lineup.LineupMember;
 import com.shootdoori.match.entity.match.Match;
 import com.shootdoori.match.entity.match.request.MatchRequest;
 import com.shootdoori.match.entity.match.waiting.MatchWaiting;
@@ -53,7 +53,7 @@ class LineupServiceTest {
     private TeamMemberRepository teamMemberRepository;
 
     private LineupRequestDto requestDto;
-    private Lineup savedLineup;
+    private LineupMember savedLineupMember;
     private Match mockMatch;
     private MatchWaiting mockMatchWaiting;
     private MatchRequest mockMatchRequest;
@@ -75,7 +75,7 @@ class LineupServiceTest {
                 true
         );
 
-        savedLineup = new Lineup(
+        savedLineupMember = new LineupMember(
                 mockMatch,
                 mockMatchWaiting,
                 mockMatchRequest,
@@ -84,7 +84,7 @@ class LineupServiceTest {
                 true
         );
 
-        ReflectionTestUtils.setField(savedLineup, "id", 1L);
+        ReflectionTestUtils.setField(savedLineupMember, "id", 1L);
     }
 
     @Test
@@ -97,10 +97,10 @@ class LineupServiceTest {
         LineupRequestDto requestDto2 = new LineupRequestDto(1L, 1L, 1L, 2L, Position.DF, true);
         List<LineupRequestDto> requestDtos = List.of(requestDto, requestDto2);
 
-        Lineup savedLineup2 = new Lineup(mockMatch, mockMatchWaiting, mockMatchRequest, mockTeamMember2, Position.DF, true);
-        ReflectionTestUtils.setField(savedLineup2, "id", 2L);
+        LineupMember savedLineupMember2 = new LineupMember(mockMatch, mockMatchWaiting, mockMatchRequest, mockTeamMember2, Position.DF, true);
+        ReflectionTestUtils.setField(savedLineupMember2, "id", 2L);
 
-        List<Lineup> savedLineups = List.of(savedLineup, savedLineup2);
+        List<LineupMember> savedLineupMembers = List.of(savedLineupMember, savedLineupMember2);
 
         Set<Long> teamMemberIds = Set.of(1L, 2L);
         given(teamMemberRepository.findAllById(teamMemberIds)).willReturn(List.of(mockTeamMember, mockTeamMember2));
@@ -108,7 +108,7 @@ class LineupServiceTest {
         given(matchRepository.getReferenceById(1L)).willReturn(mockMatch);
         given(matchWaitingRepository.getReferenceById(1L)).willReturn(mockMatchWaiting);
         given(matchRequestRepository.getReferenceById(1L)).willReturn(mockMatchRequest);
-        given(lineupRepository.saveAllAndFlush(any(List.class))).willReturn(savedLineups);
+        given(lineupRepository.saveAllAndFlush(any(List.class))).willReturn(savedLineupMembers);
         given(mockTeamMember.getId()).willReturn(1L);
 
         // when
@@ -131,7 +131,7 @@ class LineupServiceTest {
     void createLineup_List_Success_Single() {
         // given
         List<LineupRequestDto> requestDtos = List.of(requestDto);
-        List<Lineup> savedLineups = List.of(savedLineup);
+        List<LineupMember> savedLineupMembers = List.of(savedLineupMember);
 
         Set<Long> teamMemberIds = Set.of(1L);
         given(teamMemberRepository.findAllById(teamMemberIds)).willReturn(List.of(mockTeamMember));
@@ -139,7 +139,7 @@ class LineupServiceTest {
         given(matchRepository.getReferenceById(1L)).willReturn(mockMatch);
         given(matchWaitingRepository.getReferenceById(1L)).willReturn(mockMatchWaiting);
         given(matchRequestRepository.getReferenceById(1L)).willReturn(mockMatchRequest);
-        given(lineupRepository.saveAllAndFlush(any(List.class))).willReturn(savedLineups);
+        given(lineupRepository.saveAllAndFlush(any(List.class))).willReturn(savedLineupMembers);
         given(mockTeamMember.getId()).willReturn(1L);
 
         // when
@@ -217,8 +217,8 @@ class LineupServiceTest {
     @DisplayName("매치 ID로 모든 라인업 조회 - 성공 (결과 1개)")
     void getAllLineupsByTeamId_Success() {
         // given
-        List<Lineup> lineups = List.of(savedLineup);
-        given(lineupRepository.findByTeamMemberTeamTeamId(1L)).willReturn(lineups);
+        List<LineupMember> lineupMembers = List.of(savedLineupMember);
+        given(lineupRepository.findByTeamMemberTeamTeamId(1L)).willReturn(lineupMembers);
 
         // when
         List<LineupResponseDto> responseDtos = lineupService.getAllLineupsByTeamId(1L);
@@ -250,7 +250,7 @@ class LineupServiceTest {
     @DisplayName("라인업 ID로 조회 (DTO) - 성공")
     void getLineupById_Success() {
         // given
-        given(lineupRepository.findById(1L)).willReturn(Optional.of(savedLineup));
+        given(lineupRepository.findById(1L)).willReturn(Optional.of(savedLineupMember));
 
         // when
         LineupResponseDto responseDto = lineupService.getLineupById(1L);
@@ -281,15 +281,15 @@ class LineupServiceTest {
     @DisplayName("라인업 ID로 조회 (Entity) - 성공")
     void findByIdForEntity_Success() {
         // given
-        given(lineupRepository.findById(1L)).willReturn(Optional.of(savedLineup));
+        given(lineupRepository.findById(1L)).willReturn(Optional.of(savedLineupMember));
 
         // when
-        Lineup foundEntity = lineupService.findByIdForEntity(1L);
+        LineupMember foundEntity = lineupService.findByIdForEntity(1L);
 
         // then
         assertThat(foundEntity).isNotNull();
         assertThat(foundEntity.getId()).isEqualTo(1L);
-        assertThat(foundEntity).isEqualTo(savedLineup);
+        assertThat(foundEntity).isEqualTo(savedLineupMember);
         verify(lineupRepository, times(1)).findById(1L);
     }
 
@@ -322,7 +322,7 @@ class LineupServiceTest {
         given(matchWaitingRepository.getReferenceById(2L)).willReturn(mockMatchWaiting2);
         given(matchRequestRepository.getReferenceById(2L)).willReturn(mockMatchRequest2);
 
-        given(lineupRepository.findById(1L)).willReturn(Optional.of(savedLineup));
+        given(lineupRepository.findById(1L)).willReturn(Optional.of(savedLineupMember));
 
         given(mockMatch2.getMatchId()).willReturn(2L);
         given(mockMatchWaiting2.getWaitingId()).willReturn(2L);
@@ -336,9 +336,9 @@ class LineupServiceTest {
         assertThat(responseDto.position()).isEqualTo(Position.DF);
         assertThat(responseDto.isStarter()).isFalse();
         assertThat(responseDto.matchId()).isEqualTo(2L);
-        assertThat(savedLineup.getPosition()).isEqualTo(Position.DF);
-        assertThat(savedLineup.getIsStarter()).isFalse();
-        assertThat(savedLineup.getMatch()).isEqualTo(mockMatch2);
+        assertThat(savedLineupMember.getPosition()).isEqualTo(Position.DF);
+        assertThat(savedLineupMember.getIsStarter()).isFalse();
+        assertThat(savedLineupMember.getMatch()).isEqualTo(mockMatch2);
         verify(lineupRepository, times(1)).findById(1L);
         verify(matchRepository, times(1)).getReferenceById(2L);
         verify(matchWaitingRepository, times(1)).getReferenceById(2L);
@@ -368,15 +368,15 @@ class LineupServiceTest {
     @DisplayName("라인업 삭제 - 성공")
     void deleteLineup_Success() {
         // given
-        given(lineupRepository.findById(1L)).willReturn(Optional.ofNullable(savedLineup));
-        doNothing().when(lineupRepository).delete(savedLineup);
+        given(lineupRepository.findById(1L)).willReturn(Optional.ofNullable(savedLineupMember));
+        doNothing().when(lineupRepository).delete(savedLineupMember);
 
         // when
         lineupService.deleteLineup(1L, 1L);
 
         // then
         verify(lineupRepository, times(1)).findById(1L);
-        verify(lineupRepository, times(1)).delete(savedLineup);
+        verify(lineupRepository, times(1)).delete(savedLineupMember);
     }
 
     @Test

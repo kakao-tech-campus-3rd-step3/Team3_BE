@@ -3,7 +3,7 @@ package com.shootdoori.match.lineup;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shootdoori.match.dto.LineupRequestDto;
-import com.shootdoori.match.entity.lineup.Lineup;
+import com.shootdoori.match.entity.lineup.LineupMember;
 import com.shootdoori.match.entity.match.Match;
 import com.shootdoori.match.entity.match.MatchStatus;
 import com.shootdoori.match.entity.match.request.MatchRequest;
@@ -214,12 +214,12 @@ class LineupControllerIntegrationTest {
     @DisplayName("GET /api/lineups/{id} - 라인업 단건 조회 통합 테스트 (200 OK)")
     void getLineupById_IntegrationTest() throws Exception {
         // given
-        Lineup testLineup = new Lineup(
+        LineupMember testLineupMember = new LineupMember(
                 savedMatch, savedMatchWaiting, savedMatchRequest, savedTeamMember1,
                 Position.FW, true
         );
-        Lineup savedLineup = lineupRepository.save(testLineup);
-        Long savedLineupId = savedLineup.getId();
+        LineupMember savedLineupMember = lineupRepository.save(testLineupMember);
+        Long savedLineupId = savedLineupMember.getId();
 
         // when
         ResultActions actions = mockMvc.perform(get("/api/lineups/{id}", savedLineupId)
@@ -247,12 +247,12 @@ class LineupControllerIntegrationTest {
     @DisplayName("DELETE /api/lineups/{id} - 라인업 삭제 통합 테스트 (204 NO_CONTENT)")
     void deleteLineup_IntegrationTest() throws Exception {
         // given
-        Lineup testLineup = new Lineup(
+        LineupMember testLineupMember = new LineupMember(
                 savedMatch, savedMatchWaiting, savedMatchRequest, savedTeamMember1,
                 Position.DF, false
         );
-        Lineup savedLineup = lineupRepository.save(testLineup);
-        Long savedLineupId = savedLineup.getId();
+        LineupMember savedLineupMember = lineupRepository.save(testLineupMember);
+        Long savedLineupId = savedLineupMember.getId();
         assertThat(lineupRepository.existsById(savedLineupId)).isTrue();
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
@@ -274,12 +274,12 @@ class LineupControllerIntegrationTest {
     @DisplayName("PATCH /api/lineups/{id} - 라인업 수정 통합 테스트 (200 OK)")
     void updateLineup_IntegrationTest() throws Exception {
         // given
-        Lineup originalLineup = new Lineup(
+        LineupMember originalLineupMember = new LineupMember(
                 savedMatch, savedMatchWaiting, savedMatchRequest, savedTeamMember1,
                 Position.GK, true
         );
-        Lineup savedLineup = lineupRepository.save(originalLineup);
-        Long savedLineupId = savedLineup.getId();
+        LineupMember savedLineupMember = lineupRepository.save(originalLineupMember);
+        Long savedLineupId = savedLineupMember.getId();
         LineupRequestDto updateDto = new LineupRequestDto(
                 savedMatch.getMatchId(),
                 savedMatchWaiting.getWaitingId(),
@@ -305,10 +305,10 @@ class LineupControllerIntegrationTest {
                 .andExpect(jsonPath("$.id").value(savedLineupId))
                 .andExpect(jsonPath("$.position").value("MF"))
                 .andExpect(jsonPath("$.isStarter").value(false));
-        Lineup updatedLineup = lineupRepository.findById(savedLineupId)
+        LineupMember updatedLineupMember = lineupRepository.findById(savedLineupId)
                 .orElseThrow(() -> new AssertionError("라인업이 DB에 없습니다."));
 
-        assertThat(updatedLineup.getPosition()).isEqualTo(Position.MF);
-        assertThat(updatedLineup.getIsStarter()).isFalse();
+        assertThat(updatedLineupMember.getPosition()).isEqualTo(Position.MF);
+        assertThat(updatedLineupMember.getIsStarter()).isFalse();
     }
 }
