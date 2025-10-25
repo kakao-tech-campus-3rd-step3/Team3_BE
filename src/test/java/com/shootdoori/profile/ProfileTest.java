@@ -1,6 +1,6 @@
 package com.shootdoori.profile;
 
-import com.shootdoori.match.config.PasswordEncoderService;
+import com.shootdoori.match.config.PasswordEncoderProvider;
 import com.shootdoori.match.dto.ProfileCreateRequest;
 import com.shootdoori.match.dto.ProfileMapper;
 import com.shootdoori.match.dto.ProfileResponse;
@@ -50,7 +50,7 @@ class ProfileTest {
     @Mock
     private ProfileMapper profileMapper;
     @Mock
-    private PasswordEncoderService passwordEncoder;
+    private PasswordEncoderProvider passwordEncoder;
     @Mock
     private RefreshTokenRepository refreshTokenRepository;
 

@@ -1,6 +1,6 @@
 package com.shootdoori.match.service;
 
-import com.shootdoori.match.config.PasswordEncoderService;
+import com.shootdoori.match.config.PasswordEncoderProvider;
 import com.shootdoori.match.entity.auth.PasswordOtpToken;
 import com.shootdoori.match.entity.auth.PasswordResetToken;
 import com.shootdoori.match.entity.user.User;
@@ -21,7 +21,7 @@ import java.util.UUID;
 public class PasswordResetService {
 
     private final ProfileRepository profileRepository;
-    private final PasswordEncoderService passwordEncoder;
+    private final PasswordEncoderProvider passwordEncoder;
     private final MailService mailService;
     private final PasswordOtpTokenRepository otpTokenRepository;
     private final PasswordResetTokenRepository resetTokenRepository;
@@ -29,7 +29,7 @@ public class PasswordResetService {
     private static final int OTP_EXPIRATION_MINUTES = 3;
     private static final int RESET_TOKEN_EXPIRATION_MINUTES = 5;
 
-    public PasswordResetService(ProfileRepository profileRepository, PasswordEncoderService passwordEncoder, MailService mailService,
+    public PasswordResetService(ProfileRepository profileRepository, PasswordEncoderProvider passwordEncoder, MailService mailService,
                                 PasswordOtpTokenRepository otpTokenRepository, PasswordResetTokenRepository resetTokenRepository) {
         this.profileRepository = profileRepository;
         this.passwordEncoder = passwordEncoder;
