@@ -6,21 +6,12 @@ import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.entity.common.SoftDeleteUserInfo;
 import com.shootdoori.match.value.Password;
 import com.shootdoori.match.value.UniversityName;
-import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.Column;
-import jakarta.persistence.Embedded;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import java.time.LocalDateTime;
-import java.util.Objects;
+import jakarta.persistence.*;
 import org.hibernate.annotations.SQLRestriction;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.security.crypto.password.PasswordEncoder;
+
+import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @EntityListeners(AuditingEntityListener.class)
@@ -77,7 +68,7 @@ public class User {
 
     private User(String name, SkillLevel skillLevel, String email, String password, String kakaoTalkId,
         Position position, String university, String department, String studentYear, String bio) {
-        validate(name, skillLevel.getDisplayName(), email, password, kakaoTalkId, position.name(), university, department, studentYear, bio);
+        validate(name, skillLevel.getDisplayName(), email, kakaoTalkId, position.name(), university, department, studentYear, bio);
         this.name = name;
         this.skillLevel = skillLevel;
         this.email = email;
@@ -98,12 +89,11 @@ public class User {
             studentYear, bio);
     }
 
-    private void validate(String name, String skillLevel, String email, String password, String kakaoTalkId,
+    private void validate(String name, String skillLevel, String email, String kakaoTalkId,
         String position, String university, String department, String studentYear, String bio) {
         validateName(name);
         validateSkillLevel(skillLevel);
         validateEmail(email);
-        validatePassword(password);
         validateKakaoTalkId(kakaoTalkId);
         validatePosition(position);
         validateUniversity(university);
@@ -172,12 +162,6 @@ public class User {
         }
         if (university.length() > 100) {
             throw new IllegalArgumentException("대학교 이름은 100자를 초과할 수 없습니다.");
-        }
-    }
-
-    private void validatePassword(String password) {
-        if (password == null || password.isBlank()) {
-            throw new IllegalArgumentException("비밀번호는 필수 입력 값입니다.");
         }
     }
 
@@ -286,8 +270,8 @@ public class User {
         this.bio = bio;
     }
 
-    public void validatePassword(String rawPassword, PasswordEncoder passwordEncoder) {
-        this.password.validate(rawPassword, passwordEncoder);
+    public void validatePasswordMatches(String rawPassword) {
+        this.password.validate(rawPassword);
     }
 
     public void changePassword(String encodedPassword) {
