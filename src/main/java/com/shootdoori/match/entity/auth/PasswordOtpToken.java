@@ -1,6 +1,6 @@
 package com.shootdoori.match.entity.auth;
 
-import com.shootdoori.match.config.PasswordEncoderService;
+import com.shootdoori.match.config.PasswordEncoderProvider;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.TooManyRequestsException;
@@ -55,7 +55,7 @@ public class PasswordOtpToken {
     public User getUser() { return user; }
 
     public boolean matches(String rawCode) {
-        return PasswordEncoderService.matches(rawCode, this.code);
+        return PasswordEncoderProvider.matches(rawCode, this.code);
     }
 
     public void validateCode(String rawCode) {

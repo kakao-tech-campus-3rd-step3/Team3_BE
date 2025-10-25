@@ -4,11 +4,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 @Component
-public class PasswordEncoderService {
+public class PasswordEncoderProvider {
     private static PasswordEncoder staticPasswordEncoder;
     private final PasswordEncoder passwordEncoder;
 
-    public PasswordEncoderService(PasswordEncoder passwordEncoder) {
+    public PasswordEncoderProvider(PasswordEncoder passwordEncoder) {
         staticPasswordEncoder = passwordEncoder;
         this.passwordEncoder = passwordEncoder;
     }
