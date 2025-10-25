@@ -1,6 +1,7 @@
 package com.shootdoori.match.value;
 
 import com.shootdoori.match.config.PasswordEncoderService;
+import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.UnauthorizedException;
 import jakarta.persistence.Embeddable;
 
@@ -30,7 +31,7 @@ public class Password {
 
     public void validate(String rawPassword) {
         if (!matches(rawPassword)) {
-            throw new UnauthorizedException("잘못된 이메일 또는 비밀번호입니다.");
+            throw new UnauthorizedException(ErrorCode.FAIL_LOGIN);
         }
     }
 

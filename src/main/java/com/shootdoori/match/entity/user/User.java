@@ -271,7 +271,7 @@ public class User {
         this.bio = bio;
     }
 
-    public void validatePassword(String rawPassword) throws IllegalArgumentException {
+    public void validatePassword(String rawPassword) {
         if (rawPassword == null || rawPassword.isBlank()) {
             throw new IllegalArgumentException("비밀번호는 필수 입력값입니다.");
         }

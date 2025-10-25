@@ -115,7 +115,7 @@ class AuthTest {
         }
 
         @Test
-        @DisplayName("실패: 존재하지 않는 이메일로 로그인 시 401 Unauthorized 에러가 발생한다")
+        @DisplayName("실패: 존재하지 않는 이메일로 로그인 시 400 Bad Request 에러가 발생한다")
         void loginFailByNonExistentEmail() throws Exception {
             LoginRequest request = new LoginRequest(
                 "nonexistent@test.ac.kr",
@@ -125,11 +125,11 @@ class AuthTest {
             mockMvc.perform(post("/api/auth/login")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isBadRequest());
         }
 
         @Test
-        @DisplayName("실패: 비밀번호가 틀렸을 경우 401 Unauthorized 에러가 발생한다")
+        @DisplayName("실패: 비밀번호가 틀렸을 경우 400 Bad Request 에러가 발생한다")
         void loginFailByWrongPassword() throws Exception {
             LoginRequest request = new LoginRequest(
                 AuthFixtures.USER_EMAIL,
@@ -139,7 +139,7 @@ class AuthTest {
             mockMvc.perform(post("/api/auth/login")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isBadRequest());
         }
 
         @Test

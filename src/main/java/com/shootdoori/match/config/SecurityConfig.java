@@ -1,5 +1,7 @@
 package com.shootdoori.match.config;
 
+import com.shootdoori.match.exception.common.BusinessException;
+import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.resolver.JwtAuthenticationFilter;
 import com.shootdoori.match.service.AuthService;
 import com.shootdoori.match.util.JwtUtil;
@@ -14,6 +16,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 @Configuration
 public class SecurityConfig {
@@ -62,8 +65,12 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(AuthService authService, JwtUtil jwtUtil) {
-        return new JwtAuthenticationFilter(authService, jwtUtil);
+    public JwtAuthenticationFilter jwtAuthenticationFilter(
+            AuthService authService,
+            JwtUtil jwtUtil,
+            HandlerExceptionResolver handlerExceptionResolver
+    ) {
+        return new JwtAuthenticationFilter(authService, jwtUtil, handlerExceptionResolver);
     }
 
     @Bean

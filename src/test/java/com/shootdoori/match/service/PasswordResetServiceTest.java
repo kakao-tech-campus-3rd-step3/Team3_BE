@@ -300,7 +300,8 @@ class PasswordResetServiceTest {
         PasswordOtpToken otpToken = mock(PasswordOtpToken.class);
 
         when(otpTokenRepository.findByUser_Email(testEmail)).thenReturn(Optional.of(otpToken));
-        doThrow(new UnauthorizedException("인증번호가 일치하지 않습니다."))
+
+        doThrow(new UnauthorizedException(ErrorCode.INVALID_TOKEN))
             .when(otpToken).validateCode(code);
 
         // when & then
@@ -363,7 +364,7 @@ class PasswordResetServiceTest {
         PasswordResetToken resetToken = mock(PasswordResetToken.class);
 
         when(resetTokenRepository.findByToken(token)).thenReturn(Optional.of(resetToken));
-        doThrow(new UnauthorizedException("토큰이 만료되었습니다."))
+        doThrow(new UnauthorizedException(ErrorCode.EXPIRED_TOKEN))
             .when(resetToken).validateExpiryDate();
 
         // when & then
