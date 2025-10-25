@@ -21,33 +21,33 @@ public class LineupController {
         this.lineupService = lineupService;
     }
 
-    @PostMapping
-    public ResponseEntity<LineupResponseDto> createLineup(@RequestBody LineupRequestDto requestDto,
-                                                          @LoginUser Long userId) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(lineupService.createLineup(requestDto, userId));
+    @PostMapping()
+    public ResponseEntity<List<LineupResponseDto>> createLineup(@RequestBody List<LineupRequestDto> requestDtos,
+                                                                @LoginUser Long userId) {
+        return new ResponseEntity<>(lineupService.createLineup(requestDtos, userId), HttpStatus.CREATED);
     }
 
     @GetMapping
     public ResponseEntity<List<LineupResponseDto>> getLineupsByTeamId(@RequestParam(required = true) Long teamId) {
-        return ResponseEntity.ok(lineupService.getAllLineupsByTeamId(teamId));
+        return new ResponseEntity<>(lineupService.getAllLineupsByTeamId(teamId), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<LineupResponseDto> getLineupById(@PathVariable Long id) {
-        return ResponseEntity.ok(lineupService.getLineupById(id));
+        return new ResponseEntity<>(lineupService.getLineupById(id), HttpStatus.OK);
     }
 
     @PatchMapping("/{id}")
     public ResponseEntity<LineupResponseDto> updateLineup(@PathVariable Long id,
                                                           @RequestBody LineupRequestDto requestDto,
                                                           @LoginUser Long userId) {
-        return ResponseEntity.ok(lineupService.updateLineup(id, requestDto, userId));
+        return new ResponseEntity<>(lineupService.updateLineup(id, requestDto, userId), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteLineup(@PathVariable Long id,
                                              @LoginUser Long userId) {
         lineupService.deleteLineup(id, userId);
-        return ResponseEntity.noContent().build();
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

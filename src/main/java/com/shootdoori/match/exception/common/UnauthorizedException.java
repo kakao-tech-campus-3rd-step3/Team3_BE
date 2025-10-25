@@ -1,19 +1,24 @@
 package com.shootdoori.match.exception.common;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.web.bind.annotation.ResponseStatus;
-
-@ResponseStatus(HttpStatus.UNAUTHORIZED)
 public class UnauthorizedException extends RuntimeException {
-    public UnauthorizedException(String message) {
-        super(message);
-    }
-
-    public UnauthorizedException(String message, Throwable cause) {
-        super(message, cause);
-    }
+    private final ErrorCode errorCode;
+    private final String detail;
 
     public UnauthorizedException(ErrorCode errorCode) {
-        super(errorCode.getMessage());
+        this(errorCode, null);
+    }
+
+    public UnauthorizedException(ErrorCode errorCode, String detail) {
+        super(errorCode.getMessage() + (detail != null ? " (" + detail + ")" : ""));
+        this.errorCode = errorCode;
+        this.detail = detail;
+    }
+
+    public ErrorCode getErrorCode() {
+        return errorCode;
+    }
+
+    public String getDetail() {
+        return detail;
     }
 }

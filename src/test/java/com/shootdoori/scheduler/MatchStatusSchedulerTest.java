@@ -2,6 +2,7 @@ package com.shootdoori.scheduler;
 
 import com.shootdoori.match.entity.match.Match;
 import com.shootdoori.match.entity.match.MatchStatus;
+import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.entity.team.*;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.entity.venue.Venue;
@@ -52,19 +53,19 @@ class MatchStatusSchedulerTest {
         // 팀 캡틴 생성
         team1Captain = profileRepository.save(User.create(
             "팀1 리더", "프로", "team1@university.ac.kr",
-            "12345678", "010-9999-9999", "공격수", "강원대학교", "컴퓨터공학과", "20",
+            "12345678", "010-9999-9999", "FW", "강원대학교", "컴퓨터공학과", "20",
             "확정된 매치에서 팀 1에 해당하는 리더입니다."
         ));
 
         team2Captain = profileRepository.save(User.create(
             "팀2 리더", "프로", "team2@university.ac.kr",
-            "12345678", "010-9999-9990", "공격수", "강원대학교", "컴퓨터공학과", "20",
+            "12345678", "010-9999-9990", "FW", "강원대학교", "컴퓨터공학과", "20",
             "확정된 매치에서 팀 2에 해당하는 리더입니다."
         ));
 
         // 팀 생성
-        team1 = teamRepository.save(new Team("Team 1", team1Captain, "강원대학교", TeamType.OTHER, TeamSkillLevel.AMATEUR, "Team 1"));
-        team2 = teamRepository.save(new Team("Team 2", team2Captain, "강원대학교", TeamType.OTHER, TeamSkillLevel.AMATEUR, "Team 2"));
+        team1 = teamRepository.save(new Team("Team 1", team1Captain, "강원대학교", TeamType.OTHER, SkillLevel.AMATEUR, "Team 1"));
+        team2 = teamRepository.save(new Team("Team 2", team2Captain, "강원대학교", TeamType.OTHER, SkillLevel.AMATEUR, "Team 2"));
 
         // 팀 멤버 생성
         team1Member = teamMemberRepository.save(new TeamMember(team1, team1Captain, TeamMemberRole.LEADER));

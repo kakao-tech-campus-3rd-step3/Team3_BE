@@ -14,7 +14,7 @@ public class UserCleanupScheduler {
     private final UserCleanupService userCleanupService;
 
     public UserCleanupScheduler(ProfileRepository userRepository,
-                                UserCleanupService userCleanupService) {
+        UserCleanupService userCleanupService) {
         this.userRepository = userRepository;
         this.userCleanupService = userCleanupService;
     }
@@ -23,8 +23,9 @@ public class UserCleanupScheduler {
     public void cleanupDeletedUsers() {
         LocalDateTime sevenDaysAgo = LocalDateTime.now().minusDays(7);
 
-        List<User> usersToDelete = userRepository.findByStatusAndUpdatedAtBefore(UserStatus.DELETED, sevenDaysAgo);
-        
+        List<User> usersToDelete = userRepository.findBySoftDeleteStatusAndAuditUpdatedAtBefore(
+            UserStatus.DELETED, sevenDaysAgo);
+
         if (usersToDelete != null && !usersToDelete.isEmpty()) {
             userCleanupService.permanentlyDeleteUsers(usersToDelete);
         }

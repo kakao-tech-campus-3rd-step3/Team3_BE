@@ -8,7 +8,7 @@ import com.shootdoori.match.entity.review.ReviewBinaryEvaluation;
 import com.shootdoori.match.entity.review.ReviewSkillLevel;
 import com.shootdoori.match.entity.review.TeamReview;
 import com.shootdoori.match.entity.team.Team;
-import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.entity.venue.Venue;
@@ -202,11 +202,11 @@ class TeamReviewIntegrationTest {
     // 테스트 데이터 생성용 메서드들
     private User createUser(String name, String email, String phoneNumber) {
         return User.create(name, "아마추어", email, "encodedPassword", phoneNumber,
-                "미드필더", email.contains("hallym") ? "한림대학교" : "강원대학교", "컴퓨터공학과", "23", "테스트용 유저입니다.");
+                "MF", email.contains("hallym") ? "한림대학교" : "강원대학교", "컴퓨터공학과", "23", "테스트용 유저입니다.");
     }
 
     private Team createTeam(String name, User captain) {
-        return new Team(name, captain, captain.getUniversity().name(), TeamType.OTHER, TeamSkillLevel.AMATEUR, "테스트용 팀입니다.");
+        return new Team(name, captain, captain.getUniversity().name(), TeamType.OTHER, SkillLevel.AMATEUR, "테스트용 팀입니다.");
     }
 
     private Venue createVenue(String name) {

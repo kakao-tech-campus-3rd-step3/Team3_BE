@@ -85,7 +85,7 @@ public class JoinWaitingController {
     public ResponseEntity<Page<JoinWaitingResponseDto>> findPending(
         @PathVariable Long teamId,
         @RequestParam(defaultValue = "PENDING") JoinWaitingStatus status,
-        @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+        @PageableDefault(size = 10, sort = "audit.createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         return new ResponseEntity<>(joinWaitingService.findPending(teamId, status, pageable),
             HttpStatus.OK);
@@ -94,7 +94,7 @@ public class JoinWaitingController {
     @GetMapping("/api/users/me/join-waiting")
     public ResponseEntity<Page<JoinWaitingResponseDto>> findByApplicant(
         @LoginUser Long loginUserId,
-        @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+        @PageableDefault(size = 10, sort = "audit.createdAt", direction = Sort.Direction.DESC) Pageable pageable
         /*
             TODO: JWT 구현 이후에 Resolver 활용한 유저 ID 주입 필요 (현재는 PathVariable로 받음)
             TODO: API endpoint를 전반적으로 수정할 필요성이 있는지 체크 필요

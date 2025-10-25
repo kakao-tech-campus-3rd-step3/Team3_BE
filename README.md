@@ -4,9 +4,8 @@
 
 ## 🛠 기술 스택
 
-- **Backend**: Java 21, Spring Boot, JPA
+- **Backend**: Java 17, Spring Boot, JPA
 - **Database**: MySQL
-- **External**: KakaoMap API
 
 ## 📁 프로젝트 구조
 
@@ -19,6 +18,7 @@ match/
 ├── entity/        # JPA 엔티티 클래스
 ├── handler/       # 이벤트 핸들러
 ├── exception/     # 커스텀 예외 및 ErrorCode 정의
+├── notification/  # 이메일 알림 관련 컴포넌트
 ├── repository/    # 데이터 액세스 계층
 ├── resolver/      # GraphQL 리졸버
 ├── service/       # 비즈니스 로직 계층

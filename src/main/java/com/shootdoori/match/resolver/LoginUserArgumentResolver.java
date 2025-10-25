@@ -1,5 +1,6 @@
 package com.shootdoori.match.resolver;
 
+import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.UnauthorizedException;
 import org.springframework.core.MethodParameter;
 import org.springframework.security.core.Authentication;
@@ -29,7 +30,7 @@ public class LoginUserArgumentResolver implements HandlerMethodArgumentResolver 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || authentication.getPrincipal().equals("anonymousUser")) {
-            throw new UnauthorizedException("인증 정보가 유효하지 않습니다.");
+            throw new UnauthorizedException(ErrorCode.INVALID_AUTH_INFO);
         }
 
         Long userId = (Long) authentication.getPrincipal();

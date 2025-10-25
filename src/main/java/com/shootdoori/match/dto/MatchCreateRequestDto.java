@@ -1,6 +1,6 @@
 package com.shootdoori.match.dto;
 
-import com.shootdoori.match.entity.match.waiting.MatchWaitingSkillLevel;
+import com.shootdoori.match.entity.common.SkillLevel;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -10,8 +10,8 @@ public record MatchCreateRequestDto(
     LocalTime preferredTimeStart,
     LocalTime preferredTimeEnd,
     Long preferredVenueId,
-    MatchWaitingSkillLevel skillLevelMin,
-    MatchWaitingSkillLevel skillLevelMax,
+    SkillLevel skillLevelMin,
+    SkillLevel skillLevelMax,
     Boolean universityOnly,
     String message
 ) {

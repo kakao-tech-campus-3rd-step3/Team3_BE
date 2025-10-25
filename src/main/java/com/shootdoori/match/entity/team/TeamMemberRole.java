@@ -1,5 +1,7 @@
 package com.shootdoori.match.entity.team;
 
+import com.shootdoori.match.entity.team.join.JoinWaiting;
+
 public enum TeamMemberRole {
     LEADER("회장"),
     VICE_LEADER("부회장"),
@@ -25,7 +27,13 @@ public enum TeamMemberRole {
         throw new IllegalArgumentException("Unknown role: " + displayName);
     }
 
-    public static boolean isNotLeader (TeamMemberRole nowRole) {
+    public static TeamMemberRole determineRole(JoinWaiting joinWaiting, String roleDisplayName) {
+        return joinWaiting.isMercenary()
+            ? TeamMemberRole.MERCENARY
+            : TeamMemberRole.fromDisplayName(roleDisplayName);
+    }
+
+    public static boolean isNotLeader(TeamMemberRole nowRole) {
         return nowRole != LEADER;
     }
 

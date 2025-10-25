@@ -43,7 +43,7 @@ public class MatchCreateController {
     @GetMapping("/waiting/me")
     public ResponseEntity<Slice<MatchWaitingResponseDto>> getMyWaitingMatches(
         @LoginUser Long loginUserId,
-        @PageableDefault(size = 10, sort = "createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable
+        @PageableDefault(size = 10, sort = "audit.createdAt", direction = org.springframework.data.domain.Sort.Direction.DESC) Pageable pageable
     ) {
         Slice<MatchWaitingResponseDto> response = matchCreateService.getMyWaitingMatches(loginUserId, pageable);
         return ResponseEntity.ok(response);

@@ -1,10 +1,10 @@
 package com.shootdoori.match.dto;
-import com.shootdoori.match.entity.user.UserPosition;
+import com.shootdoori.match.entity.common.Position;
 
 public record LineupRequestDto(Long matchId,
                                Long waitingId,
                                Long requestId,
                                Long teamMemberId,
-                               UserPosition position,
+                               Position position,
                                Boolean isStarter) {
 }

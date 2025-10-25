@@ -6,7 +6,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.team.TeamMemberRole;
-import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.team.join.JoinWaiting;
 import com.shootdoori.match.entity.team.join.JoinWaitingStatus;
@@ -36,7 +36,7 @@ public class JoinWaitingTest {
             "leader@kangwon.ac.kr",
             "Abcd1234!",
             "010-1111-1111",
-            "미드필더",
+            "MF",
             "강원대학교",
             "체육학과",
             "25",
@@ -49,7 +49,7 @@ public class JoinWaitingTest {
             "applicant@kangwon.ac.kr",
             "Abcd1234!",
             "010-2222-2222",
-            "공격수",
+            "FW",
             "강원대학교",
             "컴퓨터공학과",
             "22",
@@ -62,7 +62,7 @@ public class JoinWaitingTest {
             "other@kangwon.ac.kr",
             "Abcd1234!",
             "010-3333-3333",
-            "수비수",
+            "DF",
             "강원대학교",
             "경영학과",
             "24",
@@ -78,12 +78,12 @@ public class JoinWaitingTest {
             teamLeader,
             "강원대학교",
             TeamType.fromDisplayName("과동아리"),
-            TeamSkillLevel.fromDisplayName("세미프로"),
+            SkillLevel.fromDisplayName("세미프로"),
             "주 3회 연습합니다."
         );
 
-        team.recruitMember(teamLeader, TeamMemberRole.LEADER);
-        leaderMember = team.getMembers().get(0);
+        team.addMember(teamLeader, TeamMemberRole.LEADER);
+        leaderMember = team.getTeamMembers().get(0);
     }
 
     @Nested
@@ -152,9 +152,9 @@ public class JoinWaitingTest {
             assertThat(joinWaiting.getDecidedBy()).isEqualTo(teamLeader);
             assertThat(joinWaiting.getDecidedAt()).isNotNull();
 
-            assertThat(team.getMembers()).hasSize(2);
-            assertThat(team.getMembers().get(1).getUser()).isEqualTo(applicant);
-            assertThat(team.getMembers().get(1).getRole()).isEqualTo(TeamMemberRole.MEMBER);
+            assertThat(team.getTeamMembers()).hasSize(2);
+            assertThat(team.getTeamMembers().get(1).getUser()).isEqualTo(applicant);
+            assertThat(team.getTeamMembers().get(1).getRole()).isEqualTo(TeamMemberRole.MEMBER);
         }
 
         @Test
@@ -177,8 +177,8 @@ public class JoinWaitingTest {
         void approve_byRegularMember_throwsNoPermission() {
             // given
             JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입 요청입니다.", false);
-            team.recruitMember(anotherUser, TeamMemberRole.MEMBER);
-            TeamMember regularMember = team.getMembers().get(1);
+            team.addMember(anotherUser, TeamMemberRole.MEMBER);
+            TeamMember regularMember = team.getTeamMembers().get(1);
 
             // when & then
             assertThatThrownBy(() ->
@@ -206,7 +206,7 @@ public class JoinWaitingTest {
             assertThat(joinWaiting.getDecidedBy()).isEqualTo(teamLeader);
             assertThat(joinWaiting.getDecidedAt()).isNotNull();
 
-            assertThat(team.getMembers()).hasSize(1);
+            assertThat(team.getTeamMembers()).hasSize(1);
         }
 
         @Test
@@ -229,8 +229,8 @@ public class JoinWaitingTest {
         void reject_byRegularMember_throwsNoPermission() {
             // given
             JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입 요청입니다.", false);
-            team.recruitMember(anotherUser, TeamMemberRole.MEMBER);
-            TeamMember regularMember = team.getMembers().get(1);
+            team.addMember(anotherUser, TeamMemberRole.MEMBER);
+            TeamMember regularMember = team.getTeamMembers().get(1);
 
             // when & then
             assertThatThrownBy(() ->
@@ -258,7 +258,7 @@ public class JoinWaitingTest {
             assertThat(joinWaiting.getDecidedBy()).isEqualTo(applicant);
             assertThat(joinWaiting.getDecidedAt()).isNotNull();
 
-            assertThat(team.getMembers()).hasSize(1);
+            assertThat(team.getTeamMembers()).hasSize(1);
         }
 
         @Test

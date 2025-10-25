@@ -22,7 +22,7 @@ public record RecruitmentResponse(
             recruitment.getMatchDate(),
             recruitment.getMatchTime(),
             recruitment.getMessage(),
-            recruitment.getPosition().getDisplayName(),
+            recruitment.getPosition().name(),
             recruitment.getSkillLevel().getDisplayName(),
             recruitment.getRecruitmentStatus().getDisplayName(),
             recruitment.getCreatedAt()

@@ -18,7 +18,7 @@ public interface MatchWaitingRepository extends JpaRepository<MatchWaiting, Long
         "JOIN FETCH mw.team t " +
         "WHERE mw.preferredDate = :date " +
         "AND mw.status = com.shootdoori.match.entity.match.waiting.MatchWaitingStatus.WAITING " +
-        "AND t.status = 'ACTIVE' " +
+        "AND t.softDelete.status = com.shootdoori.match.entity.team.TeamStatus.ACTIVE " +
         "AND t.teamId <> :teamId " +
         "AND mw.expiresAt > CURRENT_TIMESTAMP " +
         "AND (:lastTime IS NULL OR mw.preferredTimeStart >= :lastTime) " +
@@ -32,7 +32,7 @@ public interface MatchWaitingRepository extends JpaRepository<MatchWaiting, Long
 
     @Query("SELECT mw FROM MatchWaiting mw " +
         "WHERE mw.team.id = :teamId " +
-        "ORDER BY mw.createdAt DESC")
+        "ORDER BY mw.audit.createdAt DESC")
     Slice<MatchWaiting> findMyTeamMatchWaitingHistory(
         @Param("teamId") Long teamId,
         Pageable pageable

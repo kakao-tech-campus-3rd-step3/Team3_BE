@@ -22,7 +22,7 @@ public class VenueController {
 
     @GetMapping
     public Slice<VenueSearchResponseDto> getAllVenues(
-        @PageableDefault(size = 10, sort = "name", direction = Sort.Direction.ASC) Pageable pageable) {
+        @PageableDefault(size = 10, sort = "venueName", direction = Sort.Direction.ASC) Pageable pageable) {
         return venueService.getAllVenues(pageable);
     }
 }

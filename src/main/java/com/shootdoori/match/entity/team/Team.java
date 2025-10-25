@@ -1,23 +1,22 @@
 package com.shootdoori.match.entity.team;
 
-import com.shootdoori.match.entity.common.SoftDeleteTeamEntity;
+import com.shootdoori.match.entity.common.AuditInfo;
+import com.shootdoori.match.entity.common.SkillLevel;
+import com.shootdoori.match.entity.common.SoftDeleteTeamInfo;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.DifferentException;
-import com.shootdoori.match.exception.common.DuplicatedException;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NoPermissionException;
-import com.shootdoori.match.exception.domain.team.LastTeamMemberRemovalNotAllowedException;
-import com.shootdoori.match.exception.domain.team.TeamCapacityExceededException;
-import com.shootdoori.match.exception.domain.team.TeamFullException;
 import com.shootdoori.match.value.Description;
 import com.shootdoori.match.value.MemberCount;
+import com.shootdoori.match.value.TeamMembers;
 import com.shootdoori.match.value.TeamName;
 import com.shootdoori.match.value.UniversityName;
 import jakarta.persistence.AttributeOverride;
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -26,17 +25,19 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import org.hibernate.annotations.SQLRestriction;
-import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import org.hibernate.annotations.SQLRestriction;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
 @Table(name = "team")
+@EntityListeners(AuditingEntityListener.class)
 @SQLRestriction("status = 'ACTIVE'")
-public class Team extends SoftDeleteTeamEntity {
+public class Team {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -59,35 +60,33 @@ public class Team extends SoftDeleteTeamEntity {
     @Column(name = "TEAM_TYPE", nullable = false, length = 20)
     private TeamType teamType = TeamType.OTHER;
 
-    @Embedded
-    @AttributeOverride(name = "count", column = @Column(name = "MEMBER_COUNT", nullable = false))
-    private MemberCount memberCount = MemberCount.of(0);
-
     @Enumerated(EnumType.STRING)
     @Column(name = "SKILL_LEVEL", nullable = false, length = 20)
-    private TeamSkillLevel skillLevel = TeamSkillLevel.AMATEUR;
+    private SkillLevel skillLevel = SkillLevel.AMATEUR;
 
     @Embedded
     @AttributeOverride(name = "description", column = @Column(name = "DESCRIPTION", length = 1000))
     private Description description;
 
-    @OneToMany(mappedBy = "team", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE}, orphanRemoval = true)
-    private List<TeamMember> members = new ArrayList<>();
+    @Embedded
+    private TeamMembers teamMembers = TeamMembers.empty();
 
+    @Embedded
+    private AuditInfo audit = new AuditInfo();
 
-    private static final int MIN_MEMBERS = 0;
-    private static final int MAX_MEMBERS = 100;
+    @Embedded
+    SoftDeleteTeamInfo softDelete = new SoftDeleteTeamInfo();
 
     protected Team() {
     }
 
     public Team(String teamName, User captain, String university, TeamType teamType,
-        TeamSkillLevel skillLevel, String description) {
+        SkillLevel skillLevel, String description) {
         this.teamName = TeamName.of(teamName);
         this.captain = captain;
         this.university = UniversityName.of(university);
         this.teamType = teamType != null ? teamType : TeamType.OTHER;
-        this.skillLevel = skillLevel != null ? skillLevel : TeamSkillLevel.AMATEUR;
+        this.skillLevel = skillLevel != null ? skillLevel : SkillLevel.AMATEUR;
         this.description = Description.of(description);
     }
 
@@ -113,10 +112,10 @@ public class Team extends SoftDeleteTeamEntity {
     }
 
     public MemberCount getMemberCount() {
-        return memberCount;
+        return teamMembers.getMemberCount();
     }
 
-    public TeamSkillLevel getSkillLevel() {
+    public SkillLevel getSkillLevel() {
         return skillLevel;
     }
 
@@ -124,42 +123,51 @@ public class Team extends SoftDeleteTeamEntity {
         return description;
     }
 
-    public List<TeamMember> getMembers() {
-        return members;
+    public List<TeamMember> getTeamMembers() {
+        return Collections.unmodifiableList(teamMembers.getTeamMembers());
     }
 
-    public void validateSameUniversity(User user) {
+    public LocalDateTime getCreatedAt() {
+        return audit.getCreatedAt();
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return audit.getUpdatedAt();
+    }
+
+    public AuditInfo getAudit() {
+        return audit;
+    }
+
+    public TeamStatus getStatus() {
+        return softDelete.getStatus();
+    }
+
+    public boolean isDeleted() {
+        return softDelete.isDeleted();
+    }
+
+    public boolean isActive() {
+        return softDelete.isActive();
+    }
+
+    public void validateSameUniversityAs(User user) {
         if (!this.university.equals(user.getUniversity())) {
             throw new DifferentException(ErrorCode.DIFFERENT_UNIVERSITY);
         }
     }
 
-    public void validateCanAcceptNewMember() {
-        if (this.memberCount.count() >= MAX_MEMBERS) {
-            throw new TeamCapacityExceededException();
-        }
+    public void ensureCapacityAvailable() {
+        teamMembers.ensureNotFull();
     }
 
-    public void recruitMember(User user, TeamMemberRole role) {
-        if (members.size() >= MAX_MEMBERS) {
-            throw new TeamFullException("팀 정원이 초과되었습니다.");
-        }
-
-        if (members.stream().anyMatch(member -> member.getUser().equals(user))) {
-            throw new DuplicatedException(ErrorCode.ALREADY_TEAM_MEMBER);
-        }
-
+    public void addMember(User user, TeamMemberRole role) {
         TeamMember teamMember = new TeamMember(this, user, role);
-        this.members.add(teamMember);
-        this.memberCount = this.memberCount.increase();
+        teamMembers.addMember(teamMember);
     }
 
     public void removeMember(TeamMember member) {
-        if (this.memberCount.count() == 1) {
-            throw new LastTeamMemberRemovalNotAllowedException();
-        }
-        members.remove(member);
-        this.memberCount = this.memberCount.decrease();
+        teamMembers.removeMember(member);
     }
 
     public void changeTeamInfo(String teamName,
@@ -169,18 +177,16 @@ public class Team extends SoftDeleteTeamEntity {
 
         this.teamName = TeamName.of(teamName);
         this.university = UniversityName.of(university);
-        this.skillLevel = TeamSkillLevel.fromDisplayName(skillLevel);
+        this.skillLevel = SkillLevel.fromDisplayName(skillLevel);
         this.description = Description.of(description);
     }
 
     public boolean hasCaptain() {
-        return members.stream()
-            .anyMatch(TeamMember::isCaptain);
+        return teamMembers.hasCaptain();
     }
 
     public boolean hasViceCaptain() {
-        return members.stream()
-            .anyMatch(TeamMember::isViceCaptain);
+        return teamMembers.hasViceCaptain();
     }
 
     public void delete(Long userId) {
@@ -188,24 +194,24 @@ public class Team extends SoftDeleteTeamEntity {
             throw new NoPermissionException(ErrorCode.CAPTAIN_ONLY_OPERATION);
         }
 
-        members.clear();
-        memberCount = MemberCount.of(0);
-        
-        changeStatusDeleted();
+        teamMembers.clear();
+        softDelete.changeStatusDeleted();
     }
 
     public void restore(Long userId) {
         if (!Objects.equals(getCaptain().getId(), userId)) {
             throw new NoPermissionException(ErrorCode.CAPTAIN_ONLY_OPERATION);
         }
-        
-        recruitMember(captain, TeamMemberRole.LEADER);
-        changeStatusActive();
+
+        addMember(captain, TeamMemberRole.LEADER);
+        softDelete.changeStatusActive();
     }
-    
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
+        if (this == o) {
+            return true;
+        }
         if (o == null || !(o instanceof Team)) {
             return false;
         }
