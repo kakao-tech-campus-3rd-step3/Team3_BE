@@ -68,7 +68,7 @@ public class User {
 
     private User(String name, SkillLevel skillLevel, String email, String password, String kakaoTalkId,
         Position position, String university, String department, String studentYear, String bio) {
-        validate(name, skillLevel.getDisplayName(), email, password, kakaoTalkId, position.name(), university, department, studentYear, bio);
+        validate(name, skillLevel.getDisplayName(), email, kakaoTalkId, position.name(), university, department, studentYear, bio);
         this.name = name;
         this.skillLevel = skillLevel;
         this.email = email;
@@ -89,12 +89,11 @@ public class User {
             studentYear, bio);
     }
 
-    private void validate(String name, String skillLevel, String email, String password, String kakaoTalkId,
+    private void validate(String name, String skillLevel, String email, String kakaoTalkId,
         String position, String university, String department, String studentYear, String bio) {
         validateName(name);
         validateSkillLevel(skillLevel);
         validateEmail(email);
-        validatePassword(password);
         validateKakaoTalkId(kakaoTalkId);
         validatePosition(position);
         validateUniversity(university);
@@ -269,12 +268,6 @@ public class User {
         this.skillLevel = SkillLevel.fromDisplayName(skillLevel);
         this.position = Position.fromCode(position);
         this.bio = bio;
-    }
-
-    public void validatePassword(String rawPassword) {
-        if (rawPassword == null || rawPassword.isBlank()) {
-            throw new IllegalArgumentException("비밀번호는 필수 입력값입니다.");
-        }
     }
 
     public void validatePasswordMatches(String rawPassword) {
