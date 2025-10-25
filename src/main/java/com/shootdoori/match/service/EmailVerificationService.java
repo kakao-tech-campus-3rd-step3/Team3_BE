@@ -1,5 +1,6 @@
 package com.shootdoori.match.service;
 
+import com.shootdoori.match.config.PasswordEncoderService;
 import com.shootdoori.match.config.PasswordEncoderProvider;
 import com.shootdoori.match.entity.auth.EmailVerificationCode;
 import com.shootdoori.match.exception.common.ErrorCode;
