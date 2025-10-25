@@ -15,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,16 +25,14 @@ public class AuthService {
     private static final Logger log = LoggerFactory.getLogger(AuthService.class);
     private final JwtUtil jwtUtil;
     private final ProfileService profileService;
-    private final PasswordEncoder passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
     private final TokenIssuer tokenIssuer;
 
     private static final String BEARER_PREFIX = "Bearer ";
 
-    public AuthService(JwtUtil jwtUtil, ProfileService profileService, PasswordEncoder passwordEncoder, RefreshTokenRepository refreshTokenRepository, TokenIssuer tokenIssuer) {
+    public AuthService(JwtUtil jwtUtil, ProfileService profileService, RefreshTokenRepository refreshTokenRepository, TokenIssuer tokenIssuer) {
         this.jwtUtil = jwtUtil;
         this.profileService = profileService;
-        this.passwordEncoder = passwordEncoder;
         this.refreshTokenRepository = refreshTokenRepository;
         this.tokenIssuer = tokenIssuer;
     }
@@ -53,7 +50,7 @@ public class AuthService {
     public AuthToken login(LoginRequest request, ClientInfo clientInfo) {
         User user = profileService.findByEmail(request.email())
             .orElseThrow(() -> new UnauthorizedException(ErrorCode.FAIL_LOGIN));
-        user.validatePassword(request.password(), passwordEncoder);
+        user.validatePasswordMatches(request.password());
 
         return issueTokens(user, clientInfo);
     }
