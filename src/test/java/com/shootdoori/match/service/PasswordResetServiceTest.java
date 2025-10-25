@@ -1,6 +1,6 @@
 package com.shootdoori.match.service;
 
-import com.shootdoori.match.config.PasswordEncoderService;
+import com.shootdoori.match.config.PasswordEncoderProvider;
 import com.shootdoori.match.entity.auth.PasswordOtpToken;
 import com.shootdoori.match.entity.auth.PasswordResetToken;
 import com.shootdoori.match.entity.user.User;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.*;
 class PasswordResetServiceTest {
 
     @Mock private ProfileRepository profileRepository;
-    @Mock private PasswordEncoderService passwordEncoder;
+    @Mock private PasswordEncoderProvider passwordEncoder;
     @Mock private MailService mailService;
     @Mock private PasswordOtpTokenRepository otpTokenRepository;
     @Mock private PasswordResetTokenRepository resetTokenRepository;
@@ -48,7 +48,7 @@ class PasswordResetServiceTest {
     @BeforeEach
     void setUp() throws NoSuchFieldException, IllegalAccessException {
         var encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-        var field = PasswordEncoderService.class.getDeclaredField("staticPasswordEncoder");
+        var field = PasswordEncoderProvider.class.getDeclaredField("staticPasswordEncoder");
         field.setAccessible(true);
         field.set(null, encoder);
         testEmail = "test@example.com";

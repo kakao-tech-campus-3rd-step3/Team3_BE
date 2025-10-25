@@ -1,6 +1,7 @@
 package com.shootdoori.match.service;
 
 import com.shootdoori.match.config.PasswordEncoderService;
+import com.shootdoori.match.config.PasswordEncoderProvider;
 import com.shootdoori.match.entity.auth.EmailVerificationCode;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.UnauthorizedException;
@@ -16,11 +17,11 @@ public class EmailVerificationService {
 
     private final EmailVerificationCodeRepository codeRepository;
     private final MailService mailService;
-    private final PasswordEncoderService passwordEncoder;
+    private final PasswordEncoderProvider passwordEncoder;
 
     public EmailVerificationService(EmailVerificationCodeRepository codeRepository,
                                     MailService mailService,
-                                    PasswordEncoderService passwordEncoder) {
+                                    PasswordEncoderProvider passwordEncoder) {
         this.codeRepository = codeRepository;
         this.mailService = mailService;
         this.passwordEncoder = passwordEncoder;

@@ -1,6 +1,6 @@
 package com.shootdoori.match.service;
 
-import com.shootdoori.match.config.PasswordEncoderService;
+import com.shootdoori.match.config.PasswordEncoderProvider;
 import com.shootdoori.match.entity.auth.EmailVerificationCode;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.UnauthorizedException;
@@ -30,14 +30,14 @@ import static org.mockito.Mockito.*;
 public class EmailVerificationServiceTest {
     @Mock private EmailVerificationCodeRepository codeRepository;
     @Mock private MailService mailService;
-    @Mock private PasswordEncoderService passwordEncoder;
+    @Mock private PasswordEncoderProvider passwordEncoder;
 
     @InjectMocks private EmailVerificationService emailVerificationService;
 
     @BeforeEach
     void initEncoder() throws Exception {
         PasswordEncoder encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
-        Field staticEncoder = PasswordEncoderService.class.getDeclaredField("staticPasswordEncoder");
+        Field staticEncoder = PasswordEncoderProvider.class.getDeclaredField("staticPasswordEncoder");
         staticEncoder.setAccessible(true);
         staticEncoder.set(null, encoder);
     }
@@ -105,9 +105,9 @@ public class EmailVerificationServiceTest {
 
         when(codeRepository.findByEmail(email)).thenReturn(Optional.of(savedCode));
 
-        try (MockedStatic<PasswordEncoderService> mocked = mockStatic(PasswordEncoderService.class)) {
+        try (MockedStatic<PasswordEncoderProvider> mocked = mockStatic(PasswordEncoderProvider.class)) {
             // when
-            mocked.when(() -> PasswordEncoderService.matches(rawCode, encodedCode)).thenReturn(true);
+            mocked.when(() -> PasswordEncoderProvider.matches(rawCode, encodedCode)).thenReturn(true);
 
             emailVerificationService.verifyCode(email, rawCode);
 
@@ -128,9 +128,9 @@ public class EmailVerificationServiceTest {
 
             when(codeRepository.findByEmail(email)).thenReturn(Optional.of(savedCode));
 
-            try (MockedStatic<PasswordEncoderService> mocked = mockStatic(PasswordEncoderService.class)) {
+            try (MockedStatic<PasswordEncoderProvider> mocked = mockStatic(PasswordEncoderProvider.class)) {
                 // when
-                mocked.when(() -> PasswordEncoderService.matches(rawCode, encodedCode)).thenReturn(false);
+                mocked.when(() -> PasswordEncoderProvider.matches(rawCode, encodedCode)).thenReturn(false);
 
                 // then
                 assertThatThrownBy(() -> emailVerificationService.verifyCode(email, rawCode))

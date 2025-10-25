@@ -1,6 +1,6 @@
 package com.shootdoori.match.value;
 
-import com.shootdoori.match.config.PasswordEncoderService;
+import com.shootdoori.match.config.PasswordEncoderProvider;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.UnauthorizedException;
 import jakarta.persistence.Embeddable;
@@ -26,7 +26,7 @@ public class Password {
     }
 
     public boolean matches(String rawPassword) {
-        return PasswordEncoderService.matches(rawPassword, this.password);
+        return PasswordEncoderProvider.matches(rawPassword, this.password);
     }
 
     public void validate(String rawPassword) {
