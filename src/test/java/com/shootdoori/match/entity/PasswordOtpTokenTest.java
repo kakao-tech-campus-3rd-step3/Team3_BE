@@ -1,20 +1,18 @@
 package com.shootdoori.match.entity;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-
-import com.shootdoori.match.config.PasswordEncoderService;
 import com.shootdoori.match.entity.auth.PasswordOtpToken;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.UnauthorizedException;
 import com.shootdoori.match.value.Expiration;
-import java.lang.reflect.Field;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+
+import java.lang.reflect.Field;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
+import static org.assertj.core.api.AssertionsForClassTypes.*;
 
 public class PasswordOtpTokenTest {
 
@@ -23,7 +21,6 @@ public class PasswordOtpTokenTest {
 
     @BeforeEach
     void setUp() {
-        new PasswordEncoderService();
         user = createUser();
         otpToken = new PasswordOtpToken(user, "encodedCode", 3);
     }
