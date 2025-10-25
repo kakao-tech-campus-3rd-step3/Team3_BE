@@ -1,6 +1,5 @@
 package com.shootdoori.match.service;
 
-import com.shootdoori.match.config.PasswordEncoderService;
 import com.shootdoori.match.dto.AuthToken;
 import com.shootdoori.match.dto.ClientInfo;
 import com.shootdoori.match.dto.LoginRequest;
@@ -50,7 +49,7 @@ public class AuthService {
     public AuthToken login(LoginRequest request, ClientInfo clientInfo) {
         User user = profileService.findByEmail(request.email())
             .orElseThrow(() -> new UnauthorizedException("잘못된 이메일 또는 비밀번호입니다."));
-        user.validatePassword(request.password());
+        user.validatePasswordMatches(request.password());
 
         return issueTokens(user, clientInfo);
     }

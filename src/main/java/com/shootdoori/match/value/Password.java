@@ -3,7 +3,6 @@ package com.shootdoori.match.value;
 import com.shootdoori.match.config.PasswordEncoderService;
 import com.shootdoori.match.exception.common.UnauthorizedException;
 import jakarta.persistence.Embeddable;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Objects;
 

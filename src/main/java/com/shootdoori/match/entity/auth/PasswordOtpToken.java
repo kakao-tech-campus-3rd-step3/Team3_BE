@@ -7,7 +7,6 @@ import com.shootdoori.match.exception.common.TooManyRequestsException;
 import com.shootdoori.match.exception.common.UnauthorizedException;
 import com.shootdoori.match.value.Expiration;
 import jakarta.persistence.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 
@@ -16,7 +15,7 @@ public class PasswordOtpToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    
     @Column(nullable = false)
     private String code;
 

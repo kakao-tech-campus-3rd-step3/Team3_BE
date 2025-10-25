@@ -4,6 +4,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 
+import com.shootdoori.match.config.PasswordEncoderService;
 import com.shootdoori.match.entity.auth.PasswordOtpToken;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.UnauthorizedException;
@@ -22,6 +23,7 @@ public class PasswordOtpTokenTest {
 
     @BeforeEach
     void setUp() {
+        new PasswordEncoderService();
         user = createUser();
         otpToken = new PasswordOtpToken(user, "encodedCode", 3);
     }

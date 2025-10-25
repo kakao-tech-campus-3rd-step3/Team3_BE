@@ -271,7 +271,13 @@ public class User {
         this.bio = bio;
     }
 
-    public void validatePassword(String rawPassword) {
+    public void validatePassword(String rawPassword) throws IllegalArgumentException {
+        if (rawPassword == null || rawPassword.isBlank()) {
+            throw new IllegalArgumentException("비밀번호는 필수 입력값입니다.");
+        }
+    }
+
+    public void validatePasswordMatches(String rawPassword) {
         this.password.validate(rawPassword);
     }
 

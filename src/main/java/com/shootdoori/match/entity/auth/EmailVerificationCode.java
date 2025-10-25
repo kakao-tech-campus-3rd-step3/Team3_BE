@@ -4,7 +4,6 @@ import com.shootdoori.match.config.PasswordEncoderService;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.UnauthorizedException;
 import jakarta.persistence.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
 public class EmailVerificationCode {

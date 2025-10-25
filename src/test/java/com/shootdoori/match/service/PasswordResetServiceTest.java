@@ -1,5 +1,6 @@
 package com.shootdoori.match.service;
 
+import com.shootdoori.match.config.PasswordEncoderService;
 import com.shootdoori.match.entity.auth.PasswordOtpToken;
 import com.shootdoori.match.entity.auth.PasswordResetToken;
 import com.shootdoori.match.entity.user.User;
@@ -18,7 +19,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 
 import java.util.Optional;
 
@@ -34,7 +35,7 @@ import static org.mockito.Mockito.*;
 class PasswordResetServiceTest {
 
     @Mock private ProfileRepository profileRepository;
-    @Mock private PasswordEncoder passwordEncoder;
+    @Mock private PasswordEncoderService passwordEncoder;
     @Mock private MailService mailService;
     @Mock private PasswordOtpTokenRepository otpTokenRepository;
     @Mock private PasswordResetTokenRepository resetTokenRepository;
@@ -45,7 +46,11 @@ class PasswordResetServiceTest {
     private String testEmail;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws NoSuchFieldException, IllegalAccessException {
+        var encoder = PasswordEncoderFactories.createDelegatingPasswordEncoder();
+        var field = PasswordEncoderService.class.getDeclaredField("staticPasswordEncoder");
+        field.setAccessible(true);
+        field.set(null, encoder);
         testEmail = "test@example.com";
         testUser = mock(User.class);
         lenient().when(testUser.getId()).thenReturn(1L);
@@ -191,7 +196,7 @@ class PasswordResetServiceTest {
         when(otpTokenRepository.findByUser_Email(testEmail)).thenReturn(Optional.of(otpToken));
         when(otpToken.getUser()).thenReturn(testUser);
         when(resetTokenRepository.findByUser_Id(testUser.getId())).thenReturn(Optional.empty());
-        doNothing().when(otpToken).validateCode(code, passwordEncoder);
+        doNothing().when(otpToken).validateCode(code);
 
         // when
         String token = passwordResetService.verifyCodeAndIssueToken(testEmail, code);
@@ -200,7 +205,7 @@ class PasswordResetServiceTest {
         assertThat(token).isNotNull();
         assertThat(token).isNotEmpty();
 
-        verify(otpToken).validateCode(code, passwordEncoder);
+        verify(otpToken).validateCode(code);
         verify(resetTokenRepository).findByUser_Id(testUser.getId());
         verify(resetTokenRepository).save(any(PasswordResetToken.class));
         verify(otpTokenRepository).delete(otpToken);
@@ -217,7 +222,7 @@ class PasswordResetServiceTest {
         when(otpTokenRepository.findByUser_Email(testEmail)).thenReturn(Optional.of(otpToken));
         when(otpToken.getUser()).thenReturn(testUser);
         when(resetTokenRepository.findByUser_Id(testUser.getId())).thenReturn(Optional.of(existingResetToken));
-        doNothing().when(otpToken).validateCode(code, passwordEncoder);
+        doNothing().when(otpToken).validateCode(code);
 
         // when
         String token = passwordResetService.verifyCodeAndIssueToken(testEmail, code);
@@ -226,7 +231,7 @@ class PasswordResetServiceTest {
         assertThat(token).isNotNull();
         assertThat(token).isNotEmpty();
 
-        verify(otpToken).validateCode(code, passwordEncoder);
+        verify(otpToken).validateCode(code);
         verify(resetTokenRepository).findByUser_Id(testUser.getId());
         verify(existingResetToken).updateToken(anyString(), eq(5));
         verify(resetTokenRepository).save(existingResetToken);
@@ -254,8 +259,8 @@ class PasswordResetServiceTest {
             .thenReturn(Optional.empty())
             .thenReturn(Optional.of(existingResetToken));
 
-        doNothing().when(otpToken1).validateCode(code, passwordEncoder);
-        doNothing().when(otpToken2).validateCode(code, passwordEncoder);
+        doNothing().when(otpToken1).validateCode(code);
+        doNothing().when(otpToken2).validateCode(code);
 
         // when
         String firstToken = passwordResetService.verifyCodeAndIssueToken(testEmail, code);
@@ -296,7 +301,7 @@ class PasswordResetServiceTest {
 
         when(otpTokenRepository.findByUser_Email(testEmail)).thenReturn(Optional.of(otpToken));
         doThrow(new UnauthorizedException("인증번호가 일치하지 않습니다."))
-            .when(otpToken).validateCode(code, passwordEncoder);
+            .when(otpToken).validateCode(code);
 
         // when & then
         assertThatThrownBy(() -> passwordResetService.verifyCodeAndIssueToken(testEmail, code))
