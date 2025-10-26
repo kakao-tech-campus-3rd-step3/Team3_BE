@@ -16,10 +16,6 @@ public class Lineup {
     @Column(name = "lineup_id")
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "team_id", nullable = false)
-    private Team team;
-
     @Embedded
     private AuditInfo audit = new AuditInfo();
 
@@ -27,10 +23,6 @@ public class Lineup {
 
     public Long getId() {
         return id;
-    }
-
-    public Team getTeam() {
-        return team;
     }
 
     public AuditInfo getAudit() {

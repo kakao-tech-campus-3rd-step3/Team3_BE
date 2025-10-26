@@ -30,6 +30,10 @@ public class LineupMember {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "lineup_id", nullable = false)
+    private Lineup lineup;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "team_member_id", nullable = false)
     private TeamMember teamMember;
 
@@ -45,9 +49,11 @@ public class LineupMember {
 
 
     public LineupMember(TeamMember teamMember,
+                        Lineup lineup,
                         Position position,
                         Boolean isStarter) {
         this.teamMember = teamMember;
+        this.lineup = lineup;
         this.position = position;
         this.isStarter = isStarter;
     }
@@ -61,6 +67,10 @@ public class LineupMember {
 
     public TeamMember getTeamMember() {
         return teamMember;
+    }
+
+    public Lineup getLineup() {
+        return lineup;
     }
 
     public Position getPosition() {
@@ -83,8 +93,10 @@ public class LineupMember {
         return audit;
     }
 
-    public void update(Position position,
+    public void update(TeamMember teamMember,
+                       Position position,
                        Boolean isStarter) {
+        this.teamMember = teamMember;
         this.position = position;
         this.isStarter = isStarter;
     }

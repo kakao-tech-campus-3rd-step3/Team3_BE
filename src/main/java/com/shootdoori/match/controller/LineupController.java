@@ -28,22 +28,16 @@ public class LineupController {
     }
 
     //TODO 라인업아이디로 조회하도록 서비스 변경
-    @GetMapping
-    public ResponseEntity<List<LineupMemberResponseDto>> getLineupMembersByLineupId(@RequestParam(required = true) Long teamId) {
-        return new ResponseEntity<>(lineupService.getAllLineupsByTeamId(teamId), HttpStatus.OK);
-    }
-
-    //TODO 팀에 할당된 라인업 아이디들 조회하도록 변경
     @GetMapping("/{id}")
-    public ResponseEntity<LineupMemberResponseDto> getLineupsByTeamId(@PathVariable Long id) {
+    public ResponseEntity<List<LineupMemberResponseDto>> getLineupById(@PathVariable Long id) {
         return new ResponseEntity<>(lineupService.getLineupById(id), HttpStatus.OK);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<LineupMemberResponseDto> updateLineup(@PathVariable Long id,
-                                                                @RequestBody LineupMemberRequestDto requestDto,
+    public ResponseEntity<List<LineupMemberResponseDto>> updateLineup(@PathVariable Long id,
+                                                                @RequestBody List<LineupMemberRequestDto> requestDtos,
                                                                 @LoginUser Long userId) {
-        return new ResponseEntity<>(lineupService.updateLineup(id, requestDto, userId), HttpStatus.OK);
+        return new ResponseEntity<>(lineupService.updateLineup(id, requestDtos, userId), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
