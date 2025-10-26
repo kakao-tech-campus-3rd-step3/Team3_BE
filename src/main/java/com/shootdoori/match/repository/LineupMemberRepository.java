@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface LineupRepository extends JpaRepository<LineupMember, Long> {
+public interface LineupMemberRepository extends JpaRepository<LineupMember, Long> {
     List<LineupMember> findByTeamMemberTeamTeamId(Long teamId);
 }

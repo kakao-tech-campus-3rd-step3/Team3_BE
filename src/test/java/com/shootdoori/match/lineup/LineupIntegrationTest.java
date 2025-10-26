@@ -60,7 +60,7 @@ class LineupControllerIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired private LineupRepository lineupRepository;
+    @Autowired private LineupMemberRepository lineupMemberRepository;
     @Autowired private MatchRepository matchRepository;
     @Autowired private MatchWaitingRepository matchWaitingRepository;
     @Autowired private MatchRequestRepository matchRequestRepository;
@@ -154,7 +154,7 @@ class LineupControllerIntegrationTest {
         String jsonResponse = result.getResponse().getContentAsString();
         Long savedLineupId = objectMapper.readTree(jsonResponse).get(0).get("id").asLong();
 
-        assertThat(lineupRepository.findById(savedLineupId)).isPresent();
+        assertThat(lineupMemberRepository.findById(savedLineupId)).isPresent();
     }
 
     @Test
@@ -205,8 +205,8 @@ class LineupControllerIntegrationTest {
         JsonNode responseNode = objectMapper.readTree(jsonResponse);
         Long savedLineupId1 = responseNode.get(0).get("id").asLong();
         Long savedLineupId2 = responseNode.get(1).get("id").asLong();
-        assertThat(lineupRepository.findById(savedLineupId1)).isPresent();
-        assertThat(lineupRepository.findById(savedLineupId2)).isPresent();
+        assertThat(lineupMemberRepository.findById(savedLineupId1)).isPresent();
+        assertThat(lineupMemberRepository.findById(savedLineupId2)).isPresent();
     }
 
 
@@ -218,7 +218,7 @@ class LineupControllerIntegrationTest {
                 savedMatch, savedMatchWaiting, savedMatchRequest, savedTeamMember1,
                 Position.FW, true
         );
-        LineupMember savedLineupMember = lineupRepository.save(testLineupMember);
+        LineupMember savedLineupMember = lineupMemberRepository.save(testLineupMember);
         Long savedLineupId = savedLineupMember.getId();
 
         // when
@@ -251,9 +251,9 @@ class LineupControllerIntegrationTest {
                 savedMatch, savedMatchWaiting, savedMatchRequest, savedTeamMember1,
                 Position.DF, false
         );
-        LineupMember savedLineupMember = lineupRepository.save(testLineupMember);
+        LineupMember savedLineupMember = lineupMemberRepository.save(testLineupMember);
         Long savedLineupId = savedLineupMember.getId();
-        assertThat(lineupRepository.existsById(savedLineupId)).isTrue();
+        assertThat(lineupMemberRepository.existsById(savedLineupId)).isTrue();
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 savedUser1.getId(),
@@ -267,7 +267,7 @@ class LineupControllerIntegrationTest {
 
         // then
         actions.andExpect(status().isNoContent());
-        assertThat(lineupRepository.existsById(savedLineupId)).isFalse();
+        assertThat(lineupMemberRepository.existsById(savedLineupId)).isFalse();
     }
 
     @Test
@@ -278,7 +278,7 @@ class LineupControllerIntegrationTest {
                 savedMatch, savedMatchWaiting, savedMatchRequest, savedTeamMember1,
                 Position.GK, true
         );
-        LineupMember savedLineupMember = lineupRepository.save(originalLineupMember);
+        LineupMember savedLineupMember = lineupMemberRepository.save(originalLineupMember);
         Long savedLineupId = savedLineupMember.getId();
         LineupRequestDto updateDto = new LineupRequestDto(
                 savedMatch.getMatchId(),
@@ -305,7 +305,7 @@ class LineupControllerIntegrationTest {
                 .andExpect(jsonPath("$.id").value(savedLineupId))
                 .andExpect(jsonPath("$.position").value("MF"))
                 .andExpect(jsonPath("$.isStarter").value(false));
-        LineupMember updatedLineupMember = lineupRepository.findById(savedLineupId)
+        LineupMember updatedLineupMember = lineupMemberRepository.findById(savedLineupId)
                 .orElseThrow(() -> new AssertionError("라인업이 DB에 없습니다."));
 
         assertThat(updatedLineupMember.getPosition()).isEqualTo(Position.MF);
