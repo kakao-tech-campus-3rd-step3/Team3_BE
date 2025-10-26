@@ -29,6 +29,10 @@ public class Lineup {
         return id;
     }
 
+    public Team getTeam() {
+        return team;
+    }
+
     public AuditInfo getAudit() {
         return audit;
     }

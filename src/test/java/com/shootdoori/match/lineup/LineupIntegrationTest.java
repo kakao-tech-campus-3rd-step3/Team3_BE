@@ -2,7 +2,7 @@ package com.shootdoori.match.lineup;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.shootdoori.match.dto.LineupRequestDto;
+import com.shootdoori.match.dto.LineupMemberRequestDto;
 import com.shootdoori.match.entity.lineup.LineupMember;
 import com.shootdoori.match.entity.match.Match;
 import com.shootdoori.match.entity.match.MatchStatus;
@@ -119,7 +119,7 @@ class LineupControllerIntegrationTest {
     @DisplayName("POST /api/lineups - 라인업 생성 (단일 항목 리스트) (201 CREATED)")
     void createLineup_List_Success_SingleItem_IntegrationTest() throws Exception {
         // given
-        LineupRequestDto requestDto = new LineupRequestDto(
+        LineupMemberRequestDto requestDto = new LineupMemberRequestDto(
                 savedMatch.getMatchId(),
                 savedMatchWaiting.getWaitingId(),
                 savedMatchRequest.getRequestId(),
@@ -128,7 +128,7 @@ class LineupControllerIntegrationTest {
                 true
         );
 
-        List<LineupRequestDto> requestList = List.of(requestDto);
+        List<LineupMemberRequestDto> requestList = List.of(requestDto);
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 savedUser1.getId(),
@@ -167,18 +167,18 @@ class LineupControllerIntegrationTest {
         TeamMember savedTeamMember3 = new TeamMember(savedTeam1, savedUser3, TeamMemberRole.MEMBER);
         teamMemberRepository.save(savedTeamMember3);
 
-        LineupRequestDto requestDto1 = new LineupRequestDto(
+        LineupMemberRequestDto requestDto1 = new LineupMemberRequestDto(
                 savedMatch.getMatchId(), null, null,
                 savedTeamMember1.getId(),
                 Position.GK, true
         );
-        LineupRequestDto requestDto2 = new LineupRequestDto(
+        LineupMemberRequestDto requestDto2 = new LineupMemberRequestDto(
                 savedMatch.getMatchId(), null, null,
                 savedTeamMember3.getId(),
                 Position.DF, true
         );
 
-        List<LineupRequestDto> requestList = List.of(requestDto1, requestDto2);
+        List<LineupMemberRequestDto> requestList = List.of(requestDto1, requestDto2);
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 savedUser1.getId(),
@@ -280,7 +280,7 @@ class LineupControllerIntegrationTest {
         );
         LineupMember savedLineupMember = lineupMemberRepository.save(originalLineupMember);
         Long savedLineupId = savedLineupMember.getId();
-        LineupRequestDto updateDto = new LineupRequestDto(
+        LineupMemberRequestDto updateDto = new LineupMemberRequestDto(
                 savedMatch.getMatchId(),
                 savedMatchWaiting.getWaitingId(),
                 savedMatchRequest.getRequestId(),

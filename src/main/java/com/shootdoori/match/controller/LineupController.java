@@ -1,7 +1,7 @@
 package com.shootdoori.match.controller;
 
-import com.shootdoori.match.dto.LineupRequestDto;
-import com.shootdoori.match.dto.LineupResponseDto;
+import com.shootdoori.match.dto.LineupMemberRequestDto;
+import com.shootdoori.match.dto.LineupMemberResponseDto;
 import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.LineupService;
 import org.springframework.http.HttpStatus;
@@ -22,25 +22,27 @@ public class LineupController {
     }
 
     @PostMapping()
-    public ResponseEntity<List<LineupResponseDto>> createLineup(@RequestBody List<LineupRequestDto> requestDtos,
-                                                                @LoginUser Long userId) {
+    public ResponseEntity<List<LineupMemberResponseDto>> createLineup(@RequestBody List<LineupMemberRequestDto> requestDtos,
+                                                                      @LoginUser Long userId) {
         return new ResponseEntity<>(lineupService.createLineup(requestDtos, userId), HttpStatus.CREATED);
     }
 
+    //TODO 라인업아이디로 조회하도록 서비스 변경
     @GetMapping
-    public ResponseEntity<List<LineupResponseDto>> getLineupsByTeamId(@RequestParam(required = true) Long teamId) {
+    public ResponseEntity<List<LineupMemberResponseDto>> getLineupMembersByLineupId(@RequestParam(required = true) Long teamId) {
         return new ResponseEntity<>(lineupService.getAllLineupsByTeamId(teamId), HttpStatus.OK);
     }
 
+    //TODO 팀에 할당된 라인업 아이디들 조회하도록 변경
     @GetMapping("/{id}")
-    public ResponseEntity<LineupResponseDto> getLineupById(@PathVariable Long id) {
+    public ResponseEntity<LineupMemberResponseDto> getLineupsByTeamId(@PathVariable Long id) {
         return new ResponseEntity<>(lineupService.getLineupById(id), HttpStatus.OK);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<LineupResponseDto> updateLineup(@PathVariable Long id,
-                                                          @RequestBody LineupRequestDto requestDto,
-                                                          @LoginUser Long userId) {
+    public ResponseEntity<LineupMemberResponseDto> updateLineup(@PathVariable Long id,
+                                                                @RequestBody LineupMemberRequestDto requestDto,
+                                                                @LoginUser Long userId) {
         return new ResponseEntity<>(lineupService.updateLineup(id, requestDto, userId), HttpStatus.OK);
     }
 

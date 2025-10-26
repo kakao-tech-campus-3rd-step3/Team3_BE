@@ -1,7 +1,7 @@
 package com.shootdoori.match.service;
 
-import com.shootdoori.match.dto.LineupRequestDto;
-import com.shootdoori.match.dto.LineupResponseDto;
+import com.shootdoori.match.dto.LineupMemberRequestDto;
+import com.shootdoori.match.dto.LineupMemberResponseDto;
 import com.shootdoori.match.entity.lineup.LineupMember;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.exception.common.CreationFailException;
@@ -30,17 +30,17 @@ public class LineupService {
         this.teamMemberRepository = teamMemberRepository;
     }
 
-    public List<LineupResponseDto> getAllLineupsByTeamId(Long teamId) {
+    public List<LineupMemberResponseDto> getAllLineupsByTeamId(Long teamId) {
         return lineupMemberRepository.findByTeamMemberTeamTeamId(teamId).stream()
-                .map(LineupResponseDto::from)
+                .map(LineupMemberResponseDto::from)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public List<LineupResponseDto> createLineup(List<LineupRequestDto> requestDtos, Long userId) {
+    public List<LineupMemberResponseDto> createLineup(List<LineupMemberRequestDto> requestDtos, Long userId) {
 
         Set<Long> teamMemberIds = requestDtos.stream()
-                .map(LineupRequestDto::teamMemberId)
+                .map(LineupMemberRequestDto::teamMemberId)
                 .collect(Collectors.toSet());
 
         Map<Long, TeamMember> teamMemberMap = teamMemberRepository.findAllById(teamMemberIds).stream()
@@ -72,17 +72,17 @@ public class LineupService {
         try {
             List<LineupMember> savedLineupMembers = lineupMemberRepository.saveAllAndFlush(lineupsToSave);
             return savedLineupMembers.stream()
-                    .map(LineupResponseDto::from)
+                    .map(LineupMemberResponseDto::from)
                     .collect(Collectors.toList());
         } catch (DataIntegrityViolationException e) {
             throw new CreationFailException(ErrorCode.LINEUP_CREATION_FAILED);
         }
     }
 
-    public LineupResponseDto getLineupById(Long id) {
+    public LineupMemberResponseDto getLineupById(Long id) {
         LineupMember lineupMember = lineupMemberRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.LINEUP_NOT_FOUND));
-        return LineupResponseDto.from(lineupMember);
+        return LineupMemberResponseDto.from(lineupMember);
     }
 
     public LineupMember findByIdForEntity(Long id) {
@@ -91,7 +91,7 @@ public class LineupService {
     }
 
     @Transactional
-    public LineupResponseDto updateLineup(Long id, LineupRequestDto requestDto, Long userId) {
+    public LineupMemberResponseDto updateLineup(Long id, LineupMemberRequestDto requestDto, Long userId) {
         LineupMember lineupMember = lineupMemberRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(ErrorCode.LINEUP_NOT_FOUND));
 
@@ -102,7 +102,7 @@ public class LineupService {
                 requestDto.isStarter()
         );
 
-        return LineupResponseDto.from(lineupMember);
+        return LineupMemberResponseDto.from(lineupMember);
     }
 
     @Transactional

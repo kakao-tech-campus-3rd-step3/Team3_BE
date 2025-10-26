@@ -1,7 +1,7 @@
 package com.shootdoori.match.lineup;
 
-import com.shootdoori.match.dto.LineupRequestDto;
-import com.shootdoori.match.dto.LineupResponseDto;
+import com.shootdoori.match.dto.LineupMemberRequestDto;
+import com.shootdoori.match.dto.LineupMemberResponseDto;
 import com.shootdoori.match.entity.lineup.LineupMember;
 import com.shootdoori.match.entity.match.Match;
 import com.shootdoori.match.entity.match.request.MatchRequest;
@@ -52,7 +52,7 @@ class LineupServiceTest {
     @Mock
     private TeamMemberRepository teamMemberRepository;
 
-    private LineupRequestDto requestDto;
+    private LineupMemberRequestDto requestDto;
     private LineupMember savedLineupMember;
     private Match mockMatch;
     private MatchWaiting mockMatchWaiting;
@@ -66,7 +66,7 @@ class LineupServiceTest {
         mockMatchRequest = mock(MatchRequest.class);
         mockTeamMember = mock(TeamMember.class);
 
-        requestDto = new LineupRequestDto(
+        requestDto = new LineupMemberRequestDto(
                 1L,
                 1L,
                 1L,
@@ -94,8 +94,8 @@ class LineupServiceTest {
         TeamMember mockTeamMember2 = mock(TeamMember.class);
         given(mockTeamMember2.getId()).willReturn(2L);
 
-        LineupRequestDto requestDto2 = new LineupRequestDto(1L, 1L, 1L, 2L, Position.DF, true);
-        List<LineupRequestDto> requestDtos = List.of(requestDto, requestDto2);
+        LineupMemberRequestDto requestDto2 = new LineupMemberRequestDto(1L, 1L, 1L, 2L, Position.DF, true);
+        List<LineupMemberRequestDto> requestDtos = List.of(requestDto, requestDto2);
 
         LineupMember savedLineupMember2 = new LineupMember(mockMatch, mockMatchWaiting, mockMatchRequest, mockTeamMember2, Position.DF, true);
         ReflectionTestUtils.setField(savedLineupMember2, "id", 2L);
@@ -112,7 +112,7 @@ class LineupServiceTest {
         given(mockTeamMember.getId()).willReturn(1L);
 
         // when
-        List<LineupResponseDto> responseDtos = lineupService.createLineup(requestDtos, 1L);
+        List<LineupMemberResponseDto> responseDtos = lineupService.createLineup(requestDtos, 1L);
 
         // then
         assertThat(responseDtos).isNotNull();
@@ -130,7 +130,7 @@ class LineupServiceTest {
     @DisplayName("라인업 일괄 생성 - 성공 (단일 항목)")
     void createLineup_List_Success_Single() {
         // given
-        List<LineupRequestDto> requestDtos = List.of(requestDto);
+        List<LineupMemberRequestDto> requestDtos = List.of(requestDto);
         List<LineupMember> savedLineupMembers = List.of(savedLineupMember);
 
         Set<Long> teamMemberIds = Set.of(1L);
@@ -143,7 +143,7 @@ class LineupServiceTest {
         given(mockTeamMember.getId()).willReturn(1L);
 
         // when
-        List<LineupResponseDto> responseDtos = lineupService.createLineup(requestDtos, 1L);
+        List<LineupMemberResponseDto> responseDtos = lineupService.createLineup(requestDtos, 1L);
 
         // then
         assertThat(responseDtos).isNotNull();
@@ -158,10 +158,10 @@ class LineupServiceTest {
     @DisplayName("라인업 일괄 생성 - 성공 (빈 리스트)")
     void createLineup_List_Success_EmptyList() {
         // given
-        List<LineupRequestDto> requestDtos = Collections.emptyList();
+        List<LineupMemberRequestDto> requestDtos = Collections.emptyList();
 
         // when
-        List<LineupResponseDto> responseDtos = lineupService.createLineup(requestDtos, 1L);
+        List<LineupMemberResponseDto> responseDtos = lineupService.createLineup(requestDtos, 1L);
 
         // then
         assertThat(responseDtos).isNotNull();
@@ -174,7 +174,7 @@ class LineupServiceTest {
     @DisplayName("라인업 일괄 생성 - 실패 (팀 멤버 조회 실패)")
     void createLineup_List_Failure_TeamMemberNotFound() {
         // given
-        List<LineupRequestDto> requestDtos = List.of(requestDto);
+        List<LineupMemberRequestDto> requestDtos = List.of(requestDto);
         Set<Long> teamMemberIds = Set.of(1L);
         given(teamMemberRepository.findAllById(teamMemberIds)).willReturn(Collections.emptyList());
 
@@ -193,7 +193,7 @@ class LineupServiceTest {
     @DisplayName("라인업 일괄 생성 - 실패 (DB 제약 조건 위반)")
     void createLineup_List_Failure_DataIntegrityViolation() {
         // given
-        List<LineupRequestDto> requestDtos = List.of(requestDto);
+        List<LineupMemberRequestDto> requestDtos = List.of(requestDto);
 
         Set<Long> teamMemberIds = Set.of(1L);
         given(teamMemberRepository.findAllById(teamMemberIds)).willReturn(List.of(mockTeamMember));
@@ -221,7 +221,7 @@ class LineupServiceTest {
         given(lineupMemberRepository.findByTeamMemberTeamTeamId(1L)).willReturn(lineupMembers);
 
         // when
-        List<LineupResponseDto> responseDtos = lineupService.getAllLineupsByTeamId(1L);
+        List<LineupMemberResponseDto> responseDtos = lineupService.getAllLineupsByTeamId(1L);
 
         // then
         assertThat(responseDtos).isNotNull();
@@ -238,7 +238,7 @@ class LineupServiceTest {
         given(lineupMemberRepository.findByTeamMemberTeamTeamId(1L)).willReturn(Collections.emptyList());
 
         // when
-        List<LineupResponseDto> responseDtos = lineupService.getAllLineupsByTeamId(1L);
+        List<LineupMemberResponseDto> responseDtos = lineupService.getAllLineupsByTeamId(1L);
 
         // then
         assertThat(responseDtos).isNotNull();
@@ -253,7 +253,7 @@ class LineupServiceTest {
         given(lineupMemberRepository.findById(1L)).willReturn(Optional.of(savedLineupMember));
 
         // when
-        LineupResponseDto responseDto = lineupService.getLineupById(1L);
+        LineupMemberResponseDto responseDto = lineupService.getLineupById(1L);
 
         // then
         assertThat(responseDto).isNotNull();
@@ -312,7 +312,7 @@ class LineupServiceTest {
     @DisplayName("라인업 수정 - 성공")
     void updateLineup_Success() {
         // given
-        LineupRequestDto updateDto = new LineupRequestDto(2L, 2L, 2L, 2L, Position.DF, false);
+        LineupMemberRequestDto updateDto = new LineupMemberRequestDto(2L, 2L, 2L, 2L, Position.DF, false);
 
         Match mockMatch2 = mock(Match.class);
         MatchWaiting mockMatchWaiting2 = mock(MatchWaiting.class);
@@ -329,7 +329,7 @@ class LineupServiceTest {
         given(mockMatchRequest2.getRequestId()).willReturn(2L);
 
         // when
-        LineupResponseDto responseDto = lineupService.updateLineup(1L, updateDto, 1L);
+        LineupMemberResponseDto responseDto = lineupService.updateLineup(1L, updateDto, 1L);
 
         // then
         assertThat(responseDto).isNotNull();
@@ -349,7 +349,7 @@ class LineupServiceTest {
     @DisplayName("라인업 수정 - 실패 (라인업 없음)")
     void updateLineup_NotFound() {
         // given
-        LineupRequestDto updateDto = new LineupRequestDto(2L, 2L, 2L, 2L, Position.DF, false);
+        LineupMemberRequestDto updateDto = new LineupMemberRequestDto(2L, 2L, 2L, 2L, Position.DF, false);
         given(lineupMemberRepository.findById(1L)).willReturn(Optional.empty());
 
         // when & then
