@@ -1,7 +1,6 @@
 package com.shootdoori.match.entity.lineup;
 
 import com.shootdoori.match.entity.common.AuditInfo;
-import com.shootdoori.match.entity.team.Team;
 import jakarta.persistence.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
