@@ -22,26 +22,25 @@ public class LineupController {
     }
 
     @PostMapping()
-    public ResponseEntity<List<LineupMemberResponseDto>> createLineup(@RequestBody List<LineupMemberRequestDto> requestDtos,
+    public ResponseEntity<List<LineupMemberResponseDto>> create(@RequestBody List<LineupMemberRequestDto> requestDtos,
                                                                       @LoginUser Long userId) {
         return new ResponseEntity<>(lineupService.createLineup(requestDtos, userId), HttpStatus.CREATED);
     }
 
-    //TODO 라인업아이디로 조회하도록 서비스 변경
     @GetMapping("/{id}")
-    public ResponseEntity<List<LineupMemberResponseDto>> getLineupById(@PathVariable Long id) {
+    public ResponseEntity<List<LineupMemberResponseDto>> getById(@PathVariable Long id) {
         return new ResponseEntity<>(lineupService.getLineupById(id), HttpStatus.OK);
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<List<LineupMemberResponseDto>> updateLineup(@PathVariable Long id,
+    public ResponseEntity<List<LineupMemberResponseDto>> update(@PathVariable Long id,
                                                                 @RequestBody List<LineupMemberRequestDto> requestDtos,
                                                                 @LoginUser Long userId) {
         return new ResponseEntity<>(lineupService.updateLineup(id, requestDtos, userId), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteLineup(@PathVariable Long id,
+    public ResponseEntity<Void> delete(@PathVariable Long id,
                                              @LoginUser Long userId) {
         lineupService.deleteLineup(id, userId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

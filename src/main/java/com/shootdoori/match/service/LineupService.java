@@ -33,9 +33,15 @@ public class LineupService {
     }
 
     public List<LineupMemberResponseDto> getLineupById(Long lineupId) {
-        return lineupMemberRepository.findAllByLineupId(lineupId).stream()
+        List<LineupMember> lineupMembers = lineupMemberRepository.findAllByLineupId(lineupId);
+
+        if (lineupMembers.isEmpty()) {
+            throw new NotFoundException(ErrorCode.LINEUP_NOT_FOUND);
+        }
+
+        return lineupMembers.stream()
                 .map(LineupMemberResponseDto::from)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional
