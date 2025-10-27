@@ -11,8 +11,10 @@ public record MatchSummaryProjection(
     LocalDate matchDate,
     LocalTime matchTime,
     MatchStatus status,
-    String team1Name,
-    String team2Name,
+    Long createTeamId,
+    Long requestTeamId,
+    String createTeamName,
+    String requestTeamName,
     String venueName,
     LocalDateTime createdAt,
     LocalDateTime updatedAt
