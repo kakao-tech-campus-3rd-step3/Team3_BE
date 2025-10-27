@@ -8,6 +8,7 @@ import java.time.LocalTime;
 
 public record RecruitmentResponse(
     Long recruitmentId,
+    Long teamId,
     String teamName,
     String universityName,
     LocalDate matchDate,
@@ -21,6 +22,7 @@ public record RecruitmentResponse(
     public static RecruitmentResponse from(MercenaryRecruitment recruitment) {
         return new RecruitmentResponse(
             recruitment.getId(),
+            recruitment.getTeam().getTeamId(),
             recruitment.getTeam().getTeamName().name(),
             recruitment.getTeam().getUniversity().name(),
             recruitment.getMatchDate(),
