@@ -21,7 +21,7 @@ public class MercenaryRecruitmentController {
     public MercenaryRecruitmentController(MercenaryRecruitmentService recruitmentService) {
         this.recruitmentService = recruitmentService;
     }
-    // TODO: 생성, 수정, 삭제 로직에 사용자 정보(id) 필요
+
     @PostMapping
     public ResponseEntity<RecruitmentResponse> create(@RequestBody RecruitmentCreateRequest createRequest,
                                                       @LoginUser Long loginUserId) {
@@ -29,7 +29,7 @@ public class MercenaryRecruitmentController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<RecruitmentResponse>> getAllPages(
+    public ResponseEntity<Page<RecruitmentResponse>> findAll(
         @PageableDefault(
             page = 0,size = 10,
             sort = {"matchDate", "matchTime"},
@@ -41,7 +41,7 @@ public class MercenaryRecruitmentController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RecruitmentResponse> getById(@PathVariable Long id) {
+    public ResponseEntity<RecruitmentResponse> findById(@PathVariable Long id) {
         return new ResponseEntity<>(recruitmentService.findById(id), HttpStatus.OK);
     }
 
