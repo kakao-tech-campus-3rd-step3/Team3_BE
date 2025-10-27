@@ -143,6 +143,10 @@ public class Team {
         return softDelete.getStatus();
     }
 
+    public boolean isCaptain(User user) {
+        return captain.equals(user);
+    }
+
     public boolean isDeleted() {
         return softDelete.isDeleted();
     }
