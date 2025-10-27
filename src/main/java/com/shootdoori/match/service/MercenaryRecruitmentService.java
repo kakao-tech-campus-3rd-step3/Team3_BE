@@ -7,6 +7,7 @@ import com.shootdoori.match.entity.common.Position;
 import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.entity.mercenary.MercenaryRecruitment;
 import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NoPermissionException;
 import com.shootdoori.match.exception.common.NotFoundException;
@@ -20,10 +21,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class MercenaryRecruitmentService {
+    private final TeamService teamService;
+    private final ProfileService profileService;
     private final MercenaryRecruitmentRepository recruitmentRepository;
     private final TeamRepository teamRepository;
 
-    public MercenaryRecruitmentService(MercenaryRecruitmentRepository recruitmentRepository, TeamRepository teamRepository) {
+    public MercenaryRecruitmentService(TeamService teamService, ProfileService profileService, MercenaryRecruitmentRepository recruitmentRepository, TeamRepository teamRepository) {
+        this.teamService = teamService;
+        this.profileService = profileService;
         this.recruitmentRepository = recruitmentRepository;
         this.teamRepository = teamRepository;
     }
@@ -47,8 +52,15 @@ public class MercenaryRecruitmentService {
     }
 
     @Transactional(readOnly = true)
-    public Page<RecruitmentResponse> findAllPages(Pageable pageable) {
+    public Page<RecruitmentResponse> findAll(Pageable pageable) {
         Page<MercenaryRecruitment> recruitments = recruitmentRepository.findAll(pageable);
+
+        return recruitments.map(RecruitmentResponse::from);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<RecruitmentResponse> findAllForCaptain(Pageable pageable, Long loginUserId) {
+        Page<MercenaryRecruitment> recruitments = recruitmentRepository.findByTeam_Captain_Id(loginUserId, pageable);
 
         return recruitments.map(RecruitmentResponse::from);
     }
@@ -93,5 +105,11 @@ public class MercenaryRecruitmentService {
         }
 
         recruitmentRepository.deleteById(id);
+    }
+
+    private void validateCaptain(Team team, User user) {
+        if (!team.isCaptain(user)) {
+            throw new NoPermissionException(ErrorCode.CAPTAIN_ONLY_OPERATION);
+        }
     }
 }

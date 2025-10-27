@@ -147,7 +147,7 @@ class MercenaryRecruitmentTest {
         given(recruitmentRepository.findAll(pageable)).willReturn(recruitmentPage);
 
         // when
-        Page<RecruitmentResponse> responsePage = mercenaryRecruitmentService.findAllPages(pageable);
+        Page<RecruitmentResponse> responsePage = mercenaryRecruitmentService.findAll(pageable);
 
         // then
         assertThat(responsePage).isNotNull();
