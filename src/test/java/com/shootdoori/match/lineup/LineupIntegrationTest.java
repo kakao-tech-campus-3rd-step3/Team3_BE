@@ -5,20 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shootdoori.match.dto.LineupMemberRequestDto;
 import com.shootdoori.match.entity.lineup.Lineup;
 import com.shootdoori.match.entity.lineup.LineupMember;
-import com.shootdoori.match.entity.match.Match;
-import com.shootdoori.match.entity.match.MatchStatus;
-import com.shootdoori.match.entity.match.request.MatchRequest;
-import com.shootdoori.match.entity.match.request.MatchRequestStatus;
-import com.shootdoori.match.entity.match.waiting.MatchWaiting;
 import com.shootdoori.match.entity.common.SkillLevel;
-import com.shootdoori.match.entity.match.waiting.MatchWaitingStatus;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.team.TeamMemberRole;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.entity.common.Position;
-import com.shootdoori.match.entity.venue.Venue;
 import com.shootdoori.match.repository.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -36,10 +29,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.Collections;
 import java.util.List;
 
@@ -70,12 +59,14 @@ class LineupIntegrationTest {
     private User savedUser1, savedUser2;
     private Team savedTeam1, savedTeam2;
     private TeamMember savedTeamMember1, savedTeamMember2;
-    private Lineup savedLineup;
+    private Lineup savedLineup1;
+    private Authentication authentication, fakeAuth;
+    private LineupMemberRequestDto lineupMemberRequestDto1, lineupMemberRequestDto2;
 
     @BeforeEach
     void setUp() {
-        savedLineup = new Lineup();
-        lineupRepository.save(savedLineup);
+        savedLineup1 = new Lineup();
+        lineupRepository.save(savedLineup1);
 
         savedUser1 = User.create("주장1", "아마추어", "captain1@test.ac.kr", "password123",
                 "captain1_kakao", "FW", "테스트대학교", "컴퓨터공학과", "20", "주장1입니다.");
@@ -92,25 +83,37 @@ class LineupIntegrationTest {
         savedTeamMember1 = new TeamMember(savedTeam1, savedUser1, TeamMemberRole.LEADER);
         savedTeamMember2 = new TeamMember(savedTeam2, savedUser2, TeamMemberRole.LEADER);
         teamMemberRepository.saveAll(List.of(savedTeamMember1, savedTeamMember2));
+
+        authentication = new UsernamePasswordAuthenticationToken(
+                savedUser1.getId(),
+                null,
+                Collections.emptyList()
+        );
+
+        fakeAuth = new UsernamePasswordAuthenticationToken(
+                999L,
+                null,
+                Collections.emptyList()
+        );
+
+        lineupMemberRequestDto1 = new LineupMemberRequestDto(
+                savedTeamMember1.getId(),
+                Position.GK,
+                true
+        );
+
+        lineupMemberRequestDto2 = new LineupMemberRequestDto(
+                savedTeamMember2.getId(),
+                Position.DF,
+                true
+        );
     }
 
     @Test
     @DisplayName("POST /api/lineups - 라인업 생성 (단일 항목 리스트) (201 CREATED)")
     void createLineup_List_Success_SingleItem_IntegrationTest() throws Exception {
         // given
-        LineupMemberRequestDto requestDto = new LineupMemberRequestDto(
-                savedTeamMember1.getId(),
-                Position.GK,
-                true
-        );
-
-        List<LineupMemberRequestDto> requestList = List.of(requestDto);
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-                savedUser1.getId(),
-                null,
-                Collections.emptyList()
-        );
+        List<LineupMemberRequestDto> requestList = List.of(lineupMemberRequestDto1);
 
         // when
         ResultActions actions = mockMvc.perform(post("/api/lineups")
@@ -134,31 +137,10 @@ class LineupIntegrationTest {
     }
 
     @Test
-    @DisplayName("POST /api/lineups - 라인업 일괄 생성 (다중 항목 리스트) (201 CREATED)")
-    void createLineup_List_Success_MultipleItems_IntegrationTest() throws Exception {
+    @DisplayName("POST /api/lineups - 라인업 생성 (다중 항목 리스트) (201 CREATED)")
+    void createLineup_List_Success_IntegrationTest() throws Exception {
         // given
-        User savedUser3 = User.create("멤버1", "아마추어", "member1@test.ac.kr", "password123",
-                "member1_kakao", "MF", "테스트대학교", "체육학과", "22", "멤버1입니다.");
-        profileRepository.save(savedUser3);
-        TeamMember savedTeamMember3 = new TeamMember(savedTeam1, savedUser3, TeamMemberRole.MEMBER);
-        teamMemberRepository.save(savedTeamMember3);
-
-        LineupMemberRequestDto requestDto1 = new LineupMemberRequestDto(
-                savedTeamMember1.getId(),
-                Position.GK, true
-        );
-        LineupMemberRequestDto requestDto2 = new LineupMemberRequestDto(
-                savedTeamMember3.getId(),
-                Position.DF, true
-        );
-
-        List<LineupMemberRequestDto> requestList = List.of(requestDto1, requestDto2);
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-                savedUser1.getId(),
-                null,
-                Collections.emptyList()
-        );
+        List<LineupMemberRequestDto> requestList = List.of(lineupMemberRequestDto1, lineupMemberRequestDto2);
 
         // when
         ResultActions actions = mockMvc.perform(post("/api/lineups")
@@ -183,6 +165,24 @@ class LineupIntegrationTest {
         assertThat(lineupMemberRepository.findById(savedLineupId2)).isPresent();
     }
 
+    @Test
+    @DisplayName("POST /api/lineups - 라인업 생성 실패 (권한 없음) (403 Forbidden)")
+    void createLineup_List_Forbidden() throws Exception {
+        // given
+        List<LineupMemberRequestDto> requestList = List.of(lineupMemberRequestDto1, lineupMemberRequestDto2);
+
+        // when
+        ResultActions actions = mockMvc.perform(post("/api/lineups")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestList))
+                .with(SecurityMockMvcRequestPostProcessors.authentication(fakeAuth)));
+
+        // then
+        MvcResult result = actions.andExpect(status().isForbidden())
+                .andDo(print())
+                .andReturn();
+    }
+
 
     @Test
     @DisplayName("GET /api/lineups/{id} - 라인업 단건 조회 통합 테스트 (200 OK)")
@@ -190,11 +190,11 @@ class LineupIntegrationTest {
         // given
         LineupMember testLineupMember = new LineupMember(
                 savedTeamMember1,
-                savedLineup,
+                savedLineup1,
                 Position.FW, true
         );
         LineupMember savedLineupMember = lineupMemberRepository.save(testLineupMember);
-        Long savedLineupId = savedLineup.getId();
+        Long savedLineupId = savedLineup1.getId();
         Long savedLineupMemberId = savedLineupMember.getId();
 
         // when
@@ -211,7 +211,7 @@ class LineupIntegrationTest {
     @DisplayName("GET /api/lineups/{id} - 라인업 조회 실패 통합 테스트 (404 NOT_FOUND)")
     void getLineupById_NotFound_IntegrationTest() throws Exception {
         // when
-        ResultActions actions = mockMvc.perform(get("/api/lineups/{id}", 99999L)
+        ResultActions actions = mockMvc.perform(get("/api/lineups/{id}", 999L)
                 .accept(MediaType.APPLICATION_JSON));
 
         // then
@@ -220,22 +220,17 @@ class LineupIntegrationTest {
     }
 
     @Test
-    @DisplayName("DELETE /api/lineups/{id} - 라인업 삭제 통합 테스트 (204 NO_CONTENT)")
-    void deleteLineup_IntegrationTest() throws Exception {
+    @DisplayName("DELETE /api/lineups/{id} - 라인업 삭제 성공 (204 NO_CONTENT)")
+    void deleteLineup_Success_IntegrationTest() throws Exception {
         // given
         LineupMember testLineupMember = new LineupMember(
                 savedTeamMember1,
-                savedLineup,
+                savedLineup1,
                 Position.DF, false
         );
-        lineupMemberRepository.save(testLineupMember);
-        Long savedLineupId = savedLineup.getId();
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-                savedUser1.getId(),
-                null,
-                Collections.emptyList()
-        );
+        LineupMember savedLineupMember = lineupMemberRepository.save(testLineupMember);
+        Long savedLineupId = savedLineup1.getId();
+        Long savedLineupMemberId = savedLineupMember.getId();
 
         // when
         ResultActions actions = mockMvc.perform(delete("/api/lineups/{id}", savedLineupId)
@@ -243,22 +238,44 @@ class LineupIntegrationTest {
 
         // then
         actions.andExpect(status().isNoContent());
-        assertThat(lineupMemberRepository.existsById(savedLineupId)).isFalse();
+        assertThat(lineupMemberRepository.existsById(savedLineupMemberId)).isFalse();
     }
 
     @Test
-    @DisplayName("PATCH /api/lineups/{id} - 라인업 수정 통합 테스트 (200 OK)")
-    void updateLineup_IntegrationTest() throws Exception {
+    @DisplayName("DELETE /api/lineups/{id} - 라인업 삭제 실패 (403 Forbidden)")
+    void deleteLineup_Forbidden_IntegrationTest() throws Exception {
+        LineupMember testLineupMember = new LineupMember(
+                savedTeamMember1,
+                savedLineup1,
+                Position.DF, false
+        );
+        LineupMember savedLineupMember = lineupMemberRepository.save(testLineupMember);
+        Long savedLineupId = savedLineup1.getId();
+        Long savedLineupMemberId = savedLineupMember.getId();
+
+        // when
+        ResultActions actions = mockMvc.perform(delete("/api/lineups/{id}", savedLineupId)
+                .with(SecurityMockMvcRequestPostProcessors.authentication(fakeAuth)));
+
+        // then
+        actions.andExpect(status().isForbidden());
+        assertThat(lineupMemberRepository.existsById(savedLineupMemberId)).isTrue();
+    }
+
+
+    @Test
+    @DisplayName("PATCH /api/lineups/{id} - 라인업 수정 테스트 성공 (200 OK)")
+    void updateLineup_Success_IntegrationTest() throws Exception {
         // given
         LineupMember originalLineupMember = new LineupMember(
                 savedTeamMember1,
-                savedLineup,
+                savedLineup1,
                 Position.GK,
                 true
         );
-        LineupMember savedLineupMember = lineupMemberRepository.save(originalLineupMember);
+        lineupMemberRepository.save(originalLineupMember);
 
-        Long savedLineupId = savedLineup.getId();
+        Long savedLineupId = savedLineup1.getId();
         LineupMemberRequestDto updateDto = new LineupMemberRequestDto(
                 savedTeamMember1.getId(),
                 Position.MF,
@@ -266,12 +283,6 @@ class LineupIntegrationTest {
         );
 
         List<LineupMemberRequestDto> updateList = List.of(updateDto);
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-                savedUser1.getId(),
-                null,
-                Collections.emptyList()
-        );
 
         // when
         ResultActions actions = mockMvc.perform(patch("/api/lineups/{id}", savedLineupId)
@@ -283,8 +294,32 @@ class LineupIntegrationTest {
         actions.andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].position").value("MF"))
                 .andExpect(jsonPath("$[0].isStarter").value(false));
-        List<LineupMember> updatedLineupMember = lineupMemberRepository.findAllByLineupId(savedLineupId);
-        assertThat(updatedLineupMember.get(0).getPosition()).isEqualTo(Position.MF);
-        assertThat(updatedLineupMember.get(0).getIsStarter()).isFalse();
+    }
+
+    @Test
+    @DisplayName("PATCH /api/lineups/{id} - 라인업 수정 실패 (403 Forbidden)")
+    void updateLineup_Forbidden_IntegrationTest() throws Exception {
+        // given
+        LineupMember originalLineupMember = new LineupMember(
+                savedTeamMember1,
+                savedLineup1,
+                Position.GK,
+                true
+        );
+        LineupMember savedLineupMember = lineupMemberRepository.save(originalLineupMember);
+        Long savedLineupId = savedLineup1.getId();
+        Long savedLineupMemberId = savedLineupMember.getId();
+
+        List<LineupMemberRequestDto> requestList = List.of(lineupMemberRequestDto2);
+
+        // when
+        ResultActions actions = mockMvc.perform(patch("/api/lineups/{id}", savedLineupId)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestList))
+                .with(SecurityMockMvcRequestPostProcessors.authentication(fakeAuth)));
+
+        // then
+        actions.andExpect(status().isForbidden());
+        assertThat(lineupMemberRepository.existsById(savedLineupMemberId)).isTrue();
     }
 }

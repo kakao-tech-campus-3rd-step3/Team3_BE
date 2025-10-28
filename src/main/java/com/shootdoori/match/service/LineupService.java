@@ -69,8 +69,6 @@ public class LineupService {
     public List<LineupMemberResponseDto> updateLineup(Long id, List<LineupMemberRequestDto> requestDtos, Long userId) {
         Lineup lineup = lineupRepository.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.LINEUP_NOT_FOUND));
 
-        lineupMemberRepository.deleteAllByLineupId(id);
-
         Map<Long, TeamMember> teamMemberMap = createTeamMemberMap(requestDtos);
 
         // 모든 팀원이 같은 팀에 속한다고 가정하고, 대표로 한 명만 권한 검사를 수행합니다.
@@ -81,6 +79,7 @@ public class LineupService {
                 .map(dto -> createLineupMemberFromList(dto, teamMemberMap, lineup))
                 .collect(Collectors.toList());
 
+        lineupMemberRepository.deleteAllByLineupId(id); // 기존 멤버 정보 삭제
         List<LineupMember> savedLineupMembers = lineupMemberRepository.saveAll(lineupsToSave);
         return savedLineupMembers.stream()
                 .map(LineupMemberResponseDto::from)
