@@ -3,6 +3,7 @@ package com.shootdoori.match.lineup;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.shootdoori.match.dto.LineupMemberRequestDto;
+import com.shootdoori.match.entity.lineup.Lineup;
 import com.shootdoori.match.entity.lineup.LineupMember;
 import com.shootdoori.match.entity.match.Match;
 import com.shootdoori.match.entity.match.MatchStatus;
@@ -52,7 +53,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 @Transactional
 @WithMockUser
-class LineupControllerIntegrationTest {
+class LineupIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -60,35 +61,27 @@ class LineupControllerIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired private LineupRepository lineupRepository;
     @Autowired private LineupMemberRepository lineupMemberRepository;
-    @Autowired private MatchRepository matchRepository;
-    @Autowired private MatchWaitingRepository matchWaitingRepository;
-    @Autowired private MatchRequestRepository matchRequestRepository;
     @Autowired private TeamMemberRepository teamMemberRepository;
     @Autowired private TeamRepository teamRepository;
     @Autowired private ProfileRepository profileRepository;
-    @Autowired private VenueRepository venueRepository;
 
     private User savedUser1, savedUser2;
     private Team savedTeam1, savedTeam2;
-    private Venue savedVenue;
     private TeamMember savedTeamMember1, savedTeamMember2;
-    private Match savedMatch;
-    private MatchWaiting savedMatchWaiting;
-    private MatchRequest savedMatchRequest;
+    private Lineup savedLineup;
 
     @BeforeEach
     void setUp() {
+        savedLineup = new Lineup();
+        lineupRepository.save(savedLineup);
+
         savedUser1 = User.create("주장1", "아마추어", "captain1@test.ac.kr", "password123",
                 "captain1_kakao", "FW", "테스트대학교", "컴퓨터공학과", "20", "주장1입니다.");
         savedUser2 = User.create("주장2", "세미프로", "captain2@test.ac.kr", "password123",
                 "captain2_kakao", "DF", "테스트대학교", "경영학과", "21", "주장2입니다.");
         profileRepository.saveAll(List.of(savedUser1, savedUser2));
-
-        savedVenue = new Venue("테스트 경기장", "서울시 테스트구",
-                new BigDecimal("37.5665"), new BigDecimal("126.9780"),
-                "02-123-4567", "샤워실 있음", 10000L);
-        venueRepository.save(savedVenue);
 
         savedTeam1 = new Team("팀A", savedUser1, "테스트대학교", TeamType.CENTRAL_CLUB,
                 SkillLevel.AMATEUR, "팀A입니다.");
@@ -99,20 +92,6 @@ class LineupControllerIntegrationTest {
         savedTeamMember1 = new TeamMember(savedTeam1, savedUser1, TeamMemberRole.LEADER);
         savedTeamMember2 = new TeamMember(savedTeam2, savedUser2, TeamMemberRole.LEADER);
         teamMemberRepository.saveAll(List.of(savedTeamMember1, savedTeamMember2));
-
-        savedMatch = new Match(savedTeam1, savedTeam2, LocalDate.now().plusDays(7),
-                LocalTime.of(18, 0), savedVenue, MatchStatus.MATCHED);
-        matchRepository.save(savedMatch);
-
-        savedMatchWaiting = new MatchWaiting(savedTeam1, LocalDate.now().plusDays(8),
-                LocalTime.of(14, 0), LocalTime.of(16, 0), savedVenue,
-                SkillLevel.AMATEUR, SkillLevel.SEMI_PRO,
-                false, "대기1", MatchWaitingStatus.WAITING, LocalDateTime.now().plusDays(1));
-        matchWaitingRepository.save(savedMatchWaiting);
-
-        savedMatchRequest = new MatchRequest(savedMatchWaiting, savedTeam2, savedTeam1, "매치 요청합니다.");
-        savedMatchRequest.updateRequestStatus(MatchRequestStatus.ACCEPTED, LocalDateTime.now());
-        matchRequestRepository.save(savedMatchRequest);
     }
 
     @Test
@@ -120,9 +99,6 @@ class LineupControllerIntegrationTest {
     void createLineup_List_Success_SingleItem_IntegrationTest() throws Exception {
         // given
         LineupMemberRequestDto requestDto = new LineupMemberRequestDto(
-                savedMatch.getMatchId(),
-                savedMatchWaiting.getWaitingId(),
-                savedMatchRequest.getRequestId(),
                 savedTeamMember1.getId(),
                 Position.GK,
                 true
@@ -168,12 +144,10 @@ class LineupControllerIntegrationTest {
         teamMemberRepository.save(savedTeamMember3);
 
         LineupMemberRequestDto requestDto1 = new LineupMemberRequestDto(
-                savedMatch.getMatchId(), null, null,
                 savedTeamMember1.getId(),
                 Position.GK, true
         );
         LineupMemberRequestDto requestDto2 = new LineupMemberRequestDto(
-                savedMatch.getMatchId(), null, null,
                 savedTeamMember3.getId(),
                 Position.DF, true
         );
@@ -215,11 +189,13 @@ class LineupControllerIntegrationTest {
     void getLineupById_IntegrationTest() throws Exception {
         // given
         LineupMember testLineupMember = new LineupMember(
-                savedMatch, savedMatchWaiting, savedMatchRequest, savedTeamMember1,
+                savedTeamMember1,
+                savedLineup,
                 Position.FW, true
         );
         LineupMember savedLineupMember = lineupMemberRepository.save(testLineupMember);
-        Long savedLineupId = savedLineupMember.getId();
+        Long savedLineupId = savedLineup.getId();
+        Long savedLineupMemberId = savedLineupMember.getId();
 
         // when
         ResultActions actions = mockMvc.perform(get("/api/lineups/{id}", savedLineupId)
@@ -227,8 +203,8 @@ class LineupControllerIntegrationTest {
 
         // then
         actions.andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(savedLineupId))
-                .andExpect(jsonPath("$.position").value("FW"));
+                .andExpect(jsonPath("$[0].id").value(savedLineupMemberId))
+                .andExpect(jsonPath("$[0].position").value("FW"));
     }
 
     @Test
@@ -248,12 +224,12 @@ class LineupControllerIntegrationTest {
     void deleteLineup_IntegrationTest() throws Exception {
         // given
         LineupMember testLineupMember = new LineupMember(
-                savedMatch, savedMatchWaiting, savedMatchRequest, savedTeamMember1,
+                savedTeamMember1,
+                savedLineup,
                 Position.DF, false
         );
-        LineupMember savedLineupMember = lineupMemberRepository.save(testLineupMember);
-        Long savedLineupId = savedLineupMember.getId();
-        assertThat(lineupMemberRepository.existsById(savedLineupId)).isTrue();
+        lineupMemberRepository.save(testLineupMember);
+        Long savedLineupId = savedLineup.getId();
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 savedUser1.getId(),
@@ -275,18 +251,21 @@ class LineupControllerIntegrationTest {
     void updateLineup_IntegrationTest() throws Exception {
         // given
         LineupMember originalLineupMember = new LineupMember(
-                savedMatch, savedMatchWaiting, savedMatchRequest, savedTeamMember1,
-                Position.GK, true
+                savedTeamMember1,
+                savedLineup,
+                Position.GK,
+                true
         );
         LineupMember savedLineupMember = lineupMemberRepository.save(originalLineupMember);
-        Long savedLineupId = savedLineupMember.getId();
+
+        Long savedLineupId = savedLineup.getId();
         LineupMemberRequestDto updateDto = new LineupMemberRequestDto(
-                savedMatch.getMatchId(),
-                savedMatchWaiting.getWaitingId(),
-                savedMatchRequest.getRequestId(),
                 savedTeamMember1.getId(),
-                Position.MF, false
+                Position.MF,
+                false
         );
+
+        List<LineupMemberRequestDto> updateList = List.of(updateDto);
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 savedUser1.getId(),
@@ -297,18 +276,15 @@ class LineupControllerIntegrationTest {
         // when
         ResultActions actions = mockMvc.perform(patch("/api/lineups/{id}", savedLineupId)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(updateDto))
+                .content(objectMapper.writeValueAsString(updateList))
                 .with(SecurityMockMvcRequestPostProcessors.authentication(authentication)));
 
         // then
         actions.andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(savedLineupId))
-                .andExpect(jsonPath("$.position").value("MF"))
-                .andExpect(jsonPath("$.isStarter").value(false));
-        LineupMember updatedLineupMember = lineupMemberRepository.findById(savedLineupId)
-                .orElseThrow(() -> new AssertionError("라인업이 DB에 없습니다."));
-
-        assertThat(updatedLineupMember.getPosition()).isEqualTo(Position.MF);
-        assertThat(updatedLineupMember.getIsStarter()).isFalse();
+                .andExpect(jsonPath("$[0].position").value("MF"))
+                .andExpect(jsonPath("$[0].isStarter").value(false));
+        List<LineupMember> updatedLineupMember = lineupMemberRepository.findAllByLineupId(savedLineupId);
+        assertThat(updatedLineupMember.get(0).getPosition()).isEqualTo(Position.MF);
+        assertThat(updatedLineupMember.get(0).getIsStarter()).isFalse();
     }
 }
