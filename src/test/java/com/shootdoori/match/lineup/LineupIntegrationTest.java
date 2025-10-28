@@ -246,7 +246,7 @@ class LineupIntegrationTest {
 
 
     @Test
-    @DisplayName("PATCH /api/lineups/{id} - 라인업 수정 테스트 성공 (200 OK)")
+    @DisplayName("PUT /api/lineups/{id} - 라인업 수정 테스트 성공 (200 OK)")
     void updateLineup_Success_IntegrationTest() throws Exception {
         // given
         LineupMember originalLineupMember = new LineupMember(
@@ -267,7 +267,7 @@ class LineupIntegrationTest {
         List<LineupMemberRequestDto> updateList = List.of(updateDto);
 
         // when
-        ResultActions actions = mockMvc.perform(patch("/api/lineups/{id}", savedLineupId)
+        ResultActions actions = mockMvc.perform(put("/api/lineups/{id}", savedLineupId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateList))
                 .with(SecurityMockMvcRequestPostProcessors.authentication(authentication)));
@@ -279,7 +279,7 @@ class LineupIntegrationTest {
     }
 
     @Test
-    @DisplayName("PATCH /api/lineups/{id} - 라인업 수정 실패 (403 Forbidden)")
+    @DisplayName("PUT /api/lineups/{id} - 라인업 수정 실패 (403 Forbidden)")
     void updateLineup_Forbidden_IntegrationTest() throws Exception {
         // given
         LineupMember originalLineupMember = new LineupMember(
@@ -295,7 +295,7 @@ class LineupIntegrationTest {
         List<LineupMemberRequestDto> requestList = List.of(lineupMemberRequestDto2);
 
         // when
-        ResultActions actions = mockMvc.perform(patch("/api/lineups/{id}", savedLineupId)
+        ResultActions actions = mockMvc.perform(put("/api/lineups/{id}", savedLineupId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(requestList))
                 .with(SecurityMockMvcRequestPostProcessors.authentication(fakeAuth)));

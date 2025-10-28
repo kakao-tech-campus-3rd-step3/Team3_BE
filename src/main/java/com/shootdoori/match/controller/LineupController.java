@@ -32,7 +32,7 @@ public class LineupController {
         return new ResponseEntity<>(lineupService.getLineupById(id), HttpStatus.OK);
     }
 
-    @PatchMapping("/{id}")
+    @PutMapping("/{id}")
     public ResponseEntity<List<LineupMemberResponseDto>> update(@PathVariable Long id,
                                                                 @RequestBody List<LineupMemberRequestDto> requestDtos,
                                                                 @LoginUser Long userId) {

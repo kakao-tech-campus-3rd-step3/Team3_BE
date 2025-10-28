@@ -180,7 +180,6 @@ class LineupServiceTest {
     @DisplayName("라인업 수정 - 성공")
     void updateLineup_Success() {
         // given
-        // given
         TeamMember mockTeamMember2 = mock(TeamMember.class);
         given(mockTeamMember2.getId()).willReturn(createTestTeamMemberId);
 
