@@ -6,6 +6,7 @@ import com.shootdoori.match.entity.common.Position;
 import java.time.LocalDateTime;
 
 public record LineupMemberResponseDto(Long id,
+                                      Long lineupId,
                                       Long teamMemberId,
                                       Position position,
                                       Boolean isStarter,
@@ -15,6 +16,7 @@ public record LineupMemberResponseDto(Long id,
     public static LineupMemberResponseDto from(LineupMember lineupMember) {
         return new LineupMemberResponseDto(
                 lineupMember.getId(),
+                lineupMember.getLineup().getId(),
                 lineupMember.getTeamMember().getId(),
                 lineupMember.getPosition(),
                 lineupMember.getIsStarter(),
