@@ -84,29 +84,11 @@ class LineupIntegrationTest {
         savedTeamMember2 = new TeamMember(savedTeam2, savedUser2, TeamMemberRole.LEADER);
         teamMemberRepository.saveAll(List.of(savedTeamMember1, savedTeamMember2));
 
-        authentication = new UsernamePasswordAuthenticationToken(
-                savedUser1.getId(),
-                null,
-                Collections.emptyList()
-        );
+        authentication = new UsernamePasswordAuthenticationToken(savedUser1.getId(), null, Collections.emptyList());
+        fakeAuth = new UsernamePasswordAuthenticationToken(999L, null, Collections.emptyList());
 
-        fakeAuth = new UsernamePasswordAuthenticationToken(
-                999L,
-                null,
-                Collections.emptyList()
-        );
-
-        lineupMemberRequestDto1 = new LineupMemberRequestDto(
-                savedTeamMember1.getId(),
-                Position.GK,
-                true
-        );
-
-        lineupMemberRequestDto2 = new LineupMemberRequestDto(
-                savedTeamMember2.getId(),
-                Position.DF,
-                true
-        );
+        lineupMemberRequestDto1 = new LineupMemberRequestDto(savedTeamMember1.getId(), Position.GK, true);
+        lineupMemberRequestDto2 = new LineupMemberRequestDto(savedTeamMember2.getId(), Position.DF, true);
     }
 
     @Test

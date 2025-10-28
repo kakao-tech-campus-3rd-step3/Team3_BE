@@ -4,12 +4,8 @@ import com.shootdoori.match.dto.LineupMemberRequestDto;
 import com.shootdoori.match.dto.LineupMemberResponseDto;
 import com.shootdoori.match.entity.lineup.Lineup;
 import com.shootdoori.match.entity.lineup.LineupMember;
-import com.shootdoori.match.entity.match.Match;
-import com.shootdoori.match.entity.match.request.MatchRequest;
-import com.shootdoori.match.entity.match.waiting.MatchWaiting;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.common.Position;
-import com.shootdoori.match.exception.common.CreationFailException;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.*;
@@ -21,7 +17,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Collections;
@@ -64,21 +59,12 @@ class LineupServiceTest {
     void setUp() {
         mockTeamMember = mock(TeamMember.class);
 
-        requestDto = new LineupMemberRequestDto(
-                testTeamMemberId,
-                Position.GK,
-                true
-        );
+        requestDto = new LineupMemberRequestDto(testTeamMemberId, Position.GK, true);
 
         savedLineup = new Lineup();
         ReflectionTestUtils.setField(savedLineup, "id", testLineupId);
 
-        savedLineupMember = new LineupMember(
-                mockTeamMember,
-                savedLineup,
-                Position.GK,
-                true
-        );
+        savedLineupMember = new LineupMember(mockTeamMember, savedLineup, Position.GK, true);
         ReflectionTestUtils.setField(savedLineupMember, "id", testLineupMemberId);
     }
 
@@ -144,7 +130,7 @@ class LineupServiceTest {
     }
 
     @Test
-    @DisplayName("라인업 일괄 생성 - 실패 (팀 멤버 조회 실패)")
+    @DisplayName("라인업 생성 - 실패 (팀 멤버 조회 실패)")
     void createLineup_List_Failure_TeamMemberNotFound() {
         // given
         List<LineupMemberRequestDto> requestDtos = List.of(requestDto);
