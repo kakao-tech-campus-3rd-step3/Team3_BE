@@ -75,6 +75,9 @@ public class MatchWaiting {
     @Embedded
     private AuditInfo audit = new AuditInfo();
 
+    @Column(name = "CREATE_TEAM_LINEUP_ID", nullable = false)
+    private Long createTeamLineupId;
+
 
     protected MatchWaiting() {
     }
@@ -90,7 +93,8 @@ public class MatchWaiting {
                       Boolean universityOnly,
                       String message,
                       MatchWaitingStatus status,
-                      LocalDateTime expiresAt
+                      LocalDateTime expiresAt,
+                      Long createTeamLineupId
                       ) {
     this.team = team;
     this.preferredDate = preferredDate;
@@ -103,6 +107,7 @@ public class MatchWaiting {
     this.message = message;
     this.status = status;
     this.expiresAt = expiresAt;
+    this.createTeamLineupId = createTeamLineupId;
   }
 
     public Long getWaitingId() {
@@ -179,6 +184,14 @@ public class MatchWaiting {
 
     public AuditInfo getAudit() {
         return audit;
+    }
+
+    public Long getCreateTeamLineupId() {
+        return createTeamLineupId;
+    }
+
+    public void changeCreateTeamLineupId(Long createTeamLineupId) {
+        this.createTeamLineupId = createTeamLineupId;
     }
 
 }

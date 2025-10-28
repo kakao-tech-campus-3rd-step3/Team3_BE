@@ -90,7 +90,7 @@ class MatchStatusSchedulerTest {
         LocalDate matchDate = LocalDate.parse(dateStr);
         LocalTime matchTime = LocalTime.parse(timeStr);
 
-        Match match = matchRepository.save(new Match(team1, team2, matchDate, matchTime, savedVenue, MatchStatus.MATCHED));
+        Match match = matchRepository.save(new Match(team1, team2, matchDate, matchTime, savedVenue, MatchStatus.MATCHED, 1L, 2L));
 
         // 테스트 기준 시각: 2025-10-14 02:00 (새벽 2시)
         LocalDate fixedToday = LocalDate.of(2025, 10, 14);

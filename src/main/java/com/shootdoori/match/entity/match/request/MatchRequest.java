@@ -36,6 +36,9 @@ public class MatchRequest {
     @Column(name = "REQUEST_MESSAGE", columnDefinition = "TEXT")
     private String requestMessage;
 
+    @Column(name = "REQUEST_TEAM_LINEUP_ID", nullable = false)
+    private Long requestTeamLineupId;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "STATUS", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '대기중'")
     private MatchRequestStatus status = MatchRequestStatus.PENDING;
@@ -54,11 +57,12 @@ public class MatchRequest {
     protected MatchRequest() {
     }
 
-    public MatchRequest(MatchWaiting matchWaiting, Team requestTeam, Team targetTeam, String requestMessage) {
+    public MatchRequest(MatchWaiting matchWaiting, Team requestTeam, Team targetTeam, String requestMessage, Long requestTeamLineupId) {
         this.matchWaiting = matchWaiting;
         this.requestTeam = requestTeam;
         this.targetTeam = targetTeam;
         this.requestMessage = requestMessage;
+        this.requestTeamLineupId = requestTeamLineupId;
         this.status = MatchRequestStatus.PENDING;
         this.requestAt = LocalDateTime.now();
         this.respondedAt = null;
@@ -130,4 +134,11 @@ public class MatchRequest {
         return this.targetTeam.getTeamName();
     }
 
+    public Long getRequestTeamLineupId() {
+        return requestTeamLineupId;
+    }
+
+    public void changeRequestTeamLineupId(Long lineupId) {
+        this.requestTeamLineupId = lineupId;
+    }
 }

@@ -215,6 +215,6 @@ class TeamReviewIntegrationTest {
     }
 
     private Match createMatch(Team team1, Team team2, Venue venue, MatchStatus status) {
-        return new Match(team1, team2, LocalDate.now().minusDays(1), LocalTime.of(19, 0), venue, status);
+        return new Match(team1, team2, LocalDate.now().minusDays(1), LocalTime.of(19, 0), venue, status, 1L, 2L);
     }
 }

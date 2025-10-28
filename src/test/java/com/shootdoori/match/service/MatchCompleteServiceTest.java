@@ -122,7 +122,9 @@ class MatchCompleteServiceTest {
             LocalDate.now(),
             LocalTime.of(10, 0),
             savedVenue,
-            MatchStatus.FINISHED
+            MatchStatus.FINISHED,
+            1L,
+            2L
         ));
     }
 
