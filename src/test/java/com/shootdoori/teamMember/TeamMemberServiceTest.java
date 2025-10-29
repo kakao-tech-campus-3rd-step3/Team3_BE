@@ -37,6 +37,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.test.util.ReflectionTestUtils;
 
@@ -324,6 +325,38 @@ public class TeamMemberServiceTest {
             assertThat(responseDtos).isNotNull();
             assertThat(responseDtos.getContent()).hasSize(1);
             assertThat(responseDtos.getTotalElements()).isEqualTo(1);
+            assertThat(responseDtos.getNumber()).isEqualTo(PAGE);
+            assertThat(responseDtos.getSize()).isEqualTo(SIZE);
+        }
+    }
+
+    @Nested
+    @DisplayName("findSliceByTeamId")
+    class FindSliceByTeamIdTest {
+
+        @Test
+        @DisplayName("findSliceByTeamId - 페이징/정렬 및 매핑")
+        void findAll_success() {
+            // given
+            List<TeamMember> teamMembers = List.of(teamMember);
+            Pageable pageable = PageRequest.of(PAGE, SIZE, Sort.by("id").ascending());
+            Slice<TeamMember> teamMemberSlice = new PageImpl<>(teamMembers, pageable,
+                teamMembers.size());
+
+            TeamMemberResponseDto expected = toResponse(teamMember);
+
+            when(teamMemberRepository.findSliceByTeam_TeamId(TEAM_ID, 0L, pageable)).thenReturn(
+                teamMemberSlice);
+            when(teamMemberMapper.toTeamMemberResponseDto(teamMember)).thenReturn(expected);
+
+            // when
+            Slice<TeamMemberResponseDto> responseDtos = teamMemberService.findSliceByTeamId(TEAM_ID,
+                0L,
+                SIZE);
+
+            // then
+            assertThat(responseDtos).isNotNull();
+            assertThat(responseDtos.getContent()).hasSize(1);
             assertThat(responseDtos.getNumber()).isEqualTo(PAGE);
             assertThat(responseDtos.getSize()).isEqualTo(SIZE);
         }
