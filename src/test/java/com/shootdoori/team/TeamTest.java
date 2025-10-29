@@ -142,7 +142,7 @@ public class TeamTest {
 
             // then
             assertThat(team.getTeamMembers()).hasSize(2);
-            assertThat(team.getMemberCount().count()).isEqualTo(2);
+            assertThat(team.getMemberCount()).isEqualTo(2);
             assertThat(team.getTeamMembers().get(1).getUser()).isEqualTo(newMember);
             assertThat(team.getTeamMembers().get(1).getRole()).isEqualTo(TeamMemberRole.MEMBER);
         }
@@ -176,7 +176,7 @@ public class TeamTest {
 
             // then
             assertThat(team.getTeamMembers()).hasSize(1);
-            assertThat(team.getMemberCount().count()).isEqualTo(1);
+            assertThat(team.getMemberCount()).isEqualTo(1);
         }
 
         @Test

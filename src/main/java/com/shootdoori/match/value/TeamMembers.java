@@ -18,6 +18,7 @@ import java.util.List;
 @Embeddable
 public class TeamMembers {
 
+    private static final int MIN_TEAM_MEMBERS = 1;
     private static final int MAX_TEAM_MEMBERS = 100;
 
     @OneToMany(
@@ -26,10 +27,6 @@ public class TeamMembers {
         orphanRemoval = true
     )
     private List<TeamMember> teamMembers = new ArrayList<>();
-
-    @Embedded
-    @AttributeOverride(name = "count", column = @Column(name = "MEMBER_COUNT", nullable = false))
-    private MemberCount memberCount = MemberCount.of(0);
 
     protected TeamMembers() {
     }
@@ -42,10 +39,6 @@ public class TeamMembers {
 
     public List<TeamMember> getTeamMembers() {
         return teamMembers;
-    }
-
-    public MemberCount getMemberCount() {
-        return memberCount;
     }
 
     public static TeamMembers empty() {
@@ -74,18 +67,15 @@ public class TeamMembers {
         ensureNotFull();
         ensureNotMember(targetUser);
         teamMembers.add(targetMember);
-        syncMemberCount();
     }
 
     public void removeMember(TeamMember targetMember) {
         ensureRemovable();
         teamMembers.remove(targetMember);
-        syncMemberCount();
     }
 
     public void clear() {
         teamMembers.clear();
-        syncMemberCount();
     }
 
     public void ensureNotFull() {
@@ -95,7 +85,7 @@ public class TeamMembers {
     }
 
     private void ensureRemovable() {
-        if (size() <= 1) {
+        if (size() <= MIN_TEAM_MEMBERS) {
             throw new LastTeamMemberRemovalNotAllowedException();
         }
     }
@@ -104,9 +94,5 @@ public class TeamMembers {
         if (teamMembers.stream().anyMatch(member -> member.isSameUser(targetUser))) {
             throw new DuplicatedException(ErrorCode.ALREADY_TEAM_MEMBER);
         }
-    }
-
-    private void syncMemberCount() {
-        memberCount = memberCount.of(size());
     }
 }
