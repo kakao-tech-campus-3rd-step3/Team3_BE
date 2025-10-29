@@ -33,7 +33,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
         @UniqueConstraint(columnNames = {"team_id", "user_id"})
     }
 )
-@AttributeOverride(name = "createdAt", column = @Column(name = "joined_at", nullable = false, updatable = false))
+@AttributeOverride(name = "audit.createdAt", column = @Column(name = "joined_at", nullable = false, updatable = false))
 public class TeamMember {
 
     @Id
