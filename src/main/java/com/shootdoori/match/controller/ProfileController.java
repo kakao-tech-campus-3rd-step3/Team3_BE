@@ -40,7 +40,7 @@ public class ProfileController {
 
     @GetMapping("/me")
     public ResponseEntity<ProfileResponse> getMyProfile(@LoginUser Long userId) {
-        return ResponseEntity.ok(profileService.findProfileById(userId));
+        return new ResponseEntity<>(profileService.findProfileById(userId), HttpStatus.OK);
     }
 
     @PutMapping("/me")
@@ -49,12 +49,12 @@ public class ProfileController {
         @Valid @RequestBody ProfileUpdateRequest request
     ) {
         ProfileResponse updatedProfile = profileService.updateProfile(userId, request);
-        return ResponseEntity.ok(updatedProfile);
+        return new ResponseEntity<>(updatedProfile, HttpStatus.OK);
     }
 
     @DeleteMapping("/me")
     public ResponseEntity<Void> deleteProfile(@LoginUser Long userId) {
         profileService.deleteAccount(userId);
-        return ResponseEntity.noContent().build();
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 }

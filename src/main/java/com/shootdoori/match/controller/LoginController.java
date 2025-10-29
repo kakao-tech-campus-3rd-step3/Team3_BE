@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
@@ -45,8 +46,9 @@ public class LoginController {
         ClientInfo clientInfo = getClientInfo(request);
         AuthToken token = authService.login(loginRequest, clientInfo);
 
-        return ResponseEntity.ok(new AuthTokenResponse(
-                token.accessToken(), token.refreshToken(), ACCESS_TOKEN_EXPIRES_IN_SECONDS, REFRESH_TOKEN_EXPIRES_IN_SECONDS));
+        return new ResponseEntity<>(
+                new AuthTokenResponse(token.accessToken(), token.refreshToken(), ACCESS_TOKEN_EXPIRES_IN_SECONDS, REFRESH_TOKEN_EXPIRES_IN_SECONDS),
+                HttpStatus.OK);
     }
 
     @PostMapping("/register")
@@ -57,8 +59,9 @@ public class LoginController {
         ClientInfo clientInfo = getClientInfo(request);
         AuthToken token = authService.register(profileCreateRequest, clientInfo);
 
-        return ResponseEntity.ok(new AuthTokenResponse(
-                token.accessToken(), token.refreshToken(), ACCESS_TOKEN_EXPIRES_IN_SECONDS, REFRESH_TOKEN_EXPIRES_IN_SECONDS));
+        return new ResponseEntity<>(new AuthTokenResponse(
+                token.accessToken(), token.refreshToken(), ACCESS_TOKEN_EXPIRES_IN_SECONDS, REFRESH_TOKEN_EXPIRES_IN_SECONDS),
+                HttpStatus.OK);
     }
 
     @PostMapping("/refresh")
@@ -67,15 +70,16 @@ public class LoginController {
     ) {
         AuthToken newTokens = tokenRefreshService.refreshAccessToken(token.refreshToken());
 
-        return ResponseEntity.ok(new AuthTokenResponse(
-                newTokens.accessToken(), newTokens.refreshToken(), ACCESS_TOKEN_EXPIRES_IN_SECONDS, REFRESH_TOKEN_EXPIRES_IN_SECONDS));
+        return new ResponseEntity<>(new AuthTokenResponse(
+                newTokens.accessToken(), newTokens.refreshToken(), ACCESS_TOKEN_EXPIRES_IN_SECONDS, REFRESH_TOKEN_EXPIRES_IN_SECONDS),
+                HttpStatus.OK);
     }
 
     @PostMapping("/logout")
     public ResponseEntity<Void> logout(@RequestBody TokenRefreshRequest token) {
         authService.logout(token.refreshToken());
 
-        return ResponseEntity.ok().build();
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/logout-all")
@@ -84,7 +88,7 @@ public class LoginController {
     ) {
         authService.logoutAll(userId);
 
-        return ResponseEntity.ok().build();
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/login-cookie")
@@ -98,7 +102,7 @@ public class LoginController {
         setHttpOnlyCookie(response, "accessToken", token.accessToken(), ACCESS_TOKEN_EXPIRES_IN_SECONDS);
         setHttpOnlyCookie(response, "refreshToken", token.refreshToken(), REFRESH_TOKEN_EXPIRES_IN_SECONDS);
 
-        return ResponseEntity.ok().build();
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/logout-cookie")
@@ -119,7 +123,7 @@ public class LoginController {
         clearHttpOnlyCookie(response, "accessToken");
         clearHttpOnlyCookie(response, "refreshToken");
 
-        return ResponseEntity.ok().build();
+        return new ResponseEntity<>(HttpStatus.OK);
     }
     
     private ClientInfo getClientInfo(HttpServletRequest request) {
