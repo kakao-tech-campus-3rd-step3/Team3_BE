@@ -13,6 +13,8 @@ public record MatchSummaryProjection(
     MatchStatus status,
     Long createTeamId,
     Long requestTeamId,
+    Long createTeamLineupId,
+    Long requestTeamLineupId,
     String createTeamName,
     String requestTeamName,
     String venueName,

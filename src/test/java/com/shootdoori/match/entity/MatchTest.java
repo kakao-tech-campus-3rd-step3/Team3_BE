@@ -50,7 +50,7 @@ class MatchTest {
     @Test
     @DisplayName("Match 객체 생성시 status가 null로 제공되면 MatchStatus.RECRUITING 인지")
     void createMatchWithDefaultStatus() {
-        Match match = new Match(team1, team2, MATCH_DATE, MATCH_TIME, venue, null);
+        Match match = new Match(team1, team2, MATCH_DATE, MATCH_TIME, venue, null, 1L, 2L);
 
         assertEquals(MatchStatus.RECRUITING, match.getStatus());
     }
