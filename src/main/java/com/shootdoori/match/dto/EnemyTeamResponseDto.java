@@ -23,7 +23,7 @@ public record EnemyTeamResponseDto(Long teamId,
             team.getCaptain().getName(),
             team.getUniversity().name(),
             team.getTeamType(),
-            team.getMemberCount().count(),
+            team.getMemberCount(),
             team.getSkillLevel(),
             team.getDescription().description()
         );

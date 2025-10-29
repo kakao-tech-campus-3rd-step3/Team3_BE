@@ -8,7 +8,6 @@ import com.shootdoori.match.exception.common.DifferentException;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NoPermissionException;
 import com.shootdoori.match.value.Description;
-import com.shootdoori.match.value.MemberCount;
 import com.shootdoori.match.value.TeamMembers;
 import com.shootdoori.match.value.TeamName;
 import com.shootdoori.match.value.UniversityName;
@@ -111,10 +110,6 @@ public class Team {
         return teamType;
     }
 
-    public MemberCount getMemberCount() {
-        return teamMembers.getMemberCount();
-    }
-
     public SkillLevel getSkillLevel() {
         return skillLevel;
     }
@@ -142,6 +137,8 @@ public class Team {
     public TeamStatus getStatus() {
         return softDelete.getStatus();
     }
+
+    public int getMemberCount() { return teamMembers.size(); }
 
     public boolean isCaptain(User user) {
         return captain.equals(user);
