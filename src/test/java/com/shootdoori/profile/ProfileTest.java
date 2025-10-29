@@ -326,7 +326,6 @@ class ProfileTest {
         }
     }
 
-    // Test Fixtures
     private ProfileCreateRequest createProfileRequest() {
         return new ProfileCreateRequest(
             "jam", "아마추어", "test@any.ac.kr",

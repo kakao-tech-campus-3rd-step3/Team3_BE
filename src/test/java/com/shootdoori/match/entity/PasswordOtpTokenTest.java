@@ -43,7 +43,7 @@ public class PasswordOtpTokenTest {
     @DisplayName("인증코드 발송 횟수 업데이트 - 하루가 지나면 인증번호 요청 횟수 자동 초기화된다")
     void resetTodayRequestLimit_NextDay_ResetsCount()
         throws NoSuchFieldException, IllegalAccessException {
-
+        // given
         for (int i = 0; i < 5; i++) {
             otpToken.incrementRequestCount();
         }

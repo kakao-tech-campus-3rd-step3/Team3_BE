@@ -38,8 +38,8 @@ class MailServiceTest {
         // then
         ArgumentCaptor<SimpleMailMessage> captor = ArgumentCaptor.forClass(SimpleMailMessage.class);
         verify(mailSender).send(captor.capture());
-
         SimpleMailMessage sent = captor.getValue();
+
         assertThat(sent.getFrom()).isEqualTo("noreply@test.local");
         assertThat(sent.getTo()).containsExactly(toEmail);
         assertThat(sent.getSubject()).isEqualTo(subject);
