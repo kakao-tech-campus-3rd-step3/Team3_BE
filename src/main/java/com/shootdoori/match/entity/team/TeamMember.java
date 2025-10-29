@@ -183,6 +183,10 @@ public class TeamMember {
         }
     }
 
+    public boolean isSameUser(User targetUser) {
+        return user.equals(targetUser);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o == null || !(o instanceof TeamMember)) {

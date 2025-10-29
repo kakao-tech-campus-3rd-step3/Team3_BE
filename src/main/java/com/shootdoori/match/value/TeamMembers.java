@@ -101,7 +101,7 @@ public class TeamMembers {
     }
 
     private void ensureNotMember(User targetUser) {
-        if (teamMembers.stream().anyMatch(member -> member.getUser().equals(targetUser))) {
+        if (teamMembers.stream().anyMatch(member -> member.isSameUser(targetUser))) {
             throw new DuplicatedException(ErrorCode.ALREADY_TEAM_MEMBER);
         }
     }
