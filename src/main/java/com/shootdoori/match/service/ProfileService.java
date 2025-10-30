@@ -67,13 +67,18 @@ public class ProfileService {
         List<User> users = profileRepository.findAllIncludingDeleted();
 
         return users.stream()
-            .map(user -> {
-                Long teamId = teamMemberRepository.findByUser_Id(user.getId())
-                    .map(teamMember -> teamMember.getTeam().getTeamId())
-                    .orElse(null);
-                return profileMapper.toProfileResponse(user, teamId);
-            })
-            .toList();
+                .map(this::toProfileResponseWithTeam)
+                .toList();
+    }
+
+    private ProfileResponse toProfileResponseWithTeam(User user) {
+        return profileMapper.toProfileResponse(user, extractTeamId(user.getId()));
+    }
+
+    private Long extractTeamId(Long userId) {
+        return teamMemberRepository.findByUser_Id(userId)
+                .map(teamMember -> teamMember.getTeam().getTeamId())
+                .orElse(null);
     }
 
     @Transactional(readOnly = true)
@@ -81,11 +86,7 @@ public class ProfileService {
         User profile = profileRepository.findById(id)
             .orElseThrow(() -> new NotFoundException(ErrorCode.PROFILE_NOT_FOUND));
 
-        Long teamId = teamMemberRepository.findByUser_Id(id)
-            .map(teamMember -> teamMember.getTeam().getTeamId())
-            .orElse(null);
-
-        return profileMapper.toProfileResponse(profile, teamId);
+        return profileMapper.toProfileResponse(profile, extractTeamId(id));
     }
 
     @Transactional(readOnly = true)
@@ -104,11 +105,7 @@ public class ProfileService {
 
         profile.update(updateRequest.skillLevel(), updateRequest.position(), updateRequest.bio());
 
-        Long teamId = teamMemberRepository.findByUser_Id(id)
-            .map(teamMember -> teamMember.getTeam().getTeamId())
-            .orElse(null);
-
-        return profileMapper.toProfileResponse(profile, teamId);
+        return profileMapper.toProfileResponse(profile, extractTeamId(id));
     }
 
     public void deleteAccount(Long id) {
@@ -116,8 +113,7 @@ public class ProfileService {
             .orElseThrow(() -> new NotFoundException(ErrorCode.PROFILE_NOT_FOUND));
 
         teamMemberRepository.findByUser_Id(id).ifPresent(teamMember -> {
-            Team team = teamMember.getTeam();
-            if (team.getCaptain().equals(user)) {
+            if (teamMember.isCaptain()) {
                 throw new LeaderCannotLeaveTeamException(ErrorCode.LEADER_CANNOT_LEAVE_TEAM);
             }
         });
