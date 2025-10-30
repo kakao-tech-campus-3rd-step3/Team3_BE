@@ -6,13 +6,15 @@ import com.shootdoori.match.policy.CookieSecurityPolicy;
 import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.AuthService;
 import com.shootdoori.match.service.TokenRefreshService;
+import com.shootdoori.match.util.CookieUtil;
+import com.shootdoori.match.util.HttpServletRequestHelper;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 public class LoginController {
     private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
-    
+
     private final AuthService authService;
     private final TokenRefreshService tokenRefreshService;
     private final CookieSecurityPolicy cookieSecurityPolicy;
@@ -96,23 +98,28 @@ public class LoginController {
     @PostMapping("/login-cookie")
     public ResponseEntity<Void> loginWithCookie(
         @Valid @RequestBody LoginRequest loginRequest,
-        HttpServletRequest request,
         HttpServletResponse response
     ) {
+        HttpServletRequest request = HttpServletRequestHelper.get();
         ClientInfo clientInfo = getClientInfo(request);
+
         AuthToken token = authService.login(loginRequest, clientInfo);
-        setHttpOnlyCookie(response, "accessToken", token.accessToken(), ACCESS_TOKEN_EXPIRES_IN_SECONDS);
-        setHttpOnlyCookie(response, "refreshToken", token.refreshToken(), REFRESH_TOKEN_EXPIRES_IN_SECONDS);
+        CookieUtil.setHttpOnlyCookie(response, "accessToken", token.accessToken(), ACCESS_TOKEN_EXPIRES_IN_SECONDS, cookieSecurityPolicy);
+        CookieUtil.setHttpOnlyCookie(response, "refreshToken", token.refreshToken(), REFRESH_TOKEN_EXPIRES_IN_SECONDS, cookieSecurityPolicy);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
     @PostMapping("/logout-cookie")
     public ResponseEntity<Void> logoutWithCookie(
-        HttpServletRequest request,
         HttpServletResponse response
     ) {
-        String refreshToken = extractTokenFromCookie(request, "refreshToken");
+        HttpServletRequest request = HttpServletRequestHelper.get();
+
+        String refreshToken = HttpServletRequestHelper
+                .cookie(request, "refreshToken")
+                .map(Cookie::getValue)
+                .orElse(null);
 
         if (refreshToken != null) {
             try {
@@ -122,8 +129,8 @@ public class LoginController {
             }
         }
 
-        clearHttpOnlyCookie(response, "accessToken");
-        clearHttpOnlyCookie(response, "refreshToken");
+        CookieUtil.clearHttpOnlyCookie(response, "accessToken", cookieSecurityPolicy);
+        CookieUtil.clearHttpOnlyCookie(response, "refreshToken", cookieSecurityPolicy);
 
         return new ResponseEntity<>(HttpStatus.OK);
     }
@@ -149,53 +156,5 @@ public class LoginController {
         }
 
         return DeviceType.WEB;
-    }
-    
-    private void setHttpOnlyCookie(HttpServletResponse response, String name, String value, long maxAgeSeconds) {
-        try {
-            ResponseCookie cookie = ResponseCookie.from(name, value)
-                .httpOnly(true)
-                .secure(cookieSecurityPolicy.isSecure())
-                .sameSite("Lax")
-                .maxAge(maxAgeSeconds)
-                .path("/")
-                .build();
-            response.addHeader("Set-Cookie", cookie.toString());
-            logger.debug("Set cookie: {} (secure: {})", name, cookieSecurityPolicy.isSecure());
-        } catch (Exception e) {
-            logger.error("Error setting cookie: {}", e.getMessage(), e);
-        }
-    }
-
-    private void clearHttpOnlyCookie(HttpServletResponse response, String name) {
-        ResponseCookie cookie = ResponseCookie.from(name, "")
-            .httpOnly(true)
-            .secure(cookieSecurityPolicy.isSecure())
-            .sameSite("Lax")
-            .maxAge(0)
-            .path("/")
-            .build();
-        response.addHeader("Set-Cookie", cookie.toString());
-        logger.debug("Cleared cookie: {} (secure: {})", name, cookieSecurityPolicy.isSecure());
-    }
-
-    private String extractTokenFromCookie(HttpServletRequest request, String cookieName) {
-        if (request.getCookies() == null) {
-            return null;
-        }
-        
-        return java.util.Arrays.stream(request.getCookies())
-            .filter(cookie -> cookieName.equals(cookie.getName()))
-            .findFirst()
-            .map(cookie -> {
-                try {
-                    String value = java.net.URLDecoder.decode(cookie.getValue(), java.nio.charset.StandardCharsets.UTF_8);
-                    return value;
-                } catch (Exception e) {
-                    logger.warn("Failed to decode cookie value: {}", e.getMessage());
-                    return null;
-                }
-            })
-            .orElse(null);
     }
 }
