@@ -98,11 +98,10 @@ public class LoginController {
     @PostMapping("/login-cookie")
     public ResponseEntity<Void> loginWithCookie(
         @Valid @RequestBody LoginRequest loginRequest,
+        HttpServletRequest request,
         HttpServletResponse response
     ) {
-        HttpServletRequest request = HttpServletRequestHelper.get();
         ClientInfo clientInfo = getClientInfo(request);
-
         AuthToken token = authService.login(loginRequest, clientInfo);
         CookieUtil.setHttpOnlyCookie(response, "accessToken", token.accessToken(), ACCESS_TOKEN_EXPIRES_IN_SECONDS, cookieSecurityPolicy);
         CookieUtil.setHttpOnlyCookie(response, "refreshToken", token.refreshToken(), REFRESH_TOKEN_EXPIRES_IN_SECONDS, cookieSecurityPolicy);
@@ -112,10 +111,9 @@ public class LoginController {
 
     @PostMapping("/logout-cookie")
     public ResponseEntity<Void> logoutWithCookie(
+        HttpServletRequest request,
         HttpServletResponse response
     ) {
-        HttpServletRequest request = HttpServletRequestHelper.get();
-
         String refreshToken = HttpServletRequestHelper
                 .cookie(request, "refreshToken")
                 .map(Cookie::getValue)
