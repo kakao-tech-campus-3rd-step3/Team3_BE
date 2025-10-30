@@ -2,13 +2,19 @@ package com.shootdoori.match.util;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Optional;
 
 public final class HttpServletRequestHelper {
+
+    private static final Logger logger = LoggerFactory.getLogger(HttpServletRequestHelper.class);
 
     private HttpServletRequestHelper() {}
 
@@ -37,7 +43,22 @@ public final class HttpServletRequestHelper {
                     .filter(c -> name.equals(c.getName()))
                     .findFirst();
         } catch (Exception e) {
+            logger.warn("Failed to read cookies: {}", e.getMessage());
             return Optional.empty();
         }
+    }
+
+    public static Optional<String> cookieValue(HttpServletRequest request, String name) {
+        return cookie(request, name)
+                .map(Cookie::getValue)
+                .flatMap(value -> {
+                    try {
+                        String decoded = URLDecoder.decode(value, StandardCharsets.UTF_8);
+                        return decoded.isBlank() ? Optional.empty() : Optional.of(decoded);
+                    } catch (Exception e) {
+                        logger.warn("Failed to decode cookie value: {}", e.getMessage());
+                        return Optional.empty();
+                    }
+                });
     }
 }

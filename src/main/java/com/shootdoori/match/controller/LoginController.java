@@ -115,8 +115,7 @@ public class LoginController {
         HttpServletResponse response
     ) {
         String refreshToken = HttpServletRequestHelper
-                .cookie(request, "refreshToken")
-                .map(Cookie::getValue)
+                .cookieValue(request, "refreshToken")
                 .orElse(null);
 
         if (refreshToken != null) {
