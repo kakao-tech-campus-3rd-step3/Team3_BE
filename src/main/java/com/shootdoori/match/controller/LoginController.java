@@ -2,6 +2,7 @@ package com.shootdoori.match.controller;
 
 import com.shootdoori.match.dto.*;
 import com.shootdoori.match.entity.common.DeviceType;
+import com.shootdoori.match.policy.CookieSecurityPolicy;
 import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.AuthService;
 import com.shootdoori.match.service.TokenRefreshService;
@@ -10,12 +11,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -24,18 +27,17 @@ public class LoginController {
     
     private final AuthService authService;
     private final TokenRefreshService tokenRefreshService;
-    private final boolean isSecure;
+    private final CookieSecurityPolicy cookieSecurityPolicy;
 
     private static final long ACCESS_TOKEN_EXPIRES_IN_SECONDS = 30 * 60L;
     private static final long REFRESH_TOKEN_EXPIRES_IN_SECONDS = 30 * 24 * 60 * 60L;
 
-    public LoginController(AuthService authService, TokenRefreshService tokenRefreshService,
-                          @Value("${spring.profiles.active:test}") String activeProfile) {
+    public LoginController(AuthService authService, TokenRefreshService tokenRefreshService, CookieSecurityPolicy cookieSecurityPolicy) {
         this.authService = authService;
         this.tokenRefreshService = tokenRefreshService;
+        this.cookieSecurityPolicy = cookieSecurityPolicy;
 
-        this.isSecure = !"test".equals(activeProfile);
-        logger.info("Cookie secure mode: {} (profile: {})", this.isSecure, activeProfile);
+        logger.info("Cookie secure mode: {} (profile: {})", cookieSecurityPolicy.isSecure(), cookieSecurityPolicy.getActiveProfile());
     }
 
     @PostMapping("/login")
@@ -153,13 +155,13 @@ public class LoginController {
         try {
             ResponseCookie cookie = ResponseCookie.from(name, value)
                 .httpOnly(true)
-                .secure(isSecure)
+                .secure(cookieSecurityPolicy.isSecure())
                 .sameSite("Lax")
                 .maxAge(maxAgeSeconds)
                 .path("/")
                 .build();
             response.addHeader("Set-Cookie", cookie.toString());
-            logger.debug("Set cookie: {} (secure: {})", name, isSecure);
+            logger.debug("Set cookie: {} (secure: {})", name, cookieSecurityPolicy.isSecure());
         } catch (Exception e) {
             logger.error("Error setting cookie: {}", e.getMessage(), e);
         }
@@ -168,13 +170,13 @@ public class LoginController {
     private void clearHttpOnlyCookie(HttpServletResponse response, String name) {
         ResponseCookie cookie = ResponseCookie.from(name, "")
             .httpOnly(true)
-            .secure(isSecure)
+            .secure(cookieSecurityPolicy.isSecure())
             .sameSite("Lax")
             .maxAge(0)
             .path("/")
             .build();
         response.addHeader("Set-Cookie", cookie.toString());
-        logger.debug("Cleared cookie: {} (secure: {})", name, isSecure);
+        logger.debug("Cleared cookie: {} (secure: {})", name, cookieSecurityPolicy.isSecure());
     }
 
     private String extractTokenFromCookie(HttpServletRequest request, String cookieName) {
