@@ -137,24 +137,7 @@ public class LoginController {
     
     private ClientInfo getClientInfo(HttpServletRequest request) {
         String userAgent = request.getHeader("User-Agent");
-        DeviceType deviceType = parseDeviceTypeFromUserAgent(userAgent);
+        DeviceType deviceType = DeviceType.fromUserAgent(userAgent);
         return new ClientInfo(userAgent, deviceType);
-    }
-
-    private DeviceType parseDeviceTypeFromUserAgent(String userAgent) {
-        if (!StringUtils.hasText(userAgent)) {
-            return DeviceType.UNKNOWN;
-        }
-
-        String lowerCaseUserAgent = userAgent.toLowerCase();
-        if (lowerCaseUserAgent.contains("android")) {
-            return DeviceType.ANDROID;
-        }
-
-        if (lowerCaseUserAgent.contains("iphone") || lowerCaseUserAgent.contains("ipad")) {
-            return DeviceType.IOS;
-        }
-
-        return DeviceType.WEB;
     }
 }
