@@ -3,13 +3,14 @@ package com.shootdoori.match.service;
 import com.shootdoori.match.dto.RecruitmentCreateRequest;
 import com.shootdoori.match.dto.RecruitmentResponse;
 import com.shootdoori.match.dto.RecruitmentUpdateRequest;
-import com.shootdoori.match.entity.mercenary.MercenaryRecruitment;
 import com.shootdoori.match.entity.common.Position;
 import com.shootdoori.match.entity.common.SkillLevel;
+import com.shootdoori.match.entity.mercenary.MercenaryRecruitment;
 import com.shootdoori.match.entity.team.Team;
+import com.shootdoori.match.entity.user.User;
+import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NoPermissionException;
 import com.shootdoori.match.exception.common.NotFoundException;
-import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.repository.MercenaryRecruitmentRepository;
 import com.shootdoori.match.repository.TeamRepository;
 import org.springframework.data.domain.Page;
@@ -20,10 +21,14 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class MercenaryRecruitmentService {
+    private final TeamService teamService;
+    private final ProfileService profileService;
     private final MercenaryRecruitmentRepository recruitmentRepository;
     private final TeamRepository teamRepository;
 
-    public MercenaryRecruitmentService(MercenaryRecruitmentRepository recruitmentRepository, TeamRepository teamRepository) {
+    public MercenaryRecruitmentService(TeamService teamService, ProfileService profileService, MercenaryRecruitmentRepository recruitmentRepository, TeamRepository teamRepository) {
+        this.teamService = teamService;
+        this.profileService = profileService;
         this.recruitmentRepository = recruitmentRepository;
         this.teamRepository = teamRepository;
     }
@@ -43,14 +48,21 @@ public class MercenaryRecruitmentService {
         MercenaryRecruitment savedRecruitment = recruitmentRepository.save(MercenaryRecruitment.create(
             team, request.matchDate(), request.matchTime(), request.message(), position, skillLevel));
 
-        return new RecruitmentResponse(savedRecruitment);
+        return RecruitmentResponse.from(savedRecruitment);
     }
 
     @Transactional(readOnly = true)
-    public Page<RecruitmentResponse> findAllPages(Pageable pageable) {
+    public Page<RecruitmentResponse> findAll(Pageable pageable) {
         Page<MercenaryRecruitment> recruitments = recruitmentRepository.findAll(pageable);
 
-        return recruitments.map(RecruitmentResponse::new);
+        return recruitments.map(RecruitmentResponse::from);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<RecruitmentResponse> findAllForCaptain(Pageable pageable, Long loginUserId) {
+        Page<MercenaryRecruitment> recruitments = recruitmentRepository.findByTeam_Captain_Id(loginUserId, pageable);
+
+        return recruitments.map(RecruitmentResponse::from);
     }
 
     @Transactional(readOnly = true)
@@ -58,7 +70,7 @@ public class MercenaryRecruitmentService {
         MercenaryRecruitment recruitment = recruitmentRepository.findById(id)
             .orElseThrow(() -> new NotFoundException(ErrorCode.RECRUITMENT_NOT_FOUND));
 
-        return new RecruitmentResponse(recruitment);
+        return RecruitmentResponse.from(recruitment);
     }
 
     @Transactional(readOnly = true)
@@ -81,7 +93,7 @@ public class MercenaryRecruitmentService {
         recruitment.updateRecruitmentInfo(
             updateRequest.matchDate(), updateRequest.matchTime(), updateRequest.message(), position, skillLevel);
 
-        return new RecruitmentResponse(recruitment);
+        return RecruitmentResponse.from(recruitment);
     }
 
     public void delete(Long id, Long loginUserId) {
@@ -93,5 +105,11 @@ public class MercenaryRecruitmentService {
         }
 
         recruitmentRepository.deleteById(id);
+    }
+
+    private void validateCaptain(Team team, User user) {
+        if (!team.isCaptain(user)) {
+            throw new NoPermissionException(ErrorCode.CAPTAIN_ONLY_OPERATION);
+        }
     }
 }

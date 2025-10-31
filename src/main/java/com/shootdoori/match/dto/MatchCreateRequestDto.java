@@ -13,6 +13,7 @@ public record MatchCreateRequestDto(
     SkillLevel skillLevelMin,
     SkillLevel skillLevelMax,
     Boolean universityOnly,
-    String message
+    String message,
+    Long lineupId
 ) {
 }

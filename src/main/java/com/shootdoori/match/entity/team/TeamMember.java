@@ -33,7 +33,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
         @UniqueConstraint(columnNames = {"team_id", "user_id"})
     }
 )
-@AttributeOverride(name = "createdAt", column = @Column(name = "joined_at", nullable = false, updatable = false))
+@AttributeOverride(name = "audit.createdAt", column = @Column(name = "joined_at", nullable = false, updatable = false))
 public class TeamMember {
 
     @Id
@@ -181,6 +181,10 @@ public class TeamMember {
         if(!Objects.equals(this.team.getCaptain().getId(), userId)) {
             throw new NoPermissionException(ErrorCode.CAPTAIN_ONLY_OPERATION);
         }
+    }
+
+    public boolean isSameUser(User targetUser) {
+        return user.equals(targetUser);
     }
 
     @Override

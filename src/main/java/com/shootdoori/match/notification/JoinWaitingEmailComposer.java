@@ -77,8 +77,8 @@ public class JoinWaitingEmailComposer {
 
     public List<EmailMessage> composeCreated(Team team, User applicant, String message,
         boolean isMercenary) {
-        String staffType = isMercenary ? "용병 신청" : "팀원 신청";
-        String applicantType = isMercenary ? "용병 신청" : "가입 신청";
+        String staffType = getStaffType(isMercenary);
+        String applicantType = getApplicantType(isMercenary);
         String subject = SUBJECT_PREFIX + applicantType + " 알림";
 
         String staffBody = String.format(
@@ -96,7 +96,7 @@ public class JoinWaitingEmailComposer {
 
     public List<EmailMessage> composeApproved(Team team, User applicant, TeamMember approver,
         LocalDateTime decidedAt, boolean isMercenary) {
-        String type = isMercenary ? "용병 신청" : "가입 신청";
+        String type = getApplicantType(isMercenary);
         String subject = SUBJECT_PREFIX + type + " 승인 알림";
 
         String applicantEmail = applicant.getEmail();
@@ -113,7 +113,7 @@ public class JoinWaitingEmailComposer {
 
     public List<EmailMessage> composeRejected(Team team, User applicant, TeamMember approver,
         LocalDateTime decidedAt, String rejectReason, boolean isMercenary) {
-        String type = isMercenary ? "용병 신청" : "가입 신청";
+        String type = getApplicantType(isMercenary);
         String subject = SUBJECT_PREFIX + type + " 거절 안내";
 
         String applicantEmail = applicant.getEmail();
@@ -131,8 +131,8 @@ public class JoinWaitingEmailComposer {
 
     public List<EmailMessage> composeCanceled(Team team, User applicant, LocalDateTime decidedAt,
         String cancelReason, boolean isMercenary) {
-        String staffType = isMercenary ? "용병 신청" : "팀원 신청";
-        String applicantType = isMercenary ? "용병 신청" : "가입 신청";
+        String staffType = getStaffType(isMercenary);
+        String applicantType = getApplicantType(isMercenary);
         String subject = SUBJECT_PREFIX + applicantType + " 취소 안내";
 
         String staffBody = String.format(
@@ -185,5 +185,13 @@ public class JoinWaitingEmailComposer {
     private static Stream<TeamMember> viceCaptains(Team team) {
         return team.getTeamMembers().stream()
             .filter(TeamMember::isViceCaptain);
+    }
+
+    private String getStaffType(boolean isMercenary) {
+        return isMercenary ? "용병 신청" : "팀원 신청";
+    }
+
+    private String getApplicantType(boolean isMercenary) {
+        return isMercenary ? "용병 신청" : "가입 신청";
     }
 }

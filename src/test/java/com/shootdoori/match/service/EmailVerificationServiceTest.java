@@ -58,14 +58,13 @@ public class EmailVerificationServiceTest {
         // then
         ArgumentCaptor<EmailVerificationCode> codeEntityCaptor = ArgumentCaptor.forClass(EmailVerificationCode.class);
         verify(codeRepository).save(codeEntityCaptor.capture());
-
         EmailVerificationCode savedEntity = codeEntityCaptor.getValue();
+
         assertThat(savedEntity.getEmail()).isEqualTo(email);
         assertThat(savedEntity.getCode()).isEqualTo(encodedCode);
 
         ArgumentCaptor<String> mailTextCaptor = ArgumentCaptor.forClass(String.class);
         verify(mailService).sendEmail(eq(email), anyString(), mailTextCaptor.capture());
-
         assertThat(mailTextCaptor.getValue()).contains("인증번호: ");
     }
 
@@ -86,10 +85,9 @@ public class EmailVerificationServiceTest {
         // then
         ArgumentCaptor<EmailVerificationCode> codeEntityCaptor = ArgumentCaptor.forClass(EmailVerificationCode.class);
         verify(codeRepository).save(codeEntityCaptor.capture());
-
         EmailVerificationCode updatedEntity = codeEntityCaptor.getValue();
-        assertThat(updatedEntity.getCode()).isEqualTo(newEncodedCode);
 
+        assertThat(updatedEntity.getCode()).isEqualTo(newEncodedCode);
         verify(mailService).sendEmail(eq(email), anyString(), anyString());
     }
 
@@ -100,7 +98,6 @@ public class EmailVerificationServiceTest {
         String email = "test@univ.ac.kr";
         String rawCode = "123456";
         String encodedCode = "{noop}encoded-code";
-
         EmailVerificationCode savedCode = new EmailVerificationCode(email, encodedCode);
 
         when(codeRepository.findByEmail(email)).thenReturn(Optional.of(savedCode));
@@ -108,7 +105,6 @@ public class EmailVerificationServiceTest {
         try (MockedStatic<PasswordEncoderProvider> mocked = mockStatic(PasswordEncoderProvider.class)) {
             // when
             mocked.when(() -> PasswordEncoderProvider.matches(rawCode, encodedCode)).thenReturn(true);
-
             emailVerificationService.verifyCode(email, rawCode);
 
             // then
@@ -123,7 +119,6 @@ public class EmailVerificationServiceTest {
             String email = "test@univ.ac.kr";
             String rawCode = "000000";
             String encodedCode = "{noop}encoded";
-
             EmailVerificationCode savedCode = new EmailVerificationCode(email, encodedCode);
 
             when(codeRepository.findByEmail(email)).thenReturn(Optional.of(savedCode));
@@ -144,7 +139,6 @@ public class EmailVerificationServiceTest {
     void verifyCode_emailNotFound() {
         // given
         String email = "notfound@univ.ac.kr";
-
         when(codeRepository.findByEmail(email)).thenReturn(Optional.empty());
 
         // when & then

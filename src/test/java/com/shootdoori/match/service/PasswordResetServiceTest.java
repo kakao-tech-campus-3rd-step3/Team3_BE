@@ -51,6 +51,7 @@ class PasswordResetServiceTest {
         var field = PasswordEncoderProvider.class.getDeclaredField("staticPasswordEncoder");
         field.setAccessible(true);
         field.set(null, encoder);
+
         testEmail = "test@example.com";
         testUser = mock(User.class);
         lenient().when(testUser.getId()).thenReturn(1L);
@@ -88,7 +89,6 @@ class PasswordResetServiceTest {
     void sendVerificationCode_SecondTime_UpdateExisting() {
         // given
         PasswordOtpToken existingToken = mock(PasswordOtpToken.class);
-
         when(profileRepository.findByEmail(testEmail)).thenReturn(Optional.of(testUser));
         when(passwordEncoder.encode(anyString())).thenReturn("newEncodedCode");
         when(otpTokenRepository.findByUser_Id(testUser.getId())).thenReturn(Optional.of(existingToken));
@@ -113,16 +113,13 @@ class PasswordResetServiceTest {
         when(profileRepository.findByEmail(testEmail)).thenReturn(Optional.of(testUser));
         when(passwordEncoder.encode(anyString())).thenReturn("encodedCode1", "encodedCode2");
 
-        // 첫 번째 호출: 새 토큰 생성
         when(otpTokenRepository.findByUser_Id(testUser.getId())).thenReturn(Optional.empty());
 
-        // 첫 번째 발송
         passwordResetService.sendVerificationCode(testEmail);
 
-        // 두 번째 호출: 기존 토큰 업데이트
         when(otpTokenRepository.findByUser_Id(testUser.getId())).thenReturn(Optional.of(existingToken));
 
-        // when - 두 번째 발송
+        // when
         passwordResetService.sendVerificationCode(testEmail);
 
         // then
@@ -138,7 +135,6 @@ class PasswordResetServiceTest {
     void sendVerificationCode_TooManyRequests() {
         // given
         PasswordOtpToken existingToken = mock(PasswordOtpToken.class);
-
         when(profileRepository.findByEmail(testEmail)).thenReturn(Optional.of(testUser));
         when(passwordEncoder.encode(anyString())).thenReturn("encodedCode");
         when(otpTokenRepository.findByUser_Id(testUser.getId())).thenReturn(Optional.of(existingToken));
@@ -250,7 +246,6 @@ class PasswordResetServiceTest {
         when(otpToken1.getUser()).thenReturn(testUser);
         when(otpToken2.getUser()).thenReturn(testUser);
 
-        // 첫 번째와 두 번째 검증 설정
         when(otpTokenRepository.findByUser_Email(testEmail))
             .thenReturn(Optional.of(otpToken1))
             .thenReturn(Optional.of(otpToken2));

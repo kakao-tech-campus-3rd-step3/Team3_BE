@@ -22,7 +22,8 @@ public record MatchWaitingResponseDto(
     Boolean universityOnly,
     String message,
     MatchWaitingStatus status,
-    LocalDateTime expiresAt
+    LocalDateTime expiresAt,
+    Long lineup1Id
 ) {
     public static MatchWaitingResponseDto from(MatchWaiting mw) {
         return new MatchWaitingResponseDto(
@@ -38,7 +39,8 @@ public record MatchWaitingResponseDto(
             mw.getUniversityOnly(),
             mw.getMessage(),
             mw.getMatchWaitingStatus(),
-            mw.getExpiresAt()
+            mw.getExpiresAt(),
+            mw.getCreateTeamLineupId()
         );
     }
 }

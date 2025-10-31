@@ -35,7 +35,7 @@ public class TeamMapper {
             team.getUniversity().name(),
             team.getSkillLevel(),
             team.getTeamType(),
-            team.getMemberCount().count(),
+            team.getMemberCount(),
             team.getCreatedAt().toString());
     }
 

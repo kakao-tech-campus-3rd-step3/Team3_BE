@@ -16,7 +16,9 @@ public record MatchConfirmedResponseDto(
     LocalDate matchDate,
     LocalTime matchTime,
     Long venueId,
-    MatchStatus status
+    MatchStatus status,
+    Long lineup1Id,
+    Long lineup2Id
 ) {
     public static MatchConfirmedResponseDto from(Match match) {
         return new MatchConfirmedResponseDto(
@@ -28,7 +30,9 @@ public record MatchConfirmedResponseDto(
             match.getMatchDate(),
             match.getMatchTime(),
             match.getVenue().getVenueId(),
-            match.getStatus()
+            match.getStatus(),
+            match.getCreateTeamLineupId(),
+            match.getRequestTeamLineupId()
         );
     }
 }
