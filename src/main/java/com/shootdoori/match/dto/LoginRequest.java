@@ -1,5 +1,6 @@
 package com.shootdoori.match.dto;
 
+import com.shootdoori.match.policy.PasswordPolicy;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -16,7 +17,7 @@ public record LoginRequest(
     String email,
 
     @NotBlank(message = "비밀번호를 반드시 입력해야 합니다.")
-    @Size(min = 8, max = 20)
+    @Size(min = PasswordPolicy.MIN_LENGTH, max = PasswordPolicy.MAX_LENGTH)
     String password
 ) {
 }

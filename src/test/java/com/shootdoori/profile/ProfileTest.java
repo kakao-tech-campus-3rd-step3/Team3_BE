@@ -268,21 +268,18 @@ class ProfileTest {
             // given
             Long userId = 1L;
             User user = createUser(createProfileRequest());
-            User captain = mock(User.class);
-            Team team = mock(Team.class);
             TeamMember teamMember = mock(TeamMember.class);
 
             given(profileRepository.findById(userId)).willReturn(Optional.of(user));
             given(teamMemberRepository.findByUser_Id(userId)).willReturn(Optional.of(teamMember));
-            given(teamMember.getTeam()).willReturn(team);
-            given(team.getCaptain()).willReturn(captain);
+            given(teamMember.isCaptain()).willReturn(false);
 
             // when
             profileService.deleteAccount(userId);
 
             // then
             assertThat(user.getStatus()).isEqualTo(UserStatus.DELETED);
-
+            verify(teamMemberRepository, times(1)).findByUser_Id(userId);
             verify(refreshTokenRepository, times(1)).deleteAllByUserId(userId);
         }
 
@@ -312,8 +309,7 @@ class ProfileTest {
 
             given(profileRepository.findById(userId)).willReturn(Optional.of(user));
             given(teamMemberRepository.findByUser_Id(userId)).willReturn(Optional.of(teamMember));
-            given(teamMember.getTeam()).willReturn(team);
-            given(team.getCaptain()).willReturn(user);
+            given(teamMember.isCaptain()).willReturn(true);
 
             // when & then
             assertThatThrownBy(() -> profileService.deleteAccount(userId))
