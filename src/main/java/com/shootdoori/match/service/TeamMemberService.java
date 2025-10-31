@@ -8,7 +8,6 @@ import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.team.TeamMemberRole;
 import com.shootdoori.match.entity.user.User;
-import com.shootdoori.match.exception.common.DifferentException;
 import com.shootdoori.match.exception.common.DuplicatedException;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NoPermissionException;
@@ -66,13 +65,13 @@ public class TeamMemberService {
             throw new DuplicatedException(ErrorCode.ALREADY_TEAM_MEMBER);
         }
 
-        team.validateSameUniversity(user);
+        team.validateSameUniversityAs(user);
 
-        team.validateCanAcceptNewMember();
+        team.ensureCapacityAvailable();
 
         TeamMemberRole teamMemberRole = TeamMemberRole.fromDisplayName(requestDto.role());
 
-        team.recruitMember(user, teamMemberRole);
+        team.addMember(user, teamMemberRole);
         teamRepository.save(team);
 
         TeamMember savedTeamMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId,
@@ -100,8 +99,21 @@ public class TeamMemberService {
     }
 
     @Transactional(readOnly = true)
+    public TeamMember findByIdForEntity(Long teamMemberId) {
+        return teamMemberRepository.findById(teamMemberId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
+    }
+
+    @Transactional(readOnly = true)
     public TeamMember findByUserIdForEntity(Long userId) {
-        return teamMemberRepository.findByUser_Id(userId).orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
+        return teamMemberRepository.findByUser_Id(userId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
+    }
+
+    @Transactional(readOnly = true)
+    public TeamMember findByTeamIdAndUserIdForEntity(Long teamid, Long userId) {
+        return teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamid, userId)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
     }
 
     public TeamMemberResponseDto update(Long teamId, Long targetUserId,
@@ -170,26 +182,20 @@ public class TeamMemberService {
 
     public TeamMemberResponseDto delegateLeadership(Long teamId, Long currentUserId,
         Long targetMemberId) {
-        List<TeamMember> members = prepareDelegationMembers(teamId, currentUserId, targetMemberId);
+        TeamMember targetLeader = targetMember(targetMemberId);
+        currentMember(teamId, currentUserId).delegateLeadership(
+            targetLeader);
 
-        TeamMember currentMember = members.get(0);
-        TeamMember targetMember = members.get(1);
-
-        currentMember.delegateLeadership(targetMember);
-
-        return teamMemberMapper.toTeamMemberResponseDto(targetMember);
+        return teamMemberMapper.toTeamMemberResponseDto(targetLeader);
     }
 
     public TeamMemberResponseDto delegateViceLeadership(Long teamId, Long currentUserId,
         Long targetMemberId) {
-        List<TeamMember> members = prepareDelegationMembers(teamId, currentUserId, targetMemberId);
+        TeamMember targetViceLeader = targetMember(targetMemberId);
+        currentMember(teamId, currentUserId).delegateViceLeadership(
+            targetViceLeader);
 
-        TeamMember currentMember = members.get(0);
-        TeamMember targetMember = members.get(1);
-
-        currentMember.delegateViceLeadership(targetMember);
-
-        return teamMemberMapper.toTeamMemberResponseDto(targetMember);
+        return teamMemberMapper.toTeamMemberResponseDto(targetViceLeader);
     }
 
     public void ensureNotMemberOfAnyTeam(Long userId) {
@@ -203,22 +209,11 @@ public class TeamMemberService {
         return loginUserId.equals(targetUserId) && (actor.isCaptain() || actor.isViceCaptain());
     }
 
-    private List<TeamMember> prepareDelegationMembers(Long teamId, Long currentUserId,
-        Long targetMemberId) {
-        Team team = teamRepository.findById(teamId).orElseThrow(() ->
-            new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(teamId)));
+    private TeamMember currentMember(Long teamId, Long currentUserId) {
+        return findByTeamIdAndUserIdForEntity(teamId, currentUserId);
+    }
 
-        TeamMember currentMember = teamMemberRepository.findByTeam_TeamIdAndUser_Id(teamId,
-            currentUserId)
-            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
-
-        TeamMember targetMember = teamMemberRepository.findById(targetMemberId)
-            .orElseThrow(() -> new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND));
-
-        if (!team.equals(targetMember.getTeam())) {
-            throw new DifferentException(ErrorCode.DIFFERENT_TEAM_DELEGATION_NOT_ALLOWED);
-        }
-
-        return List.of(currentMember, targetMember);
+    private TeamMember targetMember(Long targetMemberId) {
+        return findByIdForEntity(targetMemberId);
     }
 }

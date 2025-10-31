@@ -1,9 +1,13 @@
 package com.shootdoori.match.entity.mercenary;
 
-import com.shootdoori.match.entity.common.DateEntity;
+import com.shootdoori.match.entity.common.AuditInfo;
+import com.shootdoori.match.entity.common.Position;
+import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.entity.team.Team;
 import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EntityListeners;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
@@ -15,9 +19,11 @@ import jakarta.persistence.ManyToOne;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 @Entity
-public class MercenaryRecruitment extends DateEntity {
+@EntityListeners(AuditingEntityListener.class)
+public class MercenaryRecruitment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -37,20 +43,23 @@ public class MercenaryRecruitment extends DateEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "POSITION", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '골키퍼'")
-    private MercenaryPosition position;
+    private Position position;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "SKILL_LEVEL", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '아마추어'")
-    private MercenaryRecruitmentSkillLevel skillLevel = MercenaryRecruitmentSkillLevel.AMATEUR;
+    private SkillLevel skillLevel = SkillLevel.AMATEUR;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "RECRUITMENT_STATUS", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '모집중'")
     private RecruitmentStatus recruitmentStatus;
 
+    @Embedded
+    private AuditInfo audit = new AuditInfo();
+
     protected MercenaryRecruitment() {
     }
 
-    private MercenaryRecruitment(Team team, LocalDate matchDate, LocalTime matchTime, String message, MercenaryPosition position, MercenaryRecruitmentSkillLevel skillLevel) {
+    private MercenaryRecruitment(Team team, LocalDate matchDate, LocalTime matchTime, String message, Position position, SkillLevel skillLevel) {
         validateTeam(team);
         validate(matchDate, matchTime, message, position, skillLevel);
         this.team = team;
@@ -62,11 +71,11 @@ public class MercenaryRecruitment extends DateEntity {
         this.recruitmentStatus = RecruitmentStatus.RECRUITING;
     }
 
-    public static MercenaryRecruitment create(Team team, LocalDate matchDate, LocalTime matchTime, String message, MercenaryPosition position, MercenaryRecruitmentSkillLevel skillLevel) {
+    public static MercenaryRecruitment create(Team team, LocalDate matchDate, LocalTime matchTime, String message, Position position, SkillLevel skillLevel) {
         return new MercenaryRecruitment(team, matchDate, matchTime, message, position, skillLevel);
     }
 
-    private void validate(LocalDate matchDate, LocalTime matchTime, String message, MercenaryPosition position, MercenaryRecruitmentSkillLevel skillLevel) {
+    private void validate(LocalDate matchDate, LocalTime matchTime, String message, Position position, SkillLevel skillLevel) {
         validateMatchDate(matchDate);
         validateMatchTime(matchTime);
         validateMatchDateTime(matchDate, matchTime);
@@ -106,13 +115,13 @@ public class MercenaryRecruitment extends DateEntity {
         }
     }
 
-    private void validatePosition(MercenaryPosition position) {
+    private void validatePosition(Position position) {
         if (position == null) {
             throw new IllegalArgumentException("포지션 정보는 필수입니다.");
         }
     }
 
-    private void validateSkillLevel(MercenaryRecruitmentSkillLevel skillLevel) {
+    private void validateSkillLevel(SkillLevel skillLevel) {
         if (skillLevel == null) {
             throw new IllegalArgumentException("요구 실력 정보는 필수입니다.");
         }
@@ -138,11 +147,11 @@ public class MercenaryRecruitment extends DateEntity {
         return this.message;
     }
 
-    public MercenaryPosition getPosition() {
+    public Position getPosition() {
         return this.position;
     }
 
-    public MercenaryRecruitmentSkillLevel getSkillLevel() {
+    public SkillLevel getSkillLevel() {
         return this.skillLevel;
     }
 
@@ -150,7 +159,19 @@ public class MercenaryRecruitment extends DateEntity {
         return this.recruitmentStatus;
     }
 
-    public void updateRecruitmentInfo(LocalDate matchDate, LocalTime matchTime, String message, MercenaryPosition position, MercenaryRecruitmentSkillLevel skillLevel) {
+    public LocalDateTime getCreatedAt() {
+        return audit.getCreatedAt();
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return audit.getUpdatedAt();
+    }
+
+    public AuditInfo getAudit() {
+        return audit;
+    }
+
+    public void updateRecruitmentInfo(LocalDate matchDate, LocalTime matchTime, String message, Position position, SkillLevel skillLevel) {
         validate(matchDate, matchTime, message, position, skillLevel);
         this.matchDate = matchDate;
         this.matchTime = matchTime;

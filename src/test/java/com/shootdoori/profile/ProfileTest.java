@@ -1,26 +1,17 @@
 package com.shootdoori.profile;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-
+import com.shootdoori.match.config.PasswordEncoderProvider;
 import com.shootdoori.match.dto.ProfileCreateRequest;
 import com.shootdoori.match.dto.ProfileMapper;
 import com.shootdoori.match.dto.ProfileResponse;
 import com.shootdoori.match.dto.ProfileUpdateRequest;
+import com.shootdoori.match.entity.common.Position;
+import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.team.TeamMemberRole;
-import com.shootdoori.match.entity.team.TeamSkillLevel;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
-import com.shootdoori.match.entity.user.UserPosition;
-import com.shootdoori.match.entity.user.UserSkillLevel;
 import com.shootdoori.match.entity.user.UserStatus;
 import com.shootdoori.match.exception.LeaderCannotLeaveTeamException;
 import com.shootdoori.match.exception.common.DuplicatedException;
@@ -30,9 +21,6 @@ import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.RefreshTokenRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.service.ProfileService;
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -40,8 +28,17 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class ProfileTest {
@@ -53,7 +50,7 @@ class ProfileTest {
     @Mock
     private ProfileMapper profileMapper;
     @Mock
-    private PasswordEncoder passwordEncoder;
+    private PasswordEncoderProvider passwordEncoder;
     @Mock
     private RefreshTokenRepository refreshTokenRepository;
 
@@ -85,8 +82,8 @@ class ProfileTest {
             // then
             assertThat(response).isNotNull();
             assertThat(response.name()).isEqualTo(request.name());
-            assertThat(response.skillLevel()).isEqualTo(UserSkillLevel.AMATEUR.name());
-            assertThat(response.position()).isEqualTo(UserPosition.FW.name());
+            assertThat(response.skillLevel()).isEqualTo(SkillLevel.AMATEUR.name());
+            assertThat(response.position()).isEqualTo(Position.FW.name());
             verify(profileRepository).save(any(User.class));
         }
 
@@ -219,7 +216,7 @@ class ProfileTest {
             // given
             Long userId = 1L;
             User user = createUser(createProfileRequest());
-            ProfileUpdateRequest updateRequest = new ProfileUpdateRequest("jam", "프로", "골키퍼",
+            ProfileUpdateRequest updateRequest = new ProfileUpdateRequest("jam", "프로", "GK",
                 "변경된 자기소개");
 
             given(profileRepository.findById(userId)).willReturn(Optional.of(user));
@@ -233,8 +230,8 @@ class ProfileTest {
             ProfileResponse response = profileService.updateProfile(userId, updateRequest);
 
             // then
-            assertThat(user.getSkillLevel()).isEqualTo(UserSkillLevel.PRO);
-            assertThat(user.getPosition()).isEqualTo(UserPosition.GK);
+            assertThat(user.getSkillLevel()).isEqualTo(SkillLevel.PRO);
+            assertThat(user.getPosition()).isEqualTo(Position.GK);
             assertThat(user.getBio()).isEqualTo("변경된 자기소개");
             assertThat(response.skillLevel()).isEqualTo("PRO");
             assertThat(response.position()).isEqualTo("GK");
@@ -333,7 +330,7 @@ class ProfileTest {
     private ProfileCreateRequest createProfileRequest() {
         return new ProfileCreateRequest(
             "jam", "아마추어", "test@any.ac.kr",
-            "asdf02~!", "imkim2511", "공격수", "knu", "cs",
+            "asdf02~!", "imkim2511", "FW", "knu", "cs",
             "20", "hello, world"
         );
     }
@@ -347,6 +344,6 @@ class ProfileTest {
     }
 
     private Team createTeam(User captain) {
-        return new Team("팀이름", captain, "knu", TeamType.OTHER, TeamSkillLevel.AMATEUR, "설명");
+        return new Team("팀이름", captain, "knu", TeamType.OTHER, SkillLevel.AMATEUR, "설명");
     }
 }

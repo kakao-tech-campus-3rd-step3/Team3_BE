@@ -18,12 +18,11 @@ import com.shootdoori.match.entity.match.MatchStatus;
 import com.shootdoori.match.entity.match.request.MatchRequest;
 import com.shootdoori.match.entity.match.request.MatchRequestStatus;
 import com.shootdoori.match.entity.match.waiting.MatchWaiting;
-import com.shootdoori.match.entity.match.waiting.MatchWaitingSkillLevel;
+import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.entity.match.waiting.MatchWaitingStatus;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.team.TeamMemberRole;
-import com.shootdoori.match.entity.team.TeamSkillLevel;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.entity.venue.Venue;
@@ -113,7 +112,7 @@ class MatchRequestServiceTest {
             "swj@kangwon.ac.kr",
             "12345678",
             "010-1234-5678",
-            "공격수",
+            "FW",
             "강원대학교",
             "컴퓨터공학과",
             "20",
@@ -127,7 +126,7 @@ class MatchRequestServiceTest {
             "swj2@kangwon.ac.kr",
             "12345678",
             "010-1234-5679",
-            "공격수",
+            "FW",
             "강원대학교",
             "컴퓨터공학과",
             "20",
@@ -141,7 +140,7 @@ class MatchRequestServiceTest {
             "swj3@kangwon.ac.kr",
             "12345678",
             "010-1234-5680",
-            "공격수",
+            "FW",
             "강원대학교",
             "컴퓨터공학과",
             "20",
@@ -154,7 +153,7 @@ class MatchRequestServiceTest {
             targetTeamCaptain,
             "강원대학교",
             TeamType.OTHER,
-            TeamSkillLevel.AMATEUR,
+            SkillLevel.AMATEUR,
             "매치 생성후 Waiting 중인 팀"
         );
         targetTeam = teamRepository.save(matchCreateTeam);
@@ -164,7 +163,7 @@ class MatchRequestServiceTest {
             requestTeamCaptain1,
             "강원대학교",
             TeamType.OTHER,
-            TeamSkillLevel.AMATEUR,
+            SkillLevel.AMATEUR,
             "매치에 신청하는 1번째 팀"
         );
         requestTeam1 = teamRepository.save(matchRequestTeam1);
@@ -174,7 +173,7 @@ class MatchRequestServiceTest {
             requestTeamCaptain2,
             "강원대학교",
             TeamType.OTHER,
-            TeamSkillLevel.AMATEUR,
+            SkillLevel.AMATEUR,
             "매치에 신청하는 2번째 팀"
         );
         requestTeam2 = teamRepository.save(matchRequestTeam2);
@@ -203,7 +202,7 @@ class MatchRequestServiceTest {
             targetTeam, LocalDate.now(),
             LocalTime.of(10, 0), LocalTime.of(12, 0),
             savedVenue,
-            MatchWaitingSkillLevel.AMATEUR, MatchWaitingSkillLevel.PRO,
+            SkillLevel.AMATEUR, SkillLevel.PRO,
             false, "연습 경기",
             MatchWaitingStatus.WAITING,
             LocalDateTime.now().plusDays(1)

@@ -1,5 +1,6 @@
 package com.shootdoori.match.service;
 
+import com.shootdoori.match.config.PasswordEncoderProvider;
 import com.shootdoori.match.entity.auth.PasswordOtpToken;
 import com.shootdoori.match.entity.auth.PasswordResetToken;
 import com.shootdoori.match.entity.user.User;
@@ -9,7 +10,6 @@ import com.shootdoori.match.exception.common.UnauthorizedException;
 import com.shootdoori.match.repository.PasswordOtpTokenRepository;
 import com.shootdoori.match.repository.PasswordResetTokenRepository;
 import com.shootdoori.match.repository.ProfileRepository;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +21,7 @@ import java.util.UUID;
 public class PasswordResetService {
 
     private final ProfileRepository profileRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoderProvider passwordEncoder;
     private final MailService mailService;
     private final PasswordOtpTokenRepository otpTokenRepository;
     private final PasswordResetTokenRepository resetTokenRepository;
@@ -29,7 +29,7 @@ public class PasswordResetService {
     private static final int OTP_EXPIRATION_MINUTES = 3;
     private static final int RESET_TOKEN_EXPIRATION_MINUTES = 5;
 
-    public PasswordResetService(ProfileRepository profileRepository, PasswordEncoder passwordEncoder, MailService mailService,
+    public PasswordResetService(ProfileRepository profileRepository, PasswordEncoderProvider passwordEncoder, MailService mailService,
                                 PasswordOtpTokenRepository otpTokenRepository, PasswordResetTokenRepository resetTokenRepository) {
         this.profileRepository = profileRepository;
         this.passwordEncoder = passwordEncoder;
@@ -66,7 +66,7 @@ public class PasswordResetService {
     public String verifyCodeAndIssueToken(String email, String code) {
         PasswordOtpToken otpToken = otpTokenRepository.findByUser_Email(email)
                 .orElseThrow(() -> new UnauthorizedException(ErrorCode.OTP_NOT_FOUND));
-        otpToken.validateCode(code, passwordEncoder);
+        otpToken.validateCode(code);
 
         User user = otpToken.getUser();
         String tempResetTokenValue = UUID.randomUUID().toString();

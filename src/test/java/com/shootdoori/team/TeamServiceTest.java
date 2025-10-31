@@ -11,13 +11,12 @@ import com.shootdoori.match.dto.TeamDetailResponseDto;
 import com.shootdoori.match.dto.TeamMapper;
 import com.shootdoori.match.dto.TeamRequestDto;
 import com.shootdoori.match.entity.team.Team;
-import com.shootdoori.match.entity.team.TeamSkillLevel;
+import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamRepository;
-import com.shootdoori.match.service.MatchCompleteService;
 import com.shootdoori.match.service.MatchCreateService;
 import com.shootdoori.match.service.MatchRequestService;
 import com.shootdoori.match.service.TeamMemberService;
@@ -94,11 +93,11 @@ public class TeamServiceTest {
             "student@kangwon.ac.kr",
             "Abcd1234!",
             "imkim2501",
-            "골키퍼",
+            "GK",
             "강원대학교",
             "컴퓨터공학과",
             "25",
-            "축구를 좋아하는 대학생입니다. 골키퍼 포지션을 주로 맡고 있으며, 즐겁게 운동하고 싶습니다!"
+            "축구를 좋아하는 대학생입니다. GK 포지션을 주로 맡고 있으며, 즐겁게 운동하고 싶습니다!"
         );
 
         newMember = User.create(
@@ -107,7 +106,7 @@ public class TeamServiceTest {
             "student35@kangwon.ac.kr",
             "Abcd1234!",
             "imkim2502",
-            "풀백",
+            "RB",
             "강원대학교",
             "컴퓨터공학과",
             "35",
@@ -136,7 +135,7 @@ public class TeamServiceTest {
             Team savedTeam = createTeam(
                 "강원대 FC",
                 TeamType.fromDisplayName("과동아리"),
-                TeamSkillLevel.fromDisplayName("아마추어"),
+                SkillLevel.fromDisplayName("아마추어"),
                 "주 2회 연습합니다."
             );
 
@@ -181,7 +180,7 @@ public class TeamServiceTest {
             Team mockTeam = createTeam(
                 "강원대 FC",
                 TeamType.fromDisplayName("과동아리"),
-                TeamSkillLevel.fromDisplayName("아마추어"),
+                SkillLevel.fromDisplayName("아마추어"),
                 "주 2회 연습합니다."
             );
 
@@ -190,7 +189,7 @@ public class TeamServiceTest {
                 "강원대 FC",
                 "강원대 1위 팀 먹겠습니다.",
                 "강원대학교",
-                TeamSkillLevel.AMATEUR,
+                SkillLevel.AMATEUR,
                 TeamType.DEPARTMENT_CLUB,
                 1,
                 "2024-01-01T00:00:00"
@@ -209,7 +208,7 @@ public class TeamServiceTest {
             assertThat(resultDto.id()).isEqualTo(TEAM_ID);
             assertThat(resultDto.name()).isEqualTo("강원대 FC");
             assertThat(resultDto.university()).isEqualTo("강원대학교");
-            assertThat(resultDto.skillLevel()).isEqualTo(TeamSkillLevel.AMATEUR);
+            assertThat(resultDto.skillLevel()).isEqualTo(SkillLevel.AMATEUR);
             assertThat(resultDto.teamType()).isEqualTo(TeamType.DEPARTMENT_CLUB);
             assertThat(resultDto.memberCount()).isEqualTo(1);
         }
@@ -238,14 +237,14 @@ public class TeamServiceTest {
             Team team1 = createTeam(
                 "강원대 FC",
                 TeamType.fromDisplayName("과동아리"),
-                TeamSkillLevel.fromDisplayName("아마추어"),
+                SkillLevel.fromDisplayName("아마추어"),
                 "주 2회 연습합니다."
             );
 
             Team team2 = createTeam(
                 "감자의 신 FC",
                 TeamType.fromDisplayName("중앙동아리"),
-                TeamSkillLevel.fromDisplayName("세미프로"),
+                SkillLevel.fromDisplayName("세미프로"),
                 "감자빵이 맛있어요."
             );
 
@@ -254,11 +253,11 @@ public class TeamServiceTest {
                 PageRequest.of(PAGE, SIZE, Sort.by("teamName").ascending()), 2);
 
             TeamDetailResponseDto response1 = new TeamDetailResponseDto(1L, "강원대 FC", "주 2회 연습합니다.",
-                "강원대학교", TeamSkillLevel.AMATEUR, TeamType.DEPARTMENT_CLUB, 1,
+                "강원대학교", SkillLevel.AMATEUR, TeamType.DEPARTMENT_CLUB, 1,
                 "2025-09-25T00:00:00");
             TeamDetailResponseDto response2 = new TeamDetailResponseDto(2L, "감자의 신 FC",
                 "감자빵이 맛있어요.",
-                "강원대학교", TeamSkillLevel.SEMI_PRO, TeamType.CENTRAL_CLUB, 1, "2025-09-25T00:00:00");
+                "강원대학교", SkillLevel.SEMI_PRO, TeamType.CENTRAL_CLUB, 1, "2025-09-25T00:00:00");
 
             when(teamRepository.findAllByUniversity(any(UniversityName.class), any(Pageable.class)))
                 .thenReturn(teamPage);
@@ -296,7 +295,7 @@ public class TeamServiceTest {
             Team existingTeam = createTeam(
                 "강원대 FC",
                 TeamType.fromDisplayName("과동아리"),
-                TeamSkillLevel.fromDisplayName("아마추어"),
+                SkillLevel.fromDisplayName("아마추어"),
                 "주 2회 연습합니다."
             );
 
@@ -305,7 +304,7 @@ public class TeamServiceTest {
                 "수정된 팀명",
                 "수정된 설명",
                 "강원대학교",
-                TeamSkillLevel.SEMI_PRO,
+                SkillLevel.SEMI_PRO,
                 TeamType.CENTRAL_CLUB,
                 1,
                 "2024-01-01T00:00:00"
@@ -323,7 +322,7 @@ public class TeamServiceTest {
             assertThat(resultDto.id()).isEqualTo(TEAM_ID);
             assertThat(resultDto.name()).isEqualTo("수정된 팀명");
             assertThat(resultDto.description()).isEqualTo("수정된 설명");
-            assertThat(resultDto.skillLevel()).isEqualTo(TeamSkillLevel.SEMI_PRO);
+            assertThat(resultDto.skillLevel()).isEqualTo(SkillLevel.SEMI_PRO);
         }
 
         @Test
@@ -358,7 +357,7 @@ public class TeamServiceTest {
             Team existingTeam = createTeam(
                 "삭제될 팀",
                 TeamType.CENTRAL_CLUB,
-                TeamSkillLevel.AMATEUR,
+                SkillLevel.AMATEUR,
                 "삭제될 팀입니다."
             );
 
@@ -394,7 +393,7 @@ public class TeamServiceTest {
             existingTeam = createTeam(
                 "삭제될 팀",
                 TeamType.CENTRAL_CLUB,
-                TeamSkillLevel.AMATEUR,
+                SkillLevel.AMATEUR,
                 "삭제될 팀입니다."
             );
 
@@ -412,7 +411,7 @@ public class TeamServiceTest {
                 "강원대 FC",
                 "강원대 1위 팀 먹겠습니다.",
                 "강원대학교",
-                TeamSkillLevel.AMATEUR,
+                SkillLevel.AMATEUR,
                 TeamType.DEPARTMENT_CLUB,
                 1,
                 "2024-01-01T00:00:00"
@@ -443,7 +442,7 @@ public class TeamServiceTest {
         }
     }
 
-    private Team createTeam(String name, TeamType teamType, TeamSkillLevel skillLevel,
+    private Team createTeam(String name, TeamType teamType, SkillLevel skillLevel,
         String description) {
         return new Team(
             name,

@@ -1,12 +1,12 @@
 package com.shootdoori.match.entity.auth;
 
+import com.shootdoori.match.config.PasswordEncoderProvider;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.TooManyRequestsException;
 import com.shootdoori.match.exception.common.UnauthorizedException;
 import com.shootdoori.match.value.Expiration;
 import jakarta.persistence.*;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDate;
 
@@ -15,7 +15,7 @@ public class PasswordOtpToken {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    
     @Column(nullable = false)
     private String code;
 
@@ -54,13 +54,13 @@ public class PasswordOtpToken {
 
     public User getUser() { return user; }
 
-    public boolean matches(String rawCode, PasswordEncoder passwordEncoder) {
-        return passwordEncoder.matches(rawCode, this.code);
+    public boolean matches(String rawCode) {
+        return PasswordEncoderProvider.matches(rawCode, this.code);
     }
 
-    public void validateCode(String rawCode, PasswordEncoder passwordEncoder) {
+    public void validateCode(String rawCode) {
         expiration.validateExpiryDate();
-        if (!matches(rawCode, passwordEncoder)) {
+        if (!matches(rawCode)) {
             throw new UnauthorizedException(ErrorCode.INVALID_OTP);
         }
     }

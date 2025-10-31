@@ -5,6 +5,7 @@ import com.shootdoori.match.dto.ClientInfo;
 import com.shootdoori.match.dto.LoginRequest;
 import com.shootdoori.match.dto.ProfileCreateRequest;
 import com.shootdoori.match.entity.user.User;
+import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.UnauthorizedException;
 import com.shootdoori.match.repository.RefreshTokenRepository;
 import com.shootdoori.match.util.JwtUtil;
@@ -14,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,16 +25,14 @@ public class AuthService {
     private static final Logger log = LoggerFactory.getLogger(AuthService.class);
     private final JwtUtil jwtUtil;
     private final ProfileService profileService;
-    private final PasswordEncoder passwordEncoder;
     private final RefreshTokenRepository refreshTokenRepository;
     private final TokenIssuer tokenIssuer;
 
     private static final String BEARER_PREFIX = "Bearer ";
 
-    public AuthService(JwtUtil jwtUtil, ProfileService profileService, PasswordEncoder passwordEncoder, RefreshTokenRepository refreshTokenRepository, TokenIssuer tokenIssuer) {
+    public AuthService(JwtUtil jwtUtil, ProfileService profileService, RefreshTokenRepository refreshTokenRepository, TokenIssuer tokenIssuer) {
         this.jwtUtil = jwtUtil;
         this.profileService = profileService;
-        this.passwordEncoder = passwordEncoder;
         this.refreshTokenRepository = refreshTokenRepository;
         this.tokenIssuer = tokenIssuer;
     }
@@ -43,7 +41,7 @@ public class AuthService {
     public AuthToken register(ProfileCreateRequest request, ClientInfo clientInfo) {
         profileService.createProfile(request);
         User savedUser = profileService.findByEmail(request.email())
-            .orElseThrow(() -> new UnauthorizedException("회원가입에 실패하였습니다."));
+            .orElseThrow(() -> new UnauthorizedException(ErrorCode.FAIL_REGISTER));
 
         return issueTokens(savedUser, clientInfo);
     }
@@ -51,8 +49,8 @@ public class AuthService {
     @Transactional
     public AuthToken login(LoginRequest request, ClientInfo clientInfo) {
         User user = profileService.findByEmail(request.email())
-            .orElseThrow(() -> new UnauthorizedException("잘못된 이메일 또는 비밀번호입니다."));
-        user.validatePassword(request.password(), passwordEncoder);
+            .orElseThrow(() -> new UnauthorizedException(ErrorCode.FAIL_LOGIN));
+        user.validatePasswordMatches(request.password());
 
         return issueTokens(user, clientInfo);
     }
@@ -81,8 +79,10 @@ public class AuthService {
                     return new UsernamePasswordAuthenticationToken(
                         principalUserId, null, Collections.emptyList());
                 }
+            } catch (io.jsonwebtoken.ExpiredJwtException e) {
+                throw new UnauthorizedException(ErrorCode.EXPIRED_TOKEN);
             } catch (JwtException | NumberFormatException e) {
-                log.warn("Invalid JWT Token: {}", e.getMessage());
+                throw new UnauthorizedException(ErrorCode.INVALID_TOKEN);
             }
         }
         return null;

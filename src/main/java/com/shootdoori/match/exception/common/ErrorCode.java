@@ -71,6 +71,9 @@ public enum ErrorCode {
     OTP_NOT_FOUND("유효한 인증번호가 존재하지 않습니다.", HttpStatus.NOT_FOUND),
     INVALID_OTP("인증번호가 일치하지 않습니다.", HttpStatus.UNAUTHORIZED),
     LIMITED_OTP_REQUESTS("당일 요청 횟수를 초과했습니다. 내일 다시 시도해주세요.", HttpStatus.TOO_MANY_REQUESTS),
+    FAIL_REGISTER("회원가입에 실패하였습니다.", HttpStatus.BAD_REQUEST),
+    FAIL_LOGIN("잘못된 이메일 또는 비밀번호입니다.", HttpStatus.BAD_REQUEST),
+    INVALID_AUTH_INFO("인증 정보가 올바르지 않습니다.", HttpStatus.UNAUTHORIZED),
 
     // Review
     MATCH_NOT_FINISHED_YET("아직 경기가 종료되지 않아 리뷰를 작성할 수 없습니다.", HttpStatus.BAD_REQUEST),
