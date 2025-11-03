@@ -6,6 +6,7 @@ import com.shootdoori.match.exception.common.DifferentException;
 import com.shootdoori.match.exception.common.DuplicatedException;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NoPermissionException;
+import com.shootdoori.match.value.LineupMembers;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -52,6 +53,9 @@ public class TeamMember {
     @Enumerated(EnumType.STRING)
     @Column(name = "role", nullable = false, length = 20)
     private TeamMemberRole role = TeamMemberRole.MEMBER;
+
+    @Embedded
+    private LineupMembers lineupMembers = LineupMembers.empty();
 
     @Embedded
     private AuditInfo audit = new AuditInfo();
@@ -186,6 +190,8 @@ public class TeamMember {
     public boolean isSameUser(User targetUser) {
         return user.equals(targetUser);
     }
+
+    public void clearLineupMembers() { lineupMembers.clear(); }
 
     @Override
     public boolean equals(Object o) {
