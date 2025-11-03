@@ -165,6 +165,8 @@ public class TeamMemberService {
             throw new NoPermissionException(ErrorCode.LEADER_CANNOT_LEAVE);
         }
 
+        loginMember.clearLineupMembers();
+
         team.removeMember(loginMember);
         teamRepository.save(team);
     }
@@ -184,6 +186,8 @@ public class TeamMemberService {
         if (!loginMember.getRole().canKick(targetMember.getRole())) {
             throw new NoPermissionException(ErrorCode.INSUFFICIENT_ROLE_FOR_KICK);
         }
+
+        targetMember.clearLineupMembers();
 
         team.removeMember(targetMember);
         teamRepository.save(team);
