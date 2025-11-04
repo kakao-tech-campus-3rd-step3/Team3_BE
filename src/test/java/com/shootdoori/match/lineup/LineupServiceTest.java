@@ -4,8 +4,10 @@ import com.shootdoori.match.dto.LineupMemberRequestDto;
 import com.shootdoori.match.dto.LineupMemberResponseDto;
 import com.shootdoori.match.entity.lineup.Lineup;
 import com.shootdoori.match.entity.lineup.LineupMember;
+import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.common.Position;
+import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.*;
@@ -48,6 +50,8 @@ class LineupServiceTest {
     private LineupMember savedLineupMember;
     private Lineup savedLineup;
     private TeamMember mockTeamMember;
+    private Team mockTeam;
+    private User mockUser;
 
     private final Long testTeamMemberId = 1L;
     private final Long createTestTeamMemberId = 2L;
@@ -58,6 +62,8 @@ class LineupServiceTest {
     @BeforeEach
     void setUp() {
         mockTeamMember = mock(TeamMember.class);
+        mockTeam = mock(Team.class);
+        mockUser = mock(User.class);
 
         requestDto = new LineupMemberRequestDto(testTeamMemberId, Position.GK, true);
 
@@ -88,6 +94,12 @@ class LineupServiceTest {
         doNothing().when(mockTeamMember).checkCaptainPermission(testTeamMemberId);
         given(lineupMemberRepository.saveAll(any(List.class))).willReturn(savedLineupMembers);
         given(mockTeamMember.getId()).willReturn(testTeamMemberId);
+        given(mockTeamMember.getTeam()).willReturn(mockTeam);
+        given(mockTeamMember2.getTeam()).willReturn(mockTeam);
+        given(mockTeam.getTeamId()).willReturn(1L);
+        given(mockTeamMember.getUser()).willReturn(mockUser);
+        given(mockTeamMember2.getUser()).willReturn(mockUser);
+        given(mockUser.getName()).willReturn("testName");
 
         // when
         List<LineupMemberResponseDto> responseDtos = lineupService.createLineup(requestDtos, testTeamMemberId);
@@ -116,6 +128,11 @@ class LineupServiceTest {
         doNothing().when(mockTeamMember).checkCaptainPermission(testTeamMemberId);
         given(lineupMemberRepository.saveAll(any(List.class))).willReturn(savedLineupMembers);
         given(mockTeamMember.getId()).willReturn(testTeamMemberId);
+        given(mockTeamMember.getTeam()).willReturn(mockTeam);
+        given(mockTeam.getTeamId()).willReturn(1L);
+        given(mockTeamMember.getUser()).willReturn(mockUser);
+        given(mockUser.getName()).willReturn("testName");
+
 
         // when
         List<LineupMemberResponseDto> responseDtos = lineupService.createLineup(requestDtos, testTeamMemberId);
@@ -154,6 +171,10 @@ class LineupServiceTest {
         // given
         List<LineupMember> lineupMembers = List.of(savedLineupMember);
         given(lineupMemberRepository.findAllByLineupId(testLineupId)).willReturn(lineupMembers);
+        given(mockTeamMember.getTeam()).willReturn(mockTeam);
+        given(mockTeam.getTeamId()).willReturn(1L);
+        given(mockTeamMember.getUser()).willReturn(mockUser);
+        given(mockUser.getName()).willReturn("testName");
 
         // when
         List<LineupMemberResponseDto> responseDtos = lineupService.getLineupById(testLineupId);
@@ -197,6 +218,12 @@ class LineupServiceTest {
         given(lineupMemberRepository.saveAll(any(List.class))).willReturn(savedLineupMembers);
         given(mockTeamMember.getId()).willReturn(testTeamMemberId);
         given(lineupRepository.findById(testLineupId)).willReturn(Optional.ofNullable(savedLineup));
+        given(mockTeamMember.getTeam()).willReturn(mockTeam);
+        given(mockTeamMember2.getTeam()).willReturn(mockTeam);
+        given(mockTeam.getTeamId()).willReturn(1L);
+        given(mockTeamMember.getUser()).willReturn(mockUser);
+        given(mockTeamMember2.getUser()).willReturn(mockUser);
+        given(mockUser.getName()).willReturn("testName");
 
         // when
         List<LineupMemberResponseDto> responseDtos = lineupService.updateLineup(testLineupId, updateDtos, testTeamMemberId);
