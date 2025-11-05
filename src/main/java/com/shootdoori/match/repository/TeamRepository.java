@@ -12,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 
 public interface TeamRepository extends JpaRepository<Team, Long> {
 
-    @EntityGraph(attributePaths = {"members"})
+    @EntityGraph(attributePaths = {"teamMembers.teamMembers"})
     @Query("SELECT t FROM Team t WHERE t.teamId = :teamId")
     Optional<Team> findByIdWithMembers(@Param("teamId") Long teamId);
 
