@@ -17,9 +17,14 @@ public class TeamReviewController {
         this.reviewService = reviewService;
     }
 
-    @GetMapping()
-    public ResponseEntity<List<TeamReviewResponseDto>> getAll(@RequestParam Long teamId) {
-        return new ResponseEntity<>(reviewService.getAll(teamId), HttpStatus.OK);
+    @GetMapping(params = "reviewedTeamId")
+    public ResponseEntity<List<TeamReviewResponseDto>> getAllByReviewedTeamId(@RequestParam Long reviewedTeamId) {
+        return new ResponseEntity<>(reviewService.getAllByReviewedTeamId(reviewedTeamId), HttpStatus.OK);
+    }
+
+    @GetMapping(params = "reviewerTeamId")
+    public ResponseEntity<List<TeamReviewResponseDto>> getAllByReviewerTeamId(@RequestParam Long reviewerTeamId) {
+        return new ResponseEntity<>(reviewService.getAllByReviewerTeamId(reviewerTeamId), HttpStatus.OK);
     }
 
     @GetMapping("/{reviewId}")

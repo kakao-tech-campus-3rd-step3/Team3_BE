@@ -126,7 +126,7 @@ class TeamReviewIntegrationTest {
 
         // when & then
         mockMvc.perform(get("/api/team-reviews")
-                        .param("teamId", team2.getTeamId().toString()))
+                        .param("reviewedTeamId", team2.getTeamId().toString()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$").isArray())
                 .andExpect(jsonPath("$.length()").value(1))
