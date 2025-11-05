@@ -7,14 +7,15 @@ import com.shootdoori.match.entity.lineup.LineupMember;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.NotFoundException;
-import com.shootdoori.match.repository.*;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
+import com.shootdoori.match.repository.LineupMemberRepository;
+import com.shootdoori.match.repository.LineupRepository;
+import com.shootdoori.match.repository.TeamMemberRepository;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
@@ -25,8 +26,8 @@ public class LineupService {
     private final LineupRepository lineupRepository;
 
     public LineupService(LineupMemberRepository lineupMemberRepository,
-                         TeamMemberRepository teamMemberRepository,
-                         LineupRepository lineupRepository) {
+        TeamMemberRepository teamMemberRepository,
+        LineupRepository lineupRepository) {
         this.lineupMemberRepository = lineupMemberRepository;
         this.teamMemberRepository = teamMemberRepository;
         this.lineupRepository = lineupRepository;
@@ -40,12 +41,13 @@ public class LineupService {
         }
 
         return lineupMembers.stream()
-                .map(LineupMemberResponseDto::from)
-                .toList();
+            .map(LineupMemberResponseDto::from)
+            .toList();
     }
 
     @Transactional
-    public List<LineupMemberResponseDto> createLineup(List<LineupMemberRequestDto> requestDtos, Long userId) {
+    public List<LineupMemberResponseDto> createLineup(List<LineupMemberRequestDto> requestDtos,
+        Long userId) {
         Lineup lineup = new Lineup();
         lineupRepository.save(lineup);
 
@@ -56,18 +58,20 @@ public class LineupService {
         representativeMember.checkCaptainPermission(userId);
 
         List<LineupMember> lineupsToSave = requestDtos.stream()
-                .map(dto -> createLineupMemberFromList(dto, teamMemberMap, lineup))
-                .collect(Collectors.toList());
+            .map(dto -> createLineupMemberFromList(dto, teamMemberMap, lineup))
+            .collect(Collectors.toList());
 
         List<LineupMember> savedLineupMembers = lineupMemberRepository.saveAll(lineupsToSave);
         return savedLineupMembers.stream()
-                .map(LineupMemberResponseDto::from)
-                .collect(Collectors.toList());
+            .map(LineupMemberResponseDto::from)
+            .collect(Collectors.toList());
     }
 
     @Transactional
-    public List<LineupMemberResponseDto> updateLineup(Long id, List<LineupMemberRequestDto> requestDtos, Long userId) {
-        Lineup lineup = lineupRepository.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.LINEUP_NOT_FOUND));
+    public List<LineupMemberResponseDto> updateLineup(Long id,
+        List<LineupMemberRequestDto> requestDtos, Long userId) {
+        Lineup lineup = lineupRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.LINEUP_NOT_FOUND));
 
         Map<Long, TeamMember> teamMemberMap = createTeamMemberMap(requestDtos);
 
@@ -76,19 +80,20 @@ public class LineupService {
         representativeMember.checkCaptainPermission(userId);
 
         List<LineupMember> lineupsToSave = requestDtos.stream()
-                .map(dto -> createLineupMemberFromList(dto, teamMemberMap, lineup))
-                .collect(Collectors.toList());
+            .map(dto -> createLineupMemberFromList(dto, teamMemberMap, lineup))
+            .collect(Collectors.toList());
 
         lineupMemberRepository.deleteAllByLineupId(id); // 기존 멤버 정보 삭제
         List<LineupMember> savedLineupMembers = lineupMemberRepository.saveAll(lineupsToSave);
         return savedLineupMembers.stream()
-                .map(LineupMemberResponseDto::from)
-                .collect(Collectors.toList());
+            .map(LineupMemberResponseDto::from)
+            .collect(Collectors.toList());
     }
 
     @Transactional
     public void deleteLineup(Long id, Long userId) {
-        LineupMember lineupMember = lineupMemberRepository.findFirstByLineupId(id).orElseThrow(() -> new NotFoundException(ErrorCode.LINEUP_NOT_FOUND));
+        LineupMember lineupMember = lineupMemberRepository.findFirstByLineupId(id)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.LINEUP_NOT_FOUND));
         lineupMember.getTeamMember().checkCaptainPermission(userId);
         lineupMemberRepository.deleteAllByLineupId(id);
         lineupRepository.deleteById(id);
@@ -96,11 +101,12 @@ public class LineupService {
 
     private Map<Long, TeamMember> createTeamMemberMap(List<LineupMemberRequestDto> requestDtos) {
         Set<Long> teamMemberIds = requestDtos.stream()
-                .map(LineupMemberRequestDto::teamMemberId)
-                .collect(Collectors.toSet());
+            .map(LineupMemberRequestDto::teamMemberId)
+            .collect(Collectors.toSet());
 
-        Map<Long, TeamMember> teamMemberMap = teamMemberRepository.findAllById(teamMemberIds).stream()
-                .collect(Collectors.toMap(TeamMember::getId, teamMember -> teamMember));
+        Map<Long, TeamMember> teamMemberMap = teamMemberRepository.findAllById(teamMemberIds)
+            .stream()
+            .collect(Collectors.toMap(TeamMember::getId, teamMember -> teamMember));
 
         if (teamMemberIds.size() != teamMemberMap.size()) {
             throw new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND);
@@ -109,17 +115,18 @@ public class LineupService {
         return teamMemberMap;
     }
 
-    private LineupMember createLineupMemberFromList(LineupMemberRequestDto dto, Map<Long, TeamMember> teamMemberMap, Lineup lineup) {
+    private LineupMember createLineupMemberFromList(LineupMemberRequestDto dto,
+        Map<Long, TeamMember> teamMemberMap, Lineup lineup) {
         TeamMember teamMember = teamMemberMap.get(dto.teamMemberId());
         if (teamMember == null) {
             throw new NotFoundException(ErrorCode.TEAM_MEMBER_NOT_FOUND);
         }
 
         return new LineupMember(
-                teamMember,
-                lineup,
-                dto.position(),
-                dto.isStarter()
+            teamMember,
+            lineup,
+            dto.position(),
+            dto.isStarter()
         );
     }
 }
