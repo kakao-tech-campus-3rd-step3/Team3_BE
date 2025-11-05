@@ -32,8 +32,15 @@ public class TeamReviewService {
     }
 
     @Transactional(readOnly = true)
-    public List<TeamReviewResponseDto> getAll(Long teamId) {
-        return teamReviewRepository.findAllByReviewedTeamTeamId(teamId).stream()
+    public List<TeamReviewResponseDto> getAllByReviewedTeamId(Long reviewedTeamId) {
+        return teamReviewRepository.findAllByReviewedTeamTeamId(reviewedTeamId).stream()
+                .map(TeamReviewResponseDto::from)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<TeamReviewResponseDto> getAllByReviewerTeamId(Long reviewerTeamId) {
+        return teamReviewRepository.findAllByReviewerTeamTeamId(reviewerTeamId).stream()
                 .map(TeamReviewResponseDto::from)
                 .toList();
     }

@@ -2,9 +2,7 @@ package com.shootdoori.match.review;
 
 import com.shootdoori.match.dto.TeamReviewRequestDto;
 import com.shootdoori.match.dto.TeamReviewResponseDto;
-import com.shootdoori.match.entity.*;
 import com.shootdoori.match.entity.match.Match;
-import com.shootdoori.match.entity.match.MatchStatus;
 import com.shootdoori.match.entity.review.ReviewBinaryEvaluation;
 import com.shootdoori.match.entity.review.ReviewSkillLevel;
 import com.shootdoori.match.entity.review.TeamReview;
@@ -49,7 +47,7 @@ class TeamReviewServiceTest {
 
     @DisplayName("특정 팀의 모든 리뷰 조회 성공")
     @Test
-    void getAll_Success() {
+    void getAll_ByReviewedTeamId_Success() {
         // given (준비)
         Long reviewedTeamId = 1L;
         TeamReview review1 = createMockTeamReview(1L, 101L, 201L, reviewedTeamId);
@@ -58,7 +56,7 @@ class TeamReviewServiceTest {
         given(teamReviewRepository.findAllByReviewedTeamTeamId(reviewedTeamId)).willReturn(List.of(review1, review2));
 
         // when (실행)
-        List<TeamReviewResponseDto> result = teamReviewService.getAll(reviewedTeamId);
+        List<TeamReviewResponseDto> result = teamReviewService.getAllByReviewedTeamId(reviewedTeamId);
 
         // then (검증)
         assertThat(result).hasSize(2);
