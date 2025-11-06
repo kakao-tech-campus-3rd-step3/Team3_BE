@@ -2,6 +2,7 @@ package com.shootdoori.team;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
 
 import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.entity.team.Team;
@@ -14,6 +15,7 @@ import com.shootdoori.match.exception.common.DuplicatedException;
 import com.shootdoori.match.exception.common.NoPermissionException;
 import com.shootdoori.match.exception.domain.team.LastTeamMemberRemovalNotAllowedException;
 import com.shootdoori.match.exception.domain.team.TeamCapacityExceededException;
+import com.shootdoori.match.exception.domain.team.TeamHasRemainingMembersException;
 import com.shootdoori.match.value.TeamMembers;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,6 +23,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @DisplayName("Team 도메인 모델 테스트")
@@ -317,6 +320,22 @@ public class TeamTest {
                 .isInstanceOf(DuplicatedException.class);
         }
 
+        @Test
+        @DisplayName("멤버 수가 2명일 때 삭제 시 예외 발생")
+        void deleteTeam_whenRemainingMembers_throws() {
+            //given
+            TeamMembers embedded = TeamMembers.empty();
+            List<TeamMember> teamMembers = new ArrayList<>();
+            teamMembers.add(mock(TeamMember.class));
+            teamMembers.add(mock(TeamMember.class));
+
+            ReflectionTestUtils.setField(embedded, "teamMembers", teamMembers);
+            ReflectionTestUtils.setField(team, "teamMembers", embedded);
+
+            // when & then
+            assertThatThrownBy(() -> team.delete(captainId))
+                .isInstanceOf(TeamHasRemainingMembersException.class);
+        }
     }
 
     @Nested
