@@ -77,18 +77,20 @@ public class JoinWaitingController {
     public ResponseEntity<Page<JoinWaitingResponseDto>> findPending(
         @PathVariable Long teamId,
         @RequestParam(defaultValue = "PENDING") JoinWaitingStatus status,
+        @RequestParam(defaultValue = "false") boolean isMercenary,
         @PageableDefault(size = 10, sort = "audit.createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        return new ResponseEntity<>(joinWaitingService.findPending(teamId, status, pageable),
+        return new ResponseEntity<>(joinWaitingService.findPending(teamId, status, isMercenary, pageable),
             HttpStatus.OK);
     }
 
     @GetMapping("/api/users/me/join-waiting")
     public ResponseEntity<Page<JoinWaitingResponseDto>> findByApplicant(
         @LoginUser Long loginUserId,
+        @RequestParam(defaultValue = "false") boolean isMercenary,
         @PageableDefault(size = 10, sort = "audit.createdAt", direction = Sort.Direction.DESC) Pageable pageable
     ) {
-        return new ResponseEntity<>(joinWaitingService.findAllByApplicantIdAndStatusIn(loginUserId, pageable),
+        return new ResponseEntity<>(joinWaitingService.findAllByApplicantIdAndStatusIn(loginUserId, isMercenary, pageable),
             HttpStatus.OK);
     }
 }
