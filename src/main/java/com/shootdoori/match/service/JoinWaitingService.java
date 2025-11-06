@@ -174,18 +174,19 @@ public class JoinWaitingService {
 
     @Transactional(readOnly = true)
     public Page<JoinWaitingResponseDto> findPending(Long teamId, JoinWaitingStatus status,
-        Pageable pageable) {
+        boolean isMercenary, Pageable pageable) {
 
         teamRepository.findById(teamId).orElseThrow(() ->
             new NotFoundException(ErrorCode.TEAM_NOT_FOUND));
 
-        return joinWaitingRepository.findAllByTeam_TeamIdAndStatus(teamId, status, pageable)
+        return joinWaitingRepository.findAllByTeam_TeamIdAndStatusAndIsMercenary(teamId, status,
+                isMercenary, pageable)
             .map(joinWaitingMapper::toJoinWaitingResponseDto);
     }
 
     @Transactional(readOnly = true)
     public Page<JoinWaitingResponseDto> findAllByApplicantIdAndStatusIn(Long applicantId,
-        Pageable pageable) {
+        boolean isMercenary, Pageable pageable) {
 
         profileRepository.findById(applicantId).orElseThrow(() ->
             new NotFoundException(ErrorCode.USER_NOT_FOUND));
@@ -193,8 +194,26 @@ public class JoinWaitingService {
         List<JoinWaitingStatus> targetStatuses = List.of(JoinWaitingStatus.PENDING,
             JoinWaitingStatus.REJECTED);
 
-        return joinWaitingRepository.findAllByApplicant_IdAndStatusIn(applicantId, targetStatuses,
-                pageable)
+        return joinWaitingRepository.findAllByApplicant_IdAndStatusInAndIsMercenary(applicantId,
+                targetStatuses,
+                isMercenary, pageable)
             .map(joinWaitingMapper::toJoinWaitingResponseDto);
+    }
+
+    @Transactional
+    public void cancelAllPendingByTeam(Long teamId, String reason) {
+        List<JoinWaiting> pendings =
+            joinWaitingRepository.findAllByTeam_TeamIdAndStatus(teamId, JoinWaitingStatus.PENDING);
+
+        pendings.forEach(joinWaiting -> {
+            joinWaiting.cancelBySystem(reason);
+            notificationService.sendJoinCancelNotification(
+                joinWaiting.getTeam(),
+                joinWaiting.getApplicant(),
+                joinWaiting.getDecidedAt(),
+                joinWaiting.getDecisionReason(),
+                joinWaiting.isMercenary()
+            );
+        });
     }
 }

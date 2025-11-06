@@ -10,13 +10,14 @@ import com.shootdoori.match.dto.CreateTeamResponseDto;
 import com.shootdoori.match.dto.TeamDetailResponseDto;
 import com.shootdoori.match.dto.TeamMapper;
 import com.shootdoori.match.dto.TeamRequestDto;
-import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.common.SkillLevel;
+import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.user.User;
 import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamRepository;
+import com.shootdoori.match.service.JoinWaitingService;
 import com.shootdoori.match.service.MatchCreateService;
 import com.shootdoori.match.service.MatchRequestService;
 import com.shootdoori.match.service.TeamMemberService;
@@ -69,6 +70,9 @@ public class TeamServiceTest {
     @Mock
     private MatchCreateService matchCreateService;
 
+    @Mock
+    private JoinWaitingService joinWaitingService;
+
     private TeamService teamService;
     private TeamRequestDto requestDto;
     private User captain;
@@ -77,7 +81,7 @@ public class TeamServiceTest {
     @BeforeEach
     void setUp() {
         teamService = new TeamService(profileRepository, teamRepository, teamMemberService,
-            teamMapper, matchRequestService, matchCreateService);
+            teamMapper, matchRequestService, matchCreateService, joinWaitingService);
 
         requestDto = new TeamRequestDto(
             "강원대 FC",
@@ -368,13 +372,15 @@ public class TeamServiceTest {
 
             // then
             verify(teamRepository).save(existingTeam);
+            verify(joinWaitingService).cancelAllPendingByTeam(TEAM_ID, "팀 삭제로 인한 자동 취소");
         }
 
         @Test
         @DisplayName("팀 없음 예외")
         void delete_notFound_throws() {
             // given
-            when(teamRepository.findByIdWithMembers(NON_EXISTENT_TEAM_ID)).thenReturn(Optional.empty());
+            when(teamRepository.findByIdWithMembers(NON_EXISTENT_TEAM_ID)).thenReturn(
+                Optional.empty());
 
             // when & then
             assertThatThrownBy(() -> teamService.delete(NON_EXISTENT_TEAM_ID, captain.getId()))
@@ -441,6 +447,8 @@ public class TeamServiceTest {
                 NotFoundException.class);
         }
     }
+
+
 
     private Team createTeam(String name, TeamType teamType, SkillLevel skillLevel,
         String description) {

@@ -3,10 +3,10 @@ package com.shootdoori.joinWaiting;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
+import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.entity.team.Team;
 import com.shootdoori.match.entity.team.TeamMember;
 import com.shootdoori.match.entity.team.TeamMemberRole;
-import com.shootdoori.match.entity.common.SkillLevel;
 import com.shootdoori.match.entity.team.TeamType;
 import com.shootdoori.match.entity.team.join.JoinWaiting;
 import com.shootdoori.match.entity.team.join.JoinWaitingStatus;
@@ -286,6 +286,39 @@ public class JoinWaitingTest {
                 .isInstanceOf(JoinWaitingNotPendingException.class);
 
             assertThat(joinWaiting.getStatus()).isEqualTo(JoinWaitingStatus.CANCELED);
+        }
+    }
+
+    @Nested
+    @DisplayName("시스템 취소 테스트")
+    class CancelBySystemTest {
+
+        @Test
+        @DisplayName("PENDING 상태의 신청을 시스템이 취소하면 상태와 메타데이터가 업데이트된다")
+        void cancelBySystem_whenPending_updatesStateAndMetadata() {
+            // given
+            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입 요청입니다.", false);
+
+            // when
+            joinWaiting.cancelBySystem("팀 삭제로 인한 자동 취소");
+
+            // then
+            assertThat(joinWaiting.getStatus()).isEqualTo(JoinWaitingStatus.CANCELED);
+            assertThat(joinWaiting.getDecisionReason()).isEqualTo("팀 삭제로 인한 자동 취소");
+            assertThat(joinWaiting.getDecidedBy()).isNull();
+            assertThat(joinWaiting.getDecidedAt()).isNotNull();
+        }
+
+        @Test
+        @DisplayName("이미 처리된 신청에 시스템 취소를 호출하면 추가 변경이 발생하지 않는다")
+        void cancelBySystem_whenAlreadyProcessed_doesNothingOrThrows() {
+            // given
+            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입 요청입니다.", false);
+            joinWaiting.reject(leaderMember, "이미 거절됨");
+
+            // when & then
+            joinWaiting.cancelBySystem("팀 삭제");
+            assertThat(joinWaiting.getStatus()).isEqualTo(JoinWaitingStatus.REJECTED);
         }
     }
 }

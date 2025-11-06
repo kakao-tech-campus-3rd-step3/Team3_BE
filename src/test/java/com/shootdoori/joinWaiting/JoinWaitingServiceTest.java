@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.shootdoori.match.dto.JoinWaitingApproveRequestDto;
@@ -595,6 +596,54 @@ public class JoinWaitingServiceTest {
     }
 
     @Nested
+    @DisplayName("cancelAllPendingByTeam 테스트")
+    class CancelAllPendingByTeamTest {
+
+        @Test
+        @DisplayName("모든 대기중 신청을 시스템이 취소하고 알림을 발송한다")
+        void cancelAllPendingByTeam_success() {
+            // given
+            String reason = "팀 삭제로 인한 자동 취소";
+            JoinWaiting pendingJoinWaiting = JoinWaiting.create(team, applicant, "가입요청", false);
+            JoinWaiting mercenaryJoinWaiting = JoinWaiting.create(team, anotherUser, "용병 신청", true);
+
+            when(joinWaitingRepository.findAllByTeam_TeamIdAndStatus(TEAM_ID,
+                JoinWaitingStatus.PENDING))
+                .thenReturn(List.of(pendingJoinWaiting, mercenaryJoinWaiting));
+
+            // when
+            joinWaitingService.cancelAllPendingByTeam(TEAM_ID, reason);
+
+            // then
+            assertThat(pendingJoinWaiting.getStatus()).isEqualTo(JoinWaitingStatus.CANCELED);
+            assertThat(pendingJoinWaiting.getDecisionReason()).isEqualTo(reason);
+            assertThat(pendingJoinWaiting.getDecidedBy()).isNull();
+            assertThat(pendingJoinWaiting.getDecidedAt()).isNotNull();
+
+            assertThat(mercenaryJoinWaiting.getStatus()).isEqualTo(JoinWaitingStatus.CANCELED);
+            assertThat(mercenaryJoinWaiting.getDecisionReason()).isEqualTo(reason);
+            assertThat(mercenaryJoinWaiting.getDecidedBy()).isNull();
+            assertThat(mercenaryJoinWaiting.getDecidedAt()).isNotNull();
+
+            verify(notificationService).sendJoinCancelNotification(
+                eq(team),
+                eq(applicant),
+                any(LocalDateTime.class),
+                eq(reason),
+                eq(false)
+            );
+            verify(notificationService).sendJoinCancelNotification(
+                eq(team),
+                eq(anotherUser),
+                any(LocalDateTime.class),
+                eq(reason),
+                eq(true)
+            );
+            verifyNoMoreInteractions(notificationService);
+        }
+    }
+
+    @Nested
     @DisplayName("findPending 테스트")
     class FindPendingTest {
 
@@ -622,8 +671,8 @@ public class JoinWaitingServiceTest {
                 pageable, 2);
 
             when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
-            when(joinWaitingRepository.findAllByTeam_TeamIdAndStatus(TEAM_ID,
-                JoinWaitingStatus.PENDING, pageable))
+            when(joinWaitingRepository.findAllByTeam_TeamIdAndStatusAndIsMercenary(TEAM_ID,
+                JoinWaitingStatus.PENDING, false, pageable))
                 .thenReturn(joinWaitingPage);
 
             when(joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting1)).thenReturn(responseDto1);
@@ -631,12 +680,42 @@ public class JoinWaitingServiceTest {
 
             // when
             Page<JoinWaitingResponseDto> resultDtoPage = joinWaitingService.findPending(
-                TEAM_ID, JoinWaitingStatus.PENDING, pageable
+                TEAM_ID, JoinWaitingStatus.PENDING, false, pageable
             );
 
             // then
             assertThat(resultDtoPage).hasSize(2);
             assertThat(resultDtoPage.getContent()).containsExactly(responseDto1, responseDto2);
+        }
+
+        @Test
+        @DisplayName("findPending - isMercenary 파라미터로 필터링")
+        void findPending_withIsMercenary_filters() {
+            // given
+            Pageable pageable = PageRequest.of(PAGE, SIZE, Sort.by("teamName").ascending());
+
+            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "열심히 뛰겠습니다!", true);
+            JoinWaitingResponseDto responseDto = new JoinWaitingResponseDto(
+                1L, applicant.getName(), TEAM_ID, team.getTeamName().name(), applicant.getId(),
+                JoinWaitingStatus.PENDING.getDisplayName(), null,
+                null, null, true
+            );
+
+            Page<JoinWaiting> joinWaitingPage = new PageImpl<>(List.of(joinWaiting), pageable, 1);
+
+            when(teamRepository.findById(TEAM_ID)).thenReturn(Optional.of(team));
+            when(joinWaitingRepository.findAllByTeam_TeamIdAndStatusAndIsMercenary(TEAM_ID,
+                JoinWaitingStatus.PENDING, true, pageable)).thenReturn(joinWaitingPage);
+            when(joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting)).thenReturn(responseDto);
+
+            // when
+            Page<JoinWaitingResponseDto> resultDtoPage = joinWaitingService.findPending(
+                TEAM_ID, JoinWaitingStatus.PENDING, true, pageable
+            );
+
+            // then
+            assertThat(resultDtoPage).hasSize(1);
+            assertThat(resultDtoPage.getContent()).containsExactly(responseDto);
         }
     }
 
@@ -687,14 +766,14 @@ public class JoinWaitingServiceTest {
             );
 
             when(profileRepository.findById(applicantId)).thenReturn(Optional.of(applicant));
-            when(joinWaitingRepository.findAllByApplicant_IdAndStatusIn(applicantId,
-                targetStatuses, pageRequest)).thenReturn(joinWaitingPage);
+            when(joinWaitingRepository.findAllByApplicant_IdAndStatusInAndIsMercenary(applicantId,
+                targetStatuses, false, pageRequest)).thenReturn(joinWaitingPage);
             when(joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting1)).thenReturn(responseDto1);
             when(joinWaitingMapper.toJoinWaitingResponseDto(joinWaiting2)).thenReturn(responseDto2);
 
             // when
             Page<JoinWaitingResponseDto> resultDtoPage = joinWaitingService.findAllByApplicantIdAndStatusIn(
-                applicantId, pageRequest);
+                applicantId, false, pageRequest);
 
             // then
             assertThat(resultDtoPage).hasSize(2);
@@ -702,6 +781,38 @@ public class JoinWaitingServiceTest {
             assertThat(resultDtoPage.getTotalElements()).isEqualTo(2);
             assertThat(resultDtoPage.getContent().get(0).applicantId()).isEqualTo(applicantId);
             assertThat(resultDtoPage.getContent().get(1).applicantId()).isEqualTo(applicantId);
+        }
+
+        @Test
+        @DisplayName("findAllByApplicant_IdAndStatusIn - isMercenary 파라미터로 필터링")
+        void findAllByApplicant_IdAndStatusIn_filtersByMercenary() {
+            // given
+            Long applicantId = applicant.getId();
+            PageRequest pageRequest = PageRequest.of(PAGE, SIZE);
+
+            JoinWaiting mercenaryJoinWaiting = JoinWaiting.create(team, applicant, "용병 신청", true);
+            Page<JoinWaiting> joinWaitingPage = new PageImpl<>(List.of(mercenaryJoinWaiting),
+                pageRequest, 1);
+
+            JoinWaitingResponseDto responseDto = new JoinWaitingResponseDto(
+                1L, applicant.getName(), TEAM_ID, team.getTeamName().name(), applicantId,
+                JoinWaitingStatus.PENDING.getDisplayName(), null,
+                null, null, true
+            );
+
+            when(profileRepository.findById(applicantId)).thenReturn(Optional.of(applicant));
+            when(joinWaitingRepository.findAllByApplicant_IdAndStatusInAndIsMercenary(applicantId,
+                targetStatuses, true, pageRequest)).thenReturn(joinWaitingPage);
+            when(joinWaitingMapper.toJoinWaitingResponseDto(mercenaryJoinWaiting))
+                .thenReturn(responseDto);
+
+            // when
+            Page<JoinWaitingResponseDto> resultDtoPage = joinWaitingService
+                .findAllByApplicantIdAndStatusIn(applicantId, true, pageRequest);
+
+            // then
+            assertThat(resultDtoPage).hasSize(1);
+            assertThat(resultDtoPage.getContent()).containsExactly(responseDto);
         }
 
         @Test
@@ -716,7 +827,7 @@ public class JoinWaitingServiceTest {
             // when & then
             assertThatThrownBy(
                 () -> joinWaitingService.findAllByApplicantIdAndStatusIn(
-                    nonExistApplicantId, pageRequest))
+                    nonExistApplicantId, false, pageRequest))
                 .isInstanceOf(NotFoundException.class);
         }
 
@@ -729,13 +840,13 @@ public class JoinWaitingServiceTest {
             Page<JoinWaiting> emptyPage = new PageImpl<>(List.of(), pageRequest, 0);
 
             when(profileRepository.findById(applicantId)).thenReturn(Optional.of(applicant));
-            when(joinWaitingRepository.findAllByApplicant_IdAndStatusIn(applicantId, targetStatuses,
-                pageRequest)).thenReturn(
+            when(joinWaitingRepository.findAllByApplicant_IdAndStatusInAndIsMercenary(applicantId,
+                targetStatuses, false, pageRequest)).thenReturn(
                 emptyPage);
 
             // when
             Page<JoinWaitingResponseDto> resultDtoPage = joinWaitingService.findAllByApplicantIdAndStatusIn(
-                applicantId, pageRequest);
+                applicantId, false, pageRequest);
 
             // then
             assertThat(resultDtoPage).hasSize(0);

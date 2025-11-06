@@ -168,6 +168,20 @@ public class JoinWaiting {
         this.decidedAt = LocalDateTime.now();
     }
 
+    public void cancelBySystem(String decisionReason) {
+        if (!status.isPending()) {
+            return;
+        }
+        this.status = JoinWaitingStatus.CANCELED;
+        this.decisionReason = decisionReason;
+        this.decidedBy = null;
+        this.decidedAt = LocalDateTime.now();
+    }
+
+    public boolean isPending() {
+        return status.isPending();
+    }
+
     private void verifyPending() {
         if (!this.status.isPending()) {
             throw new JoinWaitingNotPendingException();

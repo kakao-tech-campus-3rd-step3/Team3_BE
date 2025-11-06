@@ -31,18 +31,20 @@ public class TeamService {
     private final TeamMapper teamMapper;
     private final MatchRequestService matchRequestService;
     private final MatchCreateService matchCreateService;
+    private final JoinWaitingService joinWaitingService;
 
 
     public TeamService(ProfileRepository profileRepository, TeamRepository teamRepository,
         TeamMemberService teamMemberService, TeamMapper teamMapper,
         MatchRequestService matchRequestService,
-        MatchCreateService matchCreateService) {
+        MatchCreateService matchCreateService, JoinWaitingService joinWaitingService) {
         this.profileRepository = profileRepository;
         this.teamRepository = teamRepository;
         this.teamMemberService = teamMemberService;
         this.teamMapper = teamMapper;
         this.matchRequestService = matchRequestService;
         this.matchCreateService = matchCreateService;
+        this.joinWaitingService = joinWaitingService;
     }
 
     public CreateTeamResponseDto create(TeamRequestDto requestDto, Long userId) {
@@ -98,6 +100,7 @@ public class TeamService {
         Team team = teamRepository.findByIdWithMembers(id).orElseThrow(() ->
             new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(id)));
 
+        joinWaitingService.cancelAllPendingByTeam(id, "팀 삭제로 인한 자동 취소");
         cancelAllMatchesByTeamId(id);
 
         team.delete(userId);
