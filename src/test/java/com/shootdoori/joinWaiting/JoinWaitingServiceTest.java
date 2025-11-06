@@ -3,8 +3,11 @@ package com.shootdoori.joinWaiting;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import com.shootdoori.match.dto.JoinWaitingApproveRequestDto;
@@ -591,6 +594,54 @@ public class JoinWaitingServiceTest {
                 eq(requestDto.decisionReason()),
                 eq(false)
             );
+        }
+    }
+
+    @Nested
+    @DisplayName("cancelAllPendingByTeam 테스트")
+    class CancelAllPendingByTeamTest {
+
+        @Test
+        @DisplayName("모든 대기중 신청을 시스템이 취소하고 알림을 발송한다")
+        void cancelAllPendingByTeam_success() {
+            // given
+            String reason = "팀 삭제로 인한 자동 취소";
+            JoinWaiting pendingJoinWaiting = JoinWaiting.create(team, applicant, "가입요청", false);
+            JoinWaiting mercenaryJoinWaiting = JoinWaiting.create(team, anotherUser, "용병 신청", true);
+
+            when(joinWaitingRepository.findAllByTeam_TeamIdAndStatus(TEAM_ID,
+                JoinWaitingStatus.PENDING))
+                .thenReturn(List.of(pendingJoinWaiting, mercenaryJoinWaiting));
+
+            // when
+            joinWaitingService.cancelAllPendingByTeam(TEAM_ID, reason);
+
+            // then
+            assertThat(pendingJoinWaiting.getStatus()).isEqualTo(JoinWaitingStatus.CANCELED);
+            assertThat(pendingJoinWaiting.getDecisionReason()).isEqualTo(reason);
+            assertThat(pendingJoinWaiting.getDecidedBy()).isNull();
+            assertThat(pendingJoinWaiting.getDecidedAt()).isNotNull();
+
+            assertThat(mercenaryJoinWaiting.getStatus()).isEqualTo(JoinWaitingStatus.CANCELED);
+            assertThat(mercenaryJoinWaiting.getDecisionReason()).isEqualTo(reason);
+            assertThat(mercenaryJoinWaiting.getDecidedBy()).isNull();
+            assertThat(mercenaryJoinWaiting.getDecidedAt()).isNotNull();
+
+            verify(notificationService).sendJoinCancelNotification(
+                eq(team),
+                eq(applicant),
+                any(LocalDateTime.class),
+                eq(reason),
+                eq(false)
+            );
+            verify(notificationService).sendJoinCancelNotification(
+                eq(team),
+                eq(anotherUser),
+                any(LocalDateTime.class),
+                eq(reason),
+                eq(true)
+            );
+            verifyNoMoreInteractions(notificationService);
         }
     }
 
