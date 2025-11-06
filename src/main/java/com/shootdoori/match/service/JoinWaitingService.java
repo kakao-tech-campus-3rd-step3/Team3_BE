@@ -197,4 +197,21 @@ public class JoinWaitingService {
                 pageable)
             .map(joinWaitingMapper::toJoinWaitingResponseDto);
     }
+
+    @Transactional
+    public void cancelAllPendingByTeam(Long teamId, String reason) {
+        List<JoinWaiting> pendings =
+            joinWaitingRepository.findAllByTeam_TeamIdAndStatus(teamId, JoinWaitingStatus.PENDING);
+
+        pendings.forEach(joinWaiting -> {
+            joinWaiting.cancelBySystem(reason);
+            notificationService.sendJoinCancelNotification(
+                joinWaiting.getTeam(),
+                joinWaiting.getApplicant(),
+                joinWaiting.getDecidedAt(),
+                joinWaiting.getDecisionReason(),
+                joinWaiting.isMercenary()
+            );
+        });
+    }
 }
