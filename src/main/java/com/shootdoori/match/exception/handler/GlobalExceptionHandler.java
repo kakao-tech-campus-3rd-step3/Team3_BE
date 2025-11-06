@@ -3,6 +3,8 @@ package com.shootdoori.match.exception.handler;
 import com.shootdoori.match.exception.common.BusinessException;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.common.UnauthorizedException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -10,12 +12,16 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+
     @ExceptionHandler(BusinessException.class)
     public ResponseEntity<ErrorResponse> handleBusinessException(
-        BusinessException businessException
+        BusinessException e
     ) {
-        ErrorCode errorCode = businessException.getErrorCode();
-        ErrorResponse errorResponse = ErrorResponse.of(errorCode, businessException.getDetail());
+        log.warn("[GlobalExceptionHandler] BusinessException: {}", e.getErrorCode());
+        ErrorCode errorCode = e.getErrorCode();
+        ErrorResponse errorResponse = ErrorResponse.of(errorCode, e.getDetail());
 
         return ResponseEntity
             .status(errorCode.getHttpStatus())
@@ -23,11 +29,12 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(UnauthorizedException.class)
-    public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException ex) {
-        ErrorCode errorCode = ex.getErrorCode();
+    public ResponseEntity<ErrorResponse> handleUnauthorizedException(UnauthorizedException e) {
+        log.warn("[GlobalExceptionHandler] UnauthorizedException: {}", e.getErrorCode());
+        ErrorCode errorCode = e.getErrorCode();
         ErrorResponse errorResponse = new ErrorResponse(
                 errorCode.name(),
-                ex.getDetail() != null ? ex.getDetail() : errorCode.getMessage()
+                e.getDetail() != null ? e.getDetail() : errorCode.getMessage()
         );
 
         return ResponseEntity
@@ -36,24 +43,26 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException ex) {
-        String fieldError = ex.getBindingResult().getFieldError() != null
-                ? ex.getBindingResult().getFieldError().getDefaultMessage()
+    public ResponseEntity<ErrorResponse> handleValidationException(MethodArgumentNotValidException e) {
+        String fieldError = e.getBindingResult().getFieldError() != null
+                ? e.getBindingResult().getFieldError().getDefaultMessage()
                 : "잘못된 요청입니다.";
-
+        log.warn("[GlobalExceptionHandler] Validation error: {}", fieldError);
         ErrorResponse response = new ErrorResponse("VALIDATION_ERROR", fieldError);
         return ResponseEntity.badRequest().body(response);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException ex) {
-        ErrorResponse response = new ErrorResponse("INVALID_ARGUMENT", ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleIllegalArgument(IllegalArgumentException e) {
+        log.warn("[GlobalExceptionHandler] IllegalArgumentException");
+        ErrorResponse response = new ErrorResponse("INVALID_ARGUMENT", e.getMessage());
         return ResponseEntity.badRequest().body(response);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleUnexpectedException(Exception ex) {
-        ErrorResponse response = new ErrorResponse("INTERNAL_SERVER_ERROR", ex.getMessage());
+    public ResponseEntity<ErrorResponse> handleUnexpectedException(Exception e) {
+        log.error("[GlobalExceptionHandler] Unexpected Exception occurred", e);
+        ErrorResponse response = new ErrorResponse("INTERNAL_SERVER_ERROR", "Unexpected server error occurred.");
         return ResponseEntity.internalServerError().body(response);
     }
 
