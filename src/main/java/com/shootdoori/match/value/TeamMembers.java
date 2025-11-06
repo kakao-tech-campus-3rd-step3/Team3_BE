@@ -6,11 +6,9 @@ import com.shootdoori.match.exception.common.DuplicatedException;
 import com.shootdoori.match.exception.common.ErrorCode;
 import com.shootdoori.match.exception.domain.team.LastTeamMemberRemovalNotAllowedException;
 import com.shootdoori.match.exception.domain.team.TeamCapacityExceededException;
-import jakarta.persistence.AttributeOverride;
+import com.shootdoori.match.exception.domain.team.TeamHasRemainingMembersException;
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
-import jakarta.persistence.Embedded;
 import jakarta.persistence.OneToMany;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +16,7 @@ import java.util.List;
 @Embeddable
 public class TeamMembers {
 
-    private static final int MIN_TEAM_MEMBERS = 1;
+    private static final int MIN_ACTIVE_MEMBERS = 1;
     private static final int MAX_TEAM_MEMBERS = 100;
 
     @OneToMany(
@@ -75,17 +73,18 @@ public class TeamMembers {
     }
 
     public void clear() {
+        ensureNoMembersRemaining();
         teamMembers.clear();
     }
 
     public void ensureNotFull() {
-        if (size() >= MAX_TEAM_MEMBERS) {
+        if (isFull()) {
             throw new TeamCapacityExceededException();
         }
     }
 
     private void ensureRemovable() {
-        if (size() <= MIN_TEAM_MEMBERS) {
+        if (isBelowMinActive()) {
             throw new LastTeamMemberRemovalNotAllowedException();
         }
     }
@@ -94,5 +93,23 @@ public class TeamMembers {
         if (teamMembers.stream().anyMatch(member -> member.isSameUser(targetUser))) {
             throw new DuplicatedException(ErrorCode.ALREADY_TEAM_MEMBER);
         }
+    }
+
+    private void ensureNoMembersRemaining() {
+        if (isRemaining()) {
+            throw new TeamHasRemainingMembersException();
+        }
+    }
+
+    private boolean isFull() {
+        return size() >= MAX_TEAM_MEMBERS;
+    }
+
+    private boolean isBelowMinActive() {
+        return size() <= MIN_ACTIVE_MEMBERS;
+    }
+
+    private boolean isRemaining() {
+        return size() > MIN_ACTIVE_MEMBERS;
     }
 }
