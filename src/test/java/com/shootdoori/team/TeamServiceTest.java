@@ -372,7 +372,7 @@ public class TeamServiceTest {
 
             // then
             verify(teamRepository).save(existingTeam);
-            verify(joinWaitingService).cancelAllPendingByTeam(TEAM_ID, "팀 삭제로 인한 자동 취소");
+            verify(joinWaitingService).cancelAllPendingAndRejectedByTeam(TEAM_ID, "팀 삭제로 인한 자동 취소");
         }
 
         @Test

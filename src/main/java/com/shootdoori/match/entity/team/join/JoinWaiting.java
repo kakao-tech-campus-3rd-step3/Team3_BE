@@ -169,9 +169,6 @@ public class JoinWaiting {
     }
 
     public void cancelBySystem(String decisionReason) {
-        if (!status.isPending()) {
-            return;
-        }
         this.status = JoinWaitingStatus.CANCELED;
         this.decisionReason = decisionReason;
         this.decidedBy = null;
