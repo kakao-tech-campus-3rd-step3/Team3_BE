@@ -201,19 +201,28 @@ public class JoinWaitingService {
     }
 
     @Transactional
-    public void cancelAllPendingByTeam(Long teamId, String reason) {
+    public void cancelAllPendingAndRejectedByTeam(Long teamId, String reason) {
         List<JoinWaiting> pendings =
             joinWaitingRepository.findAllByTeam_TeamIdAndStatus(teamId, JoinWaitingStatus.PENDING);
+        List<JoinWaiting> rejects =
+            joinWaitingRepository.findAllByTeam_TeamIdAndStatus(teamId, JoinWaitingStatus.REJECTED);
 
-        pendings.forEach(joinWaiting -> {
+        cancelJoinWaitings(pendings, reason, true);
+        cancelJoinWaitings(rejects, reason, false);
+    }
+
+    private void cancelJoinWaitings(List<JoinWaiting> joinWaitings, String reason, boolean notify) {
+        joinWaitings.forEach(joinWaiting -> {
             joinWaiting.cancelBySystem(reason);
-            notificationService.sendJoinCancelNotification(
-                joinWaiting.getTeam(),
-                joinWaiting.getApplicant(),
-                joinWaiting.getDecidedAt(),
-                joinWaiting.getDecisionReason(),
-                joinWaiting.isMercenary()
-            );
+            if (notify) {
+                notificationService.sendJoinCancelNotification(
+                    joinWaiting.getTeam(),
+                    joinWaiting.getApplicant(),
+                    joinWaiting.getDecidedAt(),
+                    joinWaiting.getDecisionReason(),
+                    joinWaiting.isMercenary()
+                );
+            }
         });
     }
 }

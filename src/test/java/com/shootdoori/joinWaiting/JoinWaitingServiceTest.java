@@ -612,7 +612,7 @@ public class JoinWaitingServiceTest {
                 .thenReturn(List.of(pendingJoinWaiting, mercenaryJoinWaiting));
 
             // when
-            joinWaitingService.cancelAllPendingByTeam(TEAM_ID, reason);
+            joinWaitingService.cancelAllPendingAndRejectedByTeam(TEAM_ID, reason);
 
             // then
             assertThat(pendingJoinWaiting.getStatus()).isEqualTo(JoinWaitingStatus.CANCELED);

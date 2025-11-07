@@ -28,9 +28,12 @@ public interface MatchRequestRepository extends JpaRepository<MatchRequest, Long
         "ORDER BY mr.requestAt ASC ")
     Slice<MatchRequest> findPendingRequestsByTargetTeam(@Param("targetTeamId") Long targetTeamId, Pageable pageable);
 
-    @Query("SELECT mr FROM MatchRequest mr " +
-        "WHERE mr.requestTeam.teamId = :requestTeamId " +
-        "ORDER BY mr.requestAt DESC")
+    @Query("SELECT mr " +
+        "FROM MatchRequest mr " +
+        "JOIN mr.requestTeam requestTeam " +
+        "JOIN mr.targetTeam targetTeam " +
+        "WHERE requestTeam.teamId = :requestTeamId " +
+        "ORDER BY mr.requestAt DESC ")
     Slice<MatchRequest> findSentRequestsByTeam(@Param("requestTeamId") Long requestTeamId,
                                                Pageable pageable);
 

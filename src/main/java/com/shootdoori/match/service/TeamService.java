@@ -100,7 +100,7 @@ public class TeamService {
         Team team = teamRepository.findByIdWithMembers(id).orElseThrow(() ->
             new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(id)));
 
-        joinWaitingService.cancelAllPendingByTeam(id, "팀 삭제로 인한 자동 취소");
+        joinWaitingService.cancelAllPendingAndRejectedByTeam(id, "팀 삭제로 인한 자동 취소");
         cancelAllMatchesByTeamId(id);
 
         team.delete(userId);
