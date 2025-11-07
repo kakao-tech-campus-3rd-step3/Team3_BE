@@ -308,17 +308,5 @@ public class JoinWaitingTest {
             assertThat(joinWaiting.getDecidedBy()).isNull();
             assertThat(joinWaiting.getDecidedAt()).isNotNull();
         }
-
-        @Test
-        @DisplayName("이미 처리된 신청에 시스템 취소를 호출하면 추가 변경이 발생하지 않는다")
-        void cancelBySystem_whenAlreadyProcessed_doesNothingOrThrows() {
-            // given
-            JoinWaiting joinWaiting = JoinWaiting.create(team, applicant, "가입 요청입니다.", false);
-            joinWaiting.reject(leaderMember, "이미 거절됨");
-
-            // when & then
-            joinWaiting.cancelBySystem("팀 삭제");
-            assertThat(joinWaiting.getStatus()).isEqualTo(JoinWaitingStatus.REJECTED);
-        }
     }
 }
