@@ -20,6 +20,7 @@ import com.shootdoori.match.repository.TeamRepository;
 import com.shootdoori.match.service.JoinWaitingService;
 import com.shootdoori.match.service.MatchCreateService;
 import com.shootdoori.match.service.MatchRequestService;
+import com.shootdoori.match.service.MercenaryRecruitmentService;
 import com.shootdoori.match.service.TeamMemberService;
 import com.shootdoori.match.service.TeamService;
 import com.shootdoori.match.value.UniversityName;
@@ -65,6 +66,9 @@ public class TeamServiceTest {
     private TeamMemberService teamMemberService;
 
     @Mock
+    private MercenaryRecruitmentService mercenaryRecruitmentService;
+
+    @Mock
     private MatchRequestService matchRequestService;
 
     @Mock
@@ -81,7 +85,8 @@ public class TeamServiceTest {
     @BeforeEach
     void setUp() {
         teamService = new TeamService(profileRepository, teamRepository, teamMemberService,
-            teamMapper, matchRequestService, matchCreateService, joinWaitingService);
+            teamMapper, mercenaryRecruitmentService, matchRequestService, matchCreateService,
+            joinWaitingService);
 
         requestDto = new TeamRequestDto(
             "강원대 FC",
@@ -365,7 +370,8 @@ public class TeamServiceTest {
                 "삭제될 팀입니다."
             );
 
-            when(teamRepository.findByIdWithMembers(TEAM_ID)).thenReturn(Optional.of(existingTeam));
+            when(teamRepository.findByIdWithAssociations(TEAM_ID)).thenReturn(
+                Optional.of(existingTeam));
 
             // when
             teamService.delete(TEAM_ID, captain.getId());
@@ -379,7 +385,7 @@ public class TeamServiceTest {
         @DisplayName("팀 없음 예외")
         void delete_notFound_throws() {
             // given
-            when(teamRepository.findByIdWithMembers(NON_EXISTENT_TEAM_ID)).thenReturn(
+            when(teamRepository.findByIdWithAssociations(NON_EXISTENT_TEAM_ID)).thenReturn(
                 Optional.empty());
 
             // when & then
@@ -403,7 +409,8 @@ public class TeamServiceTest {
                 "삭제될 팀입니다."
             );
 
-            when(teamRepository.findByIdWithMembers(TEAM_ID)).thenReturn(Optional.of(existingTeam));
+            when(teamRepository.findByIdWithAssociations(TEAM_ID)).thenReturn(
+                Optional.of(existingTeam));
 
             teamService.delete(TEAM_ID, captain.getId());
         }
@@ -447,7 +454,6 @@ public class TeamServiceTest {
                 NotFoundException.class);
         }
     }
-
 
 
     private Team createTeam(String name, TeamType teamType, SkillLevel skillLevel,

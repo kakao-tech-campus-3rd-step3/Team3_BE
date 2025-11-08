@@ -11,10 +11,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
 public interface TeamRepository extends JpaRepository<Team, Long> {
-
-    @EntityGraph(attributePaths = {"teamMembers.teamMembers"})
+    @EntityGraph(attributePaths = {"teamMembers.members"})
     @Query("SELECT t FROM Team t WHERE t.teamId = :teamId")
-    Optional<Team> findByIdWithMembers(@Param("teamId") Long teamId);
+    Optional<Team> findByIdWithAssociations(@Param("teamId") Long teamId);
 
     Page<Team> findAllByUniversity(UniversityName university, Pageable pageable);
 

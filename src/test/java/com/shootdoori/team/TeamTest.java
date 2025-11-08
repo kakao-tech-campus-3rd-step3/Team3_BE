@@ -23,7 +23,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.test.util.ReflectionTestUtils;
 
 @DisplayName("Team 도메인 모델 테스트")
@@ -239,7 +238,7 @@ public class TeamTest {
                     TeamMemberRole.MEMBER
                 ));
             }
-            ReflectionTestUtils.setField(teamMembers, "teamMembers", members);
+            ReflectionTestUtils.setField(teamMembers, "members", members);
 
             // when & then
             assertThatThrownBy(() ->
@@ -329,7 +328,7 @@ public class TeamTest {
             teamMembers.add(mock(TeamMember.class));
             teamMembers.add(mock(TeamMember.class));
 
-            ReflectionTestUtils.setField(embedded, "teamMembers", teamMembers);
+            ReflectionTestUtils.setField(embedded, "members", teamMembers);
             ReflectionTestUtils.setField(team, "teamMembers", embedded);
 
             // when & then

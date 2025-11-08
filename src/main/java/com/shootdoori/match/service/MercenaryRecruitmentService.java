@@ -21,14 +21,12 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 public class MercenaryRecruitmentService {
-    private final TeamService teamService;
-    private final ProfileService profileService;
+
     private final MercenaryRecruitmentRepository recruitmentRepository;
     private final TeamRepository teamRepository;
 
-    public MercenaryRecruitmentService(TeamService teamService, ProfileService profileService, MercenaryRecruitmentRepository recruitmentRepository, TeamRepository teamRepository) {
-        this.teamService = teamService;
-        this.profileService = profileService;
+    public MercenaryRecruitmentService(MercenaryRecruitmentRepository recruitmentRepository,
+        TeamRepository teamRepository) {
         this.recruitmentRepository = recruitmentRepository;
         this.teamRepository = teamRepository;
     }
@@ -36,17 +34,20 @@ public class MercenaryRecruitmentService {
     public RecruitmentResponse create(RecruitmentCreateRequest request, Long loginUserId) {
 
         Team team = teamRepository.findById(request.teamId()).orElseThrow(
-            () -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(request.teamId())));
+            () -> new NotFoundException(ErrorCode.TEAM_NOT_FOUND,
+                String.valueOf(request.teamId())));
 
-        if(!team.getCaptain().getId().equals(loginUserId)) {
+        if (!team.isCaptainId(loginUserId)) {
             throw new NoPermissionException();
         }
 
         Position position = Position.fromCode(request.position());
         SkillLevel skillLevel = SkillLevel.fromDisplayName(request.skillLevel());
 
-        MercenaryRecruitment savedRecruitment = recruitmentRepository.save(MercenaryRecruitment.create(
-            team, request.matchDate(), request.matchTime(), request.message(), position, skillLevel));
+        MercenaryRecruitment savedRecruitment = recruitmentRepository.save(
+            MercenaryRecruitment.create(
+                team, request.matchDate(), request.matchTime(), request.message(), position,
+                skillLevel));
 
         return RecruitmentResponse.from(savedRecruitment);
     }
@@ -60,7 +61,8 @@ public class MercenaryRecruitmentService {
 
     @Transactional(readOnly = true)
     public Page<RecruitmentResponse> findAllForCaptain(Pageable pageable, Long loginUserId) {
-        Page<MercenaryRecruitment> recruitments = recruitmentRepository.findByTeam_Captain_Id(loginUserId, pageable);
+        Page<MercenaryRecruitment> recruitments = recruitmentRepository.findByTeam_Captain_Id(
+            loginUserId, pageable);
 
         return recruitments.map(RecruitmentResponse::from);
     }
@@ -75,15 +77,17 @@ public class MercenaryRecruitmentService {
 
     @Transactional(readOnly = true)
     public MercenaryRecruitment findByIdForEntity(Long id) {
-        return recruitmentRepository.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.RECRUITMENT_NOT_FOUND));
+        return recruitmentRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.RECRUITMENT_NOT_FOUND));
     }
 
-    public RecruitmentResponse update(Long id, RecruitmentUpdateRequest updateRequest, Long loginUserId) {
+    public RecruitmentResponse update(Long id, RecruitmentUpdateRequest updateRequest,
+        Long loginUserId) {
 
         MercenaryRecruitment recruitment = recruitmentRepository.findById(id)
             .orElseThrow(() -> new NotFoundException(ErrorCode.RECRUITMENT_NOT_FOUND));
 
-        if(!recruitment.getTeam().getCaptain().getId().equals(loginUserId)) {
+        if (!recruitment.getTeam().getCaptain().getId().equals(loginUserId)) {
             throw new NoPermissionException();
         }
 
@@ -91,20 +95,26 @@ public class MercenaryRecruitmentService {
         SkillLevel skillLevel = SkillLevel.fromDisplayName(updateRequest.skillLevel());
 
         recruitment.updateRecruitmentInfo(
-            updateRequest.matchDate(), updateRequest.matchTime(), updateRequest.message(), position, skillLevel);
+            updateRequest.matchDate(), updateRequest.matchTime(), updateRequest.message(), position,
+            skillLevel);
 
         return RecruitmentResponse.from(recruitment);
     }
 
     public void delete(Long id, Long loginUserId) {
 
-        MercenaryRecruitment recruitment = recruitmentRepository.findById(id).orElseThrow(() -> new NotFoundException(ErrorCode.RECRUITMENT_NOT_FOUND));
+        MercenaryRecruitment recruitment = recruitmentRepository.findById(id)
+            .orElseThrow(() -> new NotFoundException(ErrorCode.RECRUITMENT_NOT_FOUND));
 
-        if(!recruitment.getTeam().getCaptain().getId().equals(loginUserId)) {
+        if (!recruitment.getTeam().getCaptain().getId().equals(loginUserId)) {
             throw new NoPermissionException();
         }
 
         recruitmentRepository.deleteById(id);
+    }
+
+    public void deleteAllByTeamId(Long teamId) {
+        recruitmentRepository.deleteAllByTeam_TeamId(teamId);
     }
 
     private void validateCaptain(Team team, User user) {
