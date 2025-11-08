@@ -144,6 +144,8 @@ public class Team {
         return captain.equals(user);
     }
 
+    public boolean isCaptainId(Long userId) { return Objects.equals(getCaptain().getId(), userId); }
+
     public boolean isDeleted() {
         return softDelete.isDeleted();
     }
@@ -191,7 +193,7 @@ public class Team {
     }
 
     public void delete(Long userId) {
-        if (!Objects.equals(getCaptain().getId(), userId)) {
+        if (!isCaptainId(userId)) {
             throw new NoPermissionException(ErrorCode.CAPTAIN_ONLY_OPERATION);
         }
 
@@ -200,14 +202,13 @@ public class Team {
     }
 
     public void restore(Long userId) {
-        if (!Objects.equals(getCaptain().getId(), userId)) {
+        if (!isCaptainId(userId)) {
             throw new NoPermissionException(ErrorCode.CAPTAIN_ONLY_OPERATION);
         }
 
         addMember(captain, TeamMemberRole.LEADER);
         softDelete.changeStatusActive();
     }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {

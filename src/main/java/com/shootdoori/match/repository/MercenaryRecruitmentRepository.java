@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MercenaryRecruitmentRepository extends JpaRepository<MercenaryRecruitment, Long> {
     Page<MercenaryRecruitment> findByTeam_Captain_Id(Long userId, Pageable pageable);
+
+    void deleteAllByTeam_TeamId(Long teamId);
 }

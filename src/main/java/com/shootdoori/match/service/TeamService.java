@@ -29,6 +29,7 @@ public class TeamService {
     private final TeamRepository teamRepository;
     private final TeamMemberService teamMemberService;
     private final TeamMapper teamMapper;
+    private final MercenaryRecruitmentService mercenaryRecruitmentService;
     private final MatchRequestService matchRequestService;
     private final MatchCreateService matchCreateService;
     private final JoinWaitingService joinWaitingService;
@@ -36,12 +37,14 @@ public class TeamService {
 
     public TeamService(ProfileRepository profileRepository, TeamRepository teamRepository,
         TeamMemberService teamMemberService, TeamMapper teamMapper,
+        MercenaryRecruitmentService mercenaryRecruitmentService,
         MatchRequestService matchRequestService,
         MatchCreateService matchCreateService, JoinWaitingService joinWaitingService) {
         this.profileRepository = profileRepository;
         this.teamRepository = teamRepository;
         this.teamMemberService = teamMemberService;
         this.teamMapper = teamMapper;
+        this.mercenaryRecruitmentService = mercenaryRecruitmentService;
         this.matchRequestService = matchRequestService;
         this.matchCreateService = matchCreateService;
         this.joinWaitingService = joinWaitingService;
@@ -97,9 +100,10 @@ public class TeamService {
     }
 
     public void delete(Long id, Long userId) {
-        Team team = teamRepository.findByIdWithMembers(id).orElseThrow(() ->
+        Team team = teamRepository.findByIdWithAssociations(id).orElseThrow(() ->
             new NotFoundException(ErrorCode.TEAM_NOT_FOUND, String.valueOf(id)));
 
+        mercenaryRecruitmentService.deleteAllByTeamId(team.getTeamId());
         joinWaitingService.cancelAllPendingAndRejectedByTeam(id, "팀 삭제로 인한 자동 취소");
         cancelAllMatchesByTeamId(id);
 

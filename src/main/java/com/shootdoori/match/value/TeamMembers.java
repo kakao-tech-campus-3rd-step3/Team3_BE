@@ -24,19 +24,19 @@ public class TeamMembers {
         cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REMOVE},
         orphanRemoval = true
     )
-    private List<TeamMember> teamMembers = new ArrayList<>();
+    private List<TeamMember> members = new ArrayList<>();
 
     protected TeamMembers() {
     }
 
-    public TeamMembers(List<TeamMember> teamMembers) {
-        this.teamMembers = teamMembers == null
+    public TeamMembers(List<TeamMember> members) {
+        this.members = members == null
             ? new ArrayList<>()
-            : new ArrayList<>(teamMembers);
+            : new ArrayList<>(members);
     }
 
     public List<TeamMember> getTeamMembers() {
-        return teamMembers;
+        return members;
     }
 
     public static TeamMembers empty() {
@@ -44,19 +44,19 @@ public class TeamMembers {
     }
 
     public int size() {
-        return teamMembers.size();
+        return members.size();
     }
 
     public boolean isEmpty() {
-        return teamMembers.isEmpty();
+        return members.isEmpty();
     }
 
     public boolean hasCaptain() {
-        return teamMembers.stream().anyMatch(TeamMember::isCaptain);
+        return members.stream().anyMatch(TeamMember::isCaptain);
     }
 
     public boolean hasViceCaptain() {
-        return teamMembers.stream().anyMatch(TeamMember::isViceCaptain);
+        return members.stream().anyMatch(TeamMember::isViceCaptain);
     }
 
     public void addMember(TeamMember targetMember) {
@@ -64,17 +64,17 @@ public class TeamMembers {
 
         ensureNotFull();
         ensureNotMember(targetUser);
-        teamMembers.add(targetMember);
+        members.add(targetMember);
     }
 
     public void removeMember(TeamMember targetMember) {
         ensureRemovable();
-        teamMembers.remove(targetMember);
+        members.remove(targetMember);
     }
 
     public void clear() {
         ensureNoMembersRemaining();
-        teamMembers.clear();
+        members.clear();
     }
 
     public void ensureNotFull() {
@@ -90,7 +90,7 @@ public class TeamMembers {
     }
 
     private void ensureNotMember(User targetUser) {
-        if (teamMembers.stream().anyMatch(member -> member.isSameUser(targetUser))) {
+        if (members.stream().anyMatch(member -> member.isSameUser(targetUser))) {
             throw new DuplicatedException(ErrorCode.ALREADY_TEAM_MEMBER);
         }
     }
