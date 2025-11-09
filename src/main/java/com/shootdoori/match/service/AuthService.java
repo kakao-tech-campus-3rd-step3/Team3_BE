@@ -41,7 +41,7 @@ public class AuthService {
 
     @Transactional
     public AuthToken register(ProfileCreateRequest request, ClientInfo clientInfo) {
-        log.debug("[AuthService] Register request received for email={}", request.email());
+        log.debug("[AuthService] Register request received");
         profileService.createProfile(request);
         User savedUser = profileService.findByEmail(request.email())
             .orElseThrow(() -> new UnauthorizedException(ErrorCode.FAIL_REGISTER));
@@ -51,7 +51,7 @@ public class AuthService {
 
     @Transactional
     public AuthToken login(LoginRequest request, ClientInfo clientInfo) {
-        log.debug("[AuthService] Login attempt for email={}", request.email());
+        log.debug("[AuthService] Login attempt");
         User user = profileService.findByEmail(request.email())
             .orElseThrow(() -> new UnauthorizedException(ErrorCode.FAIL_LOGIN));
         user.validatePasswordMatches(request.password());
@@ -99,8 +99,7 @@ public class AuthService {
     }
 
     private AuthToken issueTokens(User user, ClientInfo clientInfo) {
-        log.info("[AuthService] Issuing tokens (userId={}, device={}, agent={})",
-                user.getId(), clientInfo.deviceType(), clientInfo.userAgent());
+        log.info("[AuthService] Issuing tokens (userId={}, device={})", user.getId(), clientInfo.deviceType());
         return tokenIssuer.issue(user, clientInfo.deviceType(), clientInfo.userAgent());
     }
 }
