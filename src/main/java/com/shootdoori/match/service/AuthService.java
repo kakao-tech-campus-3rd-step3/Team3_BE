@@ -22,7 +22,9 @@ import java.util.Collections;
 
 @Service
 public class AuthService {
+
     private static final Logger log = LoggerFactory.getLogger(AuthService.class);
+
     private final JwtUtil jwtUtil;
     private final ProfileService profileService;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -39,6 +41,7 @@ public class AuthService {
 
     @Transactional
     public AuthToken register(ProfileCreateRequest request, ClientInfo clientInfo) {
+        log.debug("[AuthService] Register request received");
         profileService.createProfile(request);
         User savedUser = profileService.findByEmail(request.email())
             .orElseThrow(() -> new UnauthorizedException(ErrorCode.FAIL_REGISTER));
@@ -48,6 +51,7 @@ public class AuthService {
 
     @Transactional
     public AuthToken login(LoginRequest request, ClientInfo clientInfo) {
+        log.debug("[AuthService] Login attempt");
         User user = profileService.findByEmail(request.email())
             .orElseThrow(() -> new UnauthorizedException(ErrorCode.FAIL_LOGIN));
         user.validatePasswordMatches(request.password());
@@ -58,11 +62,14 @@ public class AuthService {
     @Transactional
     public void logout(String refreshTokenValue) {
         String tokenId = jwtUtil.getClaims(refreshTokenValue).getId();
+        log.info("[AuthService] Logout requested (tokenId prefix={})", tokenId.length() > 8 ? tokenId.substring(0, 8) : tokenId);
+
         refreshTokenRepository.findById(tokenId).ifPresent(refreshTokenRepository::delete);
     }
 
     @Transactional
     public void logoutAll(Long userId) {
+        log.info("[AuthService] Logout all sessions (userId={})", userId);
         refreshTokenRepository.deleteAllByUserId(userId);
     }
 
@@ -74,14 +81,17 @@ public class AuthService {
             try {
                 if (jwtUtil.validateToken(jwt) && SecurityContextHolder.getContext().getAuthentication() == null) {
                     String userId = jwtUtil.getUserId(jwt);
+                    log.debug("[AuthService] Valid JWT for userId={}", userId);
                     Long principalUserId = Long.parseLong(userId);
 
                     return new UsernamePasswordAuthenticationToken(
                         principalUserId, null, Collections.emptyList());
                 }
             } catch (io.jsonwebtoken.ExpiredJwtException e) {
+                log.warn("[AuthService] Expired JWT detected");
                 throw new UnauthorizedException(ErrorCode.EXPIRED_TOKEN);
             } catch (JwtException | NumberFormatException e) {
+                log.warn("[AuthService] Invalid JWT detected (type={})", e.getClass().getSimpleName());
                 throw new UnauthorizedException(ErrorCode.INVALID_TOKEN);
             }
         }
@@ -89,6 +99,7 @@ public class AuthService {
     }
 
     private AuthToken issueTokens(User user, ClientInfo clientInfo) {
+        log.info("[AuthService] Issuing tokens (userId={}, device={})", user.getId(), clientInfo.deviceType());
         return tokenIssuer.issue(user, clientInfo.deviceType(), clientInfo.userAgent());
     }
 }
