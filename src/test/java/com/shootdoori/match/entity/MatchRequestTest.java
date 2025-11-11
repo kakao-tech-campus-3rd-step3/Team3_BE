@@ -105,7 +105,8 @@ class MatchRequestTest {
             UNIVERSITY_ONLY,
             WAITING_MESSAGE,
             WAITING_STATUS,
-            LocalDateTime.now().plusDays(1)
+            LocalDateTime.now().plusDays(1),
+            100L
         );
     }
 
@@ -115,7 +116,7 @@ class MatchRequestTest {
         String message = "친선 경기 신청합니다.";
 
         MatchRequest matchRequest = new MatchRequest(matchWaiting, requestTeam, targetTeam,
-            message);
+            message, 100L);
 
         assertEquals(MatchRequestStatus.PENDING, matchRequest.getStatus());
     }
@@ -124,7 +125,7 @@ class MatchRequestTest {
     @DisplayName("MatchRequest 의 updateRequestStatus에 의해 status가 변경되는지 확인")
     void updateRequestStatus_ShouldUpdateStatusAndRespondedAt() {
         MatchRequest matchRequest = new MatchRequest(matchWaiting, requestTeam, targetTeam,
-            "테스트 메시지");
+            "테스트 메시지", 100L);
         LocalDateTime respondedAt = LocalDateTime.now();
 
         matchRequest.updateRequestStatus(MatchRequestStatus.ACCEPTED, respondedAt);
@@ -137,7 +138,7 @@ class MatchRequestTest {
     @DisplayName("MatchRequest 의 cancelRequest 에 의해 status가 CANCELED로 변경되는지 확인")
     void cancelRequest_ShouldSetStatusToCanceled() {
         MatchRequest matchRequest = new MatchRequest(matchWaiting, requestTeam, targetTeam,
-            "테스트 메시지");
+            "테스트 메시지", 100L);
 
         matchRequest.cancelRequest();
 

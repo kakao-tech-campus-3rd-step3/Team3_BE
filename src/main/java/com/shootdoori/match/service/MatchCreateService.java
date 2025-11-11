@@ -56,10 +56,12 @@ public class MatchCreateService {
             dto.universityOnly() != null ? dto.universityOnly() : false,
             dto.message(),
             MatchWaitingStatus.WAITING,
-            LocalDateTime.of(dto.preferredDate(), dto.preferredTimeEnd())
+            LocalDateTime.of(dto.preferredDate(), dto.preferredTimeEnd()),
+            dto.lineupId()
         );
 
         MatchWaiting saved = matchWaitingRepository.save(matchWaiting);
+
         return MatchCreateResponseDto.from(saved);
     }
 
@@ -103,5 +105,4 @@ public class MatchCreateService {
     public void cancelAllMatchesByTeamId(Long teamId) {
         matchWaitingRepository.cancelAllByTeamId(teamId);
     }
-
 }

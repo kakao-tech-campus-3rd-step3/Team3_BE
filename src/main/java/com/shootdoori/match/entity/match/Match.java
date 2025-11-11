@@ -56,17 +56,25 @@ public class Match {
     @Column(name = "STATUS", nullable = false, columnDefinition = "VARCHAR(20) DEFAULT '예정'")
     private MatchStatus status = MatchStatus.RECRUITING;
 
+    @Column(name = "LINEUP1_ID", nullable = false)
+    private Long createTeamLineupId;
+
+    @Column(name = "LINEUP2_ID", nullable = false)
+    private Long requestTeamLineupId;
+
     @Embedded
     private AuditInfo audit = new AuditInfo();
 
     public Match(Team matchCreateTeam, Team matchRequestTeam, LocalDate matchDate, LocalTime matchTime, Venue venue,
-                 MatchStatus status) {
+                 MatchStatus status, Long createTeamLineupId, Long requestTeamLineupId) {
         this.matchCreateTeam = matchCreateTeam;
         this.matchRequestTeam = matchRequestTeam;
         this.matchDate = matchDate;
         this.matchTime = matchTime;
         this.venue = venue;
         this.status = status != null ? status : MatchStatus.RECRUITING;
+        this.createTeamLineupId = createTeamLineupId;
+        this.requestTeamLineupId = requestTeamLineupId;
     }
 
     protected Match() {
@@ -143,5 +151,21 @@ public class Match {
 
     public TeamName getRequestTeamName(){
         return this.matchRequestTeam.getTeamName();
+    }
+
+    public Long getCreateTeamLineupId() {
+        return createTeamLineupId;
+    }
+
+    public Long getRequestTeamLineupId() {
+        return requestTeamLineupId;
+    }
+
+    public void changeCreateTeamLineupId(Long createTeamLineupId) {
+        this.createTeamLineupId = createTeamLineupId;
+    }
+
+    public void changeRequestTeamLineupId(Long requestTeamLineupId) {
+        this.requestTeamLineupId = requestTeamLineupId;
     }
 }

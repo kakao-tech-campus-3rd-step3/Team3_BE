@@ -21,7 +21,7 @@ public class MercenaryRecruitmentController {
     public MercenaryRecruitmentController(MercenaryRecruitmentService recruitmentService) {
         this.recruitmentService = recruitmentService;
     }
-    // TODO: 생성, 수정, 삭제 로직에 사용자 정보(id) 필요
+
     @PostMapping
     public ResponseEntity<RecruitmentResponse> create(@RequestBody RecruitmentCreateRequest createRequest,
                                                       @LoginUser Long loginUserId) {
@@ -29,19 +29,32 @@ public class MercenaryRecruitmentController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<RecruitmentResponse>> getAllPages(
+    public ResponseEntity<Page<RecruitmentResponse>> findAll(
         @PageableDefault(
             page = 0,size = 10,
             sort = {"matchDate", "matchTime"},
             direction = Sort.Direction.ASC
         ) Pageable pageable
     ) {
-        Page<RecruitmentResponse> recruitments = recruitmentService.findAllPages(pageable);
+        Page<RecruitmentResponse> recruitments = recruitmentService.findAll(pageable);
+        return new ResponseEntity<>(recruitments, HttpStatus.OK);
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<Page<RecruitmentResponse>> findAllForCaptain(
+        @PageableDefault(
+            page = 0,size = 10,
+            sort = {"matchDate", "matchTime"},
+            direction = Sort.Direction.ASC
+        ) Pageable pageable,
+        @LoginUser Long loginUserId
+    ) {
+        Page<RecruitmentResponse> recruitments = recruitmentService.findAllForCaptain(pageable, loginUserId);
         return new ResponseEntity<>(recruitments, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<RecruitmentResponse> getById(@PathVariable Long id) {
+    public ResponseEntity<RecruitmentResponse> findById(@PathVariable Long id) {
         return new ResponseEntity<>(recruitmentService.findById(id), HttpStatus.OK);
     }
 

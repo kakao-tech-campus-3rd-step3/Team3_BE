@@ -3,6 +3,7 @@ package com.shootdoori.match.controller;
 import com.shootdoori.match.dto.*;
 import com.shootdoori.match.service.PasswordResetService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -24,20 +25,20 @@ public class PasswordResetController {
     @PostMapping("/send-code")
     public ResponseEntity<PasswordResetResponse> sendVerificationCode(@Valid @RequestBody SendCodeRequest request) {
         long exp = passwordResetService.sendVerificationCode(request.email());
-        return ResponseEntity.ok(new PasswordResetResponse(
-            "인증번호가 이메일로 발송되었습니다.", exp * SECONDS_PER_MINUTE));
+        return new ResponseEntity<>(new PasswordResetResponse("인증번호가 이메일로 발송되었습니다.", exp * SECONDS_PER_MINUTE),
+                HttpStatus.OK);
     }
 
     @PostMapping("/verify-code")
     public ResponseEntity<PasswordTokenResponse> verifyCode(@Valid @RequestBody VerifyCodeRequest request) {
         String token = passwordResetService.verifyCodeAndIssueToken(request.email(), request.code());
-        return ResponseEntity.ok(new PasswordTokenResponse(token));
+        return new ResponseEntity<>(new PasswordTokenResponse(token), HttpStatus.OK);
     }
 
     @PostMapping("/confirm")
     public ResponseEntity<PasswordResetResponse> confirmPasswordReset(@Valid @RequestBody ResetPasswordRequest request) {
         long exp = passwordResetService.resetPasswordWithToken(request.token(), request.password());
-        return ResponseEntity.ok(new PasswordResetResponse(
-            "비밀번호가 성공적으로 변경되었습니다.", exp * SECONDS_PER_MINUTE));
+        return new ResponseEntity<>(new PasswordResetResponse("비밀번호가 성공적으로 변경되었습니다.", exp * SECONDS_PER_MINUTE),
+                HttpStatus.OK);
     }
 }

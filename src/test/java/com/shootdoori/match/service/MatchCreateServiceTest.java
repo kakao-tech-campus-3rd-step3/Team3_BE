@@ -57,6 +57,7 @@ class MatchCreateServiceTest {
     private User savedMember;
     private Team savedTeam;
     private Venue savedVenue;
+    private static final Long LINEUP_ID = 100L;
 
     private final Long NON_EXIST_VENUE_ID = 1000000007L;
     private final Long NON_EXIST_USER_ID = 1000000007L;
@@ -136,7 +137,8 @@ class MatchCreateServiceTest {
             SkillLevel.AMATEUR,
             SkillLevel.PRO,
             false,
-            MESSAGE
+            MESSAGE,
+            LINEUP_ID
         );
 
         // when
@@ -160,7 +162,8 @@ class MatchCreateServiceTest {
             SkillLevel.AMATEUR,
             SkillLevel.PRO,
             false,
-            MESSAGE
+            MESSAGE,
+            LINEUP_ID
         );
 
         // when
@@ -185,7 +188,8 @@ class MatchCreateServiceTest {
             SkillLevel.AMATEUR,
             SkillLevel.PRO,
             false,
-            MESSAGE
+            MESSAGE,
+            LINEUP_ID
         );
 
         // when
@@ -206,6 +210,7 @@ class MatchCreateServiceTest {
         assertThat(match.getUniversityOnly()).isFalse();
         assertThat(match.getMessage()).isEqualTo(MESSAGE);
         assertThat(match.getMatchWaitingStatus()).isEqualTo(MatchWaitingStatus.WAITING);
+        assertThat(match.getCreateTeamLineupId()).isEqualTo(LINEUP_ID);
     }
 
     @Test
@@ -220,7 +225,8 @@ class MatchCreateServiceTest {
             SkillLevel.AMATEUR,
             SkillLevel.PRO,
             false,
-            MESSAGE
+            MESSAGE,
+            LINEUP_ID
         );
         MatchCreateResponseDto created = matchCreateService.createMatch(savedCaptain.getId(), dto);
 
@@ -250,7 +256,8 @@ class MatchCreateServiceTest {
             SkillLevel.AMATEUR,
             SkillLevel.PRO,
             false,
-            MESSAGE
+            MESSAGE,
+            LINEUP_ID
         );
         MatchCreateResponseDto created = matchCreateService.createMatch(savedCaptain.getId(), dto);
 
@@ -276,7 +283,8 @@ class MatchCreateServiceTest {
             SkillLevel.AMATEUR,
             SkillLevel.PRO,
             false,
-            "먼저 생성된 매치"
+            "먼저 생성된 매치",
+            LINEUP_ID
         );
         MatchCreateResponseDto match1 = matchCreateService.createMatch(savedCaptain.getId(), dto1);
 
@@ -292,7 +300,8 @@ class MatchCreateServiceTest {
             SkillLevel.AMATEUR,
             SkillLevel.PRO,
             false,
-            "나중에 생성된 매치"
+            "나중에 생성된 매치",
+            LINEUP_ID
         );
         MatchCreateResponseDto match2 = matchCreateService.createMatch(savedCaptain.getId(), dto2);
 

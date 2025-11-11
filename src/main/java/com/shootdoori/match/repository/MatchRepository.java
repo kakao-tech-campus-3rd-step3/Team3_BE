@@ -21,6 +21,8 @@ public interface MatchRepository extends JpaRepository<Match, Long> {
     @Query("""
         SELECT new com.shootdoori.match.dto.MatchSummaryProjection(
             m.matchId, m.matchDate, m.matchTime, m.status,
+            createTeam.teamId, requestTeam.teamId,
+            m.createTeamLineupId, m.requestTeamLineupId,
             createTeam.teamName.name, requestTeam.teamName.name,
             v.venueName, m.audit.createdAt, m.audit.updatedAt
         )

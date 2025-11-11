@@ -5,7 +5,10 @@ import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 public interface TeamMemberRepository extends JpaRepository<TeamMember, Long> {
 
@@ -20,4 +23,14 @@ public interface TeamMemberRepository extends JpaRepository<TeamMember, Long> {
     boolean existsByUser_Id(Long userId);
 
     List<TeamMember> findAllByUserId(Long userId);
+
+    @Query("SELECT tm FROM TeamMember tm " +
+        "WHERE tm.team.teamId = :teamId " +
+        "AND (:cursorId IS NULL OR tm.id > :cursorId) " +
+        "ORDER BY tm.id ASC")
+    Slice<TeamMember> findSliceByTeam_TeamId(
+        @Param("teamId") Long teamId,
+        @Param("cursorId") Long cursorId,
+        Pageable pageable
+    );
 }

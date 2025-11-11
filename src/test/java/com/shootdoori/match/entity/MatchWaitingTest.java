@@ -65,7 +65,8 @@ class MatchWaitingTest {
             UNIVERSITY_ONLY,
             WAITING_MESSAGE,
             WAITING_STATUS,
-            LocalDateTime.now().plusDays(1)
+            LocalDateTime.now().plusDays(1),
+            100L
         );
 
         matchWaiting.updateWaitingStatus(MatchWaitingStatus.MATCHED);

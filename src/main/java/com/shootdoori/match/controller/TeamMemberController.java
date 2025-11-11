@@ -6,6 +6,7 @@ import com.shootdoori.match.dto.UpdateTeamMemberRequestDto;
 import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.TeamMemberService;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Slice;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -49,6 +50,14 @@ public class TeamMemberController {
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int size) {
         return new ResponseEntity<>(teamMemberService.findAllByTeamId(teamId, page, size),
+            HttpStatus.OK);
+    }
+
+    @GetMapping("/users/slice")
+    public ResponseEntity<Slice<TeamMemberResponseDto>> findSliceByTeamId(@PathVariable Long teamId,
+    @RequestParam(required = false) Long cursorId,
+    @RequestParam(defaultValue = "10") int size) {
+        return new ResponseEntity<>(teamMemberService.findSliceByTeamId(teamId, cursorId, size),
             HttpStatus.OK);
     }
 

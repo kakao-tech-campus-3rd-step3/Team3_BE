@@ -15,10 +15,10 @@ import com.shootdoori.match.exception.common.NotFoundException;
 import com.shootdoori.match.repository.ProfileRepository;
 import com.shootdoori.match.repository.TeamMemberRepository;
 import com.shootdoori.match.repository.TeamRepository;
-import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Slice;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -96,6 +96,15 @@ public class TeamMemberService {
             pageable);
 
         return teamMemberPage.map(teamMemberMapper::toTeamMemberResponseDto);
+    }
+
+    @Transactional(readOnly = true)
+    public Slice<TeamMemberResponseDto> findSliceByTeamId(Long teamId, Long cursorId, int size) {
+        Pageable pageable = PageRequest.of(0, size, Sort.by("id").ascending());
+
+        Slice<TeamMember> teammemberSlice = teamMemberRepository.findSliceByTeam_TeamId(teamId, cursorId, pageable);
+
+        return teammemberSlice.map(teamMemberMapper::toTeamMemberResponseDto);
     }
 
     @Transactional(readOnly = true)

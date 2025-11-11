@@ -11,7 +11,8 @@ public record MatchRequestResponseDto(
     Long targetTeamId,
     TeamName targetTeamName,
     String requestMessage,
-    MatchRequestStatus status
+    MatchRequestStatus status,
+    Long requestTeamLineupId
 ) {
     public static MatchRequestResponseDto from(MatchRequest matchRequest) {
         return new MatchRequestResponseDto(
@@ -21,7 +22,8 @@ public record MatchRequestResponseDto(
             matchRequest.getTargetTeamId(),
             matchRequest.getTargetTeamName(),
             matchRequest.getRequestMessage(),
-            matchRequest.getStatus()
+            matchRequest.getStatus(),
+            matchRequest.getRequestTeamLineupId()
         );
     }
 }

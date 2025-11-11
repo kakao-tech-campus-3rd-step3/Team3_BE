@@ -1,7 +1,7 @@
 package com.shootdoori.match.controller;
 
-import com.shootdoori.match.dto.LineupRequestDto;
-import com.shootdoori.match.dto.LineupResponseDto;
+import com.shootdoori.match.dto.LineupMemberRequestDto;
+import com.shootdoori.match.dto.LineupMemberResponseDto;
 import com.shootdoori.match.resolver.LoginUser;
 import com.shootdoori.match.service.LineupService;
 import org.springframework.http.HttpStatus;
@@ -22,30 +22,25 @@ public class LineupController {
     }
 
     @PostMapping()
-    public ResponseEntity<List<LineupResponseDto>> createLineup(@RequestBody List<LineupRequestDto> requestDtos,
-                                                                @LoginUser Long userId) {
+    public ResponseEntity<List<LineupMemberResponseDto>> create(@RequestBody List<LineupMemberRequestDto> requestDtos,
+                                                                      @LoginUser Long userId) {
         return new ResponseEntity<>(lineupService.createLineup(requestDtos, userId), HttpStatus.CREATED);
     }
 
-    @GetMapping
-    public ResponseEntity<List<LineupResponseDto>> getLineupsByTeamId(@RequestParam(required = true) Long teamId) {
-        return new ResponseEntity<>(lineupService.getAllLineupsByTeamId(teamId), HttpStatus.OK);
-    }
-
     @GetMapping("/{id}")
-    public ResponseEntity<LineupResponseDto> getLineupById(@PathVariable Long id) {
+    public ResponseEntity<List<LineupMemberResponseDto>> getById(@PathVariable Long id) {
         return new ResponseEntity<>(lineupService.getLineupById(id), HttpStatus.OK);
     }
 
-    @PatchMapping("/{id}")
-    public ResponseEntity<LineupResponseDto> updateLineup(@PathVariable Long id,
-                                                          @RequestBody LineupRequestDto requestDto,
-                                                          @LoginUser Long userId) {
-        return new ResponseEntity<>(lineupService.updateLineup(id, requestDto, userId), HttpStatus.OK);
+    @PutMapping("/{id}")
+    public ResponseEntity<List<LineupMemberResponseDto>> update(@PathVariable Long id,
+                                                                @RequestBody List<LineupMemberRequestDto> requestDtos,
+                                                                @LoginUser Long userId) {
+        return new ResponseEntity<>(lineupService.updateLineup(id, requestDtos, userId), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteLineup(@PathVariable Long id,
+    public ResponseEntity<Void> delete(@PathVariable Long id,
                                              @LoginUser Long userId) {
         lineupService.deleteLineup(id, userId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);

@@ -8,8 +8,12 @@ import java.time.LocalTime;
 
 public record RecentMatchesResponseDto(
     Long matchId,
-    String team1Name,
-    String team2Name,
+    Long createTeamId,
+    Long requestTeamId,
+    Long lineup1Id,
+    Long lineup2Id,
+    String createTeamName,
+    String requestTeamName,
     LocalDate matchDate,
     LocalTime matchTime,
     String venueName,
@@ -20,8 +24,12 @@ public record RecentMatchesResponseDto(
     public static RecentMatchesResponseDto from(MatchSummaryProjection matchSummaryProjection) {
         return new RecentMatchesResponseDto(
             matchSummaryProjection.matchId(),
-            matchSummaryProjection.team1Name(),
-            matchSummaryProjection.team2Name(),
+            matchSummaryProjection.createTeamId(),
+            matchSummaryProjection.requestTeamId(),
+            matchSummaryProjection.createTeamLineupId(),
+            matchSummaryProjection.requestTeamLineupId(),
+            matchSummaryProjection.createTeamName(),
+            matchSummaryProjection.requestTeamName(),
             matchSummaryProjection.matchDate(),
             matchSummaryProjection.matchTime(),
             matchSummaryProjection.venueName(),

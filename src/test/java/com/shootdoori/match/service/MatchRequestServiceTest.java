@@ -94,6 +94,7 @@ class MatchRequestServiceTest {
     private Team targetTeam;
     private Venue savedVenue;
     private MatchWaiting savedWaiting;
+    private static final Long LINEUP_ID = 100L;
 
     private final Long NON_EXIST_WAITING_ID = 1000000007L;
     private final Long NON_EXIST_REQUEST_ID = 1000000007L;
@@ -205,7 +206,8 @@ class MatchRequestServiceTest {
             SkillLevel.AMATEUR, SkillLevel.PRO,
             false, "연습 경기",
             MatchWaitingStatus.WAITING,
-            LocalDateTime.now().plusDays(1)
+            LocalDateTime.now().plusDays(1),
+            LINEUP_ID
         ));
     }
 
@@ -256,7 +258,8 @@ class MatchRequestServiceTest {
     void requestToMatch_success() {
 
         MatchRequestRequestDto dto = new MatchRequestRequestDto(
-            REQUEST_MESSAGE
+            REQUEST_MESSAGE,
+            LINEUP_ID
         );
 
         MatchRequestResponseDto response = matchRequestService.requestToMatch(requestTeamCaptain1.getId(), savedWaiting.getWaitingId(), dto);
@@ -281,7 +284,7 @@ class MatchRequestServiceTest {
     @Test
     @DisplayName("존재하지 않는 MatchWaiting으로 요청 시 NotFoundException")
     void requestToMatch_waitingNotFound() {
-        MatchRequestRequestDto dto = new MatchRequestRequestDto(REQUEST_MESSAGE);
+        MatchRequestRequestDto dto = new MatchRequestRequestDto(REQUEST_MESSAGE, LINEUP_ID);
         Throwable thrown = catchThrowable(() ->
             matchRequestService.requestToMatch(targetTeamCaptain.getId(), NON_EXIST_WAITING_ID, dto)
         );
@@ -293,10 +296,10 @@ class MatchRequestServiceTest {
     @Test
     @DisplayName("이미 신청한 매치에 다시 요청 시 DuplicatedException 발생")
     void requestToMatch_duplicateRequest() {
-        MatchRequestRequestDto firstRequest = new MatchRequestRequestDto(REQUEST_MESSAGE);
+        MatchRequestRequestDto firstRequest = new MatchRequestRequestDto(REQUEST_MESSAGE, LINEUP_ID);
         matchRequestService.requestToMatch(requestTeamCaptain1.getId(), savedWaiting.getWaitingId(), firstRequest);
 
-        MatchRequestRequestDto againRequest = new MatchRequestRequestDto(REQUEST_MESSAGE);
+        MatchRequestRequestDto againRequest = new MatchRequestRequestDto(REQUEST_MESSAGE, LINEUP_ID);
         Throwable thrown = catchThrowable(() ->
             matchRequestService.requestToMatch(requestTeamCaptain1.getId(), savedWaiting.getWaitingId(), againRequest)
         );
@@ -308,7 +311,7 @@ class MatchRequestServiceTest {
     @Test
     @DisplayName("이미 신청한 매치에 취소 후 다시 요청 시 문제 발생하지 않음")
     void requestToMatch_cancel_and_re_request_ok() {
-        MatchRequestRequestDto firstRequest = new MatchRequestRequestDto(REQUEST_MESSAGE);
+        MatchRequestRequestDto firstRequest = new MatchRequestRequestDto(REQUEST_MESSAGE, LINEUP_ID);
         MatchRequestResponseDto savedFirstRequest = matchRequestService.requestToMatch(
             requestTeamCaptain1.getId(),
             savedWaiting.getWaitingId(),
@@ -321,7 +324,7 @@ class MatchRequestServiceTest {
         );
         assertThat(canceled.status()).isEqualTo(MatchRequestStatus.CANCELED);
 
-        MatchRequestRequestDto againRequest = new MatchRequestRequestDto(REQUEST_MESSAGE);
+        MatchRequestRequestDto againRequest = new MatchRequestRequestDto(REQUEST_MESSAGE, LINEUP_ID);
         MatchRequestResponseDto savedAgainRequest = matchRequestService.requestToMatch(
             requestTeamCaptain1.getId(),
             savedWaiting.getWaitingId(),
@@ -357,7 +360,7 @@ class MatchRequestServiceTest {
     @DisplayName("정상적으로 MatchRequest 취소 시 상태가 CANCELED로 변경")
     void cancelMatchRequest_success() {
         // given
-        MatchRequestRequestDto dto = new MatchRequestRequestDto(REQUEST_MESSAGE);
+        MatchRequestRequestDto dto = new MatchRequestRequestDto(REQUEST_MESSAGE, LINEUP_ID);
         MatchRequestResponseDto savedRequest = matchRequestService.requestToMatch(requestTeamCaptain1.getId(), savedWaiting.getWaitingId(), dto);
 
         // when
@@ -391,8 +394,8 @@ class MatchRequestServiceTest {
     @DisplayName("정상적으로 받은 요청 조회")
     void getReceivedPendingRequests_success() {
         // given: 매치 요청 생성
-        MatchRequestRequestDto dto1 = new MatchRequestRequestDto(REQUEST_MESSAGE_1);
-        MatchRequestRequestDto dto2 = new MatchRequestRequestDto(REQUEST_MESSAGE_2);
+        MatchRequestRequestDto dto1 = new MatchRequestRequestDto(REQUEST_MESSAGE_1, LINEUP_ID);
+        MatchRequestRequestDto dto2 = new MatchRequestRequestDto(REQUEST_MESSAGE_2, LINEUP_ID);
 
         matchRequestService.requestToMatch(requestTeamCaptain1.getId(), savedWaiting.getWaitingId(), dto1);
         try {
@@ -424,10 +427,10 @@ class MatchRequestServiceTest {
     void acceptRequest_success() {
         // given: 두 팀이 waiting에 요청
         MatchRequestResponseDto savedRequest1 = matchRequestService.requestToMatch(requestTeamCaptain1.getId(), savedWaiting.getWaitingId(),
-            new MatchRequestRequestDto(REQUEST_MESSAGE_1));
+            new MatchRequestRequestDto(REQUEST_MESSAGE_1, LINEUP_ID));
 
         MatchRequestResponseDto savedRequest2 = matchRequestService.requestToMatch(requestTeamCaptain2.getId(), savedWaiting.getWaitingId(),
-            new MatchRequestRequestDto(REQUEST_MESSAGE_2));
+            new MatchRequestRequestDto(REQUEST_MESSAGE_2, LINEUP_ID));
 
         // when: team1 요청 수락
         MatchConfirmedResponseDto confirmed = matchRequestService.acceptRequest(targetTeamCaptain.getId(), savedRequest1.requestId());
@@ -470,7 +473,7 @@ class MatchRequestServiceTest {
     @Test
     @DisplayName("MatchRequest 거절 시 상태가 REJECTED로 변경 및 메일 발송")
     void rejectRequest_success() {
-        MatchRequestRequestDto dto = new MatchRequestRequestDto(REQUEST_MESSAGE);
+        MatchRequestRequestDto dto = new MatchRequestRequestDto(REQUEST_MESSAGE, LINEUP_ID);
         MatchRequestResponseDto savedRequest = matchRequestService.requestToMatch(requestTeamCaptain1.getId(), savedWaiting.getWaitingId(), dto);
 
         MatchRequestResponseDto rejected = matchRequestService.rejectRequest(targetTeamCaptain.getId(), savedRequest.requestId());
@@ -495,7 +498,7 @@ class MatchRequestServiceTest {
     @Test
     @DisplayName("내가 속한 팀이 보낸 매치 요청이 있으면 정상 조회")
     void getSentRequestsByMyTeam_hasRequests() {
-        matchRequestService.requestToMatch(requestTeamCaptain1.getId(), savedWaiting.getWaitingId(), new MatchRequestRequestDto(REQUEST_MESSAGE_1));
+        matchRequestService.requestToMatch(requestTeamCaptain1.getId(), savedWaiting.getWaitingId(), new MatchRequestRequestDto(REQUEST_MESSAGE_1, LINEUP_ID));
 
         // when
         Slice<MatchRequestHistoryResponseDto> result =

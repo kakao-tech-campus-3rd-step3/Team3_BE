@@ -88,7 +88,8 @@ public class MatchRequestService {
             targetWaiting,
             requestTeam,
             targetWaiting.getTeam(),
-            requestDto.requestMessage()
+            requestDto.requestMessage(),
+            requestDto.lineupId()
         );
 
         MatchRequest saved = matchRequestRepository.save(matchRequest);
@@ -154,8 +155,11 @@ public class MatchRequestService {
             matchWaiting.getPreferredDate(),
             matchWaiting.getPreferredTimeStart(),
             matchWaiting.getPreferredVenue(),
-            MatchStatus.MATCHED
+            MatchStatus.MATCHED,
+            matchWaiting.getCreateTeamLineupId(),
+            matchRequest.getRequestTeamLineupId()
         );
+
         matchRepository.save(match);
 
         matchEmailService.sendMatchAcceptEmail(match);

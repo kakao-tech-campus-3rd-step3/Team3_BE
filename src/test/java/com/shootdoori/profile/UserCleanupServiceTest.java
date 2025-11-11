@@ -212,7 +212,6 @@ class UserCleanupServiceTest {
             verify(passwordResetTokenRepository).deleteAllByUserId(userId);
             verify(refreshTokenRepository).deleteAllByUserId(userId);
 
-            // 삭제 후 count 검증
             assertThat(passwordOtpTokenRepository.countByUserId(userId)).isEqualTo(0L);
             assertThat(passwordResetTokenRepository.countByUserId(userId)).isEqualTo(0L);
             assertThat(refreshTokenRepository.countByUserId(userId)).isEqualTo(0L);
